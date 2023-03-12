@@ -97,7 +97,7 @@ void UIText::SetText(ColoredText NewText)
 
 size_t UIText::GetNearestLetterAtLocation(Vector2f Location, Vector2f& LetterOutLocation)
 {
-	size_t Depth = Renderer->GetCharacterIndexADistance(RenderedText, Location.X - OffsetPosition.X, TextSize * 2, LetterOutLocation);
+	size_t Depth = Renderer->GetCharacterIndexADistance(RenderedText, Location.X - OffsetPosition.X, TextSize * 4, LetterOutLocation);
 	LetterOutLocation = LetterOutLocation + OffsetPosition;
 	return Depth;
 }
@@ -131,7 +131,7 @@ UIText::~UIText()
 Vector2f UIText::GetLetterLocation(size_t Index)
 {
 	std::string Text = TextSegment::CombineToString(RenderedText);
-	return Vector2f(Renderer->GetTextSize({ TextSegment(Text.substr(0, Index), 1) }, TextSize * 2, false, 999999).X, 0) + OffsetPosition;
+	return Vector2f(Renderer->GetTextSize({ TextSegment(Text.substr(0, Index), 1) }, TextSize * 4, false, 999999).X, 0) + OffsetPosition;
 }
 
 void UIText::Draw()

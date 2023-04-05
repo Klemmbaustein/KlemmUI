@@ -97,6 +97,8 @@ protected:
 	ScrollObject* CurrentScrollObject = nullptr;
 	void UpdateSelfAndChildren();
 private:
+	void UpdateScale();
+	void UpdatePosition();
 	bool ChildrenHorizontal;
 };
 

@@ -60,6 +60,14 @@ Vector2<T> Vector2<T>::Normalize()
 	return Vector2<T>();
 }
 
+template<typename T>
+Vector2<T> Vector2<T>::Clamp(Vector2<T> Min, Vector2<T> Max)
+{
+	T NewX = std::min(Max.X, std::max(Min.X, X));
+	T NewY = std::min(Max.Y, std::max(Min.Y, Y));
+	return Vector2<T>(NewX, NewY);
+}
+
 template class Vector2<uint64_t>;
 template class Vector2<int64_t>;
 template class Vector2<int32_t>;

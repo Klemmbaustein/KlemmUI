@@ -114,12 +114,11 @@ std::string OS::ShowOpenFileDialog()
 #if _WIN64
 std::string OS::GetOSString()
 {
-	int osver = 0.0;
+	int osver = 0;
 
 	NTSTATUS(WINAPI * RtlGetVersion)(LPOSVERSIONINFOEXW);
 
 	OSVERSIONINFOEXW osInfo;
-
 	*(FARPROC*)&RtlGetVersion = GetProcAddress(GetModuleHandleA("ntdll"), "RtlGetVersion");
 
 	if (NULL != RtlGetVersion)

@@ -56,6 +56,8 @@ public:
 		Y += a.Y;
 		return *this;
 	}
+
+	Vector2<T> Clamp(Vector2<T> Min, Vector2<T> Max);
 };
 
 typedef Vector2<uint64_t> Vector2ui;

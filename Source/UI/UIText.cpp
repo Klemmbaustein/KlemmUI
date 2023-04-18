@@ -1,6 +1,17 @@
 #include <UI/UIText.h>
 #include <Rendering/Text/TextRenderer.h>
 
+
+void UIText::Tick()
+{
+	Vector2 NewMin = Renderer->GetTextSize(RenderedText, TextSize * 2, Wrap, WrapDistance);
+	if (TextWidthOverride > 0)
+	{
+		NewMin.X = std::max(MinSize.X, TextWidthOverride);
+	}
+	SetMinSize(NewMin);
+}
+
 Vector3f32 UIText::GetColor()
 {
 	return Color;
@@ -11,7 +22,11 @@ UIText* UIText::SetColor(Vector3f32 NewColor)
 	if (Color != NewColor)
 	{
 		Color = NewColor;
-		GetAbsoluteParent()->InvalidateLayout();
+		for (auto& i : RenderedText)
+		{
+			i.Color = Color;
+		}
+		InvalidateLayout();
 	}
 	return this;
 }
@@ -28,17 +43,17 @@ UIText* UIText::SetOpacity(float NewOpacity)
 
 UIText* UIText::SetTextSize(float Size)
 {
-	if (Size != TextSize)
+	if (Size * 2 != TextSize)
 	{
-		TextSize = Size;
-		GetAbsoluteParent()->InvalidateLayout();
+		TextSize = Size * 2;
+		InvalidateLayout();
 	}
 	return this;
 }
 
 float UIText::GetTextSize()
 {
-	return TextSize;
+	return TextSize / 2;
 }
 
 UIText* UIText::SetTextWidthOverride(float NewTextWidthOverride)
@@ -46,7 +61,7 @@ UIText* UIText::SetTextWidthOverride(float NewTextWidthOverride)
 	if (TextWidthOverride != NewTextWidthOverride)
 	{
 		TextWidthOverride = NewTextWidthOverride;
-		GetAbsoluteParent()->InvalidateLayout();
+		InvalidateLayout();
 	}
 	return this;
 }
@@ -58,7 +73,7 @@ void UIText::SetText(std::string NewText)
 		RenderedText = { TextSegment(NewText, Color) };
 		if (Wrap)
 		{
-			Vector2 s = Renderer->GetTextSize(RenderedText, TextSize * 4, Wrap, WrapDistance)
+			Vector2 s = Renderer->GetTextSize(RenderedText, TextSize * 2, Wrap, WrapDistance)
 				/ ((30 + Renderer->CharacterSizeInPixels / 2) * 60.f);
 			if (s.X < WrapDistance)
 			{
@@ -67,9 +82,7 @@ void UIText::SetText(std::string NewText)
 				return;
 			}
 		}
-		RedrawUI();
-		Update();
-		//GetAbsoluteParent()->InvalidateLayout();
+		InvalidateLayout();
 	}
 }
 
@@ -80,7 +93,7 @@ void UIText::SetText(ColoredText NewText)
 		RenderedText = NewText;
 		if (Wrap)
 		{
-			Vector2 s = Renderer->GetTextSize(RenderedText, TextSize * 4, Wrap, WrapDistance)
+			Vector2 s = Renderer->GetTextSize(RenderedText, TextSize * 2, Wrap, WrapDistance)
 				/ ((30 + Renderer->CharacterSizeInPixels / 2) * 60.f);
 			if (s.X < WrapDistance)
 			{
@@ -89,15 +102,13 @@ void UIText::SetText(ColoredText NewText)
 				return;
 			}
 		}
-		RedrawUI();
-		Update();
-		//GetAbsoluteParent()->InvalidateLayout();
+		InvalidateLayout();
 	}
 }
 
 size_t UIText::GetNearestLetterAtLocation(Vector2f Location, Vector2f& LetterOutLocation)
 {
-	size_t Depth = Renderer->GetCharacterIndexADistance(RenderedText, Location.X - OffsetPosition.X, TextSize * 4, LetterOutLocation);
+	size_t Depth = Renderer->GetCharacterIndexADistance(RenderedText, Location.X - OffsetPosition.X, TextSize * 2, LetterOutLocation);
 	LetterOutLocation = LetterOutLocation + OffsetPosition;
 	return Depth;
 }
@@ -109,7 +120,7 @@ std::string UIText::GetText()
 
 UIText::UIText(float Scale, Vector3f32 Color, std::string Text, TextRenderer* Renderer) : UIBox(true, Position)
 {
-	this->TextSize = Scale;
+	this->TextSize = Scale * 2;
 	this->Color = Color;
 	this->Renderer = Renderer;
 	RenderedText = { TextSegment(Text, Color) };
@@ -117,7 +128,7 @@ UIText::UIText(float Scale, Vector3f32 Color, std::string Text, TextRenderer* Re
 
 UIText::UIText(float Scale, ColoredText Text, TextRenderer* Renderer) : UIBox(true, Position)
 {
-	this->TextSize = Scale;
+	this->TextSize = Scale * 2;
 	this->Color = Color;
 	this->Renderer = Renderer;
 	RenderedText = Text;
@@ -131,14 +142,15 @@ UIText::~UIText()
 Vector2f UIText::GetLetterLocation(size_t Index)
 {
 	std::string Text = TextSegment::CombineToString(RenderedText);
-	return Vector2f(Renderer->GetTextSize({ TextSegment(Text.substr(0, Index), 1) }, TextSize * 4, false, 999999).X, 0) + OffsetPosition;
+	return Vector2f(Renderer->GetTextSize({ TextSegment(Text.substr(0, Index), 1) }, TextSize * 2, false, 999999).X, 0) + OffsetPosition;
 }
 
 void UIText::Draw()
 {
 	if (IsDynamic)
 	{
-		Renderer->RenderText(RenderedText, OffsetPosition, TextSize * 2, Color, Opacity, 999, CurrentScrollObject);
+		Renderer->RenderText(RenderedText, OffsetPosition + Vector2f(0, Size.Y - TextSize / 20),
+			TextSize * 2, Color, Opacity, 999, CurrentScrollObject);
 	}
 	else if (Text)
 	{
@@ -154,16 +166,15 @@ void UIText::Update()
 		if (Text) delete Text;
 		if (Wrap)
 		{
-			Text = Renderer->MakeText(RenderedText, OffsetPosition + Vector2f(0, Size.Y - 0.025f), TextSize * 2, Color, Opacity, WrapDistance);
+			Text = Renderer->MakeText(RenderedText, OffsetPosition + Vector2f(0, Size.Y - TextSize / 20),
+				TextSize * 2, Color, Opacity, WrapDistance);
 		}
 		else
 		{
-			Text = Renderer->MakeText(RenderedText, OffsetPosition + Vector2f(0, Size.Y - 0.025f), TextSize * 2, Color, Opacity, 999);
+			Text = Renderer->MakeText(RenderedText, OffsetPosition + Vector2f(0, Size.Y - TextSize / 20),
+				TextSize * 2, Color, Opacity, 999);
 		}
 	}
-	MinSize = Vector2f((Renderer->GetTextSize(RenderedText, TextSize * 4, Wrap, WrapDistance)
-		/ ((30 + Renderer->CharacterSizeInPixels / 2) / 60.f)).X, Renderer->CharacterSizeInPixels / 900 * TextSize);
-	MinSize.X = std::max(MinSize.X, TextWidthOverride);
 }
 
 void UIText::OnAttached()

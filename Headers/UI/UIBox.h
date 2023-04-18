@@ -83,7 +83,7 @@ protected:
 	
 	Vector2f Position;
 	Vector2f OffsetPosition;
-	Vector2f MaxSize = Vector2(2, 2);
+	Vector2f MaxSize = Vector2(999, 999);
 	Vector2f MinSize = Vector2(0, 0);
 
 	double UpPadding = 0.01;

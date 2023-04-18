@@ -17,7 +17,7 @@ class UIText : public UIBox
 	double TextWidthOverride = 0;
 	float Opacity = 1.f;
 public:
-
+	void Tick() override;
 	bool IsDynamic = false;
 	bool Wrap = false;
 	float WrapDistance = 0.0f;

@@ -10,7 +10,7 @@ class UIButton : public UIBox
 {
 	float ButtonColorMultiplier = 1.f;
 	Vector2f Offset;
-	VertexBuffer* ButtonVertexBuffer;
+	VertexBuffer* ButtonVertexBuffer = nullptr;
 	bool IsHovered = false;
 	bool IsPressed = false;
 	Vector3f32 Color = Vector3(0.5);

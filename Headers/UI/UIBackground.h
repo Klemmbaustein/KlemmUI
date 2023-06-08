@@ -23,7 +23,7 @@ public:
 	void SetColor(Vector3f32 NewColor);
 	Vector3f32 GetColor();
 	void SetInvertTextureCoordinates(bool Invert);
-	void SetUseTexture(bool UseTexture, unsigned int TextureID = 0);
+	UIBackground* SetUseTexture(bool UseTexture, unsigned int TextureID = 0);
 	UIBackground(bool Horizontal, Vector2f Position, Vector3f32 Color, Vector2f MinScale = Vector2f(0));
 	virtual ~UIBackground();
 	void Draw() override;

@@ -72,7 +72,7 @@ void UIBackground::SetInvertTextureCoordinates(bool Invert)
 	MakeGLBuffers(Invert);
 }
 
-void UIBackground::SetUseTexture(bool UseTexture, unsigned int TextureID)
+UIBackground* UIBackground::SetUseTexture(bool UseTexture, unsigned int TextureID)
 {
 	if (this->UseTexture != UseTexture || TextureID != this->TextureID)
 	{
@@ -80,6 +80,7 @@ void UIBackground::SetUseTexture(bool UseTexture, unsigned int TextureID)
 		this->TextureID = TextureID;
 		RedrawUI();
 	}
+	return this;
 }
 
 UIBackground::UIBackground(bool Horizontal, Vector2f Position, Vector3f32 Color, Vector2f MinScale) : UIBox(Horizontal, Position)

@@ -22,5 +22,12 @@ unsigned int Texture::LoadTexture(std::string File)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, TextureWidth, TextureHeigth, 0, GL_RGBA, GL_UNSIGNED_BYTE, TextureBuffer);
 
+	stbi_image_free(TextureBuffer);
+
     return TextureID;
+}
+
+void Texture::UnloadTexture(unsigned int ID)
+{
+	glDeleteTextures(1, &ID);
 }

@@ -506,7 +506,12 @@ bool UIBox::IsVisibleInHierarchy()
 
 bool UIBox::IsBeingHovered()
 {
-	return (Math::IsPointIn2DBox(OffsetPosition, OffsetPosition + Size, Input::MouseLocation) // If the mouse is on top of the button
+	Vector2f MouseLocation = Input::MouseLocation;
+	if (CurrentScrollObject)
+	{
+		MouseLocation = MouseLocation - Vector2f(0, CurrentScrollObject->Percentage);
+	}
+	return (Math::IsPointIn2DBox(OffsetPosition, OffsetPosition + Size, MouseLocation) // If the mouse is on top of the button
 		&& (!CurrentScrollObject || // Check if we have a scroll object
 			Math::IsPointIn2DBox(CurrentScrollObject->Position - CurrentScrollObject->Scale, CurrentScrollObject->Position, Input::MouseLocation))); // do some very questionable math to check if the mouse is inside the scroll area;
 }

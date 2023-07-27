@@ -1,4 +1,5 @@
 #include <UI/UIScrollBox.h>
+#include <iostream>
 
 void UIScrollBox::UpdateScrollObjectOfObject(UIBox* o)
 {
@@ -31,6 +32,12 @@ void UIScrollBox::Update()
 	ScrollClass = ScrollObject(OffsetPosition, Size, MaxScroll);
 	ScrollClass.Percentage = Progress;
 	UpdateScrollObjectOfObject(this);
+	ScrollClass.IsActive = IsVisibleInHierarchy();
+}
+
+void UIScrollBox::Tick()
+{
+	ScrollClass.IsActive = IsVisibleInHierarchy();
 }
 
 

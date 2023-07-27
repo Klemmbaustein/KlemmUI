@@ -2,6 +2,7 @@
 #include <Math/MathHelpers.h>
 #include <Input.h>
 #include <UI/UIBox.h>
+#include <iostream>
 
 namespace _ScrollObject
 {
@@ -28,6 +29,10 @@ ScrollObject::~ScrollObject()
 
 void ScrollObject::ScrollUp()
 {
+	if (!IsActive)
+	{
+		return;
+	}
 	if (Math::IsPointIn2DBox(Position - Scale, Position, Input::MouseLocation))
 	{
 		Percentage += Speed / 100.f;
@@ -41,6 +46,10 @@ void ScrollObject::ScrollUp()
 
 void ScrollObject::ScrollDown()
 {
+	if (!IsActive)
+	{
+		return;
+	}
 	if (Math::IsPointIn2DBox(Position - Scale, Position, Input::MouseLocation))
 	{
 		Percentage -= Speed / 100.f;

@@ -13,5 +13,6 @@ public:
 	void SetMaxScroll(float NewMaxScroll);
 	float GetMaxScroll();
 	void Update() override;
+	void Tick() override;
 	UIScrollBox(bool Horizontal, Vector2f Position, float MaxScroll);
 };

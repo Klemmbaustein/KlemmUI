@@ -2,7 +2,7 @@
 #include <regex>
 #include <UI/UIBackground.h>
 
-void Markdown::RenderMarkdown(std::string Markdown, float Width, UIBox* TargetParent, Vector3f32 Color, TextRenderer* Font)
+void Markdown::RenderMarkdown(std::string Markdown, UIBox* TargetParent, MarkdownStyling Style)
 {
 	// Backslash.
 	Markdown = std::regex_replace(Markdown, std::regex("<br>"), "\n");
@@ -41,7 +41,7 @@ void Markdown::RenderMarkdown(std::string Markdown, float Width, UIBox* TargetPa
 		if (i.empty())
 			continue;
 
-		float size = 0.3f;
+		float size = Style.TextSize;
 		if (i.substr(0, 5) == "#####")
 		{
 			size = 0.4f;
@@ -70,16 +70,16 @@ void Markdown::RenderMarkdown(std::string Markdown, float Width, UIBox* TargetPa
 
 		std::string SeperatorRemovedString = std::regex_replace(i, std::regex("<hr>"), "");
 
-		auto DescriptionText = new UIText(size, 1, SeperatorRemovedString, Font);
+		auto DescriptionText = new UIText(size, 1, SeperatorRemovedString, Style.Text);
 		DescriptionText->Wrap = true;
-		DescriptionText->WrapDistance = Width * 0.818182 * (1 / size);
+		DescriptionText->WrapDistance = Style.Width * 0.818182 * (1 / size);
 		DescriptionText->SetPadding(size >= 0.4f ? 0.01 : 0, 0, size >= 0.4f ? 0 : 0.02, 0);
 		TargetParent->AddChild(DescriptionText);
 
 
 		if (size >= 0.6f || i != SeperatorRemovedString)
 		{
-			TargetParent->AddChild((new UIBackground(true, 0, 1, Vector2f(Width, 0.005)))
+			TargetParent->AddChild((new UIBackground(true, 0, 1, Vector2f(Style.Width, 0.005)))
 				->SetPadding(0.0, 0.02, 0, 0));
 		}
 	}

@@ -15,12 +15,14 @@ class UIButton : public UIBox
 	bool IsPressed = false;
 	Vector3f32 Color = Vector3(0.5);
 	void(*PressedFunc)();
+	void(*PressedFuncIndex)(int);
 	bool UseTexture = false;
 	unsigned int TextureID = 0;
 	bool IsSelected = false;
 	bool NeedsToBeSelected = false;
 	bool CanBeDragged = false;
 	float Opacity = 1;
+	int ButtonIndex = 0;
 
 	void ScrollTick(Shader* UsedShader);
 	void MakeGLBuffers();
@@ -38,6 +40,7 @@ public:
 	Vector3f32 GetColor();
 
 	UIButton(bool Horizontal, Vector2f Position, Vector3f32 Color, void(*PressedFunc)());
+	UIButton(bool Horizontal, Vector2f Position, Vector3f32 Color, void(*PressedFunc)(int), int ButtonIndex);
 	~UIButton();
 
 	void Update() override;

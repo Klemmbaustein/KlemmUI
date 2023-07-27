@@ -273,7 +273,10 @@ void Application::UpdateWindow()
 
 	for (auto& e : Application::ButtonEvents)
 	{
-		e.Function();
+		if (e.Function)
+			e.Function();
+		else if (e.FunctionIndex)
+			e.FunctionIndex(e.Index);
 	}
 	Application::ButtonEvents.clear();
 	

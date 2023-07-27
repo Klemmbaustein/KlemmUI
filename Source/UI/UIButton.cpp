@@ -98,7 +98,8 @@ void UIButton::Tick()
 		{
 			if (!NeedsToBeSelected || IsSelected)
 			{
-				if (PressedFunc) Application::ButtonEvents.push_back(Application::ButtonEvent(PressedFunc));
+				if (PressedFunc) Application::ButtonEvents.push_back(Application::ButtonEvent(PressedFunc, nullptr, 0));
+				if (PressedFuncIndex) Application::ButtonEvents.push_back(Application::ButtonEvent(nullptr, PressedFuncIndex, ButtonIndex));
 				//if (Parent || ParentOverride)
 				//{
 				//	Application::ButtonEvents.insert(ButtonEvent(ParentOverride ? ParentOverride : Parent, nullptr, ButtonIndex));
@@ -188,6 +189,15 @@ UIButton::UIButton(bool Horizontal, Vector2f Position, Vector3f32 Color, void(*P
 	if (UI::UIShader == nullptr) UI::UIShader = new Shader("Shaders/uishader.vert", "Shaders/uishader.frag");
 	this->PressedFunc = PressedFunc;
 	this->Color = Color;
+	MakeGLBuffers();
+}
+
+UIButton::UIButton(bool Horizontal, Vector2f Position, Vector3f32 Color, void(*PressedFunc)(int), int ButtonIndex) : UIBox(Horizontal, Position)
+{
+	if (UI::UIShader == nullptr) UI::UIShader = new Shader("Shaders/uishader.vert", "Shaders/uishader.frag");
+	this->PressedFuncIndex = PressedFunc;
+	this->Color = Color;
+	this->ButtonIndex = ButtonIndex;
 	MakeGLBuffers();
 }
 

@@ -29,6 +29,8 @@ namespace Application
 	struct ButtonEvent
 	{
 		void(*Function)();
+		void(*FunctionIndex)(int);
+		int Index = 0;
 	};
 	extern std::vector<ButtonEvent> ButtonEvents;
 

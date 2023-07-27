@@ -9,3 +9,4 @@ x64/
 lib/
 # Unrelated files
 TextEditor/
+/Release

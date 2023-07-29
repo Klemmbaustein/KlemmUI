@@ -16,9 +16,10 @@ class UIText : public UIBox
 	DrawableText* Text = nullptr;
 	double TextWidthOverride = 0;
 	float Opacity = 1.f;
+	E_SizeMode WrapSizeMode = E_SCREEN_RELATIVE;
 public:
+
 	void Tick() override;
-	bool IsDynamic = false;
 	bool Wrap = false;
 	float WrapDistance = 0.0f;
 	Vector3f32 GetColor();
@@ -30,6 +31,8 @@ public:
 
 	size_t GetNearestLetterAtLocation(Vector2f Location, Vector2f& LetterOutLocation);
 	Vector2f GetLetterLocation(size_t Index);
+
+	UIText* SetWrapEnabled(bool WrapEnabled, float WrapDistance, E_SizeMode WrapSizeMode);
 
 	void SetText(std::string NewText);
 	void SetText(ColoredText NewText);

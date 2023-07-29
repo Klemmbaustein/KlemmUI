@@ -47,7 +47,6 @@ public:
 	size_t GetCharacterIndexADistance(ColoredText Text, float Dist, float Scale, Vector2f& LetterOutLocation);
 	TextRenderer(std::string filename = "Fonts/Font.ttf", float CharacterSizeInPixels = 150);
 	Vector2f GetTextSize(ColoredText Text, float Scale, bool Wrapped, float LengthBeforeWrap);
-	Vector2f RenderText(ColoredText Text, Vector2f Pos, float Scale, Vector3f32 Color, float opacity, float LengthBeforeWrap, ScrollObject* CurrentScrollObject);
 	DrawableText* MakeText(ColoredText Text, Vector2f Pos, float Scale, Vector3f32 Color, float opacity, float LengthBeforeWrap);
 	void Reinit();
 	~TextRenderer();

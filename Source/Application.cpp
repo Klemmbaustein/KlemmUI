@@ -50,10 +50,8 @@ namespace Application
 
 	bool PreviousHasWindowFocus = false;
 	Vector3f32 BorderlessWindowOutlineColor = Vector3f32(0, 0.5, 1);
-	Vector2ui PreviousSize = 0;
-	Vector2ui PreviousPosition = 0;
-	bool IsWindowFullscreen = false;
 	constexpr int MOUSE_GRAB_PADDING = 8;
+	bool IsWindowFullscreen = false;
 
 	SDL_HitTestResult HitTestCallback(SDL_Window* Window, const SDL_Point* Area, void* Data)
 	{
@@ -63,11 +61,6 @@ namespace Application
 		int y;
 		SDL_GetMouseState(&x, &y);
 		Input::MouseLocation = Vector2(((float)Area->x / (float)Width - 0.5f) * 2.0f, 1.0f - ((float)Area->y / (float)Height * 2.0f));
-
-		if (IsWindowFullscreen)
-		{
-			return SDL_HITTEST_NORMAL;
-		}
 
 		if (Area->y < MOUSE_GRAB_PADDING)
 		{
@@ -388,26 +381,14 @@ void Application::Minimize()
 void Application::SetFullScreen(bool NewFullScreen)
 {
 	IsWindowFullscreen = NewFullScreen;
-	int w, h;
 	if (IsWindowFullscreen)
 	{
-		SDL_GetWindowPosition(Window, &w, &h);
-		PreviousSize = GetWindowResolution();
-		PreviousPosition = Vector2(w, h);
-		SDL_Rect r;
-		SDL_GetDisplayUsableBounds(SDL_GetWindowDisplayIndex(Window), &r);
-
-		SDL_SetWindowPosition(Window, r.x, r.y);
-		SDL_SetWindowSize(Window, r.w, r.h);
+		SDL_MaximizeWindow(Window);
 	}
 	else
 	{
-		SDL_SetWindowPosition(Window, PreviousPosition.X, PreviousPosition.Y);
-		SDL_SetWindowSize(Window, PreviousSize.X, PreviousSize.Y);
+		SDL_RestoreWindow(Window);
 	}
-	SDL_GetWindowSize(Window, &w, &h);
-	Application::SetWindowResolution(Vector2(w, h));
-	UIBox::RedrawUI();
 }
 
 void Application::SetMinWindowSize(Vector2ui NewSize)

@@ -382,6 +382,7 @@ void Application::SetBorderlessWindowOutlineColor(Vector3f32 NewColor)
 
 void Application::Minimize()
 {
+	SDL_MinimizeWindow(Window);
 }
 
 void Application::SetFullScreen(bool NewFullScreen)

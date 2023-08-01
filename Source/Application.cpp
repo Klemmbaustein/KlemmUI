@@ -423,6 +423,8 @@ void Application::SetClipboard(std::string NewClipboardText)
 void Application::Initialize(std::string WindowName, int Flags, Vector2ui DefaultResolution)
 {
 	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS);
+	SDL_SetHint("SDL_BORDERLESS_WINDOWED_STYLE", "1");
+	SDL_SetHint("SDL_BORDERLESS_RESIZABLE_STYLE", "1");
 
 	SDL_DisplayMode dm;
 	SDL_GetCurrentDisplayMode(0, &dm);
@@ -478,6 +480,7 @@ void Application::Initialize(std::string WindowName, int Flags, Vector2ui Defaul
 		std::cout << "INIT ERROR: GLEW init failed!";
 		return;
 	}
+
 	glEnable(GL_DEBUG_OUTPUT);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

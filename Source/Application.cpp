@@ -43,6 +43,78 @@ namespace Application
 	std::vector<ButtonEvent> ButtonEvents;
 	float DeltaTime = 0;
 	float Time = 0;
+
+	bool(*IsMovableCallback)() = nullptr;
+
+	bool IsBorderless = false;
+
+	bool PreviousHasWindowFocus = false;
+	Vector3f32 BorderlessWindowOutlineColor = Vector3f32(0, 0.5, 1);
+	Vector2ui PreviousSize = 0;
+	Vector2ui PreviousPosition = 0;
+	bool IsWindowFullscreen = false;
+	constexpr int MOUSE_GRAB_PADDING = 8;
+
+	SDL_HitTestResult HitTestCallback(SDL_Window* Window, const SDL_Point* Area, void* Data)
+	{
+		int Width, Height;
+		SDL_GetWindowSize(Window, &Width, &Height);
+		int x;
+		int y;
+		SDL_GetMouseState(&x, &y);
+		Input::MouseLocation = Vector2(((float)Area->x / (float)Width - 0.5f) * 2.0f, 1.0f - ((float)Area->y / (float)Height * 2.0f));
+
+		if (IsWindowFullscreen)
+		{
+			return SDL_HITTEST_NORMAL;
+		}
+
+		if (Area->y < MOUSE_GRAB_PADDING)
+		{
+			if (Area->x < MOUSE_GRAB_PADDING)
+			{
+				return SDL_HITTEST_RESIZE_TOPLEFT;
+			}
+			else if (Area->x > Width - MOUSE_GRAB_PADDING)
+			{
+				return SDL_HITTEST_RESIZE_TOPRIGHT;
+			}
+			else
+			{
+				return SDL_HITTEST_RESIZE_TOP;
+			}
+		}
+		else if (Area->y > Height - MOUSE_GRAB_PADDING)
+		{
+			if (Area->x < MOUSE_GRAB_PADDING)
+			{
+				return SDL_HITTEST_RESIZE_BOTTOMLEFT;
+			}
+			else if (Area->x > Width - MOUSE_GRAB_PADDING)
+			{
+				return SDL_HITTEST_RESIZE_BOTTOMRIGHT;
+			}
+			else
+			{
+				return SDL_HITTEST_RESIZE_BOTTOM;
+			}
+		}
+		else if (Area->x < MOUSE_GRAB_PADDING)
+		{
+			return SDL_HITTEST_RESIZE_LEFT;
+		}
+		else if (Area->x > Width - MOUSE_GRAB_PADDING)
+		{
+			return SDL_HITTEST_RESIZE_RIGHT;
+		}
+		else if (!UI::HoveredButton && IsMovableCallback && IsMovableCallback())
+		{
+			return SDL_HITTEST_DRAGGABLE;
+		}
+
+		return SDL_HITTEST_NORMAL;
+	}
+
 	void SetApplicationTitle(std::string NewTitle)
 	{
 		WindowTitle = NewTitle;
@@ -58,7 +130,7 @@ namespace Application
 	}
 	void SetWindowResolution(Vector2ui NewResolution)
 	{
-		Application::AspectRatio = (float)NewResolution.X / (float)NewResolution.Y;
+		AspectRatio = (float)NewResolution.X / (float)NewResolution.Y;
 		WindowResolution = NewResolution;
 		UIBox::ForceUpdateUI();
 	}
@@ -80,11 +152,6 @@ namespace Application
 	void SetActiveMouseCursor(MouseCursorType NewType)
 	{
 		SDL_SetCursor(SystemCursors[NewType]);
-	}
-
-	void InitializeCursors()
-	{
-
 	}
 }
 
@@ -246,16 +313,22 @@ void HandleEvents()
 void DrawUI()
 {
 	UI::NewHoveredButton = nullptr;
-	bool RedrawAfter = UIBox::DrawAllUIElements();
+	bool RedrawAfter = UIBox::DrawAllUIElements() || Application::PreviousHasWindowFocus != Application::GetWindowHasFocus();
 	UI::HoveredButton = UI::NewHoveredButton;
 
 	if (!RedrawAfter) return;
+
+	Application::PreviousHasWindowFocus = Application::GetWindowHasFocus();
 
 	Application::PostProcessShader->Bind();
 	glViewport(0, 0, (GLsizei)Application::WindowResolution.X, (GLsizei)Application::WindowResolution.Y);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, UIBox::GetUIFramebuffer());
 	Application::PostProcessShader->SetInt("u_ui", 0);
+	Application::PostProcessShader->SetInt("u_hasWindowBorder", !Application::GetFullScreen() && Application::IsBorderless);
+	Application::PostProcessShader->SetVec2("u_screenRes", Application::WindowResolution);
+	Application::PostProcessShader->SetVec3("u_borderColor", Application::GetWindowHasFocus() ? Application::BorderlessWindowOutlineColor : 0.5);
+
 	glClear(GL_COLOR_BUFFER_BIT);
 	glDrawArrays(GL_TRIANGLES, 0, 3);
 	Application::PostProcessShader->Unbind();
@@ -266,25 +339,79 @@ void DrawUI()
 
 void Application::UpdateWindow()
 {
-	Application::Timer Frametime;
+	Timer Frametime;
 	HandleEvents();
 
 	DrawUI();
 
-	for (auto& e : Application::ButtonEvents)
+	for (auto& e : ButtonEvents)
 	{
 		if (e.Function)
 			e.Function();
 		else if (e.FunctionIndex)
 			e.FunctionIndex(e.Index);
 	}
-	Application::ButtonEvents.clear();
+	ButtonEvents.clear();
 	
-	float DesiredDelta = 1.f / (float)Application::DesiredRefreshRate;
+	float DesiredDelta = 1.f / (float)DesiredRefreshRate;
 	float TimeToWait = std::max(DesiredDelta - Frametime.TimeSinceCreation(), 0.f);
 	SDL_Delay((int)(TimeToWait * 1000.f));
-	DeltaTime = 1.f / Application::DesiredRefreshRate;
+	DeltaTime = 1.f / DesiredRefreshRate;
 	Time += DeltaTime;
+}
+
+bool Application::GetWindowHasFocus()
+{
+	return SDL_GetKeyboardFocus() == Window;
+}
+
+bool Application::GetFullScreen()
+{
+	return IsWindowFullscreen;
+}
+
+void Application::SetWindowMovableCallback(bool(*NewFunction)())
+{
+	IsMovableCallback = NewFunction;
+}
+
+void Application::SetBorderlessWindowOutlineColor(Vector3f32 NewColor)
+{
+	BorderlessWindowOutlineColor = NewColor;
+}
+
+void Application::Minimize()
+{
+}
+
+void Application::SetFullScreen(bool NewFullScreen)
+{
+	IsWindowFullscreen = NewFullScreen;
+	int w, h;
+	if (IsWindowFullscreen)
+	{
+		SDL_GetWindowPosition(Window, &w, &h);
+		PreviousSize = GetWindowResolution();
+		PreviousPosition = Vector2(w, h);
+		SDL_Rect r;
+		SDL_GetDisplayUsableBounds(SDL_GetWindowDisplayIndex(Window), &r);
+
+		SDL_SetWindowPosition(Window, r.x, r.y);
+		SDL_SetWindowSize(Window, r.w, r.h);
+	}
+	else
+	{
+		SDL_SetWindowPosition(Window, PreviousPosition.X, PreviousPosition.Y);
+		SDL_SetWindowSize(Window, PreviousSize.X, PreviousSize.Y);
+	}
+	SDL_GetWindowSize(Window, &w, &h);
+	Application::SetWindowResolution(Vector2(w, h));
+	UIBox::RedrawUI();
+}
+
+void Application::SetMinWindowSize(Vector2ui NewSize)
+{
+	SDL_SetWindowMinimumSize(Window, NewSize.X, NewSize.Y);
 }
 
 void Application::SetClipboard(std::string NewClipboardText)
@@ -309,7 +436,6 @@ void Application::Initialize(std::string WindowName, int Flags, Vector2ui Defaul
 	}
 
 	AspectRatio = (float)WindowResolution.X / (float)WindowResolution.Y;
-
 	int WindowFlags = SDL_WINDOW_OPENGL;
 	if (!(Flags & NO_RESIZE_BIT))
 	{
@@ -328,7 +454,13 @@ void Application::Initialize(std::string WindowName, int Flags, Vector2ui Defaul
 	}
 	if (Flags & BORDERLESS_BIT)
 	{
+		IsBorderless = true;
 		SDL_SetWindowBordered(Window, SDL_FALSE);
+		SDL_SetHint(SDL_HINT_VIDEO_MINIMIZE_ON_FOCUS_LOSS, "0");
+		if (!(Flags & NO_RESIZE_BIT))
+		{
+			SDL_SetWindowHitTest(Window, HitTestCallback, 0);
+		}
 	}
 
 	SystemCursors = new SDL_Cursor*[4]
@@ -349,6 +481,7 @@ void Application::Initialize(std::string WindowName, int Flags, Vector2ui Defaul
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glDebugMessageCallback(MessageCallback, 0);
+	SetMinWindowSize(Vector2ui(640, 480));
 
 	PostProcessShader = new Shader("Shaders/postprocess.vert", "Shaders/postprocess.frag");
 	UIBox::InitUI();

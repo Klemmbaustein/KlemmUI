@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include "Math/Vector2.h"
+#include "Math/Vector3.h"
 #include <vector>
 
 namespace Application
@@ -15,6 +16,19 @@ namespace Application
 	void SetWindowResolution(Vector2ui NewResolution);
 
 	void UpdateWindow();
+
+	bool GetWindowHasFocus();
+
+	void SetFullScreen(bool NewFullScreen);
+	bool GetFullScreen();
+
+	void SetWindowMovableCallback(bool(*NewFunction)());
+
+	void SetBorderlessWindowOutlineColor(Vector3f32 NewColor);
+
+	void Minimize();
+
+	void SetMinWindowSize(Vector2ui NewSize);
 
 	void SetClipboard(std::string NewClipboardText);
 

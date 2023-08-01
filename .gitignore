@@ -9,4 +9,7 @@ x64/
 lib/
 # Unrelated files
 TextEditor/
-/Release
+Release/
+# Linux build
+Build/
+.vscode/

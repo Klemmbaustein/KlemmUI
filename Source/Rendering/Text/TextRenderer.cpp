@@ -159,7 +159,7 @@ Vector2f TextRenderer::GetTextSize(ColoredText Text, float Scale, bool Wrapped, 
 		}
 	}
 
-	return (Vector2(x, y + CharacterSizeInPixels) / Vector2f(1800 * Application::AspectRatio, 1800)) * Scale;
+	return (Vector2f(x, y + CharacterSizeInPixels) / Vector2f(1800 * Application::AspectRatio, 1800)) * Scale;
 }
 
 
@@ -262,7 +262,7 @@ void TextRenderer::Reinit()
 	{
 		delete[]fontVertexBufferData;
 	}
-	delete[] cdatapointer;
+	delete[] (stbtt_bakedchar*)cdatapointer;
 	stbtt_bakedchar* cdata = new stbtt_bakedchar[96];
 	Uint8* ttfBuffer = (Uint8*)malloc(1 << 20);
 	Uint8* tmpBitmap = new Uint8[2048 * 2048];
@@ -311,9 +311,9 @@ TextRenderer::~TextRenderer()
 	glDeleteBuffers(1, &fontVao);
 	if (fontVertexBufferData)
 	{
-		delete[]fontVertexBufferData;
+		delete[] fontVertexBufferData;
 	}
-	delete[] cdatapointer;
+	delete[] (stbtt_bakedchar*)cdatapointer;
 }
 
 void OnWindowResized()

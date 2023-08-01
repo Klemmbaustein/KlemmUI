@@ -8,7 +8,7 @@
 #endif
 
 #if __linux__
-//Currently no linux implementation needs to include anything
+#include <iostream>
 #endif
 
 //https://www.cplusplus.com/forum/windows/74644/
@@ -103,7 +103,7 @@ std::string OS::ShowOpenFileDialog()
 #if __linux__
 std::string OS::ShowOpenFileDialog()
 {
-	Log::Print("Creating an \"Open File-Dialog\" is not currently supported on Linux", Vector3(1, 1, 0));
+	std::cout << "Creating an \"Open File-Dialog\" is not currently supported on Linux" << std::endl;
 	return std::string();
 }
 #endif

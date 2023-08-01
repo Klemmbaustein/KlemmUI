@@ -1,5 +1,4 @@
 #include <UI/UIText.h>
-#include <Rendering/Text/TextRenderer.h>
 #include <Application.h>
 
 

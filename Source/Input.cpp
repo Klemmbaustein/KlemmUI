@@ -14,7 +14,7 @@ bool Input::IsKeyDown(int Key)
 		Key -= 1073741755;
 	}
 	if (Key < 351 && Key >= 0)
-		return Input::Keys[Key];
+		return Keys[Key];
 	return false;
 }
 
@@ -25,14 +25,14 @@ void Input::SetKeyDown(int Key, bool KeyDown)
 		Key -= 1073741755;
 	}
 	if (Key < 351 && Key >= 0)
-		Input::Keys[Key] = KeyDown;
+		Keys[Key] = KeyDown;
 }
 
 namespace Input
 {
 	bool IsLMBDown = false;
 	bool IsRMBDown = false;
-	Vector2f Input::MouseMovement;
+	Vector2f MouseMovement;
 }
 
 namespace TextInput

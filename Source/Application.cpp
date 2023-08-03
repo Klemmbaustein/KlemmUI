@@ -360,7 +360,8 @@ bool Application::GetWindowHasFocus()
 
 bool Application::GetFullScreen()
 {
-	return IsWindowFullscreen;
+	auto flag = SDL_GetWindowFlags(Window);
+	return flag & SDL_WINDOW_MAXIMIZED;
 }
 
 void Application::SetWindowMovableCallback(bool(*NewFunction)())
@@ -380,8 +381,7 @@ void Application::Minimize()
 
 void Application::SetFullScreen(bool NewFullScreen)
 {
-	IsWindowFullscreen = NewFullScreen;
-	if (IsWindowFullscreen)
+	if (NewFullScreen)
 	{
 		SDL_MaximizeWindow(Window);
 	}

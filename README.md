@@ -2,6 +2,17 @@
 ## About
 A simple C++ library that renders UI elements using OpenGL.
 Most of the UI code is taken from my [Game Engine](https://github.com/Legofan0807/Klemmgine).
+
+## Installing
+
+GLEW and SDL2 should be installed first.
+
+### With GNU make:
+
+- Download the repository
+- `make`
+- `make install`
+
 ## Examples
 ### *"Hello, World"*
 

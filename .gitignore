@@ -10,3 +10,4 @@ Release/
 # Linux build
 Build/
 .vscode/
+/Examples/HelloWorld/SDL2.dll

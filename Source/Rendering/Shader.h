@@ -10,7 +10,7 @@ class Shader
 public:
 	unsigned int GetShaderID();
 
-	Shader(const char* VertexPath, const char* FragmentPath, const char* GeometryPath = nullptr);
+	Shader(std::string VertexPath, std::string FragmentPath, std::string GeometryPath = "");
 	~Shader();
 	void Bind();
 	void Unbind();

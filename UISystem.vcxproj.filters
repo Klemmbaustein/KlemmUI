@@ -34,6 +34,9 @@
     <Filter Include="Headers\Rendering\Text">
       <UniqueIdentifier>{8ed7af11-e5e9-4eab-ba28-22c60d432742}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{18d7741b-9386-4b54-94b5-2f547d9dbf0a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Application.cpp">
@@ -178,5 +181,23 @@
     <None Include="README.md" />
     <None Include="Setup.ps1" />
     <None Include=".gitignore" />
+    <None Include="Shaders\postprocess.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\postprocess.vert">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\text.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\text.vert">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\uishader.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\uishader.vert">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

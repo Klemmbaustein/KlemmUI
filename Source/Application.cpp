@@ -126,6 +126,19 @@ namespace Application
 		WindowResolution = NewResolution;
 		UIBox::ForceUpdateUI();
 	}
+
+	std::string ShaderPath = "Shaders";
+
+	void SetShaderPath(std::string NewPath)
+	{
+		ShaderPath = NewPath;
+	}
+
+	const std::string& GetShaderPath()
+	{
+		return ShaderPath;
+	}
+
 	float Timer::TimeSinceCreation()
 	{
 		Uint64 PerfCounterFrequency = SDL_GetPerformanceFrequency();
@@ -467,7 +480,7 @@ void Application::Initialize(std::string WindowName, int Flags, Vector2ui Defaul
 	glDebugMessageCallback(MessageCallback, 0);
 	SetMinWindowSize(Vector2ui(640, 480));
 
-	PostProcessShader = new Shader("Shaders/postprocess.vert", "Shaders/postprocess.frag");
+	PostProcessShader = new Shader(Application::GetShaderPath() + "/postprocess.vert", Application::GetShaderPath() + "/postprocess.frag");
 	UIBox::InitUI();
 }
 

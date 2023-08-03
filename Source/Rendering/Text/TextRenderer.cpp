@@ -26,7 +26,7 @@ void TextRenderer::CheckForTextShader()
 {
 	if (!_TextRenderer::TextShader)
 	{
-		_TextRenderer::TextShader = new Shader("Shaders/text.vert", "Shaders/text.frag");
+		_TextRenderer::TextShader = new Shader(Application::GetShaderPath() + "/text.vert", Application::GetShaderPath() + "/text.frag");
 	}
 }
 

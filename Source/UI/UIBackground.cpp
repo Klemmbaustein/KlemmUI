@@ -87,7 +87,7 @@ UIBackground::UIBackground(bool Horizontal, Vector2f Position, Vector3f32 Color,
 {
 	SetMinSize(MinScale);
 	this->Color = Color;
-	if (UI::UIShader == nullptr) UI::UIShader = new Shader("Shaders/uishader.vert", "Shaders/uishader.frag");
+	if (UI::UIShader == nullptr) UI::UIShader = new Shader(Application::GetShaderPath() + "/uishader.vert", Application::GetShaderPath() + "/uishader.frag");
 	this->BackgroundShader = UI::UIShader;
 	MakeGLBuffers();
 }

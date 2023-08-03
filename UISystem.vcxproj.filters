@@ -177,5 +177,6 @@
   <ItemGroup>
     <None Include="README.md" />
     <None Include="Setup.ps1" />
+    <None Include=".gitignore" />
   </ItemGroup>
 </Project>

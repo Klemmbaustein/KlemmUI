@@ -198,6 +198,7 @@
     <ClInclude Include="Source\Util\stb_truetype.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include=".gitignore" />
     <None Include="README.md" />
     <None Include="Setup.ps1" />
   </ItemGroup>

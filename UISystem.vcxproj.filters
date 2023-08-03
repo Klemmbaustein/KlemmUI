@@ -1,0 +1,181 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Code">
+      <UniqueIdentifier>{80279eaf-d54f-4b10-ba81-5a5833f8470a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Math">
+      <UniqueIdentifier>{0c484222-6e2f-4019-803b-426a82330947}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Rendering">
+      <UniqueIdentifier>{9eb01965-16d9-4785-b500-24d4be0ef861}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Rendering\Text">
+      <UniqueIdentifier>{86f519be-53d1-4b76-a15a-b5a7256f7611}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Util">
+      <UniqueIdentifier>{9bb03dce-afd5-414d-ac7f-f0ae844fc796}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\UI">
+      <UniqueIdentifier>{0522c0ab-662c-46f2-9a89-4668fcaf6632}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headers">
+      <UniqueIdentifier>{6191b397-2be9-4d83-8809-e6566a3f8b56}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headers\UI">
+      <UniqueIdentifier>{99639c9a-d175-4000-8a78-bce8d33e00d3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headers\Rendering">
+      <UniqueIdentifier>{69feea65-0ae2-41f8-89f0-82853534e2d9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headers\Math">
+      <UniqueIdentifier>{0c722030-c5c1-4115-894c-89b9b9d53cc4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headers\Rendering\Text">
+      <UniqueIdentifier>{8ed7af11-e5e9-4eab-ba28-22c60d432742}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\Application.cpp">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Math\Vector2.cpp">
+      <Filter>Code\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Rendering\VertexBuffer.cpp">
+      <Filter>Code\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Math\Vector3.cpp">
+      <Filter>Code\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Rendering\Shader.cpp">
+      <Filter>Code\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Rendering\Text\TextRenderer.cpp">
+      <Filter>Code\Rendering\Text</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Rendering\Framebuffer.cpp">
+      <Filter>Code\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\UI\UIBackground.cpp">
+      <Filter>Code\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\UI\UIBox.cpp">
+      <Filter>Code\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\UI\UIButton.cpp">
+      <Filter>Code\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\UI\UIScrollBox.cpp">
+      <Filter>Code\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\UI\UIText.cpp">
+      <Filter>Code\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\UI\UITextField.cpp">
+      <Filter>Code\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Input.cpp">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Math\MathHelpers.cpp">
+      <Filter>Code\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Rendering\ScrollObject.cpp">
+      <Filter>Code\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\StringReplace.cpp">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\OS.cpp">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Rendering\Texture.cpp">
+      <Filter>Code\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Rendering\MarkdownRendering.cpp">
+      <Filter>Code\Rendering</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\Rendering\VertexBuffer.h">
+      <Filter>Code\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Rendering\Shader.h">
+      <Filter>Code\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Rendering\Text\TextRenderer.h">
+      <Filter>Code\Rendering\Text</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Util\stb_image.h">
+      <Filter>Code\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Util\stb_truetype.h">
+      <Filter>Code\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Rendering\Framebuffer.h">
+      <Filter>Code\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Rendering\Text\TextSegment.h">
+      <Filter>Code\Rendering\Text</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\KlemmUI\Application.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\KlemmUI\Input.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\KlemmUI\OS.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\KlemmUI\StringReplace.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\KlemmUI\UI\UIBackground.h">
+      <Filter>Headers\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\KlemmUI\UI\UIBox.h">
+      <Filter>Headers\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\KlemmUI\UI\UIButton.h">
+      <Filter>Headers\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\KlemmUI\UI\UIScrollBox.h">
+      <Filter>Headers\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\KlemmUI\UI\UIText.h">
+      <Filter>Headers\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\KlemmUI\UI\UITextField.h">
+      <Filter>Headers\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\KlemmUI\Rendering\MarkdownRendering.h">
+      <Filter>Headers\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\KlemmUI\Rendering\ScrollObject.h">
+      <Filter>Headers\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\KlemmUI\Rendering\Texture.h">
+      <Filter>Headers\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\KlemmUI\Rendering\Text\TextRenderer.h">
+      <Filter>Headers\Rendering\Text</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\KlemmUI\Rendering\Text\TextSegment.h">
+      <Filter>Headers\Rendering\Text</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\KlemmUI\Math\MathHelpers.h">
+      <Filter>Headers\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\KlemmUI\Math\Vector2.h">
+      <Filter>Headers\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\KlemmUI\Math\Vector3.h">
+      <Filter>Headers\Math</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="README.md" />
+    <None Include="Setup.ps1" />
+  </ItemGroup>
+</Project>

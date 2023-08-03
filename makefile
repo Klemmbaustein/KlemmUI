@@ -6,10 +6,10 @@ SRC_DIRS := ./Source ./Headers
 SRCS := $(shell find $(SRC_DIRS) -name '*.cpp')
 OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
 DEPS := $(OBJS:.o=.d)
-INC_DIRS := $(shell find $(SRC_DIRS) -type d)
+INC_DIRS := $(SRC_DIRS)
 INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 
-CPPFLAGS := $(INC_FLAGS) -DGLEW_STATIC -MMD -MP -Wdelete-incomplete -std=c++2a `sdl2-config --cflags --libs`
+CPPFLAGS := $(INC_FLAGS) -DGLEW_STATIC -MMD -MP -O2 -Wdelete-incomplete -std=c++2a `sdl2-config --cflags --libs`
 
 # Package all C++ object files into a static library
 $(BUILD_DIR)/$(TARGET_EXEC): $(OBJS)

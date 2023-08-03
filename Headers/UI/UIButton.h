@@ -14,8 +14,8 @@ class UIButton : public UIBox
 	bool IsHovered = false;
 	bool IsPressed = false;
 	Vector3f32 Color = Vector3(0.5);
-	void(*PressedFunc)();
-	void(*PressedFuncIndex)(int);
+	void(*PressedFunc)() = nullptr;
+	void(*PressedFuncIndex)(int) = nullptr;
 	bool UseTexture = false;
 	unsigned int TextureID = 0;
 	bool IsSelected = false;

@@ -1,4 +1,4 @@
-TARGET_EXEC := libUISystem.a
+TARGET_EXEC := libKlemmUI.a
 
 BUILD_DIR := ./Build
 SRC_DIRS := ./Source ./Headers
@@ -24,6 +24,17 @@ $(BUILD_DIR)/%.cpp.o: %.cpp
 .PHONY: clean
 clean:
 	rm -r $(BUILD_DIR)
+
+ifeq ($(PREFIX),)
+PREFIX = /usr/local
+endif
+
+install: $(BUILD_DIR)/libKlemmUI.a
+	$(info Installing to $(PREFIX))
+	install -d $(DESTDIR)$(PREFIX)/lib/
+	install -m 644 $(BUILD_DIR)/libKlemmUI.a $(DESTDIR)$(PREFIX)/lib/
+	install -d $(DESTDIR)$(PREFIX)/include/KlemmUI/
+	cp -r ./Headers/. $(DESTDIR)$(PREFIX)/include/KlemmUI/
 
 # Include the .d makefiles. The - at the front suppresses the errors of missing
 # Makefiles. Initially, all the .d files will be missing, and we don't want those

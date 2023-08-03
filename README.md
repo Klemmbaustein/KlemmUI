@@ -17,7 +17,7 @@ GLEW and SDL2 should be installed first.
 ### *"Hello, World"*
 
 ```cpp
-#include <Application.h>
+#include <KlemmUI/Application.h>
 
 int main()
 {
@@ -36,13 +36,13 @@ int main()
 ```
 ### *"Hello, World"* with Text
 ```cpp
-#include <Application.h>
-#include <UI/UIText.h>
+#include <KlemmUI/Application.h>
+#include <KlemmUI/UI/UIText.h>
 
 int main()
 {
 	// Initialize window.
-	Application::Initialize("Hello, World. But with text this time!", Application::NO_RESIZE_BIT, Vector2ui(640, 480));
+	Application::Initialize("Hello, World!", Application::NO_RESIZE_BIT, Vector2ui(640, 480));
 
 	TextRenderer* Text = new TextRenderer("Path/To/Font.ttf");
 

@@ -3,7 +3,6 @@
 #include "Application.h"
 #include <GL/glew.h>
 #include <iostream>
-
 #include "Rendering/VertexBuffer.h"
 #include "Rendering/Shader.h"
 #include "Rendering/Framebuffer.h"

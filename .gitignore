@@ -11,3 +11,4 @@ Release/
 Build/
 .vscode/
 /Examples/HelloWorld/SDL2.dll
+*.dll

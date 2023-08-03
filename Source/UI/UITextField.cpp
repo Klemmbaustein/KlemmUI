@@ -174,7 +174,7 @@ bool UITextField::GetIsPressed()
 UITextField::UITextField(bool Horizontal, Vector2f Position, Vector3f32 Color, TextRenderer* Renderer, void(*PressedFunc)())
 	: UIBox(Horizontal, Position)
 {
-	if (UI::UIShader == nullptr) UI::UIShader = new Shader("Shaders/uishader.vert", "Shaders/uishader.frag");
+	if (UI::UIShader == nullptr) UI::UIShader = new Shader(Application::GetShaderPath() + "/uishader.vert", Application::GetShaderPath() + "/uishader.frag");
 	this->Color = Color;
 	TextObject = new UIText(0, Vector3(1), HintText, Renderer);
 	TextObject->SetTextSize(0.5);

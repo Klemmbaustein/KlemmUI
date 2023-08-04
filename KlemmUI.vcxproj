@@ -50,7 +50,7 @@
     </LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(SolutionDir)\Include\KlemmUI;$(SolutionDir)SDL\include;$(SolutionDir)glew-cmake\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)\Include\KlemmUI;$(ProjectDir)SDL\include;$(ProjectDir)glew-cmake\include;$(IncludePath)</IncludePath>
     <LibraryPath>
     </LibraryPath>
   </PropertyGroup>
@@ -94,7 +94,7 @@
       <AdditionalDependencies>SDL2.lib;glew32s.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Lib>
-      <OutputFile>$(SolutionDir)lib\$(Configuration)\$(TargetName)$(TargetExt)</OutputFile>
+      <OutputFile>$(ProjectDir)lib\$(Configuration)\$(TargetName)$(TargetExt)</OutputFile>
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>

@@ -24,7 +24,8 @@ GLEW and SDL2 should be installed first.
 
 ## Examples
 
-- ### Hello World		A simple program that displays the text "Hello, World" on the app window.
+- ### Hello World	
+	A simple program that displays the text "Hello, World" on the app window.
 
 - ### File Explorer
 	A bare bones (and very ugly) file browser.

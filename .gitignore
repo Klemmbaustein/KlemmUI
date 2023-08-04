@@ -4,10 +4,13 @@ x64/
 *.user
 # binaries
 lib/
+*.dll
 # Unrelated files
 TextEditor/
 Release/
 # Linux build
 Build/
 .vscode/
-*.dll
+SDL/
+Examples/FileExplorer/FileExplorer
+Examples/HelloWorld/HelloWorld

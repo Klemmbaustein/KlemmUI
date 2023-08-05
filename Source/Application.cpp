@@ -448,6 +448,11 @@ void Application::Initialize(std::string WindowName, int Flags, Vector2ui Defaul
 	Window = SDL_CreateWindow(WindowName.c_str(),
 		SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WindowResolution.X, WindowResolution.Y, WindowFlags);
 
+	if (!Window)
+	{
+		std::cout << "SDL FAILED TO CREATE WINDOW: " << SDL_GetError() << std::endl;
+	}
+
 	if (Flags & MAXIMIZED_BIT)
 	{
 		SDL_MaximizeWindow(Window);
@@ -472,6 +477,11 @@ void Application::Initialize(std::string WindowName, int Flags, Vector2ui Defaul
 	};
 
 	auto GLContext = SDL_GL_CreateContext(Window);
+
+	if (!GLContext)
+	{
+		std::cout << "SDL FAILED TO CREATE CONTEXT: " << SDL_GetError() << std::endl;
+	}
 
 	const auto GlewInitErr = glewInit();
 

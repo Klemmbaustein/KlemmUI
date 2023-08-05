@@ -415,7 +415,7 @@ void Application::SetClipboard(std::string NewClipboardText)
 
 void Application::Initialize(std::string WindowName, int Flags, Vector2ui DefaultResolution)
 {
-	if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS))
+	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS))
 	{
 		std::cout << "SDL INIT ERROR: " << SDL_GetError() << std::endl;
 		exit(1);

@@ -415,7 +415,11 @@ void Application::SetClipboard(std::string NewClipboardText)
 
 void Application::Initialize(std::string WindowName, int Flags, Vector2ui DefaultResolution)
 {
-	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS);
+	if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS))
+	{
+		std::cout << "SDL INIT ERROR: " << SDL_GetError() << std::endl;
+		exit(1);
+	}
 	SDL_SetHint("SDL_BORDERLESS_WINDOWED_STYLE", "1");
 	SDL_SetHint("SDL_BORDERLESS_RESIZABLE_STYLE", "1");
 
@@ -468,9 +472,14 @@ void Application::Initialize(std::string WindowName, int Flags, Vector2ui Defaul
 	};
 
 	auto GLContext = SDL_GL_CreateContext(Window);
-	if (glewInit() != GLEW_OK)
+
+	const auto GlewInitErr = glewInit();
+
+	if (GlewInitErr != GLEW_OK)
 	{
-		std::cout << "INIT ERROR: GLEW init failed!";
+		std::cout << "INIT ERROR: GLEW init failed!" << std::endl;
+		std::cout << glewGetErrorString(GlewInitErr) << std::endl;
+		exit(1);
 		return;
 	}
 

@@ -18,7 +18,7 @@ Most of the UI code is taken from my [Game Engine](https://github.com/Legofan080
 - If you don't already have GLEW and SDL2 installed on your system, run `make configure`
 - run `make` to build the library.
 - run `make examples` to build the example programs.
-- run `make install` to install the library.
+- run `sudo make install` to install the library.
 
 ## Examples
 

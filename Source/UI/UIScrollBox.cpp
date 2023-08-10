@@ -4,6 +4,7 @@
 #include <Input.h>
 #include <cmath>
 #include <Application.h>
+#include <iostream>
 
 bool UIScrollBox::IsDraggingScrollBox = false;
 
@@ -106,14 +107,18 @@ void UIScrollBox::Tick()
 		}
 		if ((ScrollBarBackground->GetIsPressed() && !IsDraggingScrollBox) || IsDragging && ScrollClass.MaxScroll)
 		{
-			float MousePos = (-Input::MouseLocation.Y + OffsetPosition.Y) / Size.Y + 1 + (ScrollPercentage * ScrollBar->GetUsedSize().Y);
-			if (!IsDragging && std::abs(MousePos - ScrollPercentage) < ScrollBar->GetUsedSize().Y)
+			if (!IsDragging && ScrollBar->IsBeingHovered())
 			{
-				DraggingDelta = MousePos - ScrollPercentage;
+				InitialScrollPosition = ScrollClass.Percentage;
+				InitialDragPosition = Input::MouseLocation.Y;
 			}
-			else
+			else if (IsDragging)
 			{
-				ScrollClass.Percentage = std::min(std::max(MousePos - DraggingDelta, 0.0f), 1.0f) * ScrollClass.MaxScroll;
+				ScrollClass.Percentage = std::max(
+					std::min(
+						InitialScrollPosition - (float)((Input::MouseLocation.Y - InitialDragPosition) / ScrollBar->GetUsedSize().Y * ScrollClass.MaxScroll),
+						ScrollClass.MaxScroll),
+					0.0f);
 			}
 			IsDragging = true;
 			IsDraggingScrollBox = true;

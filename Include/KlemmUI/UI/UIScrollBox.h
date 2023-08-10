@@ -12,7 +12,8 @@ class UIScrollBox : public UIBox
 	UIBackground* ScrollBar = nullptr; 
 	float MaxScroll = -1;
 	bool IsDragging = false;
-	float DraggingDelta = 0;
+	float InitialDragPosition = 0;
+	float InitialScrollPosition = 0;
 	bool DisplayScrollBar = false;
 
 	float DesiredMaxScroll = 0;

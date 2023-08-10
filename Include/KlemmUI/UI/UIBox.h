@@ -72,6 +72,8 @@ public:
 	virtual Vector2f GetUsedSize();
 	Vector2f GetScreenPosition();
 	void SetCurrentScrollObject(UIScrollBox* s);
+	bool IsChildOf(UIBox* Parent);
+	bool HasMouseCollision = false;
 protected:
 	E_SizeMode SizeMode;
 	bool ShouldBeTicked = true;
@@ -80,7 +82,8 @@ protected:
 	virtual void Draw();
 	virtual void Tick();
 	virtual void UpdateTickState();
-	
+	void UpdateHoveredState();
+	bool IsHovered();
 	Vector2f Position;
 	Vector2f OffsetPosition;
 	Vector2f MaxSize = Vector2(999, 999);
@@ -97,6 +100,7 @@ protected:
 	ScrollObject* CurrentScrollObject = nullptr;
 	void UpdateSelfAndChildren();
 private:
+	bool PrevIsVisible = true;
 	void UpdateScale();
 	void UpdatePosition();
 	bool ChildrenHorizontal;
@@ -104,6 +108,7 @@ private:
 
 namespace UI
 {
-	extern UIButton* HoveredButton;
-	extern UIButton* NewHoveredButton;
+	extern UIBox* HoveredBox;
+	extern UIBox* NewHoveredBox;
+
 }

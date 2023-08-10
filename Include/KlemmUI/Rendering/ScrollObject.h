@@ -14,6 +14,6 @@ public:
 	void ScrollUp();
 	void ScrollDown();
 	float Speed = 8;
-	bool IsActive = true;
+	bool Active = true;
 	float MaxScroll = 10;
 };

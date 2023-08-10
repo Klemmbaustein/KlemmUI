@@ -7,6 +7,7 @@
 #include <Math/MathHelpers.h>
 #include <Rendering/ScrollObject.h>
 #include <UI/UIScrollBox.h>
+#include <Math/MathHelpers.h>
 
 class UIButton;
 
@@ -17,6 +18,19 @@ namespace UI
 	bool RequiresRedraw = true;
 	unsigned int UIBuffer = 0;
 	unsigned int UITexture = 0;
+}
+
+bool UIBox::IsChildOf(UIBox* Parent)
+{
+	if (Parent == this->Parent)
+	{
+		return true;
+	}
+	if (!this->Parent)
+	{
+		return false;
+	}
+	return this->Parent->IsChildOf(Parent);
 }
 
 UIBox* UIBox::SetSizeMode(E_SizeMode NewMode)
@@ -349,12 +363,12 @@ void UIBox::UpdatePosition()
 		{
 			if (ChildrenHorizontal)
 			{
-				c->OffsetPosition = OffsetPosition + Vector2(Size.X / 2 - ChildrenSize / 2 + c->LeftPadding, c->DownPadding);
+				c->OffsetPosition = OffsetPosition + Vector2f(Size.X / 2 - ChildrenSize / 2 + c->LeftPadding, c->DownPadding);
 				Offset += c->Size.X + c->LeftPadding + c->RightPadding;
 			}
 			else
 			{
-				c->OffsetPosition = OffsetPosition + Vector2(c->LeftPadding, Size.Y / 2 - ChildrenSize / 2 + c->DownPadding);
+				c->OffsetPosition = OffsetPosition + Vector2f(c->LeftPadding, Size.Y / 2 - ChildrenSize / 2 + c->DownPadding);
 				Offset += c->Size.Y + c->DownPadding + c->UpPadding;
 			}
 		}
@@ -364,11 +378,11 @@ void UIBox::UpdatePosition()
 			{
 				if (Align == E_REVERSE)
 				{
-					c->OffsetPosition = OffsetPosition + Vector2(Size.X - Offset - c->Size.X - c->RightPadding, c->DownPadding);
+					c->OffsetPosition = OffsetPosition + Vector2f(Size.X - Offset - c->Size.X - c->RightPadding, c->DownPadding);
 				}
 				else
 				{
-					c->OffsetPosition = OffsetPosition + Vector2(Offset + c->LeftPadding, c->DownPadding);
+					c->OffsetPosition = OffsetPosition + Vector2f(Offset + c->LeftPadding, c->DownPadding);
 				}
 				Offset += c->Size.X + c->LeftPadding + c->RightPadding;
 			}
@@ -376,11 +390,11 @@ void UIBox::UpdatePosition()
 			{
 				if (Align == E_REVERSE)
 				{
-					c->OffsetPosition = OffsetPosition + Vector2(c->LeftPadding, Size.Y - Offset - c->Size.Y - c->UpPadding);
+					c->OffsetPosition = OffsetPosition + Vector2f(c->LeftPadding, Size.Y - Offset - c->Size.Y - c->UpPadding);
 				}
 				else
 				{
-					c->OffsetPosition = OffsetPosition + Vector2(c->LeftPadding, Offset + c->DownPadding);
+					c->OffsetPosition = OffsetPosition + Vector2f(c->LeftPadding, Offset + c->DownPadding);
 				}
 				Offset += c->Size.Y + c->DownPadding + c->UpPadding;
 			}
@@ -438,15 +452,54 @@ UIBox* UIBox::GetAbsoluteParent()
 	return this;
 }
 
+bool UIBox::IsHovered()
+{
+	Vector2f Offset;
+	if (CurrentScrollObject)
+	{
+		Offset.Y = CurrentScrollObject->Percentage;
+	}
+	return Math::IsPointIn2DBox(OffsetPosition + Offset, OffsetPosition + Size + Offset, Input::MouseLocation) // If the mouse is on top of the box
+		&& (!CurrentScrollObject // Check if we have a scroll object
+			|| Math::IsPointIn2DBox( // do some very questionable math to check if the mouse is inside the scroll area
+				CurrentScrollObject->Position - CurrentScrollObject->Scale,
+				CurrentScrollObject->Position, Input::MouseLocation));
+}
+
+void UIBox::UpdateHoveredState()
+{
+	if (IsHovered() && HasMouseCollision && IsVisibleInHierarchy())
+	{
+		UI::NewHoveredBox = this;
+	}
+	for (UIBox* Child : Children)
+	{
+		Child->UpdateHoveredState();
+	}
+}
+
 bool UIBox::DrawAllUIElements()
 {
-	for (auto elem : UI::UIElements)
+	UI::NewHoveredBox = nullptr;
+
+	for (UIBox* elem : UI::UIElements)
 	{
+		if (elem->IsVisible != elem->PrevIsVisible)
+		{
+			UI::RequiresRedraw = true;
+			elem->PrevIsVisible = elem->IsVisible;
+		}
 		if (elem->ShouldBeTicked)
 		{
 			elem->Tick();
 		}
+		if (!elem->Parent)
+		{
+			elem->UpdateHoveredState();
+		}
 	}
+	UI::HoveredBox = UI::NewHoveredBox;
+
 	if (UI::RequiresRedraw)
 	{
 		UI::RequiresRedraw = false;
@@ -518,6 +571,6 @@ bool UIBox::IsBeingHovered()
 
 namespace UI
 {
-	UIButton* HoveredButton = nullptr;
-	UIButton* NewHoveredButton = nullptr;
+	UIBox* HoveredBox = nullptr;
+	UIBox* NewHoveredBox = nullptr;
 }

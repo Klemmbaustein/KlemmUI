@@ -12,6 +12,9 @@ class UITextField : public UIBox
 	VertexBuffer* ButtonVertexBuffer = nullptr;
 	bool IsHovered = false;
 	bool IsPressed = false;
+	Vector2f IBeamPosition;
+	Vector2f IBeamScale = Vector2(0.001, 0.03);
+	bool ShowIBeam = false;
 	Vector3f32 Color = Vector3f32(0.5);
 	UIText* TextObject = nullptr;
 	bool IsEdited = false;

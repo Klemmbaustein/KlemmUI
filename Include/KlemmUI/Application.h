@@ -61,6 +61,7 @@ namespace Application
 	};
 	void SetActiveMouseCursor(MouseCursorType NewType);
 
+	MouseCursorType GetMouseCursorFromHoveredButtons();
 
 	enum InitializationFlags
 	{

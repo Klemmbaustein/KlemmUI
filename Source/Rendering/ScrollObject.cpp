@@ -29,7 +29,7 @@ ScrollObject::~ScrollObject()
 
 void ScrollObject::ScrollUp()
 {
-	if (!IsActive)
+	if (!Active)
 	{
 		return;
 	}
@@ -37,16 +37,16 @@ void ScrollObject::ScrollUp()
 	{
 		Percentage += Speed / 100.f;
 	}
-	if (Percentage > MaxScroll / 10)
+	if (Percentage > MaxScroll)
 	{
-		Percentage = MaxScroll / 10;
+		Percentage = MaxScroll;
 	}
 	UIBox::RedrawUI();
 }
 
 void ScrollObject::ScrollDown()
 {
-	if (!IsActive)
+	if (!Active)
 	{
 		return;
 	}

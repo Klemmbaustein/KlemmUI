@@ -12,6 +12,7 @@
 #include "Input.h"
 #include "Math/MathHelpers.h"
 #include "Rendering/ScrollObject.h"
+#include <UI/UITextField.h>
 
 void GLAPIENTRY
 MessageCallback(
@@ -99,7 +100,7 @@ namespace Application
 		{
 			return SDL_HITTEST_RESIZE_RIGHT;
 		}
-		else if (!UI::HoveredButton && IsMovableCallback && IsMovableCallback())
+		else if (!UI::HoveredBox && IsMovableCallback && IsMovableCallback())
 		{
 			return SDL_HITTEST_DRAGGABLE;
 		}
@@ -157,6 +158,18 @@ namespace Application
 	void SetActiveMouseCursor(MouseCursorType NewType)
 	{
 		SDL_SetCursor(SystemCursors[NewType]);
+	}
+	MouseCursorType GetMouseCursorFromHoveredButtons()
+	{
+		if (dynamic_cast<UIButton*>(UI::HoveredBox))
+		{
+			return CURSOR_HAND;
+		}
+		if (dynamic_cast<UITextField*>(UI::HoveredBox))
+		{
+			return CURSOR_TEXT_HOVER;
+		}
+		return CURSOR_NORMAL;
 	}
 }
 
@@ -317,9 +330,7 @@ void HandleEvents()
 
 void DrawUI()
 {
-	UI::NewHoveredButton = nullptr;
 	bool RedrawAfter = UIBox::DrawAllUIElements() || Application::PreviousHasWindowFocus != Application::GetWindowHasFocus();
-	UI::HoveredButton = UI::NewHoveredButton;
 
 	if (!RedrawAfter) return;
 

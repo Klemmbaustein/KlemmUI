@@ -46,12 +46,12 @@ void UIButton::Tick()
 		return;
 	}
 	ButtonColorMultiplier = 1.0f;
-	if (UI::HoveredButton == this && !IsHovered)
+	if (UI::HoveredBox == this && !IsHovered)
 	{
 		RedrawUI();
 		IsHovered = true;
 	}
-	if (IsHovered && UI::HoveredButton != this)
+	if (IsHovered && UI::HoveredBox != this)
 	{
 		RedrawUI();
 		IsHovered = false;
@@ -62,12 +62,11 @@ void UIButton::Tick()
 	//}
 
 
-	if (IsBeingHovered()) // do some very questionable math to check if the mouse is inside the scroll area
+	if (UI::HoveredBox == this) // do some very questionable math to check if the mouse is inside the scroll area
 	{
-		UI::NewHoveredButton = this;
 		ButtonColorMultiplier = 0.8f;
 	}
-	else if (IsPressed && UI::HoveredButton != this)
+	else if (IsPressed && UI::HoveredBox != this)
 	{
 		IsSelected = false;
 		IsPressed = false;
@@ -83,7 +82,7 @@ void UIButton::Tick()
 		ButtonColorMultiplier = 0.6f;
 	}
 
-	if (UI::HoveredButton == this)
+	if (UI::HoveredBox == this)
 	{
 		if (Input::IsLMBDown)
 		{
@@ -189,6 +188,7 @@ UIButton::UIButton(bool Horizontal, Vector2f Position, Vector3f32 Color, void(*P
 	if (UI::UIShader == nullptr) UI::UIShader = new Shader(Application::GetShaderPath() + "/uishader.vert", Application::GetShaderPath() + "/uishader.frag");
 	this->PressedFunc = PressedFunc;
 	this->Color = Color;
+	HasMouseCollision = true;
 	MakeGLBuffers();
 }
 
@@ -198,6 +198,7 @@ UIButton::UIButton(bool Horizontal, Vector2f Position, Vector3f32 Color, void(*P
 	this->PressedFuncIndex = PressedFunc;
 	this->Color = Color;
 	this->ButtonIndex = ButtonIndex;
+	HasMouseCollision = true;
 	MakeGLBuffers();
 }
 

@@ -359,8 +359,6 @@ void Application::UpdateWindow()
 	Timer Frametime;
 	HandleEvents();
 
-	DrawUI();
-
 	for (auto& e : ButtonEvents)
 	{
 		if (e.Function)
@@ -369,6 +367,8 @@ void Application::UpdateWindow()
 			e.FunctionIndex(e.Index);
 	}
 	ButtonEvents.clear();
+
+	DrawUI();
 	
 	float DesiredDelta = 1.f / (float)DesiredRefreshRate;
 	float TimeToWait = std::max(DesiredDelta - Frametime.TimeSinceCreation(), 0.f);

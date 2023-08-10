@@ -311,6 +311,7 @@ void HandleEvents()
 		case SDL_TEXTINPUT:
 			if (TextInput::PollForText && e.text.text[0] >= 32 && e.text.text[0] <= 128)
 			{
+				TextInput::TextIndex = std::min((size_t)TextInput::TextIndex, TextInput::Text.size());
 				TextInput::Text.insert(TextInput::TextIndex, std::string(e.text.text));
 				TextInput::TextIndex += strlen(e.text.text);
 			}

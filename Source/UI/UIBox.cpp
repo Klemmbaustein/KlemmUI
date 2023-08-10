@@ -56,6 +56,15 @@ UIBox::~UIBox()
 {
 	GetAbsoluteParent()->InvalidateLayout();
 	DeleteChildren();
+	if (UI::HoveredBox == this)
+	{
+		UI::HoveredBox = nullptr;
+	}
+	if (UI::NewHoveredBox == this)
+	{
+		UI::NewHoveredBox = nullptr;
+	}
+
 	for (unsigned int i = 0; i < UI::UIElements.size(); i++)
 	{
 		if (UI::UIElements[i] == this)
@@ -438,7 +447,7 @@ UIBox* UIBox::AddChild(UIBox* NewChild)
 	else
 	{
 		std::cout << "Attached an UIObject twice" << std::endl;
-		throw "oopsie";
+		throw 0;
 	}
 	return this;
 }

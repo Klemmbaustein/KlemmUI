@@ -37,7 +37,12 @@ public:
 
 		if (!Elem)
 		{
-			Application::Error("Tried to apply styling '" + Name + "'. Target is not " + std::string(typeid(T).name()));
+			Application::Error("Failed to apply styling \""
+				+ Name
+				+ "\". Target is not \""
+				+ std::string(typeid(T).name())
+				+ "\" but \"" 
+				+ std::string(typeid(*Target).name()) + "\"");
 			throw 1;
 		}
 		return Elem;

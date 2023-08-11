@@ -4,21 +4,20 @@
 #include <GL/glew.h>
 #include <Application.h>
 #include <Input.h>
+#include <UI/UIStyle.h>
 #include <Math/MathHelpers.h>
 #include <Rendering/ScrollObject.h>
 #include <UI/UIScrollBox.h>
 #include <Math/MathHelpers.h>
 
-class UIButton;
-
 namespace UI
 {
 	std::set<UIBox*> ElementsToUpdate;
-	std::vector<UIBox*> UIElements;
 	bool RequiresRedraw = true;
 	unsigned int UIBuffer = 0;
 	unsigned int UITexture = 0;
 }
+std::vector<UIBox*> UIBox::UIElements;
 
 bool UIBox::IsChildOf(UIBox* Parent)
 {
@@ -33,11 +32,11 @@ bool UIBox::IsChildOf(UIBox* Parent)
 	return this->Parent->IsChildOf(Parent);
 }
 
-UIBox* UIBox::SetSizeMode(E_SizeMode NewMode)
+UIBox* UIBox::SetSizeMode(SizeMode NewMode)
 {
-	if (NewMode != SizeMode)
+	if (NewMode != BoxSizeMode)
 	{
-		SizeMode = NewMode;
+		BoxSizeMode = NewMode;
 		GetAbsoluteParent()->InvalidateLayout();
 	}
 	return this;
@@ -49,7 +48,16 @@ UIBox::UIBox(bool Horizontal, Vector2f Position)
 	this->Size = Size;
 	this->ChildrenHorizontal = Horizontal;
 	GetAbsoluteParent()->InvalidateLayout();
-	UI::UIElements.push_back(this);
+	UIElements.push_back(this);
+}
+
+UIBox::UIBox(UIStyle* UsedStyle, bool Horizontal, Vector2f Position)
+{
+	this->Position = Position;
+	this->ChildrenHorizontal = Horizontal;
+	UsedStyle->ApplyTo(this);
+	GetAbsoluteParent()->InvalidateLayout();
+	UIElements.push_back(this);
 }
 
 UIBox::~UIBox()
@@ -65,11 +73,11 @@ UIBox::~UIBox()
 		UI::NewHoveredBox = nullptr;
 	}
 
-	for (unsigned int i = 0; i < UI::UIElements.size(); i++)
+	for (unsigned int i = 0; i < UIElements.size(); i++)
 	{
-		if (UI::UIElements[i] == this)
+		if (UIElements[i] == this)
 		{
-			UI::UIElements.erase(UI::UIElements.begin() + i);
+			UIElements.erase(UIElements.begin() + i);
 		}
 	}
 	UI::ElementsToUpdate.erase(this);
@@ -106,11 +114,11 @@ void UIBox::OnChildClicked(int Index)
 {
 }
 
-UIBox* UIBox::SetBorder(E_BorderType Type, double Size)
+UIBox* UIBox::SetBorder(BorderType Type, double Size)
 {
-	if (BorderType != Type || Size != BorderRadius)
+	if (BoxBorder != Type || Size != BorderRadius)
 	{
-		BorderType = Type;
+		BoxBorder = Type;
 		BorderRadius = Size;
 		GetAbsoluteParent()->InvalidateLayout();
 	}
@@ -127,7 +135,7 @@ void UIBox::ForceUpdateUI()
 	UI::UIBuffer = 0;
 	UI::UITexture = 0;
 	InitUI();
-	for (auto i : UI::UIElements)
+	for (UIBox* i : UIElements)
 	{
 		if (!i->Parent)
 		{
@@ -165,14 +173,14 @@ void UIBox::RedrawUI()
 void UIBox::ClearUI()
 {
 	UI::ElementsToUpdate.clear();
-	for (auto* elem : UI::UIElements)
+	for (UIBox* elem : UIElements)
 	{
 		if (!elem->Parent)
 		{
 			delete elem;
 		}
 	}
-	UI::UIElements.clear();
+	UIElements.clear();
 	UI::RequiresRedraw = true;
 }
 
@@ -332,7 +340,7 @@ void UIBox::UpdateScale()
 
 	Vector2f AdjustedMinSize = MinSize;
 	Vector2f AdjustedMaxSize = MaxSize;
-	if (SizeMode == E_PIXEL_RELATIVE)
+	if (BoxSizeMode == SizeMode::PixelRelative)
 	{
 		AdjustedMinSize.X /= Application::AspectRatio;
 		AdjustedMaxSize.X /= Application::AspectRatio;
@@ -357,7 +365,7 @@ void UIBox::UpdatePosition()
 
 	float ChildrenSize = 0;
 
-	if (Align == E_CENTERED)
+	if (BoxAlign == Align::Centered)
 	{
 		for (auto c : Children)
 		{
@@ -368,7 +376,7 @@ void UIBox::UpdatePosition()
 
 	for (auto c : Children)
 	{
-		if (Align == E_CENTERED)
+		if (BoxAlign == Align::Centered)
 		{
 			if (ChildrenHorizontal)
 			{
@@ -385,7 +393,7 @@ void UIBox::UpdatePosition()
 		{
 			if (ChildrenHorizontal)
 			{
-				if (Align == E_REVERSE)
+				if (BoxAlign == Align::Reverse)
 				{
 					c->OffsetPosition = OffsetPosition + Vector2f(Size.X - Offset - c->Size.X - c->RightPadding, c->DownPadding);
 				}
@@ -397,7 +405,7 @@ void UIBox::UpdatePosition()
 			}
 			else
 			{
-				if (Align == E_REVERSE)
+				if (BoxAlign == Align::Reverse)
 				{
 					c->OffsetPosition = OffsetPosition + Vector2f(c->LeftPadding, Size.Y - Offset - c->Size.Y - c->UpPadding);
 				}
@@ -446,7 +454,7 @@ UIBox* UIBox::AddChild(UIBox* NewChild)
 	}
 	else
 	{
-		std::cout << "Attached an UIObject twice" << std::endl;
+		Application::Error("Attached an UIObject twice");
 		throw 0;
 	}
 	return this;
@@ -491,7 +499,7 @@ bool UIBox::DrawAllUIElements()
 {
 	UI::NewHoveredBox = nullptr;
 
-	for (UIBox* elem : UI::UIElements)
+	for (UIBox* elem : UIElements)
 	{
 		if (elem->IsVisible != elem->PrevIsVisible)
 		{
@@ -512,7 +520,7 @@ bool UIBox::DrawAllUIElements()
 	if (UI::RequiresRedraw)
 	{
 		UI::RequiresRedraw = false;
-		for (auto elem : UI::ElementsToUpdate)
+		for (UIBox* elem : UI::ElementsToUpdate)
 		{
 			elem->UpdateSelfAndChildren();
 		}
@@ -521,7 +529,7 @@ bool UIBox::DrawAllUIElements()
 		glBindFramebuffer(GL_FRAMEBUFFER, UI::UIBuffer);
 		//glClearColor(0, 0, 0, 0);
 		glClear(GL_COLOR_BUFFER_BIT);
-		for (auto elem : UI::UIElements)
+		for (UIBox* elem : UIElements)
 		{
 			if (elem->Parent == nullptr)
 				elem->DrawThisAndChildren();
@@ -575,7 +583,8 @@ bool UIBox::IsBeingHovered()
 	}
 	return (Math::IsPointIn2DBox(OffsetPosition, OffsetPosition + Size, MouseLocation) // If the mouse is on top of the button
 		&& (!CurrentScrollObject || // Check if we have a scroll object
-			Math::IsPointIn2DBox(CurrentScrollObject->Position - CurrentScrollObject->Scale, CurrentScrollObject->Position, Input::MouseLocation))); // do some very questionable math to check if the mouse is inside the scroll area;
+			Math::IsPointIn2DBox(CurrentScrollObject->Position - CurrentScrollObject->Scale,
+				CurrentScrollObject->Position, Input::MouseLocation))); // do some very questionable math to check if the mouse is inside the scroll area;
 }
 
 namespace UI

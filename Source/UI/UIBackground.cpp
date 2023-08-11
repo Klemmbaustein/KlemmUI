@@ -107,7 +107,7 @@ void UIBackground::Draw()
 	glUniform4f(glGetUniformLocation(BackgroundShader->GetShaderID(), "u_color"), Color.X, Color.Y, Color.Z, 1.f);
 	glUniform4f(glGetUniformLocation(BackgroundShader->GetShaderID(), "u_transform"), OffsetPosition.X, OffsetPosition.Y, Size.X, Size.Y);
 	glUniform1f(glGetUniformLocation(BackgroundShader->GetShaderID(), "u_opacity"), Opacity);
-	glUniform1i(glGetUniformLocation(BackgroundShader->GetShaderID(), "u_borderType"), BorderType);
+	glUniform1i(glGetUniformLocation(BackgroundShader->GetShaderID(), "u_borderType"), (unsigned int)BoxBorder);
 	glUniform1f(glGetUniformLocation(BackgroundShader->GetShaderID(), "u_borderScale"), BorderRadius / 20.0f);
 	glUniform1f(glGetUniformLocation(BackgroundShader->GetShaderID(), "u_aspectratio"), Application::AspectRatio);
 	if (UseTexture)
@@ -124,4 +124,17 @@ void UIBackground::Update()
 
 void UIBackground::OnAttached()
 {
+}
+
+UIBackgroundStyle::UIBackgroundStyle(std::string Name) : UIStyle("UIBackground: " + Name)
+{
+}
+
+void UIBackgroundStyle::ApplyDerived(UIBox* Target)
+{
+	UIBackground* TargetBG = ToSafeElemPtr<UIBackground>(Target);
+
+	TargetBG->SetColor(Color);
+	TargetBG->SetOpacity(Opacity);
+	TargetBG->SetUseTexture(UseTexture, TextureID);
 }

@@ -6,6 +6,7 @@
 #include <Input.h>
 #include <Math/MathHelpers.h>
 #include <Rendering/ScrollObject.h>
+#include <iostream>
 
 namespace UI
 {
@@ -16,10 +17,15 @@ void UIButton::ScrollTick(Shader* UsedShader)
 {
 	if (CurrentScrollObject != nullptr)
 	{
-		glUniform3f(glGetUniformLocation(UsedShader->GetShaderID(), "u_offset"), -CurrentScrollObject->Percentage, CurrentScrollObject->Position.Y, CurrentScrollObject->Position.Y - CurrentScrollObject->Scale.Y);
+		glUniform3f(glGetUniformLocation(UsedShader->GetShaderID(), "u_offset"),
+			-CurrentScrollObject->Percentage,
+			CurrentScrollObject->Position.Y, 
+			CurrentScrollObject->Position.Y - CurrentScrollObject->Scale.Y);
 	}
 	else
+	{
 		glUniform3f(glGetUniformLocation(UsedShader->GetShaderID(), "u_offset"), 0, -1000, 1000);
+	}
 }
 
 void UIButton::MakeGLBuffers()
@@ -45,7 +51,7 @@ void UIButton::Tick()
 	{
 		return;
 	}
-	ButtonColorMultiplier = 1.0f;
+	CurrentButtonState = ButtonState::Normal;
 	if (UI::HoveredBox == this && !IsHovered)
 	{
 		RedrawUI();
@@ -62,9 +68,9 @@ void UIButton::Tick()
 	//}
 
 
-	if (UI::HoveredBox == this) // do some very questionable math to check if the mouse is inside the scroll area
+	if (UI::HoveredBox == this)
 	{
-		ButtonColorMultiplier = 0.8f;
+		CurrentButtonState = ButtonState::Hovered;
 	}
 	else if (IsPressed && UI::HoveredBox != this)
 	{
@@ -79,14 +85,14 @@ void UIButton::Tick()
 
 	if (IsSelected)
 	{
-		ButtonColorMultiplier = 0.6f;
+		CurrentButtonState = ButtonState::Hovered;
 	}
 
 	if (UI::HoveredBox == this)
 	{
 		if (Input::IsLMBDown)
 		{
-			ButtonColorMultiplier = 0.5f;
+			CurrentButtonState = ButtonState::Pressed;
 			if (!IsPressed)
 			{
 				RedrawUI();
@@ -178,6 +184,32 @@ UIButton* UIButton::SetColor(Vector3f32 NewColor)
 	return this;
 }
 
+UIButton* UIButton::SetHoveredColor(Vector3f32 NewColor)
+{
+	if (NewColor != Color)
+	{
+		HoveredColor = NewColor;
+		if (IsHovered)
+		{
+			RedrawUI();
+		}
+	}
+	return this;
+}
+
+UIButton* UIButton::SetPressedColor(Vector3f32 NewColor)
+{
+	if (NewColor != Color)
+	{
+		PressedColor = NewColor;
+		if (IsPressed)
+		{
+			RedrawUI();
+		}
+	}
+	return this;
+}
+
 Vector3f32 UIButton::GetColor()
 {
 	return Color;
@@ -202,6 +234,19 @@ UIButton::UIButton(bool Horizontal, Vector2f Position, Vector3f32 Color, void(*P
 	MakeGLBuffers();
 }
 
+UIButton::UIButton(bool Horizontal, Vector2f Position, UIButtonStyle* Style, void(*PressedFunc)()) 
+	: UIButton(Horizontal, Position, 1, PressedFunc)
+{
+	Style->ApplyTo(this);
+}
+
+UIButton::UIButton(bool Horizontal, Vector2f Position, UIButtonStyle* Style, void(*PressedFunc)(int), int ButtonIndex)
+	: UIButton(Horizontal, Position, 1, PressedFunc, ButtonIndex)
+{
+	Style->ApplyTo(this);
+
+}
+
 UIButton::~UIButton()
 {
 	delete ButtonVertexBuffer;
@@ -214,15 +259,30 @@ void UIButton::Update()
 void UIButton::Draw()
 {
 	UI::UIShader->Bind();
+	Vector3f UsedColor;
+	switch (CurrentButtonState)
+	{
+	case UIButton::ButtonState::Normal:
+		UsedColor = Color;
+		break;
+	case UIButton::ButtonState::Hovered:
+		UsedColor = HoveredColor;
+		break;
+	case UIButton::ButtonState::Pressed:
+		UsedColor = PressedColor;
+		break;
+	default:
+		break;
+	}
+
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, TextureID);
 	ButtonVertexBuffer->Bind();
 	ScrollTick(UI::UIShader);
 	glUniform4f(glGetUniformLocation(UI::UIShader->GetShaderID(), "u_transform"), OffsetPosition.X, OffsetPosition.Y, Size.X, Size.Y);
-	glUniform4f(glGetUniformLocation(UI::UIShader->GetShaderID(), "u_color"),
-		ButtonColorMultiplier * Color.X, ButtonColorMultiplier * Color.Y, ButtonColorMultiplier * Color.Z, 1.f);
+	glUniform4f(glGetUniformLocation(UI::UIShader->GetShaderID(), "u_color"), UsedColor.X, UsedColor.Y, UsedColor.Z, 1.f);
 	glUniform1f(glGetUniformLocation(UI::UIShader->GetShaderID(), "u_opacity"), Opacity);
-	glUniform1i(glGetUniformLocation(UI::UIShader->GetShaderID(), "u_borderType"), BorderType);
+	glUniform1i(glGetUniformLocation(UI::UIShader->GetShaderID(), "u_borderType"), (unsigned int)BoxBorder);
 	glUniform1f(glGetUniformLocation(UI::UIShader->GetShaderID(), "u_borderScale"), BorderRadius / 20.0f);
 	glUniform1f(glGetUniformLocation(UI::UIShader->GetShaderID(), "u_aspectratio"), Application::AspectRatio);
 
@@ -232,4 +292,18 @@ void UIButton::Draw()
 		glUniform1i(glGetUniformLocation(UI::UIShader->GetShaderID(), "u_usetexture"), 0);
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 	ButtonVertexBuffer->Unbind();
+}
+
+UIButtonStyle::UIButtonStyle(std::string Name) : UIStyle("Button: " + Name)
+{
+}
+
+void UIButtonStyle::ApplyDerived(UIBox* Target)
+{
+	UIButton* TargetButton = ToSafeElemPtr<UIButton>(Target);
+	TargetButton->SetColor(Color);
+	TargetButton->SetHoveredColor(HoveredColor);
+	TargetButton->SetPressedColor(PressedColor);
+	TargetButton->SetUseTexture(UseTexture, TextureID);
+	TargetButton->SetOpacity(Opacity);
 }

@@ -120,11 +120,11 @@ void UITextField::Tick()
 		{
 			IBeamPosition = NewPos;
 			IBeamScale = Vector2f(0.002, 0.066) * TextSize * 2;
-			UIBox::RedrawUI();
+			RedrawUI();
 		}
 		if (!ShowIBeam)
 		{
-			UIBox::RedrawUI();
+			RedrawUI();
 		}
 		ShowIBeam = true;
 	}
@@ -132,7 +132,7 @@ void UITextField::Tick()
 	{
 		if (ShowIBeam)
 		{
-			UIBox::RedrawUI();
+			RedrawUI();
 		}
 		ShowIBeam = false;
 	}
@@ -164,10 +164,42 @@ UITextField* UITextField::SetTextSize(float NewTextSize)
 	return this;
 }
 
+UITextField* UITextField::SetTextRenderer(TextRenderer* Font)
+{
+	TextObject->SetTextRenderer(Font);
+	return this;
+}
+
 UITextField* UITextField::SetHintText(std::string NewHintText)
 {
 	HintText = NewHintText;
 	return this;
+}
+
+UITextField* UITextField::SetColor(Vector3f32 NewColor)
+{
+	if (NewColor != Color)
+	{
+		Color = NewColor;
+		RedrawUI();
+	}
+	return this;
+}
+
+Vector3f32 UITextField::GetColor()
+{
+	return Color;
+}
+
+UITextField* UITextField::SetTextColor(Vector3f32 NewColor)
+{
+	TextObject->SetColor(NewColor);
+	return this;
+}
+
+Vector3f32 UITextField::GetTextColor()
+{
+	return TextObject->GetColor();
 }
 
 float UITextField::GetTextSize()
@@ -207,6 +239,12 @@ UITextField::UITextField(bool Horizontal, Vector2f Position, Vector3f32 Color, T
 	//SetMinSize(Vector2(0.1, 0.04));
 }
 
+UITextField::UITextField(bool Horizontal, Vector2f Position, UIStyle* Style, void(*PressedFunc)())
+	: UITextField(Horizontal, Position, 1, nullptr, PressedFunc)
+{
+	Style->ApplyTo(this);
+}
+
 UITextField::~UITextField()
 {
 	IsEdited = false;
@@ -227,14 +265,14 @@ void UITextField::Draw()
 		ButtonColorMultiplier * Color.X, ButtonColorMultiplier * Color.Y, ButtonColorMultiplier * Color.Z, 1.f);
 	glUniform1f(glGetUniformLocation(UI::UIShader->GetShaderID(), "u_opacity"), 1.0);
 	glUniform1i(glGetUniformLocation(UI::UIShader->GetShaderID(), "u_usetexture"), 0);
-	UI::UIShader->SetInt("u_borderType", BorderType);
+	UI::UIShader->SetInt("u_borderType", (unsigned int)BoxBorder);
 	glUniform1f(glGetUniformLocation(UI::UIShader->GetShaderID(), "u_borderScale"), BorderRadius / 20.0f);
 	glUniform1f(glGetUniformLocation(UI::UIShader->GetShaderID(), "u_aspectratio"), Application::AspectRatio);
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 	if (ShowIBeam)
 	{
 		glUniform4f(glGetUniformLocation(UI::UIShader->GetShaderID(), "u_color"), 1, 1, 1, 1);
-		UI::UIShader->SetInt("u_borderType", UIBox::E_NONE);
+		UI::UIShader->SetInt("u_borderType", (unsigned int)UIBox::BorderType::None);
 		glUniform4f(glGetUniformLocation(UI::UIShader->GetShaderID(), "u_transform"), IBeamPosition.X, IBeamPosition.Y, IBeamScale.X, IBeamScale.Y);
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 	}
@@ -243,4 +281,19 @@ void UITextField::Draw()
 
 void UITextField::Update()
 {
+}
+
+UITextFieldStyle::UITextFieldStyle(std::string Name, TextRenderer* Font) : UIStyle("UITextField: " + Name)
+{
+	this->Font = Font;
+}
+
+void UITextFieldStyle::ApplyDerived(UIBox* Target)
+{
+	UITextField* TargetField = ToSafeElemPtr<UITextField>(Target);
+	TargetField->SetText(DefaultText);
+	TargetField->SetHintText(HintText);
+	TargetField->SetColor(Color);
+	TargetField->SetTextColor(TextColor);
+	TargetField->SetTextRenderer(Font);
 }

@@ -6,7 +6,9 @@
 #include <filesystem>
 
 namespace FileExplorer
-{
+{	
+	UIButtonStyle* BrowserButtonStyle = new UIButtonStyle("BrowserButton");
+
 	UITextField* PathText = nullptr;
 	std::filesystem::path CurrentPath;
 	UIScrollBox* FilesScrollBox = nullptr;
@@ -23,7 +25,6 @@ namespace FileExplorer
 		}
 
 		FilesScrollBox->GetScrollObject()->Percentage = 0;
-
 		CurrentPath = NewPath;
 
 		Paths.clear();
@@ -40,7 +41,7 @@ namespace FileExplorer
 			{
 				u8CurrentFile.append(u8" (Directory)");
 			}
-			FilesScrollBox->AddChild((new UIButton(true, 0, 1, [](int Index)
+			FilesScrollBox->AddChild((new UIButton(true, 0, BrowserButtonStyle, [](int Index)
 				{
 					if (std::filesystem::is_directory(Paths[Index]))
 					{
@@ -58,7 +59,7 @@ namespace FileExplorer
 					}
 				}, CurrentIndex++))
 				->SetMinSize(Vector2f(1.7, 0))
-				->AddChild(new UIText(0.4, 0, std::string(u8CurrentFile.begin(), u8CurrentFile.end()), FileExplorer::Font)));
+				->AddChild(new UIText(0.4f, 0, std::string(u8CurrentFile.begin(), u8CurrentFile.end()), FileExplorer::Font)));
 			Paths.push_back(File);
 		}
 	}
@@ -107,7 +108,10 @@ int main()
 
 	FileExplorer::Font = new TextRenderer("../Font.ttf");
 
-	FileExplorer::PathText = new UITextField(true, 0, Vector3f32(0.2), FileExplorer::Font, []()
+	FileExplorer::BrowserButtonStyle->HoveredColor = Vector3f32(1, 1, 0.25);
+	FileExplorer::BrowserButtonStyle->PressedColor = Vector3f32(1, 0.5, 0);
+
+	FileExplorer::PathText = new UITextField(true, 0, Vector3f32(0.2f), FileExplorer::Font, []()
 		{
 			FileExplorer::SetPath(FileExplorer::PathText->GetText());
 		});
@@ -119,11 +123,11 @@ int main()
 
 	FileExplorer::PathText->SetMinSize(Vector2f(1.5, 0.08));
 
-	FileExplorer::FilesScrollBox = new UIScrollBox(false, Vector2f(-1, -1), 100);
+	FileExplorer::FilesScrollBox = new UIScrollBox(false, Vector2f(-1, -1), true);
 	FileExplorer::FilesScrollBox
 		->SetMinSize(Vector2f(2, 1.85))
 		->SetMaxSize(Vector2f(2, 1.85))
-		->Align = UIBox::E_REVERSE;
+		->BoxAlign = UIBox::Align::Reverse;
 
 
 	FileExplorer::SetPath("./");

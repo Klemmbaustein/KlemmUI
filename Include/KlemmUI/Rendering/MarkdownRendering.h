@@ -12,8 +12,8 @@ namespace Markdown
 		struct CodeStyling
 		{
 			TextRenderer* CodeText = nullptr;
-			Vector3f32 Color = 1;
-			Vector3f32 BackgroundColor = 0.1;
+			Vector3f32 Color = 1.0f;
+			Vector3f32 BackgroundColor = 0.1f;
 			float Rounding = 0;
 		};
 		CodeStyling Code;

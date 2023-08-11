@@ -6,36 +6,42 @@
 class ScrollObject;
 class UIScrollBox;
 class UIButton;
+class UIStyle;
+
 class UIBox
 {
 public:
+	friend UIScrollBox;
+	friend UIStyle;
+
 	bool IsVisible = true;
-	enum E_UIAlign
+	enum class Align
 	{
-		E_DEFAULT,
-		E_CENTERED,
-		E_REVERSE
+		Default,
+		Centered,
+		Reverse
 	};
-	enum E_BorderType
+	enum class BorderType
 	{
-		E_NONE = 0,
-		E_ROUNDED = 1,
-		E_DARKENED_EDGE = 2
-	};
-
-	enum E_SizeMode
-	{
-		E_SCREEN_RELATIVE = 0,
-		E_PIXEL_RELATIVE = 1
+		None = 0,
+		Rounded = 1,
+		DarkenedEdge = 2
 	};
 
-	UIBox* SetSizeMode(E_SizeMode NewMode);
+	enum class SizeMode
+	{
+		ScreenRelative = 0,
+		PixelRelative = 1
+	};
 
-	E_BorderType BorderType;
-	float BorderRadius;
-	E_UIAlign Align = E_DEFAULT;
+	UIBox* SetSizeMode(SizeMode NewMode);
+
+	BorderType BoxBorder = BorderType::None;
+	float BorderRadius = 0;
+	Align BoxAlign = Align::Default;
 
 	UIBox(bool Horizontal, Vector2f Position);
+	UIBox(UIStyle* UsedStyle, bool Horizontal, Vector2f Position);
 	virtual ~UIBox();
 	virtual void OnAttached();
 	void InvalidateLayout();
@@ -60,9 +66,8 @@ public:
 	UIBox* SetTryFill(bool NewTryFill);
 	UIBox* SetHorizontal(bool IsHorizontal);
 	bool GetTryFill();
-	friend UIScrollBox;
 	virtual void OnChildClicked(int Index);
-	UIBox* SetBorder(UIBox::E_BorderType Type, double Size);
+	UIBox* SetBorder(BorderType Type, double Size);
 	static void ForceUpdateUI();
 	static void InitUI();
 	static unsigned int GetUIFramebuffer();
@@ -75,7 +80,10 @@ public:
 	bool IsChildOf(UIBox* Parent);
 	bool HasMouseCollision = false;
 protected:
-	E_SizeMode SizeMode;
+	static std::vector<UIBox*> UIElements;
+	UIStyle* UsedStyle = nullptr;
+	
+	SizeMode BoxSizeMode = SizeMode::ScreenRelative;
 	bool ShouldBeTicked = true;
 	bool TryFill = false;
 	virtual void Update();
@@ -110,5 +118,4 @@ namespace UI
 {
 	extern UIBox* HoveredBox;
 	extern UIBox* NewHoveredBox;
-
 }

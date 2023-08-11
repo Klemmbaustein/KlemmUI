@@ -2,6 +2,21 @@
 #include "UIBox.h"
 #include "../Math/Vector3.h"
 #include "../Math/Vector2.h"
+#include "UIStyle.h"
+
+class UIBackgroundStyle : public UIStyle
+{
+public:
+	UIBackgroundStyle(std::string Name);
+	Vector3f32 Color = 1.0f;
+
+	float Opacity = 1.0f;
+	bool UseTexture = false;
+	unsigned int TextureID = 0;
+
+protected:
+	virtual void ApplyDerived(UIBox* Target) override;
+};
 
 class Shader;
 

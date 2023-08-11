@@ -116,6 +116,7 @@
     <ClCompile Include="Source\UI\UIBox.cpp" />
     <ClCompile Include="Source\UI\UIButton.cpp" />
     <ClCompile Include="Source\UI\UIScrollBox.cpp" />
+    <ClCompile Include="Source\UI\UIStyle.cpp" />
     <ClCompile Include="Source\UI\UIText.cpp" />
     <ClCompile Include="Source\UI\UITextField.cpp" />
   </ItemGroup>
@@ -136,6 +137,7 @@
     <ClInclude Include="Include\KlemmUI\UI\UIBox.h" />
     <ClInclude Include="Include\KlemmUI\UI\UIButton.h" />
     <ClInclude Include="Include\KlemmUI\UI\UIScrollBox.h" />
+    <ClInclude Include="Include\KlemmUI\UI\UIStyle.h" />
     <ClInclude Include="Include\KlemmUI\UI\UIText.h" />
     <ClInclude Include="Include\KlemmUI\UI\UITextField.h" />
     <ClInclude Include="Source\Rendering\Framebuffer.h" />

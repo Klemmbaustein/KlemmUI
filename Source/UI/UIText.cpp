@@ -2,8 +2,19 @@
 #include <Application.h>
 
 
+UIText* UIText::SetTextRenderer(TextRenderer* Font)
+{
+	if (Font != Renderer)
+	{
+		Font = Renderer;
+		InvalidateLayout();
+	}
+	return this;
+}
+
 void UIText::Tick()
 {
+	if (!Renderer) return;
 	Vector2 NewMin = Renderer->GetTextSize(RenderedText, TextSize * 2, Wrap, WrapDistance);
 	if (TextWidthOverride > 0)
 	{
@@ -26,7 +37,7 @@ UIText* UIText::SetColor(Vector3f32 NewColor)
 		{
 			i.Color = Color;
 		}
-		InvalidateLayout();
+		RedrawUI();
 	}
 	return this;
 }
@@ -73,6 +84,7 @@ void UIText::SetText(std::string NewText)
 		RenderedText = { TextSegment(NewText, Color) };
 		if (Wrap)
 		{
+			if (!Renderer) return;
 			Vector2 s = Renderer->GetTextSize(RenderedText, TextSize * 2, Wrap, WrapDistance)
 				/ ((30 + Renderer->CharacterSizeInPixels / 2) * 60.f);
 			if (s.X < WrapDistance)
@@ -93,6 +105,7 @@ void UIText::SetText(ColoredText NewText)
 		RenderedText = NewText;
 		if (Wrap)
 		{
+			if (!Renderer) return;
 			Vector2 s = Renderer->GetTextSize(RenderedText, TextSize * 2, Wrap, WrapDistance)
 				/ ((30 + Renderer->CharacterSizeInPixels / 2) * 60.f);
 			if (s.X < WrapDistance)
@@ -141,11 +154,12 @@ UIText::~UIText()
 
 Vector2f UIText::GetLetterLocation(size_t Index)
 {
+	if (!Renderer) return 0;
 	std::string Text = TextSegment::CombineToString(RenderedText);
 	return Vector2f(Renderer->GetTextSize({ TextSegment(Text.substr(0, Index), 1) }, TextSize * 2, false, 999).X, 0) + OffsetPosition;
 }
 
-UIText* UIText::SetWrapEnabled(bool WrapEnabled, float WrapDistance, E_SizeMode WrapSizeMode)
+UIText* UIText::SetWrapEnabled(bool WrapEnabled, float WrapDistance, SizeMode WrapSizeMode)
 {
 	this->Wrap = WrapEnabled;
 	this->WrapDistance = WrapDistance;
@@ -155,6 +169,7 @@ UIText* UIText::SetWrapEnabled(bool WrapEnabled, float WrapDistance, E_SizeMode 
 
 void UIText::Draw()
 {
+	if (!Renderer) return;
 	if (Text)
 	{
 		Text->Opacity = Opacity;
@@ -164,11 +179,12 @@ void UIText::Draw()
 
 void UIText::Update()
 {
+	if (!Renderer) return;
 	if (Text) delete Text;
 	if (Wrap)
 	{
 		float Distance = WrapDistance;
-		if (WrapSizeMode == E_PIXEL_RELATIVE)
+		if (WrapSizeMode == SizeMode::PixelRelative)
 		{
 			WrapDistance /= Application::AspectRatio;
 		}
@@ -188,5 +204,6 @@ void UIText::OnAttached()
 
 Vector2f UIText::GetUsedSize()
 {
+	if (!Renderer) return 0;
 	return Renderer->GetTextSize(RenderedText, TextSize * 2, Wrap, WrapDistance);
 }

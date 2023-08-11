@@ -53,14 +53,14 @@ UIScrollBox* UIScrollBox::SetDisplayScrollBar(bool NewDisplay)
 		DisplayScrollBar = NewDisplay;
 		if (DisplayScrollBar)
 		{
-			ScrollBarBackground = new UIButton(false, 0, 0.3, nullptr, 0);
+			ScrollBarBackground = new UIButton(false, 0, 0.3f, nullptr, 0);
 			ScrollBarBackground->ParentOverride = this;
-			ScrollBarBackground->SetBorder(UIBox::E_DARKENED_EDGE, 0.2);
-			ScrollBarBackground->Align = UIBox::E_REVERSE;
+			ScrollBarBackground->SetBorder(UIBox::BorderType::DarkenedEdge, 0.2);
+			ScrollBarBackground->BoxAlign = UIBox::Align::Reverse;
 			ScrollBarBackground->SetPosition(OffsetPosition + Vector2f(Size.X - ScrollBarBackground->GetUsedSize().X, 0));
 			ScrollBar = new UIBackground(true, 0, 0.75, Vector2(0.01, 0.1));
 			ScrollBarBackground->AddChild(ScrollBar);
-			ScrollBar->SetBorder(UIBox::E_ROUNDED, 0.25);
+			ScrollBar->SetBorder(UIBox::BorderType::Rounded, 0.25);
 			ScrollBar->SetPadding(0);
 		}
 		else if (ScrollBar)

@@ -27,7 +27,7 @@ MessageCallback(
 {
 	if ((type == GL_DEBUG_TYPE_ERROR || type == GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR || type == GL_DEBUG_TYPE_PORTABILITY))
 	{
-		std::cout << message << std::endl;
+		Application::Error("OpenGL error: (" + std::to_string(id) + "): " + std::string(message));
 	}
 }
 
@@ -45,6 +45,9 @@ namespace Application
 	float Time = 0;
 
 	bool(*IsMovableCallback)() = nullptr;
+	void(*ErrorMessageCallback)(std::string Message) = [](std::string Message) {
+		std::cerr << "[KlemmUI Error]: " << Message << std::endl;
+	};
 
 	bool IsBorderless = false;
 
@@ -138,6 +141,21 @@ namespace Application
 	const std::string& GetShaderPath()
 	{
 		return ShaderPath;
+	}
+
+	void SetErrorMessageCallback(void(*Callback)(std::string))
+	{
+		ErrorMessageCallback = Callback;
+	}
+
+	void Error(std::string Message)
+	{
+		ErrorMessageCallback(Message);
+	}
+
+	void(*GetErrorMessageCallback(std::string))(std::string)
+	{
+		return ErrorMessageCallback;
 	}
 
 	float Timer::TimeSinceCreation()
@@ -429,7 +447,7 @@ void Application::Initialize(std::string WindowName, int Flags, Vector2ui Defaul
 {
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS))
 	{
-		std::cout << "SDL INIT ERROR: " << SDL_GetError() << std::endl;
+		Application::Error("SDL_Init failed: " + std::string(SDL_GetError()));
 		exit(1);
 	}
 	SDL_SetHint("SDL_BORDERLESS_WINDOWED_STYLE", "1");
@@ -462,7 +480,7 @@ void Application::Initialize(std::string WindowName, int Flags, Vector2ui Defaul
 
 	if (!Window)
 	{
-		std::cout << "SDL FAILED TO CREATE WINDOW: " << SDL_GetError() << std::endl;
+		Application::Error("SDL2 failed to create a window: " + std::string(SDL_GetError()));
 	}
 
 	if (Flags & MAXIMIZED_BIT)
@@ -492,15 +510,14 @@ void Application::Initialize(std::string WindowName, int Flags, Vector2ui Defaul
 
 	if (!GLContext)
 	{
-		std::cout << "SDL FAILED TO CREATE CONTEXT: " << SDL_GetError() << std::endl;
+		Application::Error("SDL_GL_CreateContext failed: " + std::string(SDL_GetError()));
 	}
 
 	const auto GlewInitErr = glewInit();
 
 	if (GlewInitErr != GLEW_OK)
 	{
-		std::cout << "INIT ERROR: GLEW init failed!" << std::endl;
-		std::cout << glewGetErrorString(GlewInitErr) << std::endl;
+		Application::Error(" glewInit() failed: " + std::string((const char*)glewGetErrorString(GlewInitErr)));
 		exit(1);
 		return;
 	}

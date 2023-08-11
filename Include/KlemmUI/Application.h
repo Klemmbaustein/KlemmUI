@@ -18,7 +18,10 @@ namespace Application
 	void SetShaderPath(std::string NewPath);
 	const std::string& GetShaderPath();
 
+	void SetErrorMessageCallback(void(*Callback)(std::string));
 
+	void Error(std::string Message);
+	
 	void UpdateWindow();
 
 	bool GetWindowHasFocus();

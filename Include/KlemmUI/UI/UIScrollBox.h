@@ -2,6 +2,8 @@
 #include "UIBox.h"
 #include "../Rendering/ScrollObject.h"
 
+// TODO: Styles
+
 class UIBackground;
 class UIButton;
 

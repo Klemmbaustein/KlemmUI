@@ -231,7 +231,8 @@ UIButton::UIButton(bool Horizontal, Vector2f Position, Vector3f32 Color, void(*P
 	if (UI::UIShader == nullptr) UI::UIShader = new Shader(Application::GetShaderPath() + "/uishader.vert", Application::GetShaderPath() + "/uishader.frag");
 	this->PressedFuncIndex = PressedFunc;
 	this->Color = Color;
-	this->ButtonIndex = ButtonIndex;
+	this->HoveredColor = Color * 0.75;
+	this->PressedColor = Color * 0.5;	this->ButtonIndex = ButtonIndex;
 	HasMouseCollision = true;
 	MakeGLBuffers();
 }

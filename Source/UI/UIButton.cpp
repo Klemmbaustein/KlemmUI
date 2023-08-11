@@ -186,7 +186,7 @@ UIButton* UIButton::SetColor(Vector3f32 NewColor)
 
 UIButton* UIButton::SetHoveredColor(Vector3f32 NewColor)
 {
-	if (NewColor != Color)
+	if (NewColor != HoveredColor)
 	{
 		HoveredColor = NewColor;
 		if (IsHovered)
@@ -199,7 +199,7 @@ UIButton* UIButton::SetHoveredColor(Vector3f32 NewColor)
 
 UIButton* UIButton::SetPressedColor(Vector3f32 NewColor)
 {
-	if (NewColor != Color)
+	if (NewColor != PressedColor)
 	{
 		PressedColor = NewColor;
 		if (IsPressed)

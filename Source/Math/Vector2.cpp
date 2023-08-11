@@ -61,6 +61,12 @@ Vector2<T> Vector2<T>::Normalize()
 }
 
 template<typename T>
+std::string Vector2<T>::ToString()
+{
+	return std::to_string(X) + " " + std::to_string(Y);
+}
+
+template<typename T>
 Vector2<T> Vector2<T>::Clamp(Vector2<T> Min, Vector2<T> Max)
 {
 	T NewX = std::min(Max.X, std::max(Min.X, X));

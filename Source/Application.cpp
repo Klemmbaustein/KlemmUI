@@ -28,6 +28,7 @@ MessageCallback(
 	if ((type == GL_DEBUG_TYPE_ERROR || type == GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR || type == GL_DEBUG_TYPE_PORTABILITY))
 	{
 		Application::Error("OpenGL error: (" + std::to_string(id) + "): " + std::string(message));
+		throw 0;
 	}
 }
 

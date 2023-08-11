@@ -3,6 +3,7 @@
 #include <GL/glew.h>
 #include <fstream>
 #include <sstream>
+#include <Application.h>
 
 void Shader::CheckCompileErrors(unsigned int ShaderID, std::string Type)
 {
@@ -14,7 +15,12 @@ void Shader::CheckCompileErrors(unsigned int ShaderID, std::string Type)
 		if (!success)
 		{
 			glGetShaderInfoLog(ShaderID, 1024, NULL, infoLog);
-			std::cout << "ERROR::SHADER_COMPILATION_ERROR of type: " << Type << "\n" << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
+			Application::Error("Shader compilation error of type: "
+				+ Type 
+				+ "\n"
+				+ std::string(infoLog)
+				+ "\n -- --------------------------------------------------- -- ");
+			throw 0;
 		}
 	}
 	else
@@ -23,7 +29,12 @@ void Shader::CheckCompileErrors(unsigned int ShaderID, std::string Type)
 		if (!success)
 		{
 			glGetProgramInfoLog(ShaderID, 1024, NULL, infoLog);
-			std::cout << "ERROR::PROGRAM_LINKING_ERROR of type: " << Type << "\n" << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
+			Application::Error("Shader linking error of type: "
+				+ Type 
+				+ "\n"
+				+ std::string(infoLog)
+				+ "\n -- --------------------------------------------------- -- ");
+			throw 0;
 		}
 	}
 }
@@ -73,8 +84,10 @@ Shader::Shader(std::string VertexPath, std::string FragmentPath, std::string Geo
 	}
 	catch (std::ifstream::failure& e)
 	{
-		std::cout << "ERROR::SHADER::FILE_NOT_SUCCESSFULLY_READ: " << e.what() << std::endl;
-		std::cout << "Files: " << VertexPath << ", " << FragmentPath << std::endl;
+		Application::Error("Error: Could not read shader file.\n" 
+			+ std::string(e.what())
+			+ "\nWhile compiling shader files: " + VertexPath + ", " + FragmentPath);
+		throw 0;
 	}
 	const char* vShaderCode = vertexCode.c_str();
 	const char* fShaderCode = fragmentCode.c_str();

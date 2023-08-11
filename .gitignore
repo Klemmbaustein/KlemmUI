@@ -14,3 +14,4 @@ Build/
 SDL/
 Examples/FileExplorer/FileExplorer
 Examples/HelloWorld/HelloWorld
+/Examples/FileExplorer/Debug

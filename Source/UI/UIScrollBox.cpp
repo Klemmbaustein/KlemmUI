@@ -81,7 +81,14 @@ void UIScrollBox::Tick()
 	ScrollClass.Active = UI::HoveredBox && (UI::HoveredBox == this || UI::HoveredBox->IsChildOf(this));
 	CurrentScrollObject = nullptr;
 	bool VisibleInHierarchy = IsVisibleInHierarchy();
-	DesiredMaxScroll = GetDesiredChildrenSize();
+	if (MaxScroll == -1)
+	{
+		DesiredMaxScroll = GetDesiredChildrenSize();
+	}
+	else
+	{
+		DesiredMaxScroll = MaxScroll + Size.Y;
+	}
 	ScrollBarBackground->IsVisible = VisibleInHierarchy;
 	if (ScrollBar && VisibleInHierarchy)
 	{
@@ -116,7 +123,7 @@ void UIScrollBox::Tick()
 			{
 				ScrollClass.Percentage = std::max(
 					std::min(
-						InitialScrollPosition - (float)((Input::MouseLocation.Y - InitialDragPosition) * 1.5 / ScrollBar->GetUsedSize().Y),
+						InitialScrollPosition - (float)((Input::MouseLocation.Y - InitialDragPosition) * Size.Y / ScrollBar->GetUsedSize().Y),
 						ScrollClass.MaxScroll),
 					0.0f);
 			}

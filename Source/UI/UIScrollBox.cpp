@@ -116,7 +116,7 @@ void UIScrollBox::Tick()
 			{
 				ScrollClass.Percentage = std::max(
 					std::min(
-						InitialScrollPosition - (float)((Input::MouseLocation.Y - InitialDragPosition) / ScrollBar->GetUsedSize().Y * ScrollClass.MaxScroll),
+						InitialScrollPosition - (float)((Input::MouseLocation.Y - InitialDragPosition) * 1.5 / ScrollBar->GetUsedSize().Y),
 						ScrollClass.MaxScroll),
 					0.0f);
 			}

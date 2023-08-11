@@ -125,41 +125,58 @@ TextRenderer::TextRenderer(std::string filename, float CharacterSizeInPixels)
 
 Vector2f TextRenderer::GetTextSize(ColoredText Text, float Scale, bool Wrapped, float LengthBeforeWrap)
 {
+	LengthBeforeWrap *= 1350 * Application::AspectRatio;
 	float originalScale = Scale;
 	Scale /= CharacterSizeInPixels;
-	Scale *= 60.0f;
-	LengthBeforeWrap *= 1350 * Application::AspectRatio;
+	Scale *= 7.5f;
 	stbtt_bakedchar* cdata = (stbtt_bakedchar*)cdatapointer;
-	std::string TextString = TextSegment::CombineToString(Text);
 	float MaxHeight = 0.0f;
 	float x = 0.f, y = 0.f;
+	float MaxX = 0.0f;
+	FontVertex* vData = fontVertexBufferData;
 	Uint32 numVertices = 0;
-	for (auto& c : TextString)
+	size_t Wraps = 0;
+	for (auto& seg : Text)
 	{
-		bool IsTab = false;
-		if (c == '	')
+		size_t LastWordIndex = SIZE_MAX;
+		size_t LastWrapIndex = 0;
+		size_t LastWordNumVertices = 0;
+		FontVertex* LastWordVDataPtr = nullptr;
+		for (size_t i = 0; i < seg.Text.size(); i++)
 		{
-			c = ' ';
-			IsTab = true;
-		}
-		if (c >= 32 && c < 128)
-		{
-			stbtt_aligned_quad q;
-			for (int i = 0; i < (IsTab ? 4 : 1); i++)
+			if (seg.Text[i] >= 32 && seg.Text[i] < 128)
 			{
-				stbtt_GetBakedQuad(cdata, 2048, 2048, c - 32, &x, &y, &q, 1);
-			}
-			MaxHeight = std::max(q.y1 - q.y0, MaxHeight);
-			numVertices += 6;
-			if (x > LengthBeforeWrap / CharacterSizeInPixels * 150 && Wrapped)
-			{
-				x = 0;
-				y += CharacterSizeInPixels;
+				stbtt_aligned_quad q;
+				stbtt_GetBakedQuad(cdata, 2048, 2048, seg.Text[i] - 32, &x, &y, &q, 1);
+
+				if (seg.Text[i] == ' ')
+				{
+					LastWordIndex = i;
+					LastWordNumVertices = numVertices;
+					LastWordVDataPtr = vData;
+				}
+
+				MaxHeight = std::max(q.y1 - q.y0, MaxHeight);
+				vData += 6;
+				numVertices += 6;
+				MaxX = std::max(MaxX, x);
+				if (x > LengthBeforeWrap / CharacterSizeInPixels * 150 && Wrapped)
+				{
+					Wraps++;
+					if (LastWordIndex != SIZE_MAX && LastWordIndex != LastWrapIndex)
+					{
+						i = LastWordIndex;
+						LastWrapIndex = i;
+						vData = LastWordVDataPtr;
+						numVertices = LastWordNumVertices;
+					}
+					x = 0;
+					y += CharacterSizeInPixels;
+				}
 			}
 		}
 	}
-
-	return (Vector2f(x, y + CharacterSizeInPixels) / Vector2f(1800 * Application::AspectRatio, 1800)) * Scale;
+	return (Vector2f(MaxX, y + CharacterSizeInPixels) / Vector2f(1350 * Application::AspectRatio, 1350)) * Scale * 6;
 }
 
 

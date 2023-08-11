@@ -57,6 +57,8 @@ public:
 		return *this;
 	}
 
+	std::string ToString();
+
 	Vector2<T> Clamp(Vector2<T> Min, Vector2<T> Max);
 };
 

@@ -165,6 +165,7 @@ unsigned int UIBox::GetUIFramebuffer()
 	return UI::UITexture;
 }
 
+
 void UIBox::RedrawUI()
 {
 	UI::RequiresRedraw = true;
@@ -181,7 +182,7 @@ void UIBox::ClearUI()
 		}
 	}
 	UIElements.clear();
-	UI::RequiresRedraw = true;
+	RedrawUI();
 }
 
 bool UIBox::GetShouldRedrawUI()
@@ -439,7 +440,7 @@ void UIBox::UpdatePosition()
 
 void UIBox::InvalidateLayout()
 {
-	UI::RequiresRedraw = true;
+	RedrawUI();
 	UI::ElementsToUpdate.insert(this);
 }
 
@@ -503,7 +504,7 @@ bool UIBox::DrawAllUIElements()
 	{
 		if (elem->IsVisible != elem->PrevIsVisible)
 		{
-			UI::RequiresRedraw = true;
+			RedrawUI();
 			elem->PrevIsVisible = elem->IsVisible;
 		}
 		if (elem->ShouldBeTicked)

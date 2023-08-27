@@ -104,7 +104,7 @@ int main()
 {
 	Application::SetShaderPath("../../Shaders");
 
-	Application::Initialize("Hello, World", 0);
+	Application::Initialize("File explorer", 0);
 
 	FileExplorer::Font = new TextRenderer("../Font.ttf");
 

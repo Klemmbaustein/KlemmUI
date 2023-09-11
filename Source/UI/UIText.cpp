@@ -212,12 +212,12 @@ void UIText::Update()
 		{
 			WrapDistance = UIBox::PixelSizeToScreenSize(Vector2f((double)WrapDistance, 0.0)).X;
 		}
-		Text = Renderer->MakeText(RenderedText, OffsetPosition,
+		Text = Renderer->MakeText(RenderedText, OffsetPosition + Vector2f(0, RenderedSize / 200),
 			RenderedSize, Color, Opacity, Distance);
 	}
 	else
 	{
-		Text = Renderer->MakeText(RenderedText, OffsetPosition,
+		Text = Renderer->MakeText(RenderedText, OffsetPosition + Vector2f(0, RenderedSize / 200),
 			RenderedSize, Color, Opacity, 999);
 	}
 }

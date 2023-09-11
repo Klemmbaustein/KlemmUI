@@ -320,7 +320,7 @@ void UIBox::UpdateSelfAndChildren()
 
 Vector2f UIBox::PixelSizeToScreenSize(Vector2f PixelSize)
 {
-	PixelSize.X = PixelSize.X / (double)Application::GetWindowResolution().X * 1920;
+	PixelSize.X = PixelSize.X / (double)Application::GetWindowResolution().X * 1080;
 	PixelSize.Y = PixelSize.Y / (double)Application::GetWindowResolution().Y * 1080;
 	return PixelSize;
 }

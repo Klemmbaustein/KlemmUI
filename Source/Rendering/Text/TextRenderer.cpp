@@ -277,7 +277,7 @@ void TextRenderer::Reinit()
 {
 	if (fontVertexBufferData)
 	{
-		delete[]fontVertexBufferData;
+		delete[] fontVertexBufferData;
 	}
 	delete[] (stbtt_bakedchar*)cdatapointer;
 	stbtt_bakedchar* cdata = new stbtt_bakedchar[96];

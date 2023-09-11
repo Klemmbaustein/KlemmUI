@@ -318,6 +318,14 @@ void UIBox::UpdateSelfAndChildren()
 	Update();
 }
 
+Vector2f UIBox::PixelSizeToScreenSize(Vector2f PixelSize)
+{
+	PixelSize.X /= (double)Application::GetWindowResolution().X * 1920;
+	PixelSize.Y /= (double)Application::GetWindowResolution().Y * 1080;
+	PixelSize.X /= Application::AspectRatio;
+	return PixelSize;
+}
+
 void UIBox::UpdateScale()
 {
 	for (auto c : Children)
@@ -341,10 +349,15 @@ void UIBox::UpdateScale()
 
 	Vector2f AdjustedMinSize = MinSize;
 	Vector2f AdjustedMaxSize = MaxSize;
-	if (BoxSizeMode == SizeMode::PixelRelative)
+	if (BoxSizeMode == SizeMode::AspectRelative)
 	{
 		AdjustedMinSize.X /= Application::AspectRatio;
 		AdjustedMaxSize.X /= Application::AspectRatio;
+	}
+	if (BoxSizeMode == SizeMode::PixelRelative)
+	{
+		AdjustedMinSize = PixelSizeToScreenSize(AdjustedMinSize);
+		AdjustedMaxSize = PixelSizeToScreenSize(AdjustedMaxSize);
 	}
 
 	Size = Size.Clamp(AdjustedMinSize, AdjustedMaxSize);

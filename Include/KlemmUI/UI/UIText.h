@@ -17,6 +17,7 @@ class UIText : public UIBox
 	double TextWidthOverride = 0;
 	float Opacity = 1.f;
 	SizeMode WrapSizeMode = SizeMode::ScreenRelative;
+	SizeMode TextSizeMode = SizeMode::AspectRelative;
 public:
 	UIText* SetTextRenderer(TextRenderer* Font);
 	void Tick() override;
@@ -26,6 +27,7 @@ public:
 	UIText* SetColor(Vector3f32 NewColor);
 	UIText* SetOpacity(float NewOpacity);
 	UIText* SetTextSize(float Size);
+	UIText* SetTextSizeMode(SizeMode NewMode);
 	float GetTextSize();
 	UIText* SetTextWidthOverride(float NewTextWidthOverride);
 

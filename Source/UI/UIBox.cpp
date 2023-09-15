@@ -540,14 +540,13 @@ bool UIBox::DrawAllUIElements()
 		UI::ElementsToUpdate.clear();
 		glViewport(0, 0, Application::GetWindowResolution().X * 2, Application::GetWindowResolution().Y * 2);
 		glBindFramebuffer(GL_FRAMEBUFFER, UI::UIBuffer);
-		//glClearColor(0, 0, 0, 0);
+		glClearColor(0, 0, 0, 1);
 		glClear(GL_COLOR_BUFFER_BIT);
 		for (UIBox* elem : UIElements)
 		{
 			if (elem->Parent == nullptr)
 				elem->DrawThisAndChildren();
 		}
-		//glClearColor(0, 0, 0, 1);
 		glViewport(0, 0, Application::GetWindowResolution().X, Application::GetWindowResolution().Y);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		return true;

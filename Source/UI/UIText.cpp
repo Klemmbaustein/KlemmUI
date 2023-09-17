@@ -15,7 +15,12 @@ UIText* UIText::SetTextRenderer(TextRenderer* Font)
 void UIText::Tick()
 {
 	if (!Renderer) return;
-	Vector2 NewMin = Renderer->GetTextSize(RenderedText, TextSize * 2, Wrap, WrapDistance);
+	float RenderedSize = TextSize * 2;
+	if (TextSizeMode == SizeMode::PixelRelative)
+	{
+		RenderedSize = RenderedSize * 1080 / Application::GetWindowResolution().Y;
+	}
+	Vector2 NewMin = Renderer->GetTextSize(RenderedText, RenderedSize, Wrap, WrapDistance);
 	if (TextWidthOverride > 0)
 	{
 		NewMin.X = std::max(MinSize.X, TextWidthOverride);
@@ -62,6 +67,16 @@ UIText* UIText::SetTextSize(float Size)
 	return this;
 }
 
+UIText* UIText::SetTextSizeMode(SizeMode NewMode)
+{
+	if (this->TextSizeMode != NewMode)
+	{
+		RedrawUI();
+		this->TextSizeMode = NewMode;
+	}
+	return this;
+}
+
 float UIText::GetTextSize()
 {
 	return TextSize / 2;
@@ -79,23 +94,7 @@ UIText* UIText::SetTextWidthOverride(float NewTextWidthOverride)
 
 void UIText::SetText(std::string NewText)
 {
-	if (NewText != TextSegment::CombineToString(RenderedText))
-	{
-		RenderedText = { TextSegment(NewText, Color) };
-		if (Wrap)
-		{
-			if (!Renderer) return;
-			Vector2 s = Renderer->GetTextSize(RenderedText, TextSize * 2, Wrap, WrapDistance)
-				/ ((30 + Renderer->CharacterSizeInPixels / 2) * 60.f);
-			if (s.X < WrapDistance)
-			{
-				Update();
-				RedrawUI();
-				return;
-			}
-		}
-		InvalidateLayout();
-	}
+	SetText({TextSegment(NewText, Color)});
 }
 
 void UIText::SetText(ColoredText NewText)
@@ -106,7 +105,22 @@ void UIText::SetText(ColoredText NewText)
 		if (Wrap)
 		{
 			if (!Renderer) return;
-			Vector2 s = Renderer->GetTextSize(RenderedText, TextSize * 2, Wrap, WrapDistance)
+			float RenderedSize = TextSize * 2;
+			if (TextSizeMode == SizeMode::PixelRelative)
+			{
+				RenderedSize = RenderedSize * 1080 / Application::GetWindowResolution().Y;
+			}
+			float Distance = WrapDistance;
+			if (WrapSizeMode == SizeMode::AspectRelative)
+			{
+				WrapDistance /= Application::AspectRatio;
+			}
+			if (WrapSizeMode == SizeMode::PixelRelative)
+			{
+				WrapDistance = UIBox::PixelSizeToScreenSize(Vector2f((double)WrapDistance, 0.0)).X;
+			}
+
+			Vector2 s = Renderer->GetTextSize(RenderedText, RenderedSize, Wrap, Distance)
 				/ ((30 + Renderer->CharacterSizeInPixels / 2) * 60.f);
 			if (s.X < WrapDistance)
 			{
@@ -156,7 +170,12 @@ Vector2f UIText::GetLetterLocation(size_t Index)
 {
 	if (!Renderer) return 0;
 	std::string Text = TextSegment::CombineToString(RenderedText);
-	return Vector2f(Renderer->GetTextSize({ TextSegment(Text.substr(0, Index), 1) }, TextSize * 2, false, 999).X, 0) + OffsetPosition;
+	float RenderedSize = TextSize * 2;
+	if (TextSizeMode == SizeMode::PixelRelative)
+	{
+		RenderedSize = RenderedSize * 1080 / Application::GetWindowResolution().Y;
+	}
+	return Vector2f(Renderer->GetTextSize({ TextSegment(Text.substr(0, Index), 1) }, RenderedSize, false, 999).X, 0) + OffsetPosition;
 }
 
 UIText* UIText::SetWrapEnabled(bool WrapEnabled, float WrapDistance, SizeMode WrapSizeMode)
@@ -179,22 +198,37 @@ void UIText::Draw()
 
 void UIText::Update()
 {
-	if (!Renderer) return;
-	if (Text) delete Text;
+	if (!Renderer)
+	{
+		return;
+	}
+	if (Text)
+	{
+		delete Text;
+	}
+	float RenderedSize = TextSize * 2;
+	if (TextSizeMode == SizeMode::PixelRelative)
+	{
+		RenderedSize = RenderedSize * 1080 / Application::GetWindowResolution().Y;
+	}
 	if (Wrap)
 	{
 		float Distance = WrapDistance;
-		if (WrapSizeMode == SizeMode::PixelRelative)
+		if (WrapSizeMode == SizeMode::AspectRelative)
 		{
 			WrapDistance /= Application::AspectRatio;
 		}
-		Text = Renderer->MakeText(RenderedText, OffsetPosition + Vector2f(0, Size.Y - TextSize / 20),
-			TextSize * 2, Color, Opacity, Distance);
+		if (WrapSizeMode == SizeMode::PixelRelative)
+		{
+			WrapDistance = UIBox::PixelSizeToScreenSize(Vector2f((double)WrapDistance, 0.0)).X;
+		}
+		Text = Renderer->MakeText(RenderedText, OffsetPosition + Vector2f(0, Size.Y - RenderedSize / 40),
+			RenderedSize, Color, Opacity, Distance);
 	}
 	else
 	{
-		Text = Renderer->MakeText(RenderedText, OffsetPosition + Vector2f(0, Size.Y - TextSize / 20),
-			TextSize * 2, Color, Opacity, 999);
+		Text = Renderer->MakeText(RenderedText, OffsetPosition + Vector2f(0, Size.Y - RenderedSize / 40),
+			RenderedSize, Color, Opacity, 999);
 	}
 }
 
@@ -205,5 +239,10 @@ void UIText::OnAttached()
 Vector2f UIText::GetUsedSize()
 {
 	if (!Renderer) return 0;
-	return Renderer->GetTextSize(RenderedText, TextSize * 2, Wrap, WrapDistance);
+	float RenderedSize = TextSize * 2;
+	if (TextSizeMode == SizeMode::PixelRelative)
+	{
+		RenderedSize = RenderedSize * 1080 / Application::GetWindowResolution().Y;
+	}
+	return Renderer->GetTextSize(RenderedText, RenderedSize, Wrap, WrapDistance);
 }

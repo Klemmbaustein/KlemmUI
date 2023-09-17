@@ -318,6 +318,13 @@ void UIBox::UpdateSelfAndChildren()
 	Update();
 }
 
+Vector2f UIBox::PixelSizeToScreenSize(Vector2f PixelSize)
+{
+	PixelSize.X = PixelSize.X / (double)Application::GetWindowResolution().X * 1080;
+	PixelSize.Y = PixelSize.Y / (double)Application::GetWindowResolution().Y * 1080;
+	return PixelSize;
+}
+
 void UIBox::UpdateScale()
 {
 	for (auto c : Children)
@@ -341,10 +348,15 @@ void UIBox::UpdateScale()
 
 	Vector2f AdjustedMinSize = MinSize;
 	Vector2f AdjustedMaxSize = MaxSize;
-	if (BoxSizeMode == SizeMode::PixelRelative)
+	if (BoxSizeMode == SizeMode::AspectRelative)
 	{
 		AdjustedMinSize.X /= Application::AspectRatio;
 		AdjustedMaxSize.X /= Application::AspectRatio;
+	}
+	if (BoxSizeMode == SizeMode::PixelRelative)
+	{
+		AdjustedMinSize = PixelSizeToScreenSize(AdjustedMinSize);
+		AdjustedMaxSize = PixelSizeToScreenSize(AdjustedMaxSize);
 	}
 
 	Size = Size.Clamp(AdjustedMinSize, AdjustedMaxSize);
@@ -528,14 +540,13 @@ bool UIBox::DrawAllUIElements()
 		UI::ElementsToUpdate.clear();
 		glViewport(0, 0, Application::GetWindowResolution().X * 2, Application::GetWindowResolution().Y * 2);
 		glBindFramebuffer(GL_FRAMEBUFFER, UI::UIBuffer);
-		//glClearColor(0, 0, 0, 0);
+		glClearColor(0, 0, 0, 1);
 		glClear(GL_COLOR_BUFFER_BIT);
 		for (UIBox* elem : UIElements)
 		{
 			if (elem->Parent == nullptr)
 				elem->DrawThisAndChildren();
 		}
-		//glClearColor(0, 0, 0, 1);
 		glViewport(0, 0, Application::GetWindowResolution().X, Application::GetWindowResolution().Y);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		return true;

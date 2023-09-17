@@ -31,7 +31,8 @@ public:
 	enum class SizeMode
 	{
 		ScreenRelative = 0,
-		PixelRelative = 1
+		AspectRelative = 1,
+		PixelRelative = 2
 	};
 
 	UIBox* SetSizeMode(SizeMode NewMode);
@@ -107,6 +108,9 @@ protected:
 	UIBox* Parent = nullptr;
 	ScrollObject* CurrentScrollObject = nullptr;
 	void UpdateSelfAndChildren();
+
+	static Vector2f PixelSizeToScreenSize(Vector2f PixelSize);
+
 private:
 	bool PrevIsVisible = true;
 	void UpdateScale();

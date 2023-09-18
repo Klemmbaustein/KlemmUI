@@ -144,11 +144,18 @@ Vector2f TextRenderer::GetTextSize(ColoredText Text, float Scale, bool Wrapped, 
 		FontVertex* LastWordVDataPtr = nullptr;
 		for (size_t i = 0; i < seg.Text.size(); i++)
 		{
+			bool IsTab = seg.Text[i] == '	';
+			if (IsTab)
+			{
+				seg.Text[i] = ' ';
+			}
 			if (seg.Text[i] >= 32 && seg.Text[i] < 128)
 			{
 				stbtt_aligned_quad q;
-				stbtt_GetBakedQuad(cdata, 2048, 2048, seg.Text[i] - 32, &x, &y, &q, 1);
-
+				for (int txIt = 0; txIt < (IsTab ? 4 : 1); txIt++)
+				{
+					stbtt_GetBakedQuad(cdata, 2048, 2048, seg.Text[i] - 32, &x, &y, &q, 1);
+				}
 				if (seg.Text[i] == ' ')
 				{
 					LastWordIndex = i;

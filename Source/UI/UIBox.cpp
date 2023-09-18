@@ -291,6 +291,12 @@ UIBox* UIBox::SetTryFill(bool NewTryFill)
 	return this;
 }
 
+UIBox* UIBox::SetAlign(Align NewAlign)
+{
+	BoxAlign = NewAlign;
+	return this;
+}
+
 UIBox* UIBox::SetHorizontal(bool IsHorizontal)
 {
 	if (IsHorizontal != ChildrenHorizontal)

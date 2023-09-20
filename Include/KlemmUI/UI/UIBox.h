@@ -66,6 +66,7 @@ public:
 	UIBox* SetPadding(double Up, double Down, double Left, double Right);
 	UIBox* SetPadding(double AllDirs);
 	UIBox* SetTryFill(bool NewTryFill);
+	UIBox* SetAlign(Align NewAlign);
 	UIBox* SetHorizontal(bool IsHorizontal);
 	bool GetTryFill();
 	virtual void OnChildClicked(int Index);

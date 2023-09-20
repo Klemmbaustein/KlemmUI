@@ -473,6 +473,12 @@ UIBox* UIBox::AddChild(UIBox* NewChild)
 	return this;
 }
 
+UIBox* UIBox::SetAlign(Align NewAlign)
+{
+	BoxAlign = NewAlign;
+	return this;
+}
+
 UIBox* UIBox::GetAbsoluteParent()
 {
 	if (Parent != nullptr)

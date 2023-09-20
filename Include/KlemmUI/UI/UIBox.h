@@ -47,6 +47,7 @@ public:
 	virtual void OnAttached();
 	void InvalidateLayout();
 	UIBox* AddChild(UIBox* NewChild);
+	UIBox* SetAlign(Align NewAlign);
 	UIBox* GetAbsoluteParent();
 	static bool DrawAllUIElements();
 	void DrawThisAndChildren();

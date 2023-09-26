@@ -23,22 +23,23 @@ public:
 	void Tick() override;
 	bool Wrap = false;
 	float WrapDistance = 0.0f;
-	Vector3f32 GetColor();
+	Vector3f32 GetColor() const;
 	UIText* SetColor(Vector3f32 NewColor);
 	UIText* SetOpacity(float NewOpacity);
 	UIText* SetTextSize(float Size);
 	UIText* SetTextSizeMode(SizeMode NewMode);
 	float GetTextSize();
+	static Vector2f GetTextSizeAtScale(float Scale, SizeMode ScaleType, TextRenderer* Renderer);
 	UIText* SetTextWidthOverride(float NewTextWidthOverride);
 
-	size_t GetNearestLetterAtLocation(Vector2f Location, Vector2f& LetterOutLocation);
-	Vector2f GetLetterLocation(size_t Index);
+	size_t GetNearestLetterAtLocation(Vector2f Location, Vector2f& LetterOutLocation) const;
+	Vector2f GetLetterLocation(size_t Index) const;
 
 	UIText* SetWrapEnabled(bool WrapEnabled, float WrapDistance, SizeMode WrapSizeMode);
 
 	void SetText(std::string NewText);
 	void SetText(ColoredText NewText);
-	std::string GetText();
+	std::string GetText() const;
 	UIText(float Scale, Vector3f32 Color, std::string Text, TextRenderer* Renderer);
 	UIText(float Scale, ColoredText Text, TextRenderer* Renderer);
 	virtual ~UIText();

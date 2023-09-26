@@ -252,7 +252,14 @@ UIBox* UIBox::SetPosition(Vector2f NewPosition)
 
 Vector2f UIBox::GetPosition()
 {
-	return OffsetPosition + Vector2f(0, CurrentScrollObject->Percentage);
+	if (CurrentScrollObject)
+	{
+		return OffsetPosition + Vector2f(0, CurrentScrollObject->Percentage);
+	}
+	else
+	{
+		return OffsetPosition;
+	}
 }
 
 UIBox* UIBox::SetPadding(double Up, double Down, double Left, double Right)

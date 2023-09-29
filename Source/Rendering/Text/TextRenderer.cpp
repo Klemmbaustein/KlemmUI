@@ -388,9 +388,6 @@ void DrawableText::Draw(ScrollObject* CurrentScrollObject)
 	glUniform3f(glGetUniformLocation(_TextRenderer::TextShader->GetShaderID(), "textColor"), Color.X, Color.Y, Color.Z);
 	glUniform1f(glGetUniformLocation(_TextRenderer::TextShader->GetShaderID(), "u_aspectratio"), Application::AspectRatio);
 	glUniform3f(glGetUniformLocation(_TextRenderer::TextShader->GetShaderID(), "transform"), (float)Position.X, (float)Position.Y, Scale);
-	glUniform2f(glGetUniformLocation(_TextRenderer::TextShader->GetShaderID(), "u_texSize"), 
-		(float)Application::GetWindowResolution().X,
-		(float)Application::GetWindowResolution().Y);
 	glUniform1f(glGetUniformLocation(_TextRenderer::TextShader->GetShaderID(), "u_opacity"), Opacity);
 	if (CurrentScrollObject != nullptr)
 	{

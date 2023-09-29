@@ -132,10 +132,7 @@ namespace Application
 	{
 		AspectRatio = (float)NewResolution.X / (float)NewResolution.Y;
 		WindowResolution = NewResolution;
-		if (OnResizedCallback)
-		{
-			OnResizedCallback();
-		}
+		OnResizedCallback();
 		UIBox::ForceUpdateUI();
 	}
 

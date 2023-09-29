@@ -110,9 +110,6 @@
     <ClInclude Include="Source\Rendering\Shader.h">
       <Filter>Code\Rendering</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Rendering\Text\TextRenderer.h">
-      <Filter>Code\Rendering\Text</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Util\stb_image.h">
       <Filter>Code\Util</Filter>
     </ClInclude>

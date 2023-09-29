@@ -34,6 +34,7 @@ MessageCallback(
 
 namespace Application
 {
+	std::string NewTypedText;
 	float AspectRatio = 16.f / 9.f;
 	SDL_Window* Window = nullptr;
 	bool Quit = false;
@@ -49,6 +50,8 @@ namespace Application
 	void(*ErrorMessageCallback)(std::string Message) = [](std::string Message) {
 		std::cerr << "[KlemmUI Error]: " << Message << std::endl;
 	};
+
+	void(*OnResizedCallback)() = nullptr;
 
 	bool IsBorderless = false;
 
@@ -129,6 +132,7 @@ namespace Application
 	{
 		AspectRatio = (float)NewResolution.X / (float)NewResolution.Y;
 		WindowResolution = NewResolution;
+		OnResizedCallback();
 		UIBox::ForceUpdateUI();
 	}
 
@@ -147,6 +151,11 @@ namespace Application
 	void SetErrorMessageCallback(void(*Callback)(std::string))
 	{
 		ErrorMessageCallback = Callback;
+	}
+
+	void SetOnWindowResizedCallback(void(*Callback)())
+	{
+		OnResizedCallback = Callback;
 	}
 
 	void Error(std::string Message)
@@ -196,6 +205,7 @@ void HandleEvents()
 {
 	int x;
 	int y;
+	Application::NewTypedText.clear();
 	SDL_GetMouseState(&x, &y);
 	Input::MouseLocation = Vector2f((x / (float)Application::WindowResolution.X - 0.5f) * 2, 1 - (y / (float)Application::WindowResolution.Y * 2));
 	SDL_Event e;
@@ -250,7 +260,9 @@ void HandleEvents()
 				}
 				TextInput::TextIndex++;
 			case SDLK_BACKSPACE:
-				if(TextInput::TextIndex == 0) TextInput::BackspacePresses++;
+				if(TextInput::TextIndex == 0)
+					TextInput::BackspacePresses++;
+				TextInput::TextIndex = std::min((size_t)TextInput::TextIndex, TextInput::Text.size());
 				if (TextInput::PollForText && TextInput::Text.length() > 0)
 				{
 					if (TextInput::TextIndex == TextInput::Text.size())
@@ -265,6 +277,7 @@ void HandleEvents()
 				}
 				break;
 			case SDLK_TAB:
+				TextInput::TextIndex = std::min((size_t)TextInput::TextIndex, TextInput::Text.size());
 				TextInput::Text.insert(TextInput::TextIndex, std::string("	"));
 				TextInput::TextIndex += 1;
 				break;
@@ -297,6 +310,7 @@ void HandleEvents()
 					{
 						TextInput::TextIndex += FilteredClipboardText.size();
 					}
+					Application::NewTypedText = FilteredClipboardText;
 					TextInput::NumPastes++;
 				}
 				break;
@@ -333,6 +347,7 @@ void HandleEvents()
 				TextInput::TextIndex = std::min((size_t)TextInput::TextIndex, TextInput::Text.size());
 				TextInput::Text.insert(TextInput::TextIndex, std::string(e.text.text));
 				TextInput::TextIndex += strlen(e.text.text);
+				Application::NewTypedText = std::string(e.text.text);
 			}
 			break;
 		case SDL_MOUSEWHEEL:
@@ -442,6 +457,11 @@ void Application::SetMinWindowSize(Vector2ui NewSize)
 void Application::SetClipboard(std::string NewClipboardText)
 {
 	SDL_SetClipboardText(NewClipboardText.c_str());
+}
+
+const std::string& Application::GetNewTypedText()
+{
+	return NewTypedText;
 }
 
 void Application::Initialize(std::string WindowName, int Flags, Vector2ui DefaultResolution)

@@ -8,6 +8,8 @@ namespace Input
 	bool IsKeyDown(int Key);
 	void SetKeyDown(int Key, bool KeyDown);
 
+	void RegisterOnKeyDownCallback(int Key, void (*Callback)());
+
 	extern Vector2f MouseMovement;
 	extern bool IsLMBDown;
 	extern bool IsRMBDown;

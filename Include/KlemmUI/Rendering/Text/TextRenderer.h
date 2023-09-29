@@ -2,6 +2,7 @@
 #include "../../Math/Vector2.h"
 #include "../../Math/Vector3.h"
 #include "TextSegment.h"
+#include <cstdint>
 
 class ScrollObject;
 
@@ -42,8 +43,8 @@ private:
 	FontVertex* fontVertexBufferData = 0;
 	uint32_t fontVertexBufferCapacity;
 public:
+	uint8_t TabSize = 4;
 	std::string Filename; float CharacterSizeInPixels;
-	static void OnWindowResized();
 	size_t GetCharacterIndexADistance(ColoredText Text, float Dist, float Scale, Vector2f& LetterOutLocation);
 	TextRenderer(std::string filename, float CharacterSizeInPixels = 150);
 	Vector2f GetTextSize(ColoredText Text, float Scale, bool Wrapped, float LengthBeforeWrap);

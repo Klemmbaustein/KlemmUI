@@ -151,7 +151,7 @@ void UIBox::InitUI()
 	glGenTextures(1, &UI::UITexture);
 	glBindTexture(GL_TEXTURE_2D, UI::UITexture);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F,
-		Application::GetWindowResolution().X * 2, Application::GetWindowResolution().X * 2, 0, GL_RGBA, GL_FLOAT, NULL);
+		Application::GetWindowResolution().X * 2, Application::GetWindowResolution().X, 0, GL_RGBA, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
@@ -551,7 +551,7 @@ bool UIBox::DrawAllUIElements()
 			elem->UpdateSelfAndChildren();
 		}
 		UI::ElementsToUpdate.clear();
-		glViewport(0, 0, Application::GetWindowResolution().X * 2, Application::GetWindowResolution().X * 2);
+		glViewport(0, 0, Application::GetWindowResolution().X * 2, Application::GetWindowResolution().X);
 		glBindFramebuffer(GL_FRAMEBUFFER, UI::UIBuffer);
 		glClearColor(0, 0, 0, 1);
 		glClear(GL_COLOR_BUFFER_BIT);

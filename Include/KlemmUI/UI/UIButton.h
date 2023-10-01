@@ -54,6 +54,7 @@ class UIButton : public UIBox
 	void ScrollTick(Shader* UsedShader);
 	void MakeGLBuffers();
 	void Tick() override;
+	virtual bool GetRenderHighResMode() override;
 public:
 	UIButton* SetOpacity(float NewOpacity);
 	float GetOpacity();

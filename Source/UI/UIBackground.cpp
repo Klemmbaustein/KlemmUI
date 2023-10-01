@@ -38,6 +38,11 @@ void UIBackground::MakeGLBuffers(bool InvertTextureCoordinates)
 		});
 }
 
+bool UIBackground::GetRenderHighResMode()
+{
+	return UseTexture;
+}
+
 UIBackground* UIBackground::SetOpacity(float NewOpacity)
 {
 	if (NewOpacity != Opacity)

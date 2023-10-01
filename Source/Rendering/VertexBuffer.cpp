@@ -46,7 +46,7 @@ void VertexBuffer::Unbind()
 
 void VertexBuffer::Draw()
 {
-	Bind();
-	glDrawElements(GL_TRIANGLES, IndicesSize, GL_UNSIGNED_INT, 0);
-	Unbind();
+	unsigned int attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+	glDrawBuffers(2, attachments);
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 }

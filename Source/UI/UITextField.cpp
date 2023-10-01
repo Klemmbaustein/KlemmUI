@@ -119,7 +119,7 @@ void UITextField::Tick()
 		if (NewPos != IBeamPosition)
 		{
 			IBeamPosition = NewPos;
-			IBeamScale = Vector2f(0.002, 0.066) * TextSize * 2;
+			IBeamScale = Vector2f(0.0015, 0.066) * TextSize * 2;
 			RedrawUI();
 		}
 		if (!ShowIBeam)

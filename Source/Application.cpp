@@ -262,6 +262,7 @@ void HandleEvents()
 					TextInput::DeletePresses++;
 				}
 				TextInput::TextIndex++;
+				break;
 			case SDLK_BACKSPACE:
 				if(TextInput::TextIndex == 0)
 					TextInput::BackspacePresses++;
@@ -344,6 +345,7 @@ void HandleEvents()
 				Input::IsLMBDown = false;
 				break;
 			}
+			break;
 		case SDL_TEXTINPUT:
 			if (TextInput::PollForText && e.text.text[0] >= 32 && e.text.text[0] <= 128)
 			{
@@ -375,10 +377,21 @@ void DrawUI()
 	Application::PreviousHasWindowFocus = Application::GetWindowHasFocus();
 
 	Application::PostProcessShader->Bind();
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glViewport(0, 0, (GLsizei)Application::WindowResolution.X, (GLsizei)Application::WindowResolution.Y);
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, UIBox::GetUIFramebuffer());
-	Application::PostProcessShader->SetInt("u_ui", 0);
+	glBindTexture(GL_TEXTURE_2D, UIBox::GetUITextures()[0]);
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, UIBox::GetUITextures()[1]);
+	glActiveTexture(GL_TEXTURE2);
+	glBindTexture(GL_TEXTURE_2D, UIBox::GetHighResUITextures()[0]);
+	glActiveTexture(GL_TEXTURE3);
+	glBindTexture(GL_TEXTURE_2D, UIBox::GetHighResUITextures()[1]);
+
+	Application::PostProcessShader->SetInt("u_texture", 0);
+	Application::PostProcessShader->SetInt("u_alpha", 1);
+	Application::PostProcessShader->SetInt("u_hr", 2);
+	Application::PostProcessShader->SetInt("u_hrAlpha", 3);
 	Application::PostProcessShader->SetInt("u_hasWindowBorder", !Application::GetFullScreen() && Application::IsBorderless);
 	Application::PostProcessShader->SetVec2("u_screenRes", Application::WindowResolution);
 	Application::PostProcessShader->SetVec3("u_borderColor", Application::GetWindowHasFocus() ? Application::BorderlessWindowOutlineColor : 0.5);

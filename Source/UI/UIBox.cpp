@@ -15,11 +15,7 @@ namespace UI
 	std::set<UIBox*> ElementsToUpdate;
 	bool RequiresRedraw = true;
 	unsigned int UIBuffer = 0;
-	unsigned int HighResUIBuffer = 0;
-	unsigned int UITextures[2] = { 0, 0 };
-	unsigned int HighResUITexures[2] = { 0, 0 };
-
-	float CurrentUIDepth = 0;
+	unsigned int UITexture = 0;
 }
 std::vector<UIBox*> UIBox::UIElements;
 
@@ -34,16 +30,6 @@ bool UIBox::IsChildOf(UIBox* Parent)
 		return false;
 	}
 	return this->Parent->IsChildOf(Parent);
-}
-
-float UIBox::GetCurrentUIDepth()
-{
-	return UI::CurrentUIDepth;
-}
-
-bool UIBox::GetRenderHighResMode()
-{
-	return false;
 }
 
 UIBox* UIBox::SetSizeMode(SizeMode NewMode)
@@ -107,11 +93,6 @@ UIBox::~UIBox()
 	}
 }
 
-void UIBox::RedrawUI()
-{
-	UI::RequiresRedraw = true;
-}
-
 void UIBox::Draw()
 {
 }
@@ -149,19 +130,17 @@ void UIBox::ForceUpdateUI()
 	if (UI::UIBuffer)
 	{
 		glDeleteFramebuffers(1, &UI::UIBuffer);
-		glDeleteTextures(2, UI::UITextures);
-	}
-	if (UI::HighResUIBuffer)
-	{
-		glDeleteFramebuffers(1, &UI::HighResUIBuffer);
-		glDeleteTextures(2, UI::HighResUITexures);
+		glDeleteTextures(1, &UI::UITexture);
 	}
 	UI::UIBuffer = 0;
-	UI::HighResUIBuffer = 0;
+	UI::UITexture = 0;
 	InitUI();
-	for (auto i : UIElements)
+	for (UIBox* i : UIElements)
 	{
-		i->InvalidateLayout();
+		if (!i->Parent)
+		{
+			i->InvalidateLayout();
+		}
 	}
 }
 
@@ -169,70 +148,27 @@ void UIBox::InitUI()
 {
 	glGenFramebuffers(1, &UI::UIBuffer);
 	// create floating point color buffer
-	glGenTextures(2, UI::UITextures);
+	glGenTextures(1, &UI::UITexture);
+	glBindTexture(GL_TEXTURE_2D, UI::UITexture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F,
+		Application::GetWindowResolution().X * 2, Application::GetWindowResolution().X, 0, GL_RGBA, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
 	glBindFramebuffer(GL_FRAMEBUFFER, UI::UIBuffer);
-
-	for (unsigned int i = 0; i < 2; i++)
-	{
-		glBindTexture(GL_TEXTURE_2D, UI::UITextures[i]);
-		glTexImage2D(GL_TEXTURE_2D,
-			0,
-			GL_RGBA16F,
-			(size_t)Application::GetWindowResolution().X,
-			(size_t)Application::GetWindowResolution().Y,
-			0,
-			GL_RGBA,
-			GL_FLOAT,
-			NULL);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		// attach texture to framebuffer
-		glFramebufferTexture2D(
-			GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, UI::UITextures[i], 0
-		);
-	}
-
-	glGenFramebuffers(1, &UI::HighResUIBuffer);
-	// create floating point color buffer
-	glGenTextures(2, UI::HighResUITexures);
-	glBindFramebuffer(GL_FRAMEBUFFER, UI::HighResUIBuffer);
-
-	for (unsigned int i = 0; i < 2; i++)
-	{
-		glBindTexture(GL_TEXTURE_2D, UI::HighResUITexures[i]);
-		glTexImage2D(GL_TEXTURE_2D,
-			0,
-			GL_RGBA16F,
-			(size_t)Application::GetWindowResolution().X * 2,
-			(size_t)Application::GetWindowResolution().Y * 2,
-			0,
-			GL_RGBA,
-			GL_FLOAT,
-			NULL);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		// attach texture to framebuffer
-		glFramebufferTexture2D(
-			GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, UI::HighResUITexures[i], 0
-		);
-	}
-
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, UI::UITexture, 0);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
 }
 
-unsigned int* UIBox::GetUITextures()
+unsigned int UIBox::GetUIFramebuffer()
 {
-	return UI::UITextures;
+	return UI::UITexture;
 }
 
-unsigned int* UIBox::GetHighResUITextures()
+
+void UIBox::RedrawUI()
 {
-	return UI::HighResUITexures;
+	UI::RequiresRedraw = true;
 }
 
 void UIBox::ClearUI()
@@ -400,26 +336,6 @@ Vector2f UIBox::PixelSizeToScreenSize(Vector2f PixelSize)
 	PixelSize.X = PixelSize.X / (double)Application::GetWindowResolution().X * 1080;
 	PixelSize.Y = PixelSize.Y / (double)Application::GetWindowResolution().Y * 1080;
 	return PixelSize;
-}
-
-void UIBox::DrawThisAndChildren(bool HighResMode)
-{
-	for (auto c : Children)
-	{
-		c->UpdateTickState();
-	}
-	if (IsVisible)
-	{
-		if (HighResMode == GetRenderHighResMode())
-		{
-			Draw();
-		}
-		UI::CurrentUIDepth += 0.1f;
-		for (auto c : Children)
-		{
-			c->DrawThisAndChildren(HighResMode);
-		}
-	}
 }
 
 void UIBox::UpdateScale()
@@ -635,36 +551,36 @@ bool UIBox::DrawAllUIElements()
 			elem->UpdateSelfAndChildren();
 		}
 		UI::ElementsToUpdate.clear();
-		glViewport(0, 0, (size_t)Application::GetWindowResolution().X, (size_t)Application::GetWindowResolution().Y);
-		UI::CurrentUIDepth = 0;
-		glEnable(GL_BLEND);
+		glViewport(0, 0, Application::GetWindowResolution().X * 2, Application::GetWindowResolution().X);
 		glBindFramebuffer(GL_FRAMEBUFFER, UI::UIBuffer);
-		glClearColor(0, 0, 0, 0);
-		glClear(GL_COLOR_BUFFER_BIT);
-		for (UIBox* elem : UIElements)
-		{
-			if (!elem->Parent)
-			{
-				elem->DrawThisAndChildren(false);
-			}
-		}
-		glViewport(0, 0, (size_t)Application::GetWindowResolution().X * 2, (size_t)Application::GetWindowResolution().Y * 2);
-		UI::CurrentUIDepth = 0;
-		glBindFramebuffer(GL_FRAMEBUFFER, UI::HighResUIBuffer);
-		glClearColor(0, 0, 0, 0);
-		glClear(GL_COLOR_BUFFER_BIT);
-		for (UIBox* elem : UIElements)
-		{
-			if (!elem->Parent)
-			{
-				elem->DrawThisAndChildren(true);
-			}
-		}
 		glClearColor(0, 0, 0, 1);
-		glViewport(0, 0, (size_t)Application::GetWindowResolution().X, (size_t)Application::GetWindowResolution().Y);
+		glClear(GL_COLOR_BUFFER_BIT);
+		for (UIBox* elem : UIElements)
+		{
+			if (elem->Parent == nullptr)
+				elem->DrawThisAndChildren();
+		}
+		glViewport(0, 0, Application::GetWindowResolution().X, Application::GetWindowResolution().Y);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		return true;
 	}
 	return false;
+}
+
+void UIBox::DrawThisAndChildren()
+{
+	for (auto c : Children)
+	{
+		c->UpdateTickState();
+	}
+	if (IsVisible)
+	{
+		Draw();
+		for (auto c : Children)
+		{
+			c->DrawThisAndChildren();
+		}
+	}
 }
 
 void UIBox::DeleteChildren()

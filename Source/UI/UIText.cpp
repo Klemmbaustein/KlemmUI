@@ -3,11 +3,6 @@
 #include <iostream>
 
 
-bool UIText::GetRenderHighResMode()
-{
-	return true;
-}
-
 UIText* UIText::SetTextRenderer(TextRenderer* Font)
 {
 	if (Font != Renderer)
@@ -214,7 +209,7 @@ void UIText::Draw()
 	if (Text)
 	{
 		Text->Opacity = Opacity;
-		Text->Draw(CurrentScrollObject, GetCurrentUIDepth());
+		Text->Draw(CurrentScrollObject);
 	}
 }
 

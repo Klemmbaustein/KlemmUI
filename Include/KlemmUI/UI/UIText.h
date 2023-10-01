@@ -18,7 +18,6 @@ class UIText : public UIBox
 	float Opacity = 1.f;
 	SizeMode WrapSizeMode = SizeMode::ScreenRelative;
 	SizeMode TextSizeMode = SizeMode::AspectRelative;
-	virtual bool GetRenderHighResMode() override;
 public:
 	UIText* SetTextRenderer(TextRenderer* Font);
 	void Tick() override;

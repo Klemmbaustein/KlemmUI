@@ -377,14 +377,13 @@ DrawableText::DrawableText(unsigned int VAO, unsigned int VBO, unsigned int NumV
 	this->Color = Color;
 }
 
-void DrawableText::Draw(ScrollObject* CurrentScrollObject, float Depth)
+void DrawableText::Draw(ScrollObject* CurrentScrollObject)
 {
 	TextRenderer::CheckForTextShader();
 	glBindVertexArray(VAO);
 	_TextRenderer::TextShader->Bind();
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, Texture);
-	glUniform1f(glGetUniformLocation(_TextRenderer::TextShader->GetShaderID(), "u_depth"), Depth);
 	glUniform1i(glGetUniformLocation(_TextRenderer::TextShader->GetShaderID(), "u_texture"), 0);
 	glUniform3f(glGetUniformLocation(_TextRenderer::TextShader->GetShaderID(), "textColor"), Color.X, Color.Y, Color.Z);
 	glUniform1f(glGetUniformLocation(_TextRenderer::TextShader->GetShaderID(), "u_aspectratio"), Application::AspectRatio);
@@ -397,8 +396,6 @@ void DrawableText::Draw(ScrollObject* CurrentScrollObject, float Depth)
 	}
 	else
 		glUniform3f(glGetUniformLocation(_TextRenderer::TextShader->GetShaderID(), "u_offset"), 0, -1000, 1000);
-	unsigned int attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
-	glDrawBuffers(2, attachments);
 	glDrawArrays(GL_TRIANGLES, 0, NumVerts);
 }
 

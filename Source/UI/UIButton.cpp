@@ -126,10 +126,6 @@ void UIButton::Tick()
 	}
 }
 
-bool UIButton::GetRenderHighResMode()
-{
-	return UseTexture;
-}
 
 
 UIButton* UIButton::SetOpacity(float NewOpacity)

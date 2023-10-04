@@ -111,11 +111,9 @@ void UIBackground::Draw()
 	glUniform1f(glGetUniformLocation(BackgroundShader->GetShaderID(), "u_borderScale"), BorderRadius / 20.0f);
 	glUniform1f(glGetUniformLocation(BackgroundShader->GetShaderID(), "u_aspectratio"), Application::AspectRatio);
 	if (UseTexture)
-		glUniform1i(glGetUniformLocation(BackgroundShader->GetShaderID(), "u_useTexture"), 1);
+		glUniform1i(glGetUniformLocation(BackgroundShader->GetShaderID(), "u_usetexture"), 1);
 	else
 		glUniform1i(glGetUniformLocation(BackgroundShader->GetShaderID(), "u_usetexture"), 0);
-	unsigned int attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
-	glDrawBuffers(2, attachments);
 	BoxVertexBuffer->Draw();
 	BoxVertexBuffer->Unbind();
 }

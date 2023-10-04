@@ -36,25 +36,15 @@ class TextRenderer
 	friend class DrawableText;
 private:
 	static void CheckForTextShader();
+	void* cdatapointer;
 	unsigned int fontTexture;
 	unsigned int fontVao;
 	unsigned int fontVertexBufferId;
-	float CharacterSize = 0;
-
 	FontVertex* fontVertexBufferData = 0;
 	uint32_t fontVertexBufferCapacity;
 public:
-	struct Glyph
-	{
-		Vector2f32 Size;
-		Vector2f32 Offset;
-		Vector2f32 TotalSize;
-		Vector2f32 TexCoordStart;
-		Vector2f32 TexCoordOffset;
-	};
-	std::vector<Glyph> LoadedGlyphs;
 	uint8_t TabSize = 4;
-	std::string Filename;
+	std::string Filename; float CharacterSizeInPixels;
 	size_t GetCharacterIndexADistance(ColoredText Text, float Dist, float Scale, Vector2f& LetterOutLocation);
 	TextRenderer(std::string filename, float CharacterSizeInPixels = 150);
 	Vector2f GetTextSize(ColoredText Text, float Scale, bool Wrapped, float LengthBeforeWrap);

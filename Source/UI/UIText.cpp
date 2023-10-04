@@ -133,7 +133,7 @@ void UIText::SetText(ColoredText NewText)
 			}
 
 			Vector2 s = Renderer->GetTextSize(RenderedText, RenderedSize, Wrap, Distance)
-				/ ((15.0f) * 60.0f);
+				/ ((30 + Renderer->CharacterSizeInPixels / 2) * 60.f);
 			if (s.X < WrapDistance)
 			{
 				Update();

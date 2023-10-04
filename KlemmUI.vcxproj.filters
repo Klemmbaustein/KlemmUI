@@ -90,9 +90,6 @@
     <ClCompile Include="Source\StringReplace.cpp">
       <Filter>Code</Filter>
     </ClCompile>
-    <ClCompile Include="Source\OS.cpp">
-      <Filter>Code</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Rendering\Texture.cpp">
       <Filter>Code\Rendering</Filter>
     </ClCompile>
@@ -119,13 +116,13 @@
     <ClInclude Include="Source\Rendering\Framebuffer.h">
       <Filter>Code\Rendering</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Rendering\Text\TextSegment.h">
+      <Filter>Code\Rendering\Text</Filter>
+    </ClInclude>
     <ClInclude Include="Include\KlemmUI\Application.h">
       <Filter>Headers</Filter>
     </ClInclude>
     <ClInclude Include="Include\KlemmUI\Input.h">
-      <Filter>Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\KlemmUI\OS.h">
       <Filter>Headers</Filter>
     </ClInclude>
     <ClInclude Include="Include\KlemmUI\StringReplace.h">
@@ -159,6 +156,9 @@
       <Filter>Headers\Rendering</Filter>
     </ClInclude>
     <ClInclude Include="Include\KlemmUI\Rendering\Text\TextRenderer.h">
+      <Filter>Headers\Rendering\Text</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\KlemmUI\Rendering\Text\TextSegment.h">
       <Filter>Headers\Rendering\Text</Filter>
     </ClInclude>
     <ClInclude Include="Include\KlemmUI\Math\MathHelpers.h">

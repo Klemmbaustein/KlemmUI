@@ -38,11 +38,6 @@ void UIBackground::MakeGLBuffers(bool InvertTextureCoordinates)
 		});
 }
 
-bool UIBackground::GetRenderHighResMode()
-{
-	return UseTexture;
-}
-
 UIBackground* UIBackground::SetOpacity(float NewOpacity)
 {
 	if (NewOpacity != Opacity)
@@ -115,7 +110,6 @@ void UIBackground::Draw()
 	glUniform1i(glGetUniformLocation(BackgroundShader->GetShaderID(), "u_borderType"), (unsigned int)BoxBorder);
 	glUniform1f(glGetUniformLocation(BackgroundShader->GetShaderID(), "u_borderScale"), BorderRadius / 20.0f);
 	glUniform1f(glGetUniformLocation(BackgroundShader->GetShaderID(), "u_aspectratio"), Application::AspectRatio);
-	glUniform1f(glGetUniformLocation(BackgroundShader->GetShaderID(), "u_depth"), GetCurrentUIDepth());
 	if (UseTexture)
 		glUniform1i(glGetUniformLocation(BackgroundShader->GetShaderID(), "u_useTexture"), 1);
 	else

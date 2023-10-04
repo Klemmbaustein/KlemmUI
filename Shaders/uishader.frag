@@ -22,6 +22,7 @@ void main()
 	vec2 borderTexCoords = vec2(0);
 	vec4 drawnColor = u_color;
 	bool IsInEdge = false;
+	float opacity = u_opacity;
 	if(centeredTexCoords.x > scale.x - u_borderScale)
 	{
 		IsInEdge = true;
@@ -32,7 +33,7 @@ void main()
 		if(u_borderType == 2) drawnColor = u_color * 0.75;
 		if(IsInEdge && u_borderType == 1)
 		{
-			if(length((scale - u_borderScale) - centeredTexCoords) > u_borderScale) discard;
+			opacity *= clamp(1.0 / pow((length((scale - u_borderScale) - centeredTexCoords) / u_borderScale), 25), 0, 1);
 		}
 	}
 	if(u_offset.y > v_position.y)
@@ -45,10 +46,10 @@ void main()
 	}
 	if(u_usetexture == 1)
 	{
-		f_color = vec4(drawnColor.xyz, u_opacity) * texture(u_texture, v_texcoords);
+		f_color = vec4(drawnColor.xyz, opacity) * texture(u_texture, v_texcoords);
 	}
 	else
 	{
-		f_color = vec4(drawnColor.xyz, u_opacity);
+		f_color = vec4(drawnColor.xyz, opacity);
 	}
 }

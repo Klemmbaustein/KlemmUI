@@ -119,9 +119,6 @@
     <ClInclude Include="Source\Rendering\Framebuffer.h">
       <Filter>Code\Rendering</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Rendering\Text\TextSegment.h">
-      <Filter>Code\Rendering\Text</Filter>
-    </ClInclude>
     <ClInclude Include="Include\KlemmUI\Application.h">
       <Filter>Headers</Filter>
     </ClInclude>
@@ -162,9 +159,6 @@
       <Filter>Headers\Rendering</Filter>
     </ClInclude>
     <ClInclude Include="Include\KlemmUI\Rendering\Text\TextRenderer.h">
-      <Filter>Headers\Rendering\Text</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\KlemmUI\Rendering\Text\TextSegment.h">
       <Filter>Headers\Rendering\Text</Filter>
     </ClInclude>
     <ClInclude Include="Include\KlemmUI\Math\MathHelpers.h">

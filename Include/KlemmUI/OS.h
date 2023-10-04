@@ -19,6 +19,7 @@ namespace OS
 		E_BLUE = 4,
 		E_YELLOW = 5
 	};
+	std::wstring Utf8ToWstring(std::string utf8);
 	void SetConsoleCanBeHidden(bool ConsoleCanBeHidden);
 	void SetConsoleWindowVisible(bool Visible);
 	std::string ShowOpenFileDialog();

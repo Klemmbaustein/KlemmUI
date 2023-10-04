@@ -131,7 +131,6 @@
     <ClInclude Include="Include\KlemmUI\Rendering\ScrollObject.h" />
     <ClInclude Include="Include\KlemmUI\Rendering\Texture.h" />
     <ClInclude Include="Include\KlemmUI\Rendering\Text\TextRenderer.h" />
-    <ClInclude Include="Include\KlemmUI\Rendering\Text\TextSegment.h" />
     <ClInclude Include="Include\KlemmUI\StringReplace.h" />
     <ClInclude Include="Include\KlemmUI\UI\UIBackground.h" />
     <ClInclude Include="Include\KlemmUI\UI\UIBox.h" />
@@ -142,7 +141,6 @@
     <ClInclude Include="Include\KlemmUI\UI\UITextField.h" />
     <ClInclude Include="Source\Rendering\Framebuffer.h" />
     <ClInclude Include="Source\Rendering\Shader.h" />
-    <ClInclude Include="Source\Rendering\Text\TextSegment.h" />
     <ClInclude Include="Source\Rendering\VertexBuffer.h" />
     <ClInclude Include="Source\Util\stb_image.h" />
     <ClInclude Include="Source\Util\stb_truetype.h" />

@@ -2,19 +2,8 @@
 #if _WIN32
 //Include Windows Headers
 #include <Windows.h>
-#include <Shlobj.h>
-#include <shobjidl.h> 
-#include <map>
 #endif
 
-#if __linux__
-#include <iostream>
-#endif
-
-namespace OS
-{
-	bool ConsoleCanBeHidden = true;
-}
 
 // TODO: Make better
 #if _WIN32

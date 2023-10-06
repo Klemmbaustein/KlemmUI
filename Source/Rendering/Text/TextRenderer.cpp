@@ -150,8 +150,12 @@ Vector2f TextRenderer::GetTextSize(ColoredText Text, float Scale, bool Wrapped, 
 			{
 				seg.Text[i] = ' ';
 			}
-			if (seg.Text[i] >= 32 && seg.Text[i] < 128)
+			if (seg.Text[i] >= 32)
 			{
+				if (seg.Text[i] >= 128)
+				{
+					seg.Text[i] = '#';
+				}
 				stbtt_aligned_quad q;
 				do
 				{
@@ -250,14 +254,21 @@ DrawableText* TextRenderer::MakeText(ColoredText Text, Vector2f Pos, float Scale
 	Uint32 numVertices = 0;
 	for (auto& seg : Text)
 	{
+		Vector3f32 Color = seg.Color;
 		size_t LastWordIndex = SIZE_MAX;
 		size_t LastWrapIndex = 0;
 		size_t LastWordNumVertices = 0;
 		FontVertex* LastWordVDataPtr = nullptr;
 		for (size_t i = 0; i < seg.Text.size(); i++)
 		{
-			if (seg.Text[i] >= 32 && seg.Text[i] < 128)
+			if (seg.Text[i] >= 32)
 			{
+				if (seg.Text[i] >= 128)
+				{
+					std::cout << "test" << std::endl;
+					seg.Text[i] = '#';
+					Color = Vector3f32(1, 0, 0);
+				}
 				stbtt_aligned_quad q;
 				stbtt_GetBakedQuad(cdata, 2048, 2048, seg.Text[i] - 32, &x, &y, &q, 1);
 				vData[0].position = Vector2(q.x0, q.y1); vData[0].texCoords = Vector2(q.s0, q.t1);
@@ -267,9 +278,9 @@ DrawableText* TextRenderer::MakeText(ColoredText Text, Vector2f Pos, float Scale
 				vData[4].position = Vector2(q.x0, q.y1); vData[4].texCoords = Vector2(q.s0, q.t1);
 				vData[5].position = Vector2(q.x1, q.y0); vData[5].texCoords = Vector2(q.s1, q.t0);
 
-				vData[0].color = seg.Color;		vData[1].color = seg.Color;
-				vData[2].color = seg.Color;		vData[3].color = seg.Color;
-				vData[4].color = seg.Color;		vData[5].color = seg.Color;
+				vData[0].color = Color;		vData[1].color = Color;
+				vData[2].color = Color;		vData[3].color = Color;
+				vData[4].color = Color;		vData[5].color = Color;
 
 				if (seg.Text[i] == ' ')
 				{

@@ -47,7 +47,6 @@ UIBox::UIBox(bool Horizontal, Vector2f Position)
 	this->Position = Position;
 	this->Size = Size;
 	this->ChildrenHorizontal = Horizontal;
-	GetAbsoluteParent()->InvalidateLayout();
 	UIElements.push_back(this);
 }
 
@@ -56,7 +55,6 @@ UIBox::UIBox(UIStyle* UsedStyle, bool Horizontal, Vector2f Position)
 	this->Position = Position;
 	this->ChildrenHorizontal = Horizontal;
 	UsedStyle->ApplyTo(this);
-	GetAbsoluteParent()->InvalidateLayout();
 	UIElements.push_back(this);
 }
 

@@ -1,5 +1,6 @@
 #include <UI/UIText.h>
 #include <Application.h>
+#include <iostream>
 
 
 UIText* UIText::SetTextRenderer(TextRenderer* Font)
@@ -28,7 +29,7 @@ void UIText::Tick()
 	SetMinSize(NewMin);
 }
 
-Vector3f32 UIText::GetColor()
+Vector3f32 UIText::GetColor() const
 {
 	return Color;
 }
@@ -82,6 +83,17 @@ float UIText::GetTextSize()
 	return TextSize / 2;
 }
 
+Vector2f UIText::GetTextSizeAtScale(float Scale, SizeMode ScaleType, TextRenderer* Renderer)
+{
+	float RenderedSize = Scale * 2;
+	if (ScaleType == SizeMode::PixelRelative)
+	{
+		RenderedSize = RenderedSize * 1080 / Application::GetWindowResolution().Y;
+	}
+	return Renderer->GetTextSize({ TextSegment("A", 1) }, RenderedSize, false, 999999);
+
+}
+
 UIText* UIText::SetTextWidthOverride(float NewTextWidthOverride)
 {
 	if (TextWidthOverride != NewTextWidthOverride)
@@ -99,7 +111,7 @@ void UIText::SetText(std::string NewText)
 
 void UIText::SetText(ColoredText NewText)
 {
-	if (NewText != RenderedText)
+	if (TextSegment::CombineToString(NewText) != TextSegment::CombineToString(RenderedText))
 	{
 		RenderedText = NewText;
 		if (Wrap)
@@ -133,14 +145,19 @@ void UIText::SetText(ColoredText NewText)
 	}
 }
 
-size_t UIText::GetNearestLetterAtLocation(Vector2f Location, Vector2f& LetterOutLocation)
+size_t UIText::GetNearestLetterAtLocation(Vector2f Location, Vector2f& LetterOutLocation) const
 {
-	size_t Depth = Renderer->GetCharacterIndexADistance(RenderedText, Location.X - OffsetPosition.X, TextSize * 2, LetterOutLocation);
+	float RenderedSize = TextSize * 2;
+	if (TextSizeMode == SizeMode::PixelRelative)
+	{
+		RenderedSize = RenderedSize * 1080 / Application::GetWindowResolution().Y;
+	}
+	size_t Depth = Renderer->GetCharacterIndexADistance(RenderedText, Location.X - OffsetPosition.X, RenderedSize, LetterOutLocation);
 	LetterOutLocation = LetterOutLocation + OffsetPosition;
 	return Depth;
 }
 
-std::string UIText::GetText()
+std::string UIText::GetText() const
 {
 	return TextSegment::CombineToString(RenderedText);
 }
@@ -166,7 +183,7 @@ UIText::~UIText()
 	if (Text) delete Text;
 }
 
-Vector2f UIText::GetLetterLocation(size_t Index)
+Vector2f UIText::GetLetterLocation(size_t Index) const
 {
 	if (!Renderer) return 0;
 	std::string Text = TextSegment::CombineToString(RenderedText);

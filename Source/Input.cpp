@@ -1,10 +1,14 @@
 #include "Input.h"
+#include <map>
+#include <vector>
 
 namespace Input
 {
 	Vector2f MouseLocation = Vector2(-2);
 	bool CursorVisible = false;
 	bool Keys[351];
+
+	std::map<int, std::vector<void(*)()>> ButtonPressedCallbacks;
 }
 
 bool Input::IsKeyDown(int Key)
@@ -26,6 +30,30 @@ void Input::SetKeyDown(int Key, bool KeyDown)
 	}
 	if (Key < 351 && Key >= 0)
 		Keys[Key] = KeyDown;
+
+	if (ButtonPressedCallbacks.contains(Key) && KeyDown)
+	{
+		for (auto Function : ButtonPressedCallbacks[Key])
+		{
+			Function();
+		}
+	}
+}
+
+void Input::RegisterOnKeyDownCallback(int Key, void(*Callback)())
+{
+	if (!(Key < 128))
+	{
+		Key -= 1073741755;
+	}
+	if (!ButtonPressedCallbacks.contains(Key))
+	{
+		ButtonPressedCallbacks.insert(std::pair<int, std::vector<void(*)()>>(Key, { Callback }));
+	}
+	else
+	{
+		ButtonPressedCallbacks[Key].push_back(Callback);
+	}
 }
 
 namespace Input

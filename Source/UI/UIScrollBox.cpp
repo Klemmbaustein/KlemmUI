@@ -13,7 +13,7 @@ float UIScrollBox::GetDesiredChildrenSize()
 	float DesiredSize = 0;
 	for (UIBox* i : Children)
 	{
-		DesiredSize += i->UpPadding + i->DownPadding + std::max({ i->GetUsedSize().Y, i->GetMinSize().Y, 0.0 });
+		DesiredSize += i->UpPadding + i->DownPadding + std::max(std::max(i->GetUsedSize().Y, i->GetMinSize().Y), 0.0);
 	}
 	return DesiredSize;
 }
@@ -62,6 +62,8 @@ UIScrollBox* UIScrollBox::SetDisplayScrollBar(bool NewDisplay)
 		else if (ScrollBar)
 		{
 			delete ScrollBarBackground;
+			ScrollBarBackground = nullptr;
+			ScrollBar = nullptr;
 		}
 	}
 	return this;
@@ -85,7 +87,10 @@ void UIScrollBox::Tick()
 	{
 		DesiredMaxScroll = MaxScroll + Size.Y;
 	}
-	ScrollBarBackground->IsVisible = VisibleInHierarchy;
+	if (ScrollBarBackground)
+	{
+		ScrollBarBackground->IsVisible = VisibleInHierarchy;
+	}
 	if (ScrollBar && VisibleInHierarchy)
 	{
 		ScrollBarBackground->SetMinSize(Vector2(0.015, GetUsedSize().Y));

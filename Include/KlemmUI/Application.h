@@ -1,5 +1,4 @@
 #pragma once
-#include <string>
 #include "Math/Vector2.h"
 #include "Math/Vector3.h"
 #include <vector>
@@ -19,6 +18,7 @@ namespace Application
 	const std::string& GetShaderPath();
 
 	void SetErrorMessageCallback(void(*Callback)(std::string));
+	void SetOnWindowResizedCallback(void(*Callback)());
 
 	void Error(std::string Message);
 	
@@ -38,6 +38,8 @@ namespace Application
 	void SetMinWindowSize(Vector2ui NewSize);
 
 	void SetClipboard(std::string NewClipboardText);
+
+	const std::string& GetNewTypedText();
 
 	struct Timer
 	{

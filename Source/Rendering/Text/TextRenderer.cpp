@@ -1,5 +1,5 @@
 #define _CRT_SECURE_NO_WARNINGS
-#include "TextRenderer.h"
+#include <Rendering/Text/TextRenderer.h>
 #define STB_TRUETYPE_IMPLEMENTATION
 #include "../../Util/stb_truetype.h"
 #include "../Shader.h"
@@ -16,11 +16,6 @@ namespace _TextRenderer
 	static Shader* TextShader = nullptr;
 	std::vector<TextRenderer*> Renderers;
 }
-
-//void TextRenderer::OnWindowResized()
-//{
-//	_TextRenderer::projection = glm::ortho(-450 * Graphics::AspectRatio, 450 * Graphics::AspectRatio, 450.0f, -450.f);
-//}
 
 void TextRenderer::CheckForTextShader()
 {
@@ -43,6 +38,7 @@ size_t TextRenderer::GetCharacterIndexADistance(ColoredText Text, float Dist, fl
 	float x = 0.f, y = 0.f;
 	Uint32 numVertices = 0;
 	size_t i = 0;
+	size_t CharIndex = 0;
 	float PrevDepth = 0;
 	float PrevMaxDepth = 0;
 	for (auto& c : TextString)
@@ -56,18 +52,22 @@ size_t TextRenderer::GetCharacterIndexADistance(ColoredText Text, float Dist, fl
 		if (c >= 32 && c < 128)
 		{
 			stbtt_aligned_quad q;
-			for (int i = 0; i < (IsTab ? 4 : 1); i++)
+			do
 			{
 				stbtt_GetBakedQuad(cdata, 2048, 2048, c - 32, &x, &y, &q, 1);
-			}
+			} while (++CharIndex % TabSize && IsTab);
+
 			MaxHeight = std::max(q.y1 - q.y0, MaxHeight);
 			numVertices += 6;
-			if (q.x0 / 1800 / Application::AspectRatio * Scale > Dist)
+			float ldst = q.x0 / 1800 / Application::AspectRatio * Scale;
+			if (ldst > Dist)
 			{
-				//std::cout << q.x0 / 225 / Application::AspectRatio;
-
 				LetterOutLocation = Vector2f(PrevDepth / 1800 / Application::AspectRatio, 0) * Scale;
-				if (i && q.x0 / 1800 / Application::AspectRatio * Scale > Dist + 0.0075) return i - 1;
+				if (i && !IsTab && ldst > Dist + 0.0075)
+				{
+					return i - 1;
+				}
+
 				return i;
 			}
 			PrevMaxDepth = q.x1;
@@ -136,6 +136,7 @@ Vector2f TextRenderer::GetTextSize(ColoredText Text, float Scale, bool Wrapped, 
 	FontVertex* vData = fontVertexBufferData;
 	Uint32 numVertices = 0;
 	size_t Wraps = 0;
+	size_t CharIndex = 0;
 	for (auto& seg : Text)
 	{
 		size_t LastWordIndex = SIZE_MAX;
@@ -149,13 +150,18 @@ Vector2f TextRenderer::GetTextSize(ColoredText Text, float Scale, bool Wrapped, 
 			{
 				seg.Text[i] = ' ';
 			}
-			if (seg.Text[i] >= 32 && seg.Text[i] < 128)
+			if (seg.Text[i] >= 32)
 			{
+				if (seg.Text[i] >= 128)
+				{
+					seg.Text[i] = '#';
+				}
 				stbtt_aligned_quad q;
-				for (int txIt = 0; txIt < (IsTab ? 4 : 1); txIt++)
+				do
 				{
 					stbtt_GetBakedQuad(cdata, 2048, 2048, seg.Text[i] - 32, &x, &y, &q, 1);
-				}
+				} while (++CharIndex % TabSize && IsTab);
+
 				if (seg.Text[i] == ' ')
 				{
 					LastWordIndex = i;
@@ -189,9 +195,26 @@ Vector2f TextRenderer::GetTextSize(ColoredText Text, float Scale, bool Wrapped, 
 
 DrawableText* TextRenderer::MakeText(ColoredText Text, Vector2f Pos, float Scale, Vector3f32 Color, float opacity, float LengthBeforeWrap)
 {
+	size_t CharIndex = 0;
 	for (auto& i : Text)
 	{
-		StrReplace::ReplaceChar(i.Text, '	', "    ");
+		std::string NewString = i.Text;
+		for (size_t it = 0; it < i.Text.size(); it++)
+		{
+			if (i.Text[it] == '	')
+			{
+				i.Text[it] = ' ';
+				do 
+				{
+					NewString.insert(NewString.begin() + it, ' ');
+				} while (++CharIndex % TabSize);
+			}
+			else
+			{
+				CharIndex++;
+			}
+		}
+		i.Text = NewString;
 	}
 	GLuint newVAO = 0, newVBO = 0;
 	glGenVertexArrays(1, &newVAO);
@@ -218,7 +241,8 @@ DrawableText* TextRenderer::MakeText(ColoredText Text, Vector2f Pos, float Scale
 	glBindVertexArray(newVAO);
 	glBindBuffer(GL_ARRAY_BUFFER, newVBO);
 	size_t len = TextSegment::CombineToString(Text).size();
-	if (fontVertexBufferCapacity < len) {
+	if (fontVertexBufferCapacity < len)
+	{
 		fontVertexBufferCapacity = len;
 		glBufferData(GL_ARRAY_BUFFER, sizeof(FontVertex) * 6 * fontVertexBufferCapacity, 0, GL_DYNAMIC_DRAW);
 		delete[] fontVertexBufferData;
@@ -230,14 +254,21 @@ DrawableText* TextRenderer::MakeText(ColoredText Text, Vector2f Pos, float Scale
 	Uint32 numVertices = 0;
 	for (auto& seg : Text)
 	{
+		Vector3f32 Color = seg.Color;
 		size_t LastWordIndex = SIZE_MAX;
 		size_t LastWrapIndex = 0;
 		size_t LastWordNumVertices = 0;
 		FontVertex* LastWordVDataPtr = nullptr;
 		for (size_t i = 0; i < seg.Text.size(); i++)
 		{
-			if (seg.Text[i] >= 32 && seg.Text[i] < 128)
+			if (seg.Text[i] >= 32)
 			{
+				if (seg.Text[i] >= 128)
+				{
+					std::cout << "test" << std::endl;
+					seg.Text[i] = '#';
+					Color = Vector3f32(1, 0, 0);
+				}
 				stbtt_aligned_quad q;
 				stbtt_GetBakedQuad(cdata, 2048, 2048, seg.Text[i] - 32, &x, &y, &q, 1);
 				vData[0].position = Vector2(q.x0, q.y1); vData[0].texCoords = Vector2(q.s0, q.t1);
@@ -247,9 +278,9 @@ DrawableText* TextRenderer::MakeText(ColoredText Text, Vector2f Pos, float Scale
 				vData[4].position = Vector2(q.x0, q.y1); vData[4].texCoords = Vector2(q.s0, q.t1);
 				vData[5].position = Vector2(q.x1, q.y0); vData[5].texCoords = Vector2(q.s1, q.t0);
 
-				vData[0].color = seg.Color;		vData[1].color = seg.Color;
-				vData[2].color = seg.Color;		vData[3].color = seg.Color;
-				vData[4].color = seg.Color;		vData[5].color = seg.Color;
+				vData[0].color = Color;		vData[1].color = Color;
+				vData[2].color = Color;		vData[3].color = Color;
+				vData[4].color = Color;		vData[5].color = Color;
 
 				if (seg.Text[i] == ' ')
 				{

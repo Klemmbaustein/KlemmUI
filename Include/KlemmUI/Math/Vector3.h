@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <cstdint>
 
 template<typename T>
 class Vector3
@@ -19,6 +20,8 @@ public:
 		Y = (T)b.Y;
 		Z = (T)b.Z;
 	}
+
+	static Vector3 Lerp(Vector3 a, Vector3 b, T val);
 
 	Vector3<T> operator+(Vector3<T> b);
 	Vector3<T> operator-(Vector3<T> b);

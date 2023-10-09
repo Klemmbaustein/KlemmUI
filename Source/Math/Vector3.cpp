@@ -24,6 +24,12 @@ Vector3<T>::Vector3(T X, T Y, T Z)
 }
 
 template<typename T>
+Vector3<T> Vector3<T>::Lerp(Vector3 a, Vector3 b, T val)
+{
+	return Vector3(std::lerp(a.X, b.X, val), std::lerp(a.Y, b.Y, val), std::lerp(a.Z, b.Z, val));
+}
+
+template<typename T>
 inline Vector3<T> Vector3<T>::operator+(Vector3<T> b)
 {
 	return Vector3<T>(X + b.X, Y + b.Y, Z + b.Z);

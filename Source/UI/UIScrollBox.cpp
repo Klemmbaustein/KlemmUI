@@ -13,7 +13,7 @@ float UIScrollBox::GetDesiredChildrenSize()
 	float DesiredSize = 0;
 	for (UIBox* i : Children)
 	{
-		DesiredSize += i->UpPadding + i->DownPadding + std::max({ i->GetUsedSize().Y, i->GetMinSize().Y, 0.0 });
+		DesiredSize += i->UpPadding + i->DownPadding + std::max(std::max(i->GetUsedSize().Y, i->GetMinSize().Y), 0.0);
 	}
 	return DesiredSize;
 }

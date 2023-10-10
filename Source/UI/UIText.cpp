@@ -132,8 +132,7 @@ void UIText::SetText(ColoredText NewText)
 				WrapDistance = UIBox::PixelSizeToScreenSize(Vector2f((double)WrapDistance, 0.0)).X;
 			}
 
-			Vector2 s = Renderer->GetTextSize(RenderedText, RenderedSize, Wrap, Distance)
-				/ ((30 + Renderer->CharacterSizeInPixels / 2) * 60.f);
+			Vector2 s = Renderer->GetTextSize(RenderedText, RenderedSize, Wrap, Distance);
 			if (s.X < WrapDistance)
 			{
 				Update();

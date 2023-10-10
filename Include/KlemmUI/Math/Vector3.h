@@ -21,7 +21,7 @@ public:
 		Z = (T)b.Z;
 	}
 
-	static Vector3 Lerp(Vector3 a, Vector3 b, T val);
+	static Vector3 Lerp(Vector3 a, Vector3 b, double val);
 
 	Vector3<T> operator+(Vector3<T> b);
 	Vector3<T> operator-(Vector3<T> b);

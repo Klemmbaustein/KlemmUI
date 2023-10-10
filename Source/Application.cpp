@@ -14,6 +14,39 @@
 #include "Rendering/ScrollObject.h"
 #include <UI/UITextField.h>
 
+#if _WIN32
+#define NOMINMAX
+#include <Windows.h>
+std::wstring GetUnicodeString(std::string Input)
+{
+	int wchars_num = MultiByteToWideChar(CP_UTF8, 0, Input.c_str(), -1, NULL, 0);
+	wchar_t* wstr = new wchar_t[wchars_num];
+	MultiByteToWideChar(CP_UTF8, 0, Input.c_str(), -1, wstr, wchars_num);
+	std::wstring str = wstr;
+	delete[] wstr;
+	return str;
+}
+std::string GetAsciiString(std::wstring Input)
+{
+	std::string strTo;
+	char* szTo = new char[Input.length() + 1];
+	szTo[Input.size()] = '\0';
+	WideCharToMultiByte(CP_ACP, 0, Input.c_str(), -1, szTo, (int)Input.length(), NULL, NULL);
+	strTo = szTo;
+	delete[] szTo;
+	return strTo;
+}
+#else
+std::wstring GetUnicodeString(std::string Input)
+{
+	return std::wstring(Input.begin(), Input.end());
+}
+std::string GetAsciiString(std::wstring Input)
+{
+	return std::string(Input.begin(), Input.end());
+}
+#endif
+
 void GLAPIENTRY
 MessageCallback(
 	GLenum source,
@@ -242,6 +275,10 @@ void HandleEvents()
 					TextInput::TextRow--;
 				}
 				TextInput::TextIndex = std::max(std::min(TextInput::TextIndex - 1, (int)TextInput::Text.size()), 0);
+				if (TextInput::Text[TextInput::TextIndex] & 0b10000000)
+				{
+					TextInput::TextIndex = std::max(std::min(TextInput::TextIndex - 1, (int)TextInput::Text.size()), 0);
+				}
 				break;
 			case  SDLK_RIGHT:
 				if (TextInput::TextIndex + 1 > TextInput::Text.size())
@@ -249,6 +286,10 @@ void HandleEvents()
 					TextInput::TextRow++;
 				}
 				TextInput::TextIndex = std::max(std::min(TextInput::TextIndex + 1, (int)TextInput::Text.size()), 0);
+				if (TextInput::Text[TextInput::TextIndex] & 0b10000000)
+				{
+					TextInput::TextIndex = std::max(std::min(TextInput::TextIndex + 1, (int)TextInput::Text.size()), 0);
+				}
 				break;
 			case SDLK_DOWN:
 				TextInput::TextRow++;
@@ -262,21 +303,34 @@ void HandleEvents()
 					TextInput::DeletePresses++;
 				}
 				TextInput::TextIndex++;
+				break;
 			case SDLK_BACKSPACE:
 				if(TextInput::TextIndex == 0)
 					TextInput::BackspacePresses++;
 				TextInput::TextIndex = std::min((size_t)TextInput::TextIndex, TextInput::Text.size());
 				if (TextInput::PollForText && TextInput::Text.length() > 0)
 				{
-					if (TextInput::TextIndex == TextInput::Text.size())
+					bool u8Read = false;
+					do
 					{
-						TextInput::Text.pop_back();
-					}
-					else if (TextInput::TextIndex > 0)
-					{
-						TextInput::Text.erase(TextInput::TextIndex - 1, 1);
-					}
-					TextInput::TextIndex = std::max(std::min(TextInput::TextIndex - 1, (int)TextInput::Text.size()), 0);
+						if (TextInput::TextIndex == TextInput::Text.size())
+						{
+							TextInput::Text.pop_back();
+
+						}
+						else if (TextInput::TextIndex > 0)
+						{
+							TextInput::Text.erase(TextInput::TextIndex - 1, 1);
+						}
+						TextInput::TextIndex--;
+						if (u8Read)
+						{
+							break;
+						}
+						u8Read = true;
+					} while (TextInput::TextIndex > 1 && (TextInput::Text[TextInput::TextIndex - 1] & 0b10000000));
+
+					TextInput::TextIndex = std::max(std::min(TextInput::TextIndex, (int)TextInput::Text.size()), 0);
 				}
 				break;
 			case SDLK_TAB:
@@ -344,8 +398,9 @@ void HandleEvents()
 				Input::IsLMBDown = false;
 				break;
 			}
+			break;
 		case SDL_TEXTINPUT:
-			if (TextInput::PollForText && e.text.text[0] >= 32 && e.text.text[0] <= 128)
+			if (TextInput::PollForText && (e.text.text[0] >= 32 || e.text.text[0] < 0))
 			{
 				TextInput::TextIndex = std::min((size_t)TextInput::TextIndex, TextInput::Text.size());
 				TextInput::Text.insert(TextInput::TextIndex, std::string(e.text.text));
@@ -469,6 +524,8 @@ const std::string& Application::GetNewTypedText()
 
 void Application::Initialize(std::string WindowName, int Flags, Vector2ui DefaultResolution)
 {
+	SetConsoleOutputCP(65001);
+
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS))
 	{
 		Application::Error("SDL_Init failed: " + std::string(SDL_GetError()));

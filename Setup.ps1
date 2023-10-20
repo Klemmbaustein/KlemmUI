@@ -11,4 +11,5 @@ cd glew-cmake
 cmake CMakeLists.txt
 Write-Host "--- Building glew ---"
 msbuild libglew_static.vcxproj -nologo /p:Configuration=Release /p:Platform=x64
+msbuild libglew_static.vcxproj -nologo /p:Configuration=Debug /p:Platform=x64
 cd ..\

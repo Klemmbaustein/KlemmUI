@@ -1,6 +1,7 @@
 #include <Math/Vector3.h>
 #include <vector>
 #include <sstream>
+#include <cmath>
 
 template<typename T>
 Vector3<T>::Vector3()

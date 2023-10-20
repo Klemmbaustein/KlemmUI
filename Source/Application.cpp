@@ -524,7 +524,9 @@ const std::string& Application::GetNewTypedText()
 
 void Application::Initialize(std::string WindowName, int Flags, Vector2ui DefaultResolution)
 {
+#if _WIN32
 	SetConsoleOutputCP(65001);
+#endif
 
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS))
 	{

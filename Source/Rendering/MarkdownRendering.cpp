@@ -72,7 +72,7 @@ void Markdown::RenderMarkdown(std::string Markdown, UIBox* TargetParent, Markdow
 
 		auto DescriptionText = new UIText(size, 1, SeperatorRemovedString, Style.Text);
 		DescriptionText->Wrap = true;
-		DescriptionText->WrapDistance = Style.Width * 0.818182 * (1 / size);
+		DescriptionText->WrapDistance = Style.Width * 0.2 * (1 / size);
 		DescriptionText->SetPadding(size >= 0.4f ? 0.01 : 0, 0, size >= 0.4f ? 0 : 0.02, 0);
 		TargetParent->AddChild(DescriptionText);
 

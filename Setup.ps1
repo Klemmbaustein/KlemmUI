@@ -7,14 +7,8 @@ cd ..\..\..
 cp SDL\VisualC\SDL\x64\Release\SDL2.dll Examples\HelloWorld\SDL2.dll
 cp SDL\VisualC\SDL\x64\Release\SDL2.dll Examples\FileExplorer\SDL2.dll
 
-cd glew-cmake\build\vc15
-devenv.exe /upgrade glew_static.vcxproj
-echo "Upgrading glew_static.vcxproj"
-
-Start-Sleep -Seconds 10
-
-msbuild glew_static.vcxproj /p:Configuration=Release /p:Platform=x64
-msbuild glew_static.vcxproj /p:Configuration=Debug /p:Platform=x64
+cd glew-cmake
+cmake CMakeLists.txt
+Write-Host "--- Building glew ---"
+msbuild libglew_static.vcxproj -nologo /p:Configuration=Release /p:Platform=x64
 cd ..\..\..
-
- 

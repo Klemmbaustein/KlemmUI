@@ -77,6 +77,7 @@ public:
 	static void RedrawUI();
 	static void ClearUI();
 	static bool GetShouldRedrawUI();
+	void MoveToFront();
 	virtual Vector2f GetUsedSize();
 	Vector2f GetScreenPosition();
 	void SetCurrentScrollObject(UIScrollBox* s);

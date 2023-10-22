@@ -188,6 +188,19 @@ bool UIBox::GetShouldRedrawUI()
 	return UI::RequiresRedraw;
 }
 
+void UIBox::MoveToFront()
+{
+	for (size_t i = 0; i < UIElements.size(); i++)
+	{
+		if (UIElements[i] == this)
+		{
+			UIElements.erase(UIElements.begin() + i);
+			break;
+		}
+	}
+	UIElements.push_back(this);
+}
+
 Vector2f UIBox::GetUsedSize()
 {
 	return Size;

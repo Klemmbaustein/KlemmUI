@@ -64,6 +64,7 @@ public:
 	Vector2f GetPosition();
 	UIBox* SetPadding(double Up, double Down, double Left, double Right);
 	UIBox* SetPadding(double AllDirs);
+	UIBox* SetPaddingSizeMode(SizeMode NewSizeMode);
 	UIBox* SetTryFill(bool NewTryFill);
 	UIBox* SetAlign(Align NewAlign);
 	UIBox* SetHorizontal(bool IsHorizontal);
@@ -104,11 +105,13 @@ protected:
 	double RightPadding = 0.01;
 	double LeftPadding = 0.01;
 	Vector2f Size;
+	SizeMode PaddingSizeMode = SizeMode::ScreenRelative;
 
 	std::vector<UIBox*> Children;
 	UIBox* Parent = nullptr;
 	ScrollObject* CurrentScrollObject = nullptr;
 	void UpdateSelfAndChildren();
+	Vector2f GetLeftRightPadding(UIBox* Target);
 
 	static Vector2f PixelSizeToScreenSize(Vector2f PixelSize);
 

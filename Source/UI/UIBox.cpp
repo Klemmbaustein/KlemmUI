@@ -286,6 +286,16 @@ UIBox* UIBox::SetPadding(double AllDirs)
 	return this;
 }
 
+UIBox* UIBox::SetPaddingSizeMode(SizeMode NewSizeMode)
+{
+	if (NewSizeMode != PaddingSizeMode)
+	{
+		PaddingSizeMode = NewSizeMode;
+		InvalidateLayout();
+	}
+	return this;
+}
+
 UIBox* UIBox::SetTryFill(bool NewTryFill)
 {
 	if (TryFill != NewTryFill)
@@ -329,6 +339,15 @@ void UIBox::UpdateSelfAndChildren()
 	Update();
 }
 
+Vector2f UIBox::GetLeftRightPadding(UIBox* Target)
+{
+	if (Target->PaddingSizeMode == SizeMode::ScreenRelative)
+	{
+		return Vector2f(Target->LeftPadding, Target->RightPadding);
+	}
+	return Vector2f(Target->LeftPadding, Target->RightPadding) / (double)Application::AspectRatio;
+}
+
 Vector2f UIBox::PixelSizeToScreenSize(Vector2f PixelSize)
 {
 	PixelSize.X = PixelSize.X / (double)Application::GetWindowResolution().X * 1080;
@@ -347,13 +366,13 @@ void UIBox::UpdateScale()
 	{
 		if (ChildrenHorizontal)
 		{
-			Size.X += c->Size.X + c->LeftPadding + c->RightPadding;
+			Size.X += c->Size.X + GetLeftRightPadding(c).X + GetLeftRightPadding(c).Y;
 			Size.Y = std::max(Size.Y, c->Size.Y + c->UpPadding + c->DownPadding);
 		}
 		else
 		{
 			Size.Y += c->Size.Y + c->UpPadding + c->DownPadding;
-			Size.X = std::max(Size.X, c->Size.X + c->LeftPadding + c->RightPadding);
+			Size.X = std::max(Size.X, c->Size.X + GetLeftRightPadding(c).X + GetLeftRightPadding(c).Y);
 		}
 	}
 
@@ -381,7 +400,6 @@ void UIBox::UpdatePosition()
 {
 	float Offset = 0;
 
-
 	if (!Parent)
 	{
 		OffsetPosition = Position;
@@ -393,7 +411,8 @@ void UIBox::UpdatePosition()
 	{
 		for (auto c : Children)
 		{
-			ChildrenSize += ChildrenHorizontal ? (c->Size.X + c->LeftPadding + c->RightPadding) : (c->Size.Y + c->UpPadding + c->DownPadding);
+			Vector2f LeftRight = GetLeftRightPadding(c);
+			ChildrenSize += ChildrenHorizontal ? (c->Size.X + LeftRight.X + LeftRight.Y) : (c->Size.Y + c->UpPadding + c->DownPadding);
 		}
 	}
 
@@ -404,12 +423,12 @@ void UIBox::UpdatePosition()
 		{
 			if (ChildrenHorizontal)
 			{
-				c->OffsetPosition = OffsetPosition + Vector2f(Size.X / 2 - ChildrenSize / 2 + c->LeftPadding, c->DownPadding);
-				Offset += c->Size.X + c->LeftPadding + c->RightPadding;
+				c->OffsetPosition = OffsetPosition + Vector2f(Size.X / 2 - ChildrenSize / 2 + GetLeftRightPadding(c).X, c->DownPadding);
+				Offset += c->Size.X + GetLeftRightPadding(c).X + GetLeftRightPadding(c).Y;
 			}
 			else
 			{
-				c->OffsetPosition = OffsetPosition + Vector2f(c->LeftPadding, Size.Y / 2 - ChildrenSize / 2 + c->DownPadding);
+				c->OffsetPosition = OffsetPosition + Vector2f(GetLeftRightPadding(c).X, Size.Y / 2 - ChildrenSize / 2 + c->DownPadding);
 				Offset += c->Size.Y + c->DownPadding + c->UpPadding;
 			}
 		}
@@ -419,23 +438,23 @@ void UIBox::UpdatePosition()
 			{
 				if (BoxAlign == Align::Reverse)
 				{
-					c->OffsetPosition = OffsetPosition + Vector2f(Size.X - Offset - c->Size.X - c->RightPadding, c->DownPadding);
+					c->OffsetPosition = OffsetPosition + Vector2f(Size.X - Offset - c->Size.X - GetLeftRightPadding(c).Y, c->DownPadding);
 				}
 				else
 				{
-					c->OffsetPosition = OffsetPosition + Vector2f(Offset + c->LeftPadding, c->DownPadding);
+					c->OffsetPosition = OffsetPosition + Vector2f(Offset + GetLeftRightPadding(c).X, c->DownPadding);
 				}
-				Offset += c->Size.X + c->LeftPadding + c->RightPadding;
+				Offset += c->Size.X + GetLeftRightPadding(c).X + GetLeftRightPadding(c).Y;
 			}
 			else
 			{
 				if (BoxAlign == Align::Reverse)
 				{
-					c->OffsetPosition = OffsetPosition + Vector2f(c->LeftPadding, Size.Y - Offset - c->Size.Y - c->UpPadding);
+					c->OffsetPosition = OffsetPosition + Vector2f(GetLeftRightPadding(c).X, Size.Y - Offset - c->Size.Y - c->UpPadding);
 				}
 				else
 				{
-					c->OffsetPosition = OffsetPosition + Vector2f(c->LeftPadding, Offset + c->DownPadding);
+					c->OffsetPosition = OffsetPosition + Vector2f(GetLeftRightPadding(c).X, Offset + c->DownPadding);
 				}
 				Offset += c->Size.Y + c->DownPadding + c->UpPadding;
 			}
@@ -454,7 +473,7 @@ void UIBox::UpdatePosition()
 			}
 			else
 			{
-				c->Size.X = Size.X - (c->LeftPadding + c->RightPadding);
+				c->Size.X = Size.X - (GetLeftRightPadding(c).X + GetLeftRightPadding(c).Y);
 				c->Size = c->Size.Clamp(c->MinSize, c->MaxSize);
 			}
 		}
@@ -463,8 +482,16 @@ void UIBox::UpdatePosition()
 
 void UIBox::InvalidateLayout()
 {
-	RedrawUI();
-	UI::ElementsToUpdate.insert(this);
+	UI::RequiresRedraw = true;
+
+	if (Parent)
+	{
+		Parent->InvalidateLayout();
+	}
+	else
+	{
+		UI::ElementsToUpdate.insert(this);
+	}
 }
 
 UIBox* UIBox::AddChild(UIBox* NewChild)

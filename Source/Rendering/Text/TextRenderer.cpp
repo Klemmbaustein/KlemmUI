@@ -53,7 +53,7 @@ size_t TextRenderer::GetCharacterIndexADistance(ColoredText Text, float Dist, fl
 			c = L' ';
 			IsTab = true;
 		}
-		if (c >= 32)
+		if (c >= 32 && c < NUM_LOADED_CHARS)
 		{
 			stbtt_aligned_quad q;
 			do
@@ -274,7 +274,7 @@ DrawableText* TextRenderer::MakeText(ColoredText Text, Vector2f Pos, float Scale
 		std::wstring SegmentText = GetUnicodeString(seg.Text);
 		for (size_t i = 0; i < SegmentText.size(); i++)
 		{
-			if (SegmentText[i] >= 32)
+			if (SegmentText[i] >= 32 && SegmentText[i] < NUM_LOADED_CHARS)
 			{
 				stbtt_aligned_quad q;
 				stbtt_GetBakedQuad(cdata, CHAR_BITMAP_SIZE, CHAR_BITMAP_SIZE, SegmentText[i] - 32, &x, &y, &q, 1);

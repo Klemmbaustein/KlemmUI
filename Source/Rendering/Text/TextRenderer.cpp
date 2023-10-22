@@ -166,7 +166,7 @@ Vector2f TextRenderer::GetTextSize(ColoredText Text, float Scale, bool Wrapped, 
 			{
 				SegmentText[i] = L' ';
 			}
-			if (SegmentText[i] >= 32)
+			if (SegmentText[i] >= 32 && SegmentText[i] < NUM_LOADED_CHARS)
 			{
 				stbtt_aligned_quad q;
 				do

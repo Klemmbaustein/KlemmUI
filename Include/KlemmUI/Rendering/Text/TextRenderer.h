@@ -44,12 +44,11 @@ private:
 	uint32_t fontVertexBufferCapacity;
 public:
 	uint8_t TabSize = 4;
-	std::string Filename; float CharacterSizeInPixels;
+	std::string Filename;
 	size_t GetCharacterIndexADistance(ColoredText Text, float Dist, float Scale, Vector2f& LetterOutLocation);
-	TextRenderer(std::string filename, float CharacterSizeInPixels = 150);
+	TextRenderer(std::string filename);
 	Vector2f GetTextSize(ColoredText Text, float Scale, bool Wrapped, float LengthBeforeWrap);
 	DrawableText* MakeText(ColoredText Text, Vector2f Pos, float Scale, Vector3f32 Color, float opacity, float LengthBeforeWrap);
-	void Reinit();
 	~TextRenderer();
 
 };

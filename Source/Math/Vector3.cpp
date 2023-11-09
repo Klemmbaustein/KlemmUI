@@ -25,9 +25,12 @@ Vector3<T>::Vector3(T X, T Y, T Z)
 }
 
 template<typename T>
-Vector3<T> Vector3<T>::Lerp(Vector3 a, Vector3 b, T val)
+Vector3<T> Vector3<T>::Lerp(Vector3 a, Vector3 b, double val)
 {
-	return Vector3(std::lerp(a.X, b.X, val), std::lerp(a.Y, b.Y, val), std::lerp(a.Z, b.Z, val));
+	return Vector3(
+		(T)std::lerp((double)a.X, (double)b.X, val), 
+		(T)std::lerp((double)a.Y, (double)b.Y, val),
+		(T)std::lerp((double)a.Z, (double)b.Z, val));
 }
 
 template<typename T>

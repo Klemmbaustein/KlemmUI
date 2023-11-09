@@ -136,7 +136,7 @@ void UITextField::Tick()
 		}
 		ShowIBeam = false;
 	}
-	TextObject->SetColor(EnteredText.empty() && !IsEdited ? Vector3f32(0.75) : Vector3f32(1));
+	TextObject->SetColor(EnteredText.empty() && !IsEdited ? TextColor * 0.75 : TextColor);
 	TextObject->SetText(EnteredText.empty() && !IsEdited ? HintText : (IsEdited ? RendererdText : EnteredText));
 }
 
@@ -193,7 +193,7 @@ Vector3f32 UITextField::GetColor()
 
 UITextField* UITextField::SetTextColor(Vector3f32 NewColor)
 {
-	TextObject->SetColor(NewColor);
+	TextColor = NewColor;
 	return this;
 }
 
@@ -271,7 +271,7 @@ void UITextField::Draw()
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 	if (ShowIBeam)
 	{
-		glUniform4f(glGetUniformLocation(UI::UIShader->GetShaderID(), "u_color"), 1, 1, 1, 1);
+		glUniform4f(glGetUniformLocation(UI::UIShader->GetShaderID(), "u_color"), TextColor.X, TextColor.Y, TextColor.Z, 1);
 		UI::UIShader->SetInt("u_borderType", (unsigned int)UIBox::BorderType::None);
 		glUniform4f(glGetUniformLocation(UI::UIShader->GetShaderID(), "u_transform"), IBeamPosition.X, IBeamPosition.Y, IBeamScale.X, IBeamScale.Y);
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);

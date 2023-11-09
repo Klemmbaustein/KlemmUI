@@ -132,8 +132,7 @@ void UIText::SetText(ColoredText NewText)
 				WrapDistance = UIBox::PixelSizeToScreenSize(Vector2f((double)WrapDistance, 0.0)).X;
 			}
 
-			Vector2 s = Renderer->GetTextSize(RenderedText, RenderedSize, Wrap, Distance)
-				/ ((30 + Renderer->CharacterSizeInPixels / 2) * 60.f);
+			Vector2 s = Renderer->GetTextSize(RenderedText, RenderedSize, Wrap, Distance);
 			if (s.X < WrapDistance)
 			{
 				Update();
@@ -233,11 +232,11 @@ void UIText::Update()
 		float Distance = WrapDistance;
 		if (WrapSizeMode == SizeMode::AspectRelative)
 		{
-			WrapDistance /= Application::AspectRatio;
+			Distance /= Application::AspectRatio;
 		}
 		if (WrapSizeMode == SizeMode::PixelRelative)
 		{
-			WrapDistance = UIBox::PixelSizeToScreenSize(Vector2f((double)WrapDistance, 0.0)).X;
+			Distance = UIBox::PixelSizeToScreenSize(Vector2f((double)WrapDistance, 0.0)).X;
 		}
 		Text = Renderer->MakeText(RenderedText, OffsetPosition + Vector2f(0, Size.Y - RenderedSize / 40),
 			RenderedSize, Color, Opacity, Distance);

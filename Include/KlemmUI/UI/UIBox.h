@@ -81,6 +81,7 @@ public:
 	Vector2f GetScreenPosition();
 	void SetCurrentScrollObject(UIScrollBox* s);
 	bool IsChildOf(UIBox* Parent);
+	UIBox* SetAlign(Align NewAlign)
 	bool HasMouseCollision = false;
 protected:
 	static std::vector<UIBox*> UIElements;

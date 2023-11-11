@@ -64,8 +64,8 @@ public:
 	Vector2f GetPosition();
 	UIBox* SetPadding(double Up, double Down, double Left, double Right);
 	UIBox* SetPadding(double AllDirs);
+	UIBox* SetPaddingSizeMode(SizeMode NewSizeMode);
 	UIBox* SetTryFill(bool NewTryFill);
-	UIBox* SetAlign(Align NewAlign);
 	UIBox* SetHorizontal(bool IsHorizontal);
 	bool GetTryFill();
 	virtual void OnChildClicked(int Index);
@@ -76,10 +76,12 @@ public:
 	static void RedrawUI();
 	static void ClearUI();
 	static bool GetShouldRedrawUI();
+	void MoveToFront();
 	virtual Vector2f GetUsedSize();
 	Vector2f GetScreenPosition();
 	void SetCurrentScrollObject(UIScrollBox* s);
 	bool IsChildOf(UIBox* Parent);
+	UIBox* SetAlign(Align NewAlign);
 	bool HasMouseCollision = false;
 protected:
 	static std::vector<UIBox*> UIElements;
@@ -104,11 +106,13 @@ protected:
 	double RightPadding = 0.01;
 	double LeftPadding = 0.01;
 	Vector2f Size;
+	SizeMode PaddingSizeMode = SizeMode::ScreenRelative;
 
 	std::vector<UIBox*> Children;
 	UIBox* Parent = nullptr;
 	ScrollObject* CurrentScrollObject = nullptr;
 	void UpdateSelfAndChildren();
+	Vector2f GetLeftRightPadding(UIBox* Target);
 
 	static Vector2f PixelSizeToScreenSize(Vector2f PixelSize);
 

@@ -4,6 +4,8 @@
 #include "../Math/Vector2.h"
 #include "UIStyle.h"
 
+class Shader;
+
 class UIBackgroundStyle : public UIStyle
 {
 public:
@@ -13,12 +15,11 @@ public:
 	float Opacity = 1.0f;
 	bool UseTexture = false;
 	unsigned int TextureID = 0;
-
+	Shader* UsedShadder;
 protected:
 	virtual void ApplyDerived(UIBox* Target) override;
 };
 
-class Shader;
 
 struct VertexBuffer;
 
@@ -39,7 +40,7 @@ public:
 	Vector3f32 GetColor();
 	void SetInvertTextureCoordinates(bool Invert);
 	UIBackground* SetUseTexture(bool UseTexture, unsigned int TextureID = 0);
-	UIBackground(bool Horizontal, Vector2f Position, Vector3f32 Color, Vector2f MinScale = Vector2f(0));
+	UIBackground(bool Horizontal, Vector2f Position, Vector3f32 Color, Vector2f MinScale = Vector2f(0), Shader* UsedShader = nullptr);
 	virtual ~UIBackground();
 	void Draw() override;
 	void Update() override;

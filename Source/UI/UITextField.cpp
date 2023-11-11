@@ -6,7 +6,7 @@
 #include <GL/glew.h>
 #include <Application.h>
 #include <Rendering/ScrollObject.h>
-#include "../Rendering/Shader.h"
+#include <Rendering/Shader.h>
 #include <iostream>
 
 namespace UI

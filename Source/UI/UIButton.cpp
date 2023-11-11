@@ -1,6 +1,6 @@
 #include <UI/UIButton.h>
 #include <GL/glew.h>
-#include "../Rendering/Shader.h"
+#include <Rendering/Shader.h>
 #include "../Rendering/VertexBuffer.h"
 #include <Application.h>
 #include <Input.h>

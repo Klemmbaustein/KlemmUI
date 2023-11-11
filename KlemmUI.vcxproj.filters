@@ -104,9 +104,6 @@
     <ClInclude Include="Source\Rendering\VertexBuffer.h">
       <Filter>Code\Rendering</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Rendering\Shader.h">
-      <Filter>Code\Rendering</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Util\stb_image.h">
       <Filter>Code\Util</Filter>
     </ClInclude>
@@ -172,6 +169,9 @@
     </ClInclude>
     <ClInclude Include="Include\KlemmUI\UI\UIStyle.h">
       <Filter>Headers\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\KlemmUI\Rendering\Shader.h">
+      <Filter>Headers\Rendering</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

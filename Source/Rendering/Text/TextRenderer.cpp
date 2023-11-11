@@ -2,7 +2,7 @@
 #include <Rendering/Text/TextRenderer.h>
 #define STB_TRUETYPE_IMPLEMENTATION
 #include "../../Util/stb_truetype.h"
-#include "../Shader.h"
+#include <Rendering/Shader.h>
 #include <SDL.h>
 #include <vector>
 #include <iostream>

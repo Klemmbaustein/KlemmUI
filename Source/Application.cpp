@@ -451,14 +451,18 @@ void Application::UpdateWindow()
 	Timer Frametime;
 	HandleEvents();
 
-	for (auto& e : ButtonEvents)
+	auto Events = ButtonEvents;
+	ButtonEvents.clear();
+
+	for (auto& e : Events)
 	{
 		if (e.Function)
 			e.Function();
-		else if (e.FunctionIndex)
+		if (e.FunctionIndex)
 			e.FunctionIndex(e.Index);
+		if (e.Btn)
+			e.Btn->OnChildClicked(e.Index);
 	}
-	ButtonEvents.clear();
 
 	DrawUI();
 	

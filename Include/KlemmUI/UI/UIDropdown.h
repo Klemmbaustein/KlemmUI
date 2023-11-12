@@ -27,7 +27,7 @@ public:
 	std::vector<Option> Options;
 	void GenerateOptions();
 
-	UIDropdown* SelectOption(size_t Index);
+	UIDropdown* SelectOption(size_t Index, bool CallEvent = true);
 
 	UIDropdown(Vector2f Position, float Size, Vector3f32 Color, Vector3f32 TextColor, std::vector<Option> Options, void(*PressedFunc)(), TextRenderer* Renderer);
 	UIDropdown(Vector2f Position, float Size, Vector3f32 Color, Vector3f32 TextColor, std::vector<Option> Options, void(*PressedFunc)(int), int ButtonIndex, TextRenderer* Renderer);

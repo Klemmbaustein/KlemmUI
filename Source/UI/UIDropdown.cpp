@@ -2,6 +2,7 @@
 #include <UI/UIText.h>
 #include <Application.h>
 #include <Input.h>
+#include <iostream>
 
 UIDropdown::UIDropdown(Vector2f Position,
 	float Size,
@@ -115,15 +116,16 @@ void UIDropdown::GenerateOptions()
 	}
 }
 
-UIDropdown* UIDropdown::SelectOption(size_t Index)
+UIDropdown* UIDropdown::SelectOption(size_t Index, bool CallEvent)
 {
 	SelectedIndex = Index;
 	SelectedOption = Options.at(Index);
 	SelectedText->SetText(SelectedOption.Name);
-
-	if (PressedFunc) Application::ButtonEvents.push_back(Application::ButtonEvent(PressedFunc, nullptr, 0));
-	if (PressedFuncIndex) Application::ButtonEvents.push_back(Application::ButtonEvent(nullptr, PressedFuncIndex, ButtonIndex));
-
+	if (CallEvent)
+	{
+		if (PressedFunc) Application::ButtonEvents.push_back(Application::ButtonEvent(PressedFunc, nullptr, nullptr, 0));
+		if (PressedFuncIndex) Application::ButtonEvents.push_back(Application::ButtonEvent(nullptr, PressedFuncIndex, nullptr, ButtonIndex));
+	}
 	GenerateOptions();
 	return this;
 }

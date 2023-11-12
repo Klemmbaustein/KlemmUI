@@ -101,14 +101,14 @@ void UITextField::Tick()
 		if (!TextInput::PollForText)
 		{
 			IsEdited = false;
-			if (PressedFunc) Application::ButtonEvents.push_back(Application::ButtonEvent(PressedFunc));
+			if (PressedFunc) Application::ButtonEvents.push_back(Application::ButtonEvent(PressedFunc, nullptr, nullptr, 0));
 			RedrawUI();
 		}
 		if (!IsHovered && Input::IsLMBDown)
 		{
 			IsEdited = false;
 			TextInput::PollForText = false;
-			if (PressedFunc) Application::ButtonEvents.push_back(Application::ButtonEvent(PressedFunc));
+			if (PressedFunc) Application::ButtonEvents.push_back(Application::ButtonEvent(PressedFunc, nullptr, nullptr, 0));
 			RedrawUI();
 		}
 	}

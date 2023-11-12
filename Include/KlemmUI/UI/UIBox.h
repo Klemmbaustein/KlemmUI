@@ -39,7 +39,8 @@ public:
 
 	BorderType BoxBorder = BorderType::None;
 	float BorderRadius = 0;
-	Align BoxAlign = Align::Default;
+	Align HorizontalBoxAlign = Align::Default;
+	Align VerticalBoxAlign = Align::Reverse;
 
 	UIBox(bool Horizontal, Vector2f Position);
 	UIBox(UIStyle* UsedStyle, bool Horizontal, Vector2f Position);
@@ -80,9 +81,14 @@ public:
 	virtual Vector2f GetUsedSize();
 	Vector2f GetScreenPosition();
 	void SetCurrentScrollObject(UIScrollBox* s);
+	void SetCurrentScrollObject(ScrollObject* s);
 	bool IsChildOf(UIBox* Parent);
-	UIBox* SetAlign(Align NewAlign);
+	UIBox* SetHorizontalAlign(Align NewAlign);
+	UIBox* SetVerticalAlign(Align NewAlign);
 	bool HasMouseCollision = false;
+	ScrollObject* CurrentScrollObject = nullptr;
+
+	void UpdateElement();
 protected:
 	static std::vector<UIBox*> UIElements;
 	UIStyle* UsedStyle = nullptr;
@@ -110,13 +116,14 @@ protected:
 
 	std::vector<UIBox*> Children;
 	UIBox* Parent = nullptr;
-	ScrollObject* CurrentScrollObject = nullptr;
 	void UpdateSelfAndChildren();
 	Vector2f GetLeftRightPadding(UIBox* Target);
 
 	static Vector2f PixelSizeToScreenSize(Vector2f PixelSize);
 
 private:
+	float GetVerticalOffset();
+	float GetHorizontalOffset();
 	bool PrevIsVisible = true;
 	void UpdateScale();
 	void UpdatePosition();

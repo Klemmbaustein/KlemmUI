@@ -34,7 +34,7 @@ void Markdown::RenderMarkdown(std::string Markdown, UIBox* TargetParent, Markdow
 	}
 	
 	TargetParent->SetHorizontal(false);
-	TargetParent->BoxAlign = UIBox::Align::Reverse;
+	TargetParent->SetVerticalAlign(UIBox::Align::Reverse);
 
 	for (auto& i : Lines)
 	{

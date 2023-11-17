@@ -91,4 +91,5 @@ namespace Application
 
 	// Initializes the graphics library. If DefaultResolution = {0, 0}, it will use 0.75x of the Desktop resolution.
 	void Initialize(std::string WindowName, int Flags, Vector2ui DefaultResolution = Vector2ui());
+	void SetWindowFlags(int Flags);
 }

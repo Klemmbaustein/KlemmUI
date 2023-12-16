@@ -44,27 +44,27 @@ void Markdown::RenderMarkdown(std::string Markdown, UIBox* TargetParent, Markdow
 		float size = Style.TextSize;
 		if (i.substr(0, 5) == "#####")
 		{
-			size = 0.4f;
+			size = 0.35f;
 			i = i.substr(3);
 		}
 		else if (i.substr(0, 4) == "####")
 		{
-			size = 0.4f;
+			size = 0.35f;
 			i = i.substr(3);
 		}
 		else if (i.substr(0, 3) == "###")
 		{
-			size = 0.4f;
+			size = 0.35f;
 			i = i.substr(3);
 		}
 		else if (i.substr(0, 2) == "##")
 		{
-			size = 0.5f;
+			size = 0.4f;
 			i = i.substr(2);
 		}
 		else if (i.substr(0, 1) == "#")
 		{
-			size = 0.6f;
+			size = 0.45f;
 			i = i.substr(1);
 		}
 
@@ -73,11 +73,11 @@ void Markdown::RenderMarkdown(std::string Markdown, UIBox* TargetParent, Markdow
 		auto DescriptionText = new UIText(size, 1, SeperatorRemovedString, Style.Text);
 		DescriptionText->Wrap = true;
 		DescriptionText->WrapDistance = Style.Width * 0.2 * (1 / size);
-		DescriptionText->SetPadding(size >= 0.4f ? 0.01 : 0, 0, size >= 0.4f ? 0 : 0.02, 0);
+		DescriptionText->SetPadding(size >= 0.35f ? 0.01 : 0, 0, size >= 0.35f ? 0 : 0.02, 0);
 		TargetParent->AddChild(DescriptionText);
 
 
-		if (size >= 0.6f || i != SeperatorRemovedString)
+		if (size >= 0.45f || i != SeperatorRemovedString)
 		{
 			TargetParent->AddChild((new UIBackground(true, 0, 1, Vector2f(Style.Width, 0.005)))
 				->SetPadding(0.0, 0.02, 0, 0));

@@ -468,12 +468,19 @@ void HandleEvents()
 			}
 			break;
 		case SDL_MOUSEWHEEL:
-			for (ScrollObject* s : ScrollObject::GetAllScrollObjects())
+			while (e.wheel.y)
 			{
+				for (ScrollObject* s : ScrollObject::GetAllScrollObjects())
+				{
+					if (e.wheel.y < 0)
+						s->ScrollUp();
+					else
+						s->ScrollDown();
+				}
 				if (e.wheel.y < 0)
-					s->ScrollUp();
+					e.wheel.y++;
 				else
-					s->ScrollDown();
+					e.wheel.y--;
 			}
 			break;
 		}

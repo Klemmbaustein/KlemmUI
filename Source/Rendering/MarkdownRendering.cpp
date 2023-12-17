@@ -184,11 +184,11 @@ void Markdown::RenderMarkdown(std::string Markdown, UIBox* TargetParent, Markdow
 	for (size_t i = 0; i < Lines.size(); i++)
 	{
 		auto& ln = Lines[i];
-		size_t WrapLength = (size_t)(Style.Width * 200.0f * Style.TextSize * Application::AspectRatio);
+		size_t WrapLength = (size_t)(Style.Width * 220.0f * Style.TextSize * Application::AspectRatio);
 
 		if (ln.HeadingSize)
 		{
-			WrapLength /= (size_t)((float)(5 - ln.HeadingSize) / 2.2f);
+			WrapLength = (size_t)((float)WrapLength / ((float)(5 - ln.HeadingSize) / 2.2f));
 		}
 		
 		if (ln.IsCodeBlock)
@@ -203,11 +203,13 @@ void Markdown::RenderMarkdown(std::string Markdown, UIBox* TargetParent, Markdow
 		size_t it = 0;
 		size_t LastSpace = 0;
 		bool InCodeSegment = false;
+		char Last = 0;
 		for (char c : ln.Text)
 		{
 			if (c == '`')
 			{
 				InCodeSegment = !InCodeSegment;
+				LastSpace = it;
 			}
 
 			if (c == ' ')
@@ -229,6 +231,7 @@ void Markdown::RenderMarkdown(std::string Markdown, UIBox* TargetParent, Markdow
 				Next.Text = ln.Text.substr(LastSpace + 1);
 				if (InCodeSegment)
 				{
+					std::cout << "{" << Last << "} {" << c << "} :: " << ln.Text << std::endl;
 					Next.Text = "`" + Next.Text;
 				}
 				Next.HasHeadingPadding = false;
@@ -236,7 +239,7 @@ void Markdown::RenderMarkdown(std::string Markdown, UIBox* TargetParent, Markdow
 				Lines.insert(Lines.begin() + i + 1, Next);
 				break;
 			}
-
+			Last = c;
 		}
 	}
 	for (size_t i = 0; i < Lines.size(); i++)
@@ -330,6 +333,10 @@ void Markdown::RenderMarkdown(std::string Markdown, UIBox* TargetParent, Markdow
 			float WrapSize = 0;
 			for (auto& c : i.Children)
 			{
+				if (c.Text.empty())
+				{
+					continue;
+				}
 				UIBox* Target = Sidebox;
 				if (c.IsCodeBlock)
 				{

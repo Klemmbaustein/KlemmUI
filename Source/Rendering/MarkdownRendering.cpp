@@ -231,7 +231,6 @@ void Markdown::RenderMarkdown(std::string Markdown, UIBox* TargetParent, Markdow
 				Next.Text = ln.Text.substr(LastSpace + 1);
 				if (InCodeSegment)
 				{
-					std::cout << "{" << Last << "} {" << c << "} :: " << ln.Text << std::endl;
 					Next.Text = "`" + Next.Text;
 				}
 				Next.HasHeadingPadding = false;

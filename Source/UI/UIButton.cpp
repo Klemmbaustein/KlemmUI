@@ -103,15 +103,11 @@ void UIButton::Tick()
 		{
 			if (!NeedsToBeSelected || IsSelected)
 			{
-				if (PressedFunc) Application::ButtonEvents.push_back(Application::ButtonEvent(PressedFunc, nullptr, 0));
-				if (PressedFuncIndex) Application::ButtonEvents.push_back(Application::ButtonEvent(nullptr, PressedFuncIndex, ButtonIndex));
-				//if (Parent || ParentOverride)
-				//{
-				//	Application::ButtonEvents.insert(ButtonEvent(ParentOverride ? ParentOverride : Parent, nullptr, ButtonIndex));
-				//}
+				OnClicked();
 				IsPressed = false;
 				IsSelected = false;
 				RedrawUI();
+				return;
 			}
 			else
 			{
@@ -126,7 +122,15 @@ void UIButton::Tick()
 	}
 }
 
-
+void UIButton::OnClicked()
+{
+	if (PressedFunc) Application::ButtonEvents.push_back(Application::ButtonEvent(PressedFunc, nullptr, nullptr, 0));
+	if (PressedFuncIndex) Application::ButtonEvents.push_back(Application::ButtonEvent(nullptr, PressedFuncIndex, nullptr, ButtonIndex));
+	if (ParentOverride)
+	{
+		Application::ButtonEvents.push_back(Application::ButtonEvent(nullptr, nullptr, ParentOverride, ButtonIndex));
+	}
+}
 
 UIButton* UIButton::SetOpacity(float NewOpacity)
 {

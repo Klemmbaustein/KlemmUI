@@ -26,6 +26,7 @@ protected:
 
 class UIButton : public UIBox
 {
+protected:
 	Vector2f Offset;
 	VertexBuffer* ButtonVertexBuffer = nullptr;
 	bool IsHovered = false;
@@ -54,6 +55,7 @@ class UIButton : public UIBox
 	void ScrollTick(Shader* UsedShader);
 	void MakeGLBuffers();
 	void Tick() override;
+	virtual void OnClicked();
 public:
 	UIButton* SetOpacity(float NewOpacity);
 	float GetOpacity();

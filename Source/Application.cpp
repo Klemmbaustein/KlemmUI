@@ -17,15 +17,6 @@
 #if _WIN32
 #define NOMINMAX
 #include <Windows.h>
-std::wstring GetUnicodeString(std::string Input)
-{
-	int wchars_num = MultiByteToWideChar(CP_UTF8, 0, Input.c_str(), -1, NULL, 0);
-	wchar_t* wstr = new wchar_t[wchars_num];
-	MultiByteToWideChar(CP_UTF8, 0, Input.c_str(), -1, wstr, wchars_num);
-	std::wstring str = wstr;
-	delete[] wstr;
-	return str;
-}
 std::string GetAsciiString(std::wstring Input)
 {
 	std::string strTo;
@@ -37,15 +28,83 @@ std::string GetAsciiString(std::wstring Input)
 	return strTo;
 }
 #else
-std::wstring GetUnicodeString(std::string Input)
-{
-	return std::wstring(Input.begin(), Input.end());
-}
 std::string GetAsciiString(std::wstring Input)
 {
 	return std::string(Input.begin(), Input.end());
 }
 #endif
+
+std::wstring GetUnicodeString(std::string utf8)
+{
+	std::vector<unsigned long> unicode;
+	size_t i = 0;
+	while (i < utf8.size())
+	{
+		unsigned long uni;
+		size_t todo;
+		bool error = false;
+		unsigned char ch = utf8[i++];
+		if (ch <= 0x7F)
+		{
+			uni = ch;
+			todo = 0;
+		}
+		else if (ch <= 0xBF)
+		{
+			return std::wstring(utf8.begin(), utf8.end());
+		}
+		else if (ch <= 0xDF)
+		{
+			uni = ch & 0x1F;
+			todo = 1;
+		}
+		else if (ch <= 0xEF)
+		{
+			uni = ch & 0x0F;
+			todo = 2;
+		}
+		else if (ch <= 0xF7)
+		{
+			uni = ch & 0x07;
+			todo = 3;
+		}
+		else
+		{
+			return std::wstring(utf8.begin(), utf8.end());
+		}
+		for (size_t j = 0; j < todo; ++j)
+		{
+			if (i == utf8.size())
+				return std::wstring(utf8.begin(), utf8.end());
+			unsigned char ch = utf8[i++];
+			if (ch < 0x80 || ch > 0xBF)
+				return std::wstring(utf8.begin(), utf8.end());
+			uni <<= 6;
+			uni += ch & 0x3F;
+		}
+		if (uni >= 0xD800 && uni <= 0xDFFF)
+			return std::wstring(utf8.begin(), utf8.end());
+		if (uni > 0x10FFFF)
+			return std::wstring(utf8.begin(), utf8.end());
+		unicode.push_back(uni);
+	}
+	std::wstring utf16;
+	for (size_t i = 0; i < unicode.size(); ++i)
+	{
+		unsigned long uni = unicode[i];
+		if (uni <= 0xFFFF)
+		{
+			utf16 += (wchar_t)uni;
+		}
+		else
+		{
+			uni -= 0x10000;
+			utf16 += (wchar_t)((uni >> 10) + 0xD800);
+			utf16 += (wchar_t)((uni & 0x3FF) + 0xDC00);
+		}
+	}
+	return utf16;
+}
 
 void GLAPIENTRY
 MessageCallback(
@@ -409,12 +468,19 @@ void HandleEvents()
 			}
 			break;
 		case SDL_MOUSEWHEEL:
-			for (ScrollObject* s : ScrollObject::GetAllScrollObjects())
+			while (e.wheel.y)
 			{
+				for (ScrollObject* s : ScrollObject::GetAllScrollObjects())
+				{
+					if (e.wheel.y < 0)
+						s->ScrollUp();
+					else
+						s->ScrollDown();
+				}
 				if (e.wheel.y < 0)
-					s->ScrollUp();
+					e.wheel.y++;
 				else
-					s->ScrollDown();
+					e.wheel.y--;
 			}
 			break;
 		}
@@ -451,14 +517,18 @@ void Application::UpdateWindow()
 	Timer Frametime;
 	HandleEvents();
 
-	for (auto& e : ButtonEvents)
+	auto Events = ButtonEvents;
+	ButtonEvents.clear();
+
+	for (auto& e : Events)
 	{
 		if (e.Function)
 			e.Function();
-		else if (e.FunctionIndex)
+		if (e.FunctionIndex)
 			e.FunctionIndex(e.Index);
+		if (e.Btn)
+			e.Btn->OnChildClicked(e.Index);
 	}
-	ButtonEvents.clear();
 
 	DrawUI();
 	
@@ -565,21 +635,7 @@ void Application::Initialize(std::string WindowName, int Flags, Vector2ui Defaul
 	{
 		Application::Error("SDL2 failed to create a window: " + std::string(SDL_GetError()));
 	}
-
-	if (Flags & MAXIMIZED_BIT)
-	{
-		SDL_MaximizeWindow(Window);
-	}
-	if (Flags & BORDERLESS_BIT)
-	{
-		IsBorderless = true;
-		SDL_SetWindowBordered(Window, SDL_FALSE);
-		SDL_SetHint(SDL_HINT_VIDEO_MINIMIZE_ON_FOCUS_LOSS, "0");
-		if (!(Flags & NO_RESIZE_BIT))
-		{
-			SDL_SetWindowHitTest(Window, HitTestCallback, 0);
-		}
-	}
+	SetWindowFlags(Flags);
 
 	SystemCursors = new SDL_Cursor*[4]
 	{
@@ -588,7 +644,6 @@ void Application::Initialize(std::string WindowName, int Flags, Vector2ui Defaul
 		SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_CROSSHAIR),
 		SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_IBEAM),
 	};
-
 	auto GLContext = SDL_GL_CreateContext(Window);
 
 	if (!GLContext)
@@ -613,6 +668,34 @@ void Application::Initialize(std::string WindowName, int Flags, Vector2ui Defaul
 
 	PostProcessShader = new Shader(Application::GetShaderPath() + "/postprocess.vert", Application::GetShaderPath() + "/postprocess.frag");
 	UIBox::InitUI();
+}
+
+void Application::SetWindowFlags(int Flags)
+{
+	if (Flags & MAXIMIZED_BIT)
+	{
+		SDL_MaximizeWindow(Window);
+	}
+	else
+	{
+		SDL_RestoreWindow(Window);
+	}
+	if (Flags & BORDERLESS_BIT)
+	{
+		IsBorderless = true;
+		SDL_SetWindowBordered(Window, SDL_FALSE);
+		SDL_SetHint(SDL_HINT_VIDEO_MINIMIZE_ON_FOCUS_LOSS, "0");
+		if (!(Flags & NO_RESIZE_BIT))
+		{
+			SDL_SetWindowHitTest(Window, HitTestCallback, 0);
+		}
+	}
+	else
+	{
+		IsBorderless = false;
+		SDL_SetWindowBordered(Window, SDL_TRUE);
+	}
+
 }
 
 

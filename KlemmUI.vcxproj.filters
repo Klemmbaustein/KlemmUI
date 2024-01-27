@@ -99,7 +99,9 @@
     <ClCompile Include="Source\UI\UIStyle.cpp">
       <Filter>Code\UI</Filter>
     </ClCompile>
-    <ClCompile Include="Source\UI\UIDropdown.cpp" />
+    <ClCompile Include="Source\UI\UIDropdown.cpp">
+      <Filter>Code\UI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Rendering\VertexBuffer.h">
@@ -171,9 +173,11 @@
     <ClInclude Include="Include\KlemmUI\UI\UIStyle.h">
       <Filter>Headers\UI</Filter>
     </ClInclude>
-    <ClInclude Include="Include\KlemmUI\UI\UIDropdown.h" />
     <ClInclude Include="Include\KlemmUI\Rendering\Shader.h">
       <Filter>Headers\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\KlemmUI\UI\UIDropdown.h">
+      <Filter>Headers\UI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

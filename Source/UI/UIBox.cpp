@@ -154,9 +154,9 @@ void UIBox::InitUI()
 	glGenTextures(1, &UI::UITexture);
 	glBindTexture(GL_TEXTURE_2D, UI::UITexture);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F,
-		Application::GetWindowResolution().X * 2, Application::GetWindowResolution().Y * 2, 0, GL_RGBA, GL_FLOAT, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		Application::GetWindowResolution().X, Application::GetWindowResolution().Y, 0, GL_RGBA, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, UI::UIBuffer);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, UI::UITexture, 0);
@@ -430,12 +430,30 @@ void UIBox::UpdateScale()
 		if (ChildrenHorizontal)
 		{
 			Size.X += c->Size.X + GetLeftRightPadding(c).X + GetLeftRightPadding(c).Y;
-			Size.Y = std::max(Size.Y, c->Size.Y + c->UpPadding + c->DownPadding);
+			if (!c->TryFill)
+			{
+				Size.Y = std::max(Size.Y, c->Size.Y + c->UpPadding + c->DownPadding);
+			}
 		}
 		else
 		{
 			Size.Y += c->Size.Y + c->UpPadding + c->DownPadding;
-			Size.X = std::max(Size.X, c->Size.X + GetLeftRightPadding(c).X + GetLeftRightPadding(c).Y);
+			if (!c->TryFill)
+			{
+				Size.X = std::max(Size.X, c->Size.X + GetLeftRightPadding(c).X + GetLeftRightPadding(c).Y);
+			}
+		}
+	}
+
+	if (TryFill && Parent)
+	{
+		if (ChildrenHorizontal)
+		{
+			Size.Y = Parent->Size.Y - (UpPadding + DownPadding);
+		}
+		else
+		{
+			Size.X = Parent->Size.X - (GetLeftRightPadding(this).X + GetLeftRightPadding(this).Y);
 		}
 	}
 
@@ -628,7 +646,7 @@ bool UIBox::DrawAllUIElements()
 			elem->UpdateSelfAndChildren();
 		}
 		UI::ElementsToUpdate.clear();
-		glViewport(0, 0, Application::GetWindowResolution().X * 2, Application::GetWindowResolution().Y * 2);
+		glViewport(0, 0, Application::GetWindowResolution().X, Application::GetWindowResolution().Y);
 		glBindFramebuffer(GL_FRAMEBUFFER, UI::UIBuffer);
 		glClearColor(0, 0, 0, 1);
 		glClear(GL_COLOR_BUFFER_BIT);

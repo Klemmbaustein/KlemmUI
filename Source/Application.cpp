@@ -357,11 +357,17 @@ void HandleEvents()
 				TextInput::TextRow--;
 				break;
 			case SDLK_DELETE:
-				if (TextInput::TextIndex >= TextInput::Text.size())
+				if (TextInput::PollForText)
 				{
-					TextInput::DeletePresses++;
+					if (TextInput::TextIndex < TextInput::Text.size() && TextInput::TextIndex >= 0)
+					{
+						TextInput::Text.erase(TextInput::TextIndex, 1);
+					}
+					if (TextInput::TextIndex >= TextInput::Text.size())
+					{
+						TextInput::DeletePresses++;
+					}
 				}
-				TextInput::TextIndex++;
 				break;
 			case SDLK_BACKSPACE:
 				if(TextInput::TextIndex == 0)
@@ -695,7 +701,4 @@ void Application::SetWindowFlags(int Flags)
 		IsBorderless = false;
 		SDL_SetWindowBordered(Window, SDL_TRUE);
 	}
-
 }
-
-

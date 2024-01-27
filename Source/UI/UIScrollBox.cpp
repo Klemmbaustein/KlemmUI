@@ -89,7 +89,7 @@ void UIScrollBox::Tick()
 	}
 	if (ScrollBarBackground)
 	{
-		ScrollBarBackground->IsVisible = VisibleInHierarchy;
+		ScrollBarBackground->IsVisible = VisibleInHierarchy && DesiredMaxScroll > Size.Y;
 	}
 	if (ScrollBar && VisibleInHierarchy)
 	{

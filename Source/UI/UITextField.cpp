@@ -56,8 +56,7 @@ void UITextField::Tick()
 	}
 	if (UI::HoveredBox == this)
 	{
-		Vector2f OutLoc;
-		size_t Nearest = TextObject->GetNearestLetterAtLocation(Input::MouseLocation, OutLoc);
+		size_t Nearest = TextObject->GetNearestLetterAtLocation(Input::MouseLocation);
 		if (!IsHovered)
 		{
 			RedrawUI();
@@ -119,7 +118,7 @@ void UITextField::Tick()
 		if (NewPos != IBeamPosition)
 		{
 			IBeamPosition = NewPos;
-			IBeamScale = Vector2f(0.002, 0.066) * TextSize * 2;
+			IBeamScale = Vector2f(4.0f / Application::AspectRatio, 0.066) * TextSize * 2;
 			RedrawUI();
 		}
 		if (!ShowIBeam)
@@ -268,6 +267,11 @@ void UITextField::Draw()
 	UI::UIShader->SetInt("u_borderType", (unsigned int)BoxBorder);
 	glUniform1f(glGetUniformLocation(UI::UIShader->GetShaderID(), "u_borderScale"), BorderRadius / 20.0f);
 	glUniform1f(glGetUniformLocation(UI::UIShader->GetShaderID(), "u_aspectratio"), Application::AspectRatio);
+
+	glUniform2f(glGetUniformLocation(UI::UIShader->GetShaderID(), "u_screenRes"),
+		(float)Application::GetWindowResolution().X,
+		(float)Application::GetWindowResolution().Y);
+
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 	if (ShowIBeam)
 	{

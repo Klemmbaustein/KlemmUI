@@ -293,6 +293,9 @@ void UIButton::Draw()
 	glUniform1i(glGetUniformLocation(UI::UIShader->GetShaderID(), "u_borderType"), (unsigned int)BoxBorder);
 	glUniform1f(glGetUniformLocation(UI::UIShader->GetShaderID(), "u_borderScale"), BorderRadius / 20.0f);
 	glUniform1f(glGetUniformLocation(UI::UIShader->GetShaderID(), "u_aspectratio"), Application::AspectRatio);
+	glUniform2f(glGetUniformLocation(UI::UIShader->GetShaderID(), "u_screenRes"),
+		(float)Application::GetWindowResolution().X,
+		(float)Application::GetWindowResolution().Y);
 
 	if (UseTexture)
 		glUniform1i(glGetUniformLocation(UI::UIShader->GetShaderID(), "u_usetexture"), 1);

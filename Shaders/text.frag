@@ -9,7 +9,7 @@ uniform vec3 textColor;
 uniform float u_opacity = 1.0f;
 uniform vec2 u_screenRes = vec2(1600, 900);
 uniform vec3 transform;
-#define NUM_SAMPLES 2
+#define NUM_SAMPLES 3
 
 void main()
 {   
@@ -22,7 +22,7 @@ void main()
 		discard;
 	}
 	float sampled = 0;
-	vec2 offset = (2.0 / transform.z) / u_screenRes;
+	vec2 offset = (1.5 / transform.z) / u_screenRes;
 	for (int x = -NUM_SAMPLES; x < NUM_SAMPLES; x++)
 	{
 		for (int y = -NUM_SAMPLES; y < NUM_SAMPLES; y++)

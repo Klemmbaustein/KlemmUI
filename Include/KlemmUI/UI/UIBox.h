@@ -57,10 +57,10 @@ public:
 	bool IsBeingHovered();
 
 	UIBox* SetMaxSize(Vector2f NewMaxSize);
-	Vector2f GetMaxSize();
+	Vector2f GetMaxSize() const;
 
 	UIBox* SetMinSize(Vector2f NewMinSize);
-	Vector2f GetMinSize();
+	Vector2f GetMinSize() const;
 	UIBox* SetPosition(Vector2f NewPosition);
 	Vector2f GetPosition();
 	UIBox* SetPadding(double Up, double Down, double Left, double Right);
@@ -68,7 +68,7 @@ public:
 	UIBox* SetPaddingSizeMode(SizeMode NewSizeMode);
 	UIBox* SetTryFill(bool NewTryFill);
 	UIBox* SetHorizontal(bool IsHorizontal);
-	bool GetTryFill();
+	bool GetTryFill() const;
 	virtual void OnChildClicked(int Index);
 	UIBox* SetBorder(BorderType Type, double Size);
 	static void ForceUpdateUI();
@@ -79,7 +79,7 @@ public:
 	static bool GetShouldRedrawUI();
 	void MoveToFront();
 	virtual Vector2f GetUsedSize();
-	Vector2f GetScreenPosition();
+	Vector2f GetScreenPosition() const;
 	void SetCurrentScrollObject(UIScrollBox* s);
 	void SetCurrentScrollObject(ScrollObject* s);
 	bool IsChildOf(UIBox* Parent);

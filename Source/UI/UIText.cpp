@@ -16,27 +16,7 @@ UIText* UIText::SetTextRenderer(TextRenderer* Font)
 void UIText::Tick()
 {
 	if (!Renderer) return;
-	float RenderedSize = TextSize;
-	if (TextSizeMode == SizeMode::PixelRelative)
-	{
-		RenderedSize = RenderedSize * 1080 / Application::GetWindowResolution().Y;
-	}
-	float Distance = WrapDistance;
-	if (WrapSizeMode == SizeMode::AspectRelative)
-	{
-		Distance /= Application::AspectRatio;
-	}
-	if (WrapSizeMode == SizeMode::PixelRelative)
-	{
-		Distance = UIBox::PixelSizeToScreenSize(Vector2f((double)WrapDistance, 0.0)).X;
-	}
-
-	Vector2 NewMin = Renderer->GetTextSize(RenderedText, RenderedSize, Wrap, WrapDistance);
-	if (TextWidthOverride > 0)
-	{
-		NewMin.X = std::max(MinSize.X, TextWidthOverride);
-	}
-	SetMinSize(NewMin);
+	SetMinSize(GetUsedSize());
 }
 
 Vector3f32 UIText::GetColor() const
@@ -70,7 +50,7 @@ UIText* UIText::SetOpacity(float NewOpacity)
 
 UIText* UIText::SetTextSize(float Size)
 {
-	Size *= 4;
+	Size *= 2;
 	if (Size != TextSize)
 	{
 		TextSize = Size;
@@ -89,7 +69,7 @@ UIText* UIText::SetTextSizeMode(SizeMode NewMode)
 	return this;
 }
 
-float UIText::GetTextSize()
+float UIText::GetTextSize() const
 {
 	return TextSize / 2;
 }
@@ -270,7 +250,7 @@ Vector2f UIText::GetUsedSize()
 	{
 		RenderedSize = RenderedSize * 1080 / Application::GetWindowResolution().Y;
 	}
-	float Distance = WrapDistance * 3;
+	float Distance = WrapDistance;
 	if (WrapSizeMode == SizeMode::AspectRelative)
 	{
 		Distance /= Application::AspectRatio;

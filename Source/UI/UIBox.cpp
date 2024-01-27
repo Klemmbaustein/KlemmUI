@@ -211,7 +211,7 @@ Vector2f UIBox::GetUsedSize()
 	return Size;
 }
 
-Vector2f UIBox::GetScreenPosition()
+Vector2f UIBox::GetScreenPosition() const
 {
 	return OffsetPosition;
 }
@@ -244,7 +244,7 @@ UIBox* UIBox::SetMaxSize(Vector2f NewMaxSize)
 	return this;
 }
 
-Vector2f UIBox::GetMaxSize()
+Vector2f UIBox::GetMaxSize() const
 {
 	return MaxSize;
 }
@@ -259,7 +259,7 @@ UIBox* UIBox::SetMinSize(Vector2f NewMinSize)
 	return this;
 }
 
-Vector2f UIBox::GetMinSize()
+Vector2f UIBox::GetMinSize() const
 {
 	return MinSize;
 }
@@ -355,7 +355,7 @@ UIBox* UIBox::SetHorizontal(bool IsHorizontal)
 	return this;
 }
 
-bool UIBox::GetTryFill()
+bool UIBox::GetTryFill() const
 {
 	return TryFill;
 }

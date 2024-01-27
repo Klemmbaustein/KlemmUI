@@ -118,7 +118,7 @@ void UITextField::Tick()
 		if (NewPos != IBeamPosition)
 		{
 			IBeamPosition = NewPos;
-			IBeamScale = Vector2f(4.0f / Application::AspectRatio, 0.066) * TextSize * 2;
+			IBeamScale = Vector2f(2.0f / Application::GetWindowResolution().X, TextObject->GetUsedSize().Y);
 			RedrawUI();
 		}
 		if (!ShowIBeam)
@@ -229,7 +229,6 @@ UITextField::UITextField(bool Horizontal, Vector2f Position, Vector3f32 Color, T
 	TextObject = new UIText(0, Vector3(1), HintText, Renderer);
 	TextObject->SetTextSize(0.5);
 	TextObject->SetPadding(0.005);
-	TextObject->SetTryFill(true);
 	TextObject->Wrap = true;
 	HasMouseCollision = true;
 	this->PressedFunc = PressedFunc;

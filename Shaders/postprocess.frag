@@ -17,7 +17,7 @@ void main()
 
 	if (u_hasWindowBorder)
 	{
-		vec2 EdgeSize = vec2(2.0) / textureSize(u_ui, 0);
+		vec2 EdgeSize = vec2(1.0) / textureSize(u_ui, 0);
 		if (v_texcoords.x <= EdgeSize.x)
 		{
 			f_color = vec4(u_borderColor, 1);

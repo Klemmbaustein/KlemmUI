@@ -28,7 +28,7 @@ public:
 	UIText* SetOpacity(float NewOpacity);
 	UIText* SetTextSize(float Size);
 	UIText* SetTextSizeMode(SizeMode NewMode);
-	float GetTextSize();
+	float GetTextSize() const;
 	static Vector2f GetTextSizeAtScale(float Scale, SizeMode ScaleType, TextRenderer* Renderer);
 	UIText* SetTextWidthOverride(float NewTextWidthOverride);
 

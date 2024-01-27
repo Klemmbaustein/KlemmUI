@@ -280,7 +280,7 @@ Vector2f TextRenderer::GetTextSize(ColoredText Text, float Scale, bool Wrapped, 
 				vData += 6;
 				numVertices += 6;
 				MaxX = std::max(MaxX, x);
-				if (x / 225 / Application::AspectRatio > LengthBeforeWrap && Wrapped)
+				if (x / 200 / Application::AspectRatio > LengthBeforeWrap && Wrapped)
 				{
 					Wraps++;
 					if (LastWordIndex != SIZE_MAX && LastWordIndex != LastWrapIndex)

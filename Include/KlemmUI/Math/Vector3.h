@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <cstdint>
 
 template<typename T>
 class Vector3
@@ -19,6 +20,8 @@ public:
 		Y = (T)b.Y;
 		Z = (T)b.Z;
 	}
+
+	static Vector3 Lerp(Vector3 a, Vector3 b, double val);
 
 	Vector3<T> operator+(Vector3<T> b);
 	Vector3<T> operator-(Vector3<T> b);
@@ -43,7 +46,7 @@ public:
 
 	template<class T2> bool operator<(T2 a) const
 	{
-		return X < a.X || Y < a.Y || X < a.X;
+		return X * 0xffff + Y * 0xff + Z < a.X * 0xffff + a.Y * 0xff + a.Z;
 	}
 	float Length();
 	Vector3<T> Normalize();

@@ -6,7 +6,7 @@
 #include <GL/glew.h>
 #include <Application.h>
 #include <Rendering/ScrollObject.h>
-#include "../Rendering/Shader.h"
+#include <Rendering/Shader.h>
 #include <iostream>
 
 namespace UI
@@ -56,8 +56,7 @@ void UITextField::Tick()
 	}
 	if (UI::HoveredBox == this)
 	{
-		Vector2f OutLoc;
-		size_t Nearest = TextObject->GetNearestLetterAtLocation(Input::MouseLocation, OutLoc);
+		size_t Nearest = TextObject->GetNearestLetterAtLocation(Input::MouseLocation);
 		if (!IsHovered)
 		{
 			RedrawUI();
@@ -101,14 +100,14 @@ void UITextField::Tick()
 		if (!TextInput::PollForText)
 		{
 			IsEdited = false;
-			if (PressedFunc) Application::ButtonEvents.push_back(Application::ButtonEvent(PressedFunc));
+			if (PressedFunc) Application::ButtonEvents.push_back(Application::ButtonEvent(PressedFunc, nullptr, nullptr, 0));
 			RedrawUI();
 		}
 		if (!IsHovered && Input::IsLMBDown)
 		{
 			IsEdited = false;
 			TextInput::PollForText = false;
-			if (PressedFunc) Application::ButtonEvents.push_back(Application::ButtonEvent(PressedFunc));
+			if (PressedFunc) Application::ButtonEvents.push_back(Application::ButtonEvent(PressedFunc, nullptr, nullptr, 0));
 			RedrawUI();
 		}
 	}
@@ -119,7 +118,7 @@ void UITextField::Tick()
 		if (NewPos != IBeamPosition)
 		{
 			IBeamPosition = NewPos;
-			IBeamScale = Vector2f(0.002, 0.066) * TextSize * 2;
+			IBeamScale = Vector2f(2.0f / Application::GetWindowResolution().X, TextObject->GetUsedSize().Y);
 			RedrawUI();
 		}
 		if (!ShowIBeam)
@@ -136,7 +135,7 @@ void UITextField::Tick()
 		}
 		ShowIBeam = false;
 	}
-	TextObject->SetColor(EnteredText.empty() && !IsEdited ? Vector3f32(0.75) : Vector3f32(1));
+	TextObject->SetColor(EnteredText.empty() && !IsEdited ? TextColor * 0.75 : TextColor);
 	TextObject->SetText(EnteredText.empty() && !IsEdited ? HintText : (IsEdited ? RendererdText : EnteredText));
 }
 
@@ -193,7 +192,7 @@ Vector3f32 UITextField::GetColor()
 
 UITextField* UITextField::SetTextColor(Vector3f32 NewColor)
 {
-	TextObject->SetColor(NewColor);
+	TextColor = NewColor;
 	return this;
 }
 
@@ -230,7 +229,6 @@ UITextField::UITextField(bool Horizontal, Vector2f Position, Vector3f32 Color, T
 	TextObject = new UIText(0, Vector3(1), HintText, Renderer);
 	TextObject->SetTextSize(0.5);
 	TextObject->SetPadding(0.005);
-	TextObject->SetTryFill(true);
 	TextObject->Wrap = true;
 	HasMouseCollision = true;
 	this->PressedFunc = PressedFunc;
@@ -268,10 +266,15 @@ void UITextField::Draw()
 	UI::UIShader->SetInt("u_borderType", (unsigned int)BoxBorder);
 	glUniform1f(glGetUniformLocation(UI::UIShader->GetShaderID(), "u_borderScale"), BorderRadius / 20.0f);
 	glUniform1f(glGetUniformLocation(UI::UIShader->GetShaderID(), "u_aspectratio"), Application::AspectRatio);
+
+	glUniform2f(glGetUniformLocation(UI::UIShader->GetShaderID(), "u_screenRes"),
+		(float)Application::GetWindowResolution().X,
+		(float)Application::GetWindowResolution().Y);
+
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 	if (ShowIBeam)
 	{
-		glUniform4f(glGetUniformLocation(UI::UIShader->GetShaderID(), "u_color"), 1, 1, 1, 1);
+		glUniform4f(glGetUniformLocation(UI::UIShader->GetShaderID(), "u_color"), TextColor.X, TextColor.Y, TextColor.Z, 1);
 		UI::UIShader->SetInt("u_borderType", (unsigned int)UIBox::BorderType::None);
 		glUniform4f(glGetUniformLocation(UI::UIShader->GetShaderID(), "u_transform"), IBeamPosition.X, IBeamPosition.Y, IBeamScale.X, IBeamScale.Y);
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);

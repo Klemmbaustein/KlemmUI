@@ -13,7 +13,7 @@ float UIScrollBox::GetDesiredChildrenSize()
 	float DesiredSize = 0;
 	for (UIBox* i : Children)
 	{
-		DesiredSize += i->UpPadding + i->DownPadding + std::max({ i->GetUsedSize().Y, i->GetMinSize().Y, 0.0 });
+		DesiredSize += i->UpPadding + i->DownPadding + std::max(std::max(i->GetUsedSize().Y, i->GetMinSize().Y), 0.0);
 	}
 	return DesiredSize;
 }
@@ -52,7 +52,7 @@ UIScrollBox* UIScrollBox::SetDisplayScrollBar(bool NewDisplay)
 			ScrollBarBackground = new UIButton(false, 0, 0.3f, nullptr, 0);
 			ScrollBarBackground->ParentOverride = this;
 			ScrollBarBackground->SetBorder(UIBox::BorderType::DarkenedEdge, 0.2);
-			ScrollBarBackground->BoxAlign = UIBox::Align::Reverse;
+			ScrollBarBackground->SetVerticalAlign(UIBox::Align::Reverse);
 			ScrollBarBackground->SetPosition(OffsetPosition + Vector2f(Size.X - ScrollBarBackground->GetUsedSize().X, 0));
 			ScrollBar = new UIBackground(true, 0, 0.75, Vector2(0.01, 0.1));
 			ScrollBarBackground->AddChild(ScrollBar);
@@ -62,6 +62,8 @@ UIScrollBox* UIScrollBox::SetDisplayScrollBar(bool NewDisplay)
 		else if (ScrollBar)
 		{
 			delete ScrollBarBackground;
+			ScrollBarBackground = nullptr;
+			ScrollBar = nullptr;
 		}
 	}
 	return this;
@@ -85,7 +87,10 @@ void UIScrollBox::Tick()
 	{
 		DesiredMaxScroll = MaxScroll + Size.Y;
 	}
-	ScrollBarBackground->IsVisible = VisibleInHierarchy;
+	if (ScrollBarBackground)
+	{
+		ScrollBarBackground->IsVisible = VisibleInHierarchy && DesiredMaxScroll > Size.Y;
+	}
 	if (ScrollBar && VisibleInHierarchy)
 	{
 		ScrollBarBackground->SetMinSize(Vector2(0.015, GetUsedSize().Y));

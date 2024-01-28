@@ -39,7 +39,8 @@ public:
 
 	BorderType BoxBorder = BorderType::None;
 	float BorderRadius = 0;
-	Align BoxAlign = Align::Default;
+	Align HorizontalBoxAlign = Align::Default;
+	Align VerticalBoxAlign = Align::Reverse;
 
 	UIBox(bool Horizontal, Vector2f Position);
 	UIBox(UIStyle* UsedStyle, bool Horizontal, Vector2f Position);
@@ -56,18 +57,18 @@ public:
 	bool IsBeingHovered();
 
 	UIBox* SetMaxSize(Vector2f NewMaxSize);
-	Vector2f GetMaxSize();
+	Vector2f GetMaxSize() const;
 
 	UIBox* SetMinSize(Vector2f NewMinSize);
-	Vector2f GetMinSize();
+	Vector2f GetMinSize() const;
 	UIBox* SetPosition(Vector2f NewPosition);
 	Vector2f GetPosition();
 	UIBox* SetPadding(double Up, double Down, double Left, double Right);
 	UIBox* SetPadding(double AllDirs);
+	UIBox* SetPaddingSizeMode(SizeMode NewSizeMode);
 	UIBox* SetTryFill(bool NewTryFill);
-	UIBox* SetAlign(Align NewAlign);
 	UIBox* SetHorizontal(bool IsHorizontal);
-	bool GetTryFill();
+	bool GetTryFill() const;
 	virtual void OnChildClicked(int Index);
 	UIBox* SetBorder(BorderType Type, double Size);
 	static void ForceUpdateUI();
@@ -76,11 +77,18 @@ public:
 	static void RedrawUI();
 	static void ClearUI();
 	static bool GetShouldRedrawUI();
+	void MoveToFront();
 	virtual Vector2f GetUsedSize();
-	Vector2f GetScreenPosition();
+	Vector2f GetScreenPosition() const;
 	void SetCurrentScrollObject(UIScrollBox* s);
+	void SetCurrentScrollObject(ScrollObject* s);
 	bool IsChildOf(UIBox* Parent);
+	UIBox* SetHorizontalAlign(Align NewAlign);
+	UIBox* SetVerticalAlign(Align NewAlign);
 	bool HasMouseCollision = false;
+	ScrollObject* CurrentScrollObject = nullptr;
+
+	void UpdateElement();
 protected:
 	static std::vector<UIBox*> UIElements;
 	UIStyle* UsedStyle = nullptr;
@@ -104,15 +112,18 @@ protected:
 	double RightPadding = 0.01;
 	double LeftPadding = 0.01;
 	Vector2f Size;
+	SizeMode PaddingSizeMode = SizeMode::ScreenRelative;
 
 	std::vector<UIBox*> Children;
 	UIBox* Parent = nullptr;
-	ScrollObject* CurrentScrollObject = nullptr;
 	void UpdateSelfAndChildren();
+	Vector2f GetLeftRightPadding(UIBox* Target);
 
 	static Vector2f PixelSizeToScreenSize(Vector2f PixelSize);
 
 private:
+	float GetVerticalOffset();
+	float GetHorizontalOffset();
 	bool PrevIsVisible = true;
 	void UpdateScale();
 	void UpdatePosition();

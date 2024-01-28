@@ -3,6 +3,8 @@
 #include "Math/Vector3.h"
 #include <vector>
 
+class UIBox;
+
 namespace Application
 {
 	extern float AspectRatio;
@@ -51,8 +53,19 @@ namespace Application
 
 	struct ButtonEvent
 	{
-		void(*Function)();
-		void(*FunctionIndex)(int);
+		ButtonEvent(void(*Function)(),
+			void(*FunctionIndex)(int),
+			UIBox* Btn,
+			int Index = 0)
+		{
+			this->Function = Function;
+			this->FunctionIndex = FunctionIndex;
+			this->Btn = Btn;
+			this->Index = Index;
+		}
+		void(*Function)() = nullptr;
+		void(*FunctionIndex)(int) = nullptr;
+		UIBox* Btn = nullptr;
 		int Index = 0;
 	};
 	extern std::vector<ButtonEvent> ButtonEvents;
@@ -78,4 +91,5 @@ namespace Application
 
 	// Initializes the graphics library. If DefaultResolution = {0, 0}, it will use 0.75x of the Desktop resolution.
 	void Initialize(std::string WindowName, int Flags, Vector2ui DefaultResolution = Vector2ui());
+	void SetWindowFlags(int Flags);
 }

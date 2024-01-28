@@ -1,6 +1,7 @@
 #include <Math/Vector3.h>
 #include <vector>
 #include <sstream>
+#include <cmath>
 
 template<typename T>
 Vector3<T>::Vector3()
@@ -21,6 +22,15 @@ Vector3<T>::Vector3(T X, T Y, T Z)
 	this->X = X;
 	this->Y = Y;
 	this->Z = Z;
+}
+
+template<typename T>
+Vector3<T> Vector3<T>::Lerp(Vector3 a, Vector3 b, double val)
+{
+	return Vector3(
+		(T)std::lerp((double)a.X, (double)b.X, val), 
+		(T)std::lerp((double)a.Y, (double)b.Y, val),
+		(T)std::lerp((double)a.Z, (double)b.Z, val));
 }
 
 template<typename T>

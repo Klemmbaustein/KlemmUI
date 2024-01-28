@@ -2,7 +2,7 @@
 #include <GL/glew.h>
 #include <iostream>
 #include "../Rendering/VertexBuffer.h"
-#include "../Rendering/Shader.h"
+#include <Rendering/Shader.h>
 #include <Application.h>
 #include <Rendering/ScrollObject.h>
 
@@ -83,12 +83,19 @@ UIBackground* UIBackground::SetUseTexture(bool UseTexture, unsigned int TextureI
 	return this;
 }
 
-UIBackground::UIBackground(bool Horizontal, Vector2f Position, Vector3f32 Color, Vector2f MinScale) : UIBox(Horizontal, Position)
+UIBackground::UIBackground(bool Horizontal, Vector2f Position, Vector3f32 Color, Vector2f MinScale, Shader* UsedShader) : UIBox(Horizontal, Position)
 {
 	SetMinSize(MinScale);
 	this->Color = Color;
 	if (UI::UIShader == nullptr) UI::UIShader = new Shader(Application::GetShaderPath() + "/uishader.vert", Application::GetShaderPath() + "/uishader.frag");
-	this->BackgroundShader = UI::UIShader;
+	if (!UsedShader)
+	{
+		this->BackgroundShader = UI::UIShader;
+	}
+	else
+	{
+		this->BackgroundShader = UsedShader;
+	}
 	MakeGLBuffers();
 }
 
@@ -110,6 +117,10 @@ void UIBackground::Draw()
 	glUniform1i(glGetUniformLocation(BackgroundShader->GetShaderID(), "u_borderType"), (unsigned int)BoxBorder);
 	glUniform1f(glGetUniformLocation(BackgroundShader->GetShaderID(), "u_borderScale"), BorderRadius / 20.0f);
 	glUniform1f(glGetUniformLocation(BackgroundShader->GetShaderID(), "u_aspectratio"), Application::AspectRatio);
+	glUniform2f(glGetUniformLocation(BackgroundShader->GetShaderID(), "u_screenRes"),
+		(float)Application::GetWindowResolution().X,
+		(float)Application::GetWindowResolution().Y);
+
 	if (UseTexture)
 		glUniform1i(glGetUniformLocation(BackgroundShader->GetShaderID(), "u_usetexture"), 1);
 	else
@@ -128,6 +139,7 @@ void UIBackground::OnAttached()
 
 UIBackgroundStyle::UIBackgroundStyle(std::string Name) : UIStyle("UIBackground: " + Name)
 {
+	this->UsedShadder = UI::UIShader;
 }
 
 void UIBackgroundStyle::ApplyDerived(UIBox* Target)

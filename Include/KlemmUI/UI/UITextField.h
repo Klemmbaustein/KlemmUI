@@ -35,6 +35,7 @@ class UITextField : public UIBox
 	Vector2f IBeamScale = Vector2(0.001, 0.03);
 	bool ShowIBeam = false;
 	Vector3f32 Color = Vector3f32(0.5);
+	Vector3f32 TextColor = Vector3f32(1);
 	UIText* TextObject = nullptr;
 	bool IsEdited = false;
 	void(*PressedFunc)();

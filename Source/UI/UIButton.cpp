@@ -1,6 +1,6 @@
 #include <UI/UIButton.h>
 #include <GL/glew.h>
-#include "../Rendering/Shader.h"
+#include <Rendering/Shader.h>
 #include "../Rendering/VertexBuffer.h"
 #include <Application.h>
 #include <Input.h>
@@ -103,15 +103,11 @@ void UIButton::Tick()
 		{
 			if (!NeedsToBeSelected || IsSelected)
 			{
-				if (PressedFunc) Application::ButtonEvents.push_back(Application::ButtonEvent(PressedFunc, nullptr, 0));
-				if (PressedFuncIndex) Application::ButtonEvents.push_back(Application::ButtonEvent(nullptr, PressedFuncIndex, ButtonIndex));
-				//if (Parent || ParentOverride)
-				//{
-				//	Application::ButtonEvents.insert(ButtonEvent(ParentOverride ? ParentOverride : Parent, nullptr, ButtonIndex));
-				//}
+				OnClicked();
 				IsPressed = false;
 				IsSelected = false;
 				RedrawUI();
+				return;
 			}
 			else
 			{
@@ -126,7 +122,15 @@ void UIButton::Tick()
 	}
 }
 
-
+void UIButton::OnClicked()
+{
+	if (PressedFunc) Application::ButtonEvents.push_back(Application::ButtonEvent(PressedFunc, nullptr, nullptr, 0));
+	if (PressedFuncIndex) Application::ButtonEvents.push_back(Application::ButtonEvent(nullptr, PressedFuncIndex, nullptr, ButtonIndex));
+	if (ParentOverride)
+	{
+		Application::ButtonEvents.push_back(Application::ButtonEvent(nullptr, nullptr, ParentOverride, ButtonIndex));
+	}
+}
 
 UIButton* UIButton::SetOpacity(float NewOpacity)
 {
@@ -289,6 +293,9 @@ void UIButton::Draw()
 	glUniform1i(glGetUniformLocation(UI::UIShader->GetShaderID(), "u_borderType"), (unsigned int)BoxBorder);
 	glUniform1f(glGetUniformLocation(UI::UIShader->GetShaderID(), "u_borderScale"), BorderRadius / 20.0f);
 	glUniform1f(glGetUniformLocation(UI::UIShader->GetShaderID(), "u_aspectratio"), Application::AspectRatio);
+	glUniform2f(glGetUniformLocation(UI::UIShader->GetShaderID(), "u_screenRes"),
+		(float)Application::GetWindowResolution().X,
+		(float)Application::GetWindowResolution().Y);
 
 	if (UseTexture)
 		glUniform1i(glGetUniformLocation(UI::UIShader->GetShaderID(), "u_usetexture"), 1);

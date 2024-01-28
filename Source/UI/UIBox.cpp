@@ -32,6 +32,11 @@ bool UIBox::IsChildOf(UIBox* Parent)
 	return this->Parent->IsChildOf(Parent);
 }
 
+void UIBox::UpdateElement()
+{
+	UpdateSelfAndChildren();
+}
+
 UIBox* UIBox::SetSizeMode(SizeMode NewMode)
 {
 	if (NewMode != BoxSizeMode)
@@ -47,7 +52,6 @@ UIBox::UIBox(bool Horizontal, Vector2f Position)
 	this->Position = Position;
 	this->Size = Size;
 	this->ChildrenHorizontal = Horizontal;
-	GetAbsoluteParent()->InvalidateLayout();
 	UIElements.push_back(this);
 }
 
@@ -56,7 +60,6 @@ UIBox::UIBox(UIStyle* UsedStyle, bool Horizontal, Vector2f Position)
 	this->Position = Position;
 	this->ChildrenHorizontal = Horizontal;
 	UsedStyle->ApplyTo(this);
-	GetAbsoluteParent()->InvalidateLayout();
 	UIElements.push_back(this);
 }
 
@@ -151,9 +154,9 @@ void UIBox::InitUI()
 	glGenTextures(1, &UI::UITexture);
 	glBindTexture(GL_TEXTURE_2D, UI::UITexture);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F,
-		Application::GetWindowResolution().X * 2, Application::GetWindowResolution().X, 0, GL_RGBA, GL_FLOAT, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		Application::GetWindowResolution().X, Application::GetWindowResolution().Y, 0, GL_RGBA, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, UI::UIBuffer);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, UI::UITexture, 0);
@@ -190,19 +193,41 @@ bool UIBox::GetShouldRedrawUI()
 	return UI::RequiresRedraw;
 }
 
+void UIBox::MoveToFront()
+{
+	for (size_t i = 0; i < UIElements.size(); i++)
+	{
+		if (UIElements[i] == this)
+		{
+			UIElements.erase(UIElements.begin() + i);
+			break;
+		}
+	}
+	UIElements.push_back(this);
+}
+
 Vector2f UIBox::GetUsedSize()
 {
 	return Size;
 }
 
-Vector2f UIBox::GetScreenPosition()
+Vector2f UIBox::GetScreenPosition() const
 {
 	return OffsetPosition;
 }
 
 void UIBox::SetCurrentScrollObject(UIScrollBox* s)
 {
-	CurrentScrollObject = s->GetScrollObject();
+	SetCurrentScrollObject(s->GetScrollObject());
+}
+
+void UIBox::SetCurrentScrollObject(ScrollObject* s)
+{
+	CurrentScrollObject = s;
+	for (auto& c : Children)
+	{
+		c->SetCurrentScrollObject(s);
+	}
 }
 
 void UIBox::OnAttached()
@@ -219,7 +244,7 @@ UIBox* UIBox::SetMaxSize(Vector2f NewMaxSize)
 	return this;
 }
 
-Vector2f UIBox::GetMaxSize()
+Vector2f UIBox::GetMaxSize() const
 {
 	return MaxSize;
 }
@@ -234,7 +259,7 @@ UIBox* UIBox::SetMinSize(Vector2f NewMinSize)
 	return this;
 }
 
-Vector2f UIBox::GetMinSize()
+Vector2f UIBox::GetMinSize() const
 {
 	return MinSize;
 }
@@ -244,7 +269,7 @@ UIBox* UIBox::SetPosition(Vector2f NewPosition)
 	if (NewPosition != Position)
 	{
 		Position = NewPosition;
-		UpdateSelfAndChildren();
+		InvalidateLayout();
 		RedrawUI();
 	}
 	return this;
@@ -288,6 +313,16 @@ UIBox* UIBox::SetPadding(double AllDirs)
 	return this;
 }
 
+UIBox* UIBox::SetPaddingSizeMode(SizeMode NewSizeMode)
+{
+	if (NewSizeMode != PaddingSizeMode)
+	{
+		PaddingSizeMode = NewSizeMode;
+		InvalidateLayout();
+	}
+	return this;
+}
+
 UIBox* UIBox::SetTryFill(bool NewTryFill)
 {
 	if (TryFill != NewTryFill)
@@ -298,9 +333,15 @@ UIBox* UIBox::SetTryFill(bool NewTryFill)
 	return this;
 }
 
-UIBox* UIBox::SetAlign(Align NewAlign)
+UIBox* UIBox::SetHorizontalAlign(Align NewAlign)
 {
-	BoxAlign = NewAlign;
+	HorizontalBoxAlign = NewAlign;
+	return this;
+}
+
+UIBox* UIBox::SetVerticalAlign(Align NewAlign)
+{
+	VerticalBoxAlign = NewAlign;
 	return this;
 }
 
@@ -314,7 +355,7 @@ UIBox* UIBox::SetHorizontal(bool IsHorizontal)
 	return this;
 }
 
-bool UIBox::GetTryFill()
+bool UIBox::GetTryFill() const
 {
 	return TryFill;
 }
@@ -331,11 +372,50 @@ void UIBox::UpdateSelfAndChildren()
 	Update();
 }
 
+Vector2f UIBox::GetLeftRightPadding(UIBox* Target)
+{
+	if (Target->PaddingSizeMode == SizeMode::ScreenRelative)
+	{
+		return Vector2f(Target->LeftPadding, Target->RightPadding);
+	}
+	return Vector2f(Target->LeftPadding, Target->RightPadding) / (double)Application::AspectRatio;
+}
+
 Vector2f UIBox::PixelSizeToScreenSize(Vector2f PixelSize)
 {
 	PixelSize.X = PixelSize.X / (double)Application::GetWindowResolution().X * 1080;
 	PixelSize.Y = PixelSize.Y / (double)Application::GetWindowResolution().Y * 1080;
 	return PixelSize;
+}
+
+float UIBox::GetVerticalOffset()
+{
+	float VerticalOffset = DownPadding;
+
+	if (Parent->VerticalBoxAlign == Align::Reverse)
+	{
+		VerticalOffset = Parent->Size.Y - UpPadding - Size.Y;
+	}
+	else if (Parent->VerticalBoxAlign == Align::Centered)
+	{
+		VerticalOffset = std::lerp(Parent->Size.Y - UpPadding - Size.Y, DownPadding, 0.5f);
+	}
+	return VerticalOffset;
+}
+
+float UIBox::GetHorizontalOffset()
+{
+	float HorizontalOffset = GetLeftRightPadding(this).X;
+
+	if (Parent->HorizontalBoxAlign == Align::Reverse)
+	{
+		HorizontalOffset = Parent->Size.X - GetLeftRightPadding(this).Y - Size.X;
+	}
+	else if (Parent->HorizontalBoxAlign == Align::Centered)
+	{
+		HorizontalOffset = Parent->Size.X / 2 - Size.X / 2;
+	}
+	return HorizontalOffset;
 }
 
 void UIBox::UpdateScale()
@@ -349,13 +429,31 @@ void UIBox::UpdateScale()
 	{
 		if (ChildrenHorizontal)
 		{
-			Size.X += c->Size.X + c->LeftPadding + c->RightPadding;
-			Size.Y = std::max(Size.Y, c->Size.Y + c->UpPadding + c->DownPadding);
+			Size.X += c->Size.X + GetLeftRightPadding(c).X + GetLeftRightPadding(c).Y;
+			if (!c->TryFill)
+			{
+				Size.Y = std::max(Size.Y, c->Size.Y + c->UpPadding + c->DownPadding);
+			}
 		}
 		else
 		{
 			Size.Y += c->Size.Y + c->UpPadding + c->DownPadding;
-			Size.X = std::max(Size.X, c->Size.X + c->LeftPadding + c->RightPadding);
+			if (!c->TryFill)
+			{
+				Size.X = std::max(Size.X, c->Size.X + GetLeftRightPadding(c).X + GetLeftRightPadding(c).Y);
+			}
+		}
+	}
+
+	if (TryFill && Parent)
+	{
+		if (ChildrenHorizontal)
+		{
+			Size.Y = Parent->Size.Y - (UpPadding + DownPadding);
+		}
+		else
+		{
+			Size.X = Parent->Size.X - (GetLeftRightPadding(this).X + GetLeftRightPadding(this).Y);
 		}
 	}
 
@@ -383,35 +481,37 @@ void UIBox::UpdatePosition()
 {
 	float Offset = 0;
 
-
 	if (!Parent)
 	{
 		OffsetPosition = Position;
 	}
 
+	Align PrimaryAlign = ChildrenHorizontal ? HorizontalBoxAlign : VerticalBoxAlign;
+
 	float ChildrenSize = 0;
 
-	if (BoxAlign == Align::Centered)
+	if (PrimaryAlign == Align::Centered)
 	{
 		for (auto c : Children)
 		{
-			ChildrenSize += ChildrenHorizontal ? (c->Size.X + c->LeftPadding + c->RightPadding) : (c->Size.Y + c->UpPadding + c->DownPadding);
+			Vector2 LeftRight = GetLeftRightPadding(c);
+			ChildrenSize += ChildrenHorizontal ? (c->Size.X + LeftRight.X + LeftRight.Y) : (c->Size.Y + c->UpPadding + c->DownPadding);
 		}
 	}
 
 
 	for (auto c : Children)
 	{
-		if (BoxAlign == Align::Centered)
+		if (PrimaryAlign == Align::Centered)
 		{
 			if (ChildrenHorizontal)
 			{
-				c->OffsetPosition = OffsetPosition + Vector2f(Size.X / 2 - ChildrenSize / 2 + c->LeftPadding, c->DownPadding);
-				Offset += c->Size.X + c->LeftPadding + c->RightPadding;
+				c->OffsetPosition = OffsetPosition + Vector2f(Size.X / 2 - ChildrenSize / 2 + GetLeftRightPadding(c).X, c->GetVerticalOffset());
+				Offset += c->Size.X + GetLeftRightPadding(c).X + GetLeftRightPadding(c).Y;
 			}
 			else
 			{
-				c->OffsetPosition = OffsetPosition + Vector2f(c->LeftPadding, Size.Y / 2 - ChildrenSize / 2 + c->DownPadding);
+				c->OffsetPosition = OffsetPosition + Vector2f(c->GetHorizontalOffset(), Size.Y / 2 - ChildrenSize / 2 + c->DownPadding);
 				Offset += c->Size.Y + c->DownPadding + c->UpPadding;
 			}
 		}
@@ -419,25 +519,25 @@ void UIBox::UpdatePosition()
 		{
 			if (ChildrenHorizontal)
 			{
-				if (BoxAlign == Align::Reverse)
+				if (PrimaryAlign == Align::Reverse)
 				{
-					c->OffsetPosition = OffsetPosition + Vector2f(Size.X - Offset - c->Size.X - c->RightPadding, c->DownPadding);
+					c->OffsetPosition = OffsetPosition + Vector2f(Size.X - Offset - c->Size.X - GetLeftRightPadding(c).Y, c->GetVerticalOffset());
 				}
 				else
 				{
-					c->OffsetPosition = OffsetPosition + Vector2f(Offset + c->LeftPadding, c->DownPadding);
+					c->OffsetPosition = OffsetPosition + Vector2f(Offset + GetLeftRightPadding(c).X, c->GetVerticalOffset());
 				}
-				Offset += c->Size.X + c->LeftPadding + c->RightPadding;
+				Offset += c->Size.X + GetLeftRightPadding(c).X + GetLeftRightPadding(c).Y;
 			}
 			else
 			{
-				if (BoxAlign == Align::Reverse)
+				if (PrimaryAlign == Align::Reverse)
 				{
-					c->OffsetPosition = OffsetPosition + Vector2f(c->LeftPadding, Size.Y - Offset - c->Size.Y - c->UpPadding);
+					c->OffsetPosition = OffsetPosition + Vector2f(c->GetHorizontalOffset(), Size.Y - Offset - c->Size.Y - c->UpPadding);
 				}
 				else
 				{
-					c->OffsetPosition = OffsetPosition + Vector2f(c->LeftPadding, Offset + c->DownPadding);
+					c->OffsetPosition = OffsetPosition + Vector2f(c->GetHorizontalOffset(), Offset + c->DownPadding);
 				}
 				Offset += c->Size.Y + c->DownPadding + c->UpPadding;
 			}
@@ -447,26 +547,21 @@ void UIBox::UpdatePosition()
 	{
 		c->UpdatePosition();
 		c->Update();
-		if (c->TryFill)
-		{
-			if (ChildrenHorizontal)
-			{
-				c->Size.Y = Size.Y - (c->UpPadding + c->DownPadding);
-				c->Size = c->Size.Clamp(c->MinSize, c->MaxSize);
-			}
-			else
-			{
-				c->Size.X = Size.X - (c->LeftPadding + c->RightPadding);
-				c->Size = c->Size.Clamp(c->MinSize, c->MaxSize);
-			}
-		}
 	}
 }
 
 void UIBox::InvalidateLayout()
 {
-	RedrawUI();
-	UI::ElementsToUpdate.insert(this);
+	UI::RequiresRedraw = true;
+
+	if (Parent)
+	{
+		Parent->InvalidateLayout();
+	}
+	else
+	{
+		UI::ElementsToUpdate.insert(this);
+	}
 }
 
 UIBox* UIBox::AddChild(UIBox* NewChild)
@@ -551,7 +646,7 @@ bool UIBox::DrawAllUIElements()
 			elem->UpdateSelfAndChildren();
 		}
 		UI::ElementsToUpdate.clear();
-		glViewport(0, 0, Application::GetWindowResolution().X * 2, Application::GetWindowResolution().X);
+		glViewport(0, 0, Application::GetWindowResolution().X, Application::GetWindowResolution().Y);
 		glBindFramebuffer(GL_FRAMEBUFFER, UI::UIBuffer);
 		glClearColor(0, 0, 0, 1);
 		glClear(GL_COLOR_BUFFER_BIT);

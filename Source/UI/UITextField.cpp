@@ -1,13 +1,13 @@
-#include <UI/UITextField.h>
-#include <UI/UIText.h>
-#include <Math/MathHelpers.h>
-#include <Input.h>
+#include <KlemmUI/UI/UITextField.h>
+#include <KlemmUI/UI/UIText.h>
+#include <KlemmUI/Math/MathHelpers.h>
+#include <KlemmUI/Input.h>
 #include "../Rendering/VertexBuffer.h"
 #include <GL/glew.h>
-#include <Application.h>
-#include <Rendering/ScrollObject.h>
-#include <Rendering/Shader.h>
-#include <iostream>
+#include <KlemmUI/Application.h>
+#include <KlemmUI/Rendering/ScrollObject.h>
+#include <KlemmUI/Rendering/Shader.h>
+#include <cmath>
 
 namespace UI
 {

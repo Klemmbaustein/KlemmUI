@@ -1,13 +1,13 @@
 #define _CRT_SECURE_NO_WARNINGS
-#include <Rendering/Text/TextRenderer.h>
+#include <KlemmUI/Rendering/Text/TextRenderer.h>
 #define STB_TRUETYPE_IMPLEMENTATION
-#include "../../Util/stb_truetype.h"
-#include <Rendering/Shader.h>
+#include "../../Util/stb_truetype.hpp"
+#include <KlemmUI/Rendering/Shader.h>
 #include <SDL.h>
 #include <vector>
-#include <Application.h>
-#include <Rendering/ScrollObject.h>
-#include <StringReplace.h>
+#include <KlemmUI/Application.h>
+#include <KlemmUI/Rendering/ScrollObject.h>
+#include <KlemmUI/StringReplace.h>
 #include <GL/glew.h>
 #include <iostream>
 

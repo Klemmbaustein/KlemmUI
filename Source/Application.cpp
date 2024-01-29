@@ -1,18 +1,19 @@
 #define SDL_MAIN_HANDLED
 #include <SDL.h>
-#include "Application.h"
+#include "KlemmUI/Application.h"
 #include <GL/glew.h>
 #include <iostream>
 #include "Rendering/VertexBuffer.h"
-#include "Rendering/Shader.h"
+#include "KlemmUI/Rendering/Shader.h"
 #include "Rendering/Framebuffer.h"
-#include "UI/UIBackground.h"
-#include "UI/UIText.h"
-#include "UI/UIButton.h"
-#include "Input.h"
-#include "Math/MathHelpers.h"
-#include "Rendering/ScrollObject.h"
-#include <UI/UITextField.h>
+#include "KlemmUI/UI/UIBackground.h"
+#include "KlemmUI/UI/UIText.h"
+#include "KlemmUI/UI/UIButton.h"
+#include "KlemmUI/Input.h"
+#include "KlemmUI/Math/MathHelpers.h"
+#include "KlemmUI/Rendering/ScrollObject.h"
+#include <KlemmUI/UI/UITextField.h>
+#include <cstring>
 
 #if _WIN32
 #define NOMINMAX
@@ -325,7 +326,7 @@ void HandleEvents()
 			Input::MouseMovement += Vector2f(e.motion.xrel / 12.f, -e.motion.yrel / 12.f);
 			break;
 		case SDL_KEYDOWN:
-			Input::SetKeyDown(e.key.keysym.sym, true);
+			Input::SetKeyDown((Input::Key)e.key.keysym.sym, true);
 			switch (e.key.keysym.sym)
 			{
 			case SDLK_LEFT:
@@ -411,7 +412,7 @@ void HandleEvents()
 				TextInput::PollForText = false;
 				break;
 			case SDLK_v:
-				if (Input::IsKeyDown(SDLK_LCTRL) || Input::IsKeyDown(SDLK_RCTRL))
+				if (Input::IsKeyDown(Input::Key::LCTRL) || Input::IsKeyDown(Input::Key::RCTRL))
 				{
 					std::string ClipboardText = SDL_GetClipboardText();
 					std::string FilteredClipboardText;
@@ -439,7 +440,7 @@ void HandleEvents()
 			}
 			break;
 		case SDL_KEYUP:
-			Input::SetKeyDown(e.key.keysym.sym, false);
+			Input::SetKeyDown((Input::Key)e.key.keysym.sym, false);
 			break;
 		case SDL_MOUSEBUTTONDOWN:
 			switch (e.button.button)

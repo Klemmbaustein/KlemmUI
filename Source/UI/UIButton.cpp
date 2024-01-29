@@ -1,12 +1,11 @@
-#include <UI/UIButton.h>
+#include <KlemmUI/UI/UIButton.h>
 #include <GL/glew.h>
-#include <Rendering/Shader.h>
+#include <KlemmUI/Rendering/Shader.h>
 #include "../Rendering/VertexBuffer.h"
-#include <Application.h>
-#include <Input.h>
-#include <Math/MathHelpers.h>
-#include <Rendering/ScrollObject.h>
-#include <iostream>
+#include <KlemmUI/Application.h>
+#include <KlemmUI/Input.h>
+#include <KlemmUI/Math/MathHelpers.h>
+#include <KlemmUI/Rendering/ScrollObject.h>
 
 namespace UI
 {

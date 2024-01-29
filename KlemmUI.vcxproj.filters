@@ -107,9 +107,6 @@
     <ClInclude Include="Source\Rendering\VertexBuffer.h">
       <Filter>Code\Rendering</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Rendering\Shader.h">
-      <Filter>Code\Rendering</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Util\stb_image.hpp">
       <Filter>Code\Util</Filter>
     </ClInclude>
@@ -206,5 +203,6 @@
       <Filter>Shaders</Filter>
     </None>
     <None Include="makefile" />
+    <None Include="makefile.kbld" />
   </ItemGroup>
 </Project>

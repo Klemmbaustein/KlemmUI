@@ -1,10 +1,10 @@
-#include <UI/UIBackground.h>
+#include <KlemmUI/UI/UIBackground.h>
 #include <GL/glew.h>
 #include <iostream>
 #include "../Rendering/VertexBuffer.h"
-#include <Rendering/Shader.h>
-#include <Application.h>
-#include <Rendering/ScrollObject.h>
+#include <KlemmUI/Rendering/Shader.h>
+#include <KlemmUI/Application.h>
+#include <KlemmUI/Rendering/ScrollObject.h>
 
 namespace UI
 {

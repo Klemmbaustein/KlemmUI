@@ -1,9 +1,9 @@
-#include <UI/UIScrollBox.h>
-#include <UI/UIButton.h>
-#include <UI/UIBackground.h>
-#include <Input.h>
+#include <KlemmUI/UI/UIScrollBox.h>
+#include <KlemmUI/UI/UIButton.h>
+#include <KlemmUI/UI/UIBackground.h>
+#include <KlemmUI/Input.h>
 #include <cmath>
-#include <Application.h>
+#include <KlemmUI/Application.h>
 #include <iostream>
 
 bool UIScrollBox::IsDraggingScrollBox = false;

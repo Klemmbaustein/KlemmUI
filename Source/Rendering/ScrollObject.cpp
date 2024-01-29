@@ -1,8 +1,7 @@
-#include <UI/UIScrollBox.h>
-#include <Math/MathHelpers.h>
-#include <Input.h>
-#include <UI/UIBox.h>
-#include <iostream>
+#include <KlemmUI/UI/UIScrollBox.h>
+#include <KlemmUI/Math/MathHelpers.h>
+#include <KlemmUI/Input.h>
+#include <KlemmUI/UI/UIBox.h>
 
 namespace _ScrollObject
 {

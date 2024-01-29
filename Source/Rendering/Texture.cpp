@@ -1,7 +1,7 @@
-#include <Rendering/Texture.h>
+#include <KlemmUI/Rendering/Texture.h>
 #include <GL/glew.h>
 #define STB_IMAGE_IMPLEMENTATION
-#include "../Util/stb_image.h"
+#include "../Util/stb_image.hpp"
 #include <iostream>
 
 unsigned int Texture::LoadTexture(std::string File)

@@ -1,6 +1,5 @@
-#include <UI/UIText.h>
-#include <Application.h>
-#include <iostream>
+#include <KlemmUI/UI/UIText.h>
+#include <KlemmUI/Application.h>
 
 
 UIText* UIText::SetTextRenderer(TextRenderer* Font)

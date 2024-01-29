@@ -3,10 +3,6 @@ TARGET_EXEC := libKlemmUI.a
 BUILD_DIR := ./Build
 SRC_DIRS := ./Source ./Include/KlemmUI
 
-EXAMPLE_PROGRAM_CODE := $(shell find ./Examples -name '*.cpp')
-EXAMPLE_PROGRAMS := $(basename $(FILES))
-
-
 SRCS := $(shell find $(SRC_DIRS) -name '*.cpp')
 OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
 DEPS := $(OBJS:.o=.d)
@@ -19,14 +15,6 @@ CPPFLAGS := $(INC_FLAGS) -DGLEW_STATIC -MMD -MP -Wdelete-incomplete -std=c++2a `
 EXAMPLE_ARGS = -std=c++2a -lKlemmUI -l:libGLEW.a -lGL `sdl2-config --cflags --libs`
 
 libKlemmUI: $(BUILD_DIR)/$(TARGET_EXEC)
-
-examples: Examples/HelloWorld/HelloWorld Examples/FileExplorer/FileExplorer
-
-Examples/HelloWorld/HelloWorld: Examples/HelloWorld/HelloWorld.cpp
-	$(CXX) Examples/HelloWorld/HelloWorld.cpp $(EXAMPLE_ARGS) -o Examples/HelloWorld/HelloWorld
-
-Examples/FileExplorer/FileExplorer: Examples/FileExplorer/FileExplorer.cpp
-	$(CXX) Examples/FileExplorer/FileExplorer.cpp $(EXAMPLE_ARGS) -o Examples/FileExplorer/FileExplorer
 
 # Package all C++ object files into a static library
 $(BUILD_DIR)/$(TARGET_EXEC): $(OBJS)

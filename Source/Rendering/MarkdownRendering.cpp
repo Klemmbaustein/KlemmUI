@@ -1,5 +1,5 @@
-#include <Rendering/MarkdownRendering.h>
-#include <UI/UIBackground.h>
+#include <KlemmUI/Rendering/MarkdownRendering.h>
+#include <KlemmUI/UI/UIBackground.h>
 #include <cmath>
 
 static void ReplaceAll(std::string& str, const std::string& from, const std::string& to)

@@ -11,7 +11,6 @@ Release/
 # Linux build
 Build/
 .vscode/
-SDL/
 Examples/FileExplorer/FileExplorer
 Examples/HelloWorld/HelloWorld
-/Examples/FileExplorer/Debug
+Examples/FileExplorer/Debug

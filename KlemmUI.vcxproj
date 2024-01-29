@@ -45,12 +45,12 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(ProjectDir)\Include\KlemmUI;$(ProjectDir)SDL\include;$(ProjectDir)glew-cmake\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)\Include;$(ProjectDir)Dependencies\SDL\include;$(ProjectDir)Dependencies\glew-cmake\include;$(IncludePath)</IncludePath>
     <LibraryPath>
     </LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(ProjectDir)\Include\KlemmUI;$(ProjectDir)SDL\include;$(ProjectDir)glew-cmake\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)\Include;$(ProjectDir)Dependencies\SDL\include;$(ProjectDir)Dependencies\glew-cmake\include;$(IncludePath)</IncludePath>
     <LibraryPath>
     </LibraryPath>
   </PropertyGroup>
@@ -151,6 +151,7 @@
   <ItemGroup>
     <None Include=".gitignore" />
     <None Include="makefile" />
+    <None Include="makefile.kbld" />
     <None Include="README.md" />
     <None Include="Setup.ps1" />
     <None Include="Shaders\postprocess.frag" />

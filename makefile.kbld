@@ -1,0 +1,43 @@
+#ifdef Release
+
+#define TargetName "KlemmUI"
+#define OutPath "lib/Release"
+
+#else
+
+#define TargetName "KlemmUI-Debug"
+#define OutPath "lib/Debug"
+
+#endif
+
+{
+	"defaultTarget": TargetName,
+	"targets": [
+		{
+			"name": TargetName,
+			"outputPath": OutPath,
+			"configuration": "staticLibrary",
+			
+			"sources": [
+				"Source/*.cpp"
+			],
+			
+			"includes": [
+				"Include",
+				"Dependencies/SDL/include",
+				"Dependencies/glew-cmake/include"
+			],
+
+#ifdef Release
+			"optimization": "fastest",
+			"debug": false,
+#else
+			"optimization": "none",
+			"debug": true,
+#endif
+			"defines": [
+				"GLEW_STATIC"
+			]
+		}
+	]
+}

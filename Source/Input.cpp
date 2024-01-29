@@ -1,4 +1,4 @@
-#include "Input.h"
+#include "KlemmUI/Input.h"
 #include <map>
 #include <vector>
 
@@ -11,48 +11,49 @@ namespace Input
 	std::map<int, std::vector<void(*)()>> ButtonPressedCallbacks;
 }
 
-bool Input::IsKeyDown(int Key)
+bool Input::IsKeyDown(Key key)
 {
-	if (!(Key < 128))
+	int KeyVal = (int)key;
+	if (!(KeyVal < 128))
 	{
-		Key -= 1073741755;
+		KeyVal -= 1073741755;
 	}
-	if (Key < 351 && Key >= 0)
-		return Keys[Key];
-	return false;
+	return KeyVal < 351 && KeyVal >= 0 && Keys[KeyVal];
 }
 
-void Input::SetKeyDown(int Key, bool KeyDown)
+void Input::SetKeyDown(Key key, bool KeyDown)
 {
-	if (!(Key < 128))
+	int KeyVal = (int)key;
+	if (!(KeyVal < 128))
 	{
-		Key -= 1073741755;
+		KeyVal -= 1073741755;
 	}
-	if (Key < 351 && Key >= 0)
-		Keys[Key] = KeyDown;
+	if (KeyVal < 351 && KeyVal >= 0)
+		Keys[KeyVal] = KeyDown;
 
-	if (ButtonPressedCallbacks.contains(Key) && KeyDown)
+	if (ButtonPressedCallbacks.contains(KeyVal) && KeyDown)
 	{
-		for (auto Function : ButtonPressedCallbacks[Key])
+		for (auto Function : ButtonPressedCallbacks[KeyVal])
 		{
 			Function();
 		}
 	}
 }
 
-void Input::RegisterOnKeyDownCallback(int Key, void(*Callback)())
+void Input::RegisterOnKeyDownCallback(Key key, void(*Callback)())
 {
-	if (!(Key < 128))
+	int KeyVal = (int)key;
+	if (!(KeyVal < 128))
 	{
-		Key -= 1073741755;
+		KeyVal -= 1073741755;
 	}
-	if (!ButtonPressedCallbacks.contains(Key))
+	if (!ButtonPressedCallbacks.contains(KeyVal))
 	{
-		ButtonPressedCallbacks.insert(std::pair<int, std::vector<void(*)()>>(Key, { Callback }));
+		ButtonPressedCallbacks.insert(std::pair<int, std::vector<void(*)()>>(KeyVal, { Callback }));
 	}
 	else
 	{
-		ButtonPressedCallbacks[Key].push_back(Callback);
+		ButtonPressedCallbacks[KeyVal].push_back(Callback);
 	}
 }
 

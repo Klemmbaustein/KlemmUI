@@ -1,9 +1,8 @@
-#include <Rendering/Shader.h>
-#include <iostream>
+#include <KlemmUI/Rendering/Shader.h>
 #include <GL/glew.h>
 #include <fstream>
 #include <sstream>
-#include <Application.h>
+#include <KlemmUI/Application.h>
 
 void Shader::CheckCompileErrors(unsigned int ShaderID, std::string Type)
 {

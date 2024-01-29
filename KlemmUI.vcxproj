@@ -48,6 +48,7 @@
     <IncludePath>$(ProjectDir)\Include;$(ProjectDir)Dependencies\SDL\include;$(ProjectDir)Dependencies\glew-cmake\include;$(IncludePath)</IncludePath>
     <LibraryPath>
     </LibraryPath>
+    <OutDir>$(ProjectDir)lib\$(Configuration)</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>$(ProjectDir)\Include;$(ProjectDir)Dependencies\SDL\include;$(ProjectDir)Dependencies\glew-cmake\include;$(IncludePath)</IncludePath>
@@ -70,9 +71,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>SDL2.lib;glew32s.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
-    <Lib>
-      <OutputFile>$(ProjectDir)lib\$(Configuration)\$(TargetName)$(TargetExt)</OutputFile>
-    </Lib>
+    <Lib />
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -154,6 +153,7 @@
     <None Include="makefile.kbld" />
     <None Include="README.md" />
     <None Include="Setup.ps1" />
+    <None Include="setup.sh" />
     <None Include="Shaders\postprocess.frag" />
     <None Include="Shaders\postprocess.vert" />
     <None Include="Shaders\text.frag" />

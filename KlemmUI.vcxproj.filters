@@ -204,5 +204,6 @@
     </None>
     <None Include="makefile" />
     <None Include="makefile.kbld" />
+    <None Include="setup.sh" />
   </ItemGroup>
 </Project>

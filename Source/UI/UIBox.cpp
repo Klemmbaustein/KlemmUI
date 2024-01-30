@@ -506,12 +506,12 @@ void UIBox::UpdatePosition()
 		{
 			if (ChildrenHorizontal)
 			{
-				c->OffsetPosition = OffsetPosition + Vector2f(Size.X / 2 - ChildrenSize / 2 + GetLeftRightPadding(c).X, c->GetVerticalOffset());
+				c->OffsetPosition = OffsetPosition + Vector2f(Size.X / 2 - ChildrenSize / 2 + GetLeftRightPadding(c).X + Offset, c->GetVerticalOffset());
 				Offset += c->Size.X + GetLeftRightPadding(c).X + GetLeftRightPadding(c).Y;
 			}
 			else
 			{
-				c->OffsetPosition = OffsetPosition + Vector2f(c->GetHorizontalOffset(), Size.Y / 2 - ChildrenSize / 2 + c->DownPadding);
+				c->OffsetPosition = OffsetPosition + Vector2f(c->GetHorizontalOffset(), Size.Y / 2 - ChildrenSize / 2 + c->DownPadding + Offset);
 				Offset += c->Size.Y + c->DownPadding + c->UpPadding;
 			}
 		}

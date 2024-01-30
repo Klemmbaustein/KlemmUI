@@ -10,5 +10,8 @@ for i in "${dependencies[@]}"; do
 	cd ../../..
 done
 
+mkdir -p lib/Debug
+mkdir -p lib/Release
+
 cp Dependencies/glew-cmake/bld/lib/libglew.a lib/Debug/
 cp Dependencies/glew-cmake/bld/lib/libglew.a lib/Release/

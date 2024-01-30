@@ -48,7 +48,8 @@
     <IncludePath>$(ProjectDir)\Include;$(ProjectDir)Dependencies\SDL\include;$(ProjectDir)Dependencies\glew-cmake\include;$(IncludePath)</IncludePath>
     <LibraryPath>
     </LibraryPath>
-    <OutDir>$(ProjectDir)lib\$(Configuration)</OutDir>
+    <OutDir>$(ProjectDir)lib\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)$(Platform)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>$(ProjectDir)\Include;$(ProjectDir)Dependencies\SDL\include;$(ProjectDir)Dependencies\glew-cmake\include;$(IncludePath)</IncludePath>

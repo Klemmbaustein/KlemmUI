@@ -46,7 +46,8 @@ namespace Application
 	struct Timer
 	{
 		Timer();
-		float TimeSinceCreation();
+		float Get() const;
+		void Reset();
 	private:
 		uint64_t Time = 0;
 	};

@@ -264,7 +264,7 @@ namespace Application
 		return ErrorMessageCallback;
 	}
 
-	float Timer::TimeSinceCreation()
+	float Timer::Get() const
 	{
 		Uint64 PerfCounterFrequency = SDL_GetPerformanceFrequency();
 		Uint64 EndCounter = SDL_GetPerformanceCounter();
@@ -272,6 +272,12 @@ namespace Application
 		float Elapsed = ((float)counterElapsed) / ((float)PerfCounterFrequency);
 		return Elapsed;
 	}
+
+	void Timer::Reset()
+	{
+		Time = SDL_GetPerformanceCounter();
+	}
+
 	Timer::Timer()
 	{
 		Time = SDL_GetPerformanceCounter();
@@ -540,7 +546,7 @@ void Application::UpdateWindow()
 	DrawUI();
 	
 	float DesiredDelta = 1.f / (float)DesiredRefreshRate;
-	float TimeToWait = std::max(DesiredDelta - Frametime.TimeSinceCreation(), 0.f);
+	float TimeToWait = std::max(DesiredDelta - Frametime.Get(), 0.f);
 	SDL_Delay((int)(TimeToWait * 1000.f));
 	DeltaTime = 1.f / DesiredRefreshRate;
 	Time += DeltaTime;

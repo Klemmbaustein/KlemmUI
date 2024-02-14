@@ -121,7 +121,7 @@ MessageCallback(
 	if ((type == GL_DEBUG_TYPE_ERROR || type == GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR || type == GL_DEBUG_TYPE_PORTABILITY))
 	{
 		Application::Error("OpenGL error: (" + std::to_string(id) + "): " + std::string(message));
-		//throw 0;
+		throw 0;
 	}
 }
 
@@ -519,7 +519,6 @@ void HandleEvents()
 void DrawUI()
 {
 	bool RedrawAfter = UIBox::DrawAllUIElements() || Application::PreviousHasWindowFocus != Application::GetWindowHasFocus();
-
 	if (!RedrawAfter) return;
 
 	Application::PreviousHasWindowFocus = Application::GetWindowHasFocus();

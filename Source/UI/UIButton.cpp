@@ -292,17 +292,18 @@ void UIButton::Draw()
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, TextureID);
 	ButtonVertexBuffer->Bind();
-	ScrollTick(UI::UIShader);
+	ScrollTick(DrawShader);
 	glUniform4f(glGetUniformLocation(DrawShader->GetShaderID(), "u_transform"), OffsetPosition.X, OffsetPosition.Y, Size.X, Size.Y);
 	glUniform4f(glGetUniformLocation(DrawShader->GetShaderID(), "u_color"), UsedColor.X, UsedColor.Y, UsedColor.Z, 1.f);
-	DrawShader->SetFloat("u_opacity", Opacity);
-	DrawShader->SetInt("u_borderType", (int)BoxBorder);
-	DrawShader->SetFloat("u_borderScale", BorderRadius / 20.0f);
-	DrawShader->SetFloat("u_aspectratio", Application::AspectRatio);
-	DrawShader->SetVec2("u_screenRes", Vector2f32(
+	glUniform1f(glGetUniformLocation(DrawShader->GetShaderID(), "u_opacity"), Opacity);
+	glUniform1i(glGetUniformLocation(DrawShader->GetShaderID(), "u_borderType"), (unsigned int)BoxBorder);
+	glUniform1f(glGetUniformLocation(DrawShader->GetShaderID(), "u_borderScale"), BorderRadius / 20.0f);
+	glUniform1f(glGetUniformLocation(DrawShader->GetShaderID(), "u_aspectratio"), Application::AspectRatio);
+	glUniform2f(glGetUniformLocation(DrawShader->GetShaderID(), "u_screenRes"),
 		(float)Application::GetWindowResolution().X,
-		(float)Application::GetWindowResolution().Y));
-	DrawShader->SetInt("u_usetexture", UseTexture);
+		(float)Application::GetWindowResolution().Y);
+
+	glUniform1i(glGetUniformLocation(DrawShader->GetShaderID(), "u_usetexture"), UseTexture);
 
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 	ButtonVertexBuffer->Unbind();

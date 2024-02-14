@@ -52,6 +52,7 @@ protected:
 	float Opacity = 1;
 	int ButtonIndex = 0;
 
+	Shader* UsedShader = nullptr;
 	void ScrollTick(Shader* UsedShader);
 	void MakeGLBuffers();
 	void Tick() override;
@@ -62,8 +63,9 @@ public:
 	void SetCanBeDragged(bool NewCanBeDragged);
 	bool GetIsSelected();
 	void SetNeedsToBeSelected(bool NeedsToBeSelected);
-	bool GetIsHovered();
-	bool GetIsPressed();
+	UIButton* SetShader(Shader* NewShader);
+	bool GetIsHovered() const;
+	bool GetIsPressed() const;
 	UIButton* SetUseTexture(bool UseTexture, unsigned int TextureID = 0);
 	UIButton* SetColor(Vector3f32 NewColor);
 	UIButton* SetHoveredColor(Vector3f32 NewColor);

@@ -121,7 +121,7 @@ MessageCallback(
 	if ((type == GL_DEBUG_TYPE_ERROR || type == GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR || type == GL_DEBUG_TYPE_PORTABILITY))
 	{
 		Application::Error("OpenGL error: (" + std::to_string(id) + "): " + std::string(message));
-		throw 0;
+		//throw 0;
 	}
 }
 
@@ -145,6 +145,7 @@ namespace Application
 	};
 
 	void(*OnResizedCallback)() = nullptr;
+	void(*SysMessageReceivedCallback)(void*) = nullptr;
 
 	bool IsBorderless = false;
 
@@ -152,6 +153,7 @@ namespace Application
 	Vector3f32 BorderlessWindowOutlineColor = Vector3f32(0, 0.5, 1);
 	constexpr int MOUSE_GRAB_PADDING = 8;
 	bool IsWindowFullscreen = false;
+	std::string ShaderPath = "Shaders";
 
 	SDL_HitTestResult HitTestCallback(SDL_Window* Window, const SDL_Point* Area, void* Data)
 	{
@@ -232,7 +234,15 @@ namespace Application
 		UIBox::ForceUpdateUI();
 	}
 
-	std::string ShaderPath = "Shaders";
+	void* GetSDLWindowPtr()
+	{
+		return Window;
+	}
+
+	void SetOSMessageCallback(void(*Callback)(void*))
+	{
+		SysMessageReceivedCallback = Callback;
+	}
 
 	void SetShaderPath(std::string NewPath)
 	{
@@ -317,6 +327,12 @@ void HandleEvents()
 		switch (e.type)
 		{
 		default:
+			break;
+		case SDL_SYSWMEVENT:
+			if (Application::SysMessageReceivedCallback)
+			{
+				Application::SysMessageReceivedCallback(&e);
+			}
 			break;
 		case SDL_WINDOWEVENT:
 			if (e.window.event == SDL_WINDOWEVENT_CLOSE)

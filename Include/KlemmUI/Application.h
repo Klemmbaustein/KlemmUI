@@ -16,6 +16,9 @@ namespace Application
 	Vector2ui GetWindowResolution();
 	void SetWindowResolution(Vector2ui NewResolution);
 
+	void* GetSDLWindowPtr();
+	void SetOSMessageCallback(void(*Callback)(void*));
+
 	void SetShaderPath(std::string NewPath);
 	const std::string& GetShaderPath();
 

@@ -161,12 +161,18 @@ void UIButton::SetNeedsToBeSelected(bool NeedsToBeSelected)
 	this->NeedsToBeSelected = NeedsToBeSelected;
 }
 
-bool UIButton::GetIsHovered()
+UIButton* UIButton::SetShader(Shader* NewShader)
+{
+	UsedShader = NewShader;
+	return this;
+}
+
+bool UIButton::GetIsHovered() const
 {
 	return IsHovered;
 }
 
-bool UIButton::GetIsPressed()
+bool UIButton::GetIsPressed() const
 {
 	return IsPressed;
 }
@@ -265,7 +271,8 @@ void UIButton::Update()
 
 void UIButton::Draw()
 {
-	UI::UIShader->Bind();
+	Shader* DrawShader = UsedShader ? UsedShader : UI::UIShader;
+	DrawShader->Bind();
 	Vector3f UsedColor;
 	switch (CurrentButtonState)
 	{
@@ -286,20 +293,17 @@ void UIButton::Draw()
 	glBindTexture(GL_TEXTURE_2D, TextureID);
 	ButtonVertexBuffer->Bind();
 	ScrollTick(UI::UIShader);
-	glUniform4f(glGetUniformLocation(UI::UIShader->GetShaderID(), "u_transform"), OffsetPosition.X, OffsetPosition.Y, Size.X, Size.Y);
-	glUniform4f(glGetUniformLocation(UI::UIShader->GetShaderID(), "u_color"), UsedColor.X, UsedColor.Y, UsedColor.Z, 1.f);
-	glUniform1f(glGetUniformLocation(UI::UIShader->GetShaderID(), "u_opacity"), Opacity);
-	glUniform1i(glGetUniformLocation(UI::UIShader->GetShaderID(), "u_borderType"), (unsigned int)BoxBorder);
-	glUniform1f(glGetUniformLocation(UI::UIShader->GetShaderID(), "u_borderScale"), BorderRadius / 20.0f);
-	glUniform1f(glGetUniformLocation(UI::UIShader->GetShaderID(), "u_aspectratio"), Application::AspectRatio);
-	glUniform2f(glGetUniformLocation(UI::UIShader->GetShaderID(), "u_screenRes"),
+	glUniform4f(glGetUniformLocation(DrawShader->GetShaderID(), "u_transform"), OffsetPosition.X, OffsetPosition.Y, Size.X, Size.Y);
+	glUniform4f(glGetUniformLocation(DrawShader->GetShaderID(), "u_color"), UsedColor.X, UsedColor.Y, UsedColor.Z, 1.f);
+	DrawShader->SetFloat("u_opacity", Opacity);
+	DrawShader->SetInt("u_borderType", (int)BoxBorder);
+	DrawShader->SetFloat("u_borderScale", BorderRadius / 20.0f);
+	DrawShader->SetFloat("u_aspectratio", Application::AspectRatio);
+	DrawShader->SetVec2("u_screenRes", Vector2f32(
 		(float)Application::GetWindowResolution().X,
-		(float)Application::GetWindowResolution().Y);
+		(float)Application::GetWindowResolution().Y));
+	DrawShader->SetInt("u_usetexture", UseTexture);
 
-	if (UseTexture)
-		glUniform1i(glGetUniformLocation(UI::UIShader->GetShaderID(), "u_usetexture"), 1);
-	else
-		glUniform1i(glGetUniformLocation(UI::UIShader->GetShaderID(), "u_usetexture"), 0);
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 	ButtonVertexBuffer->Unbind();
 }

@@ -1,7 +1,7 @@
 TARGET_EXEC := libKlemmUI.a
 
 BUILD_DIR := ./Build
-SRC_DIRS := ./Source ./Include/KlemmUI
+SRC_DIRS := ./Source ./Include
 
 SRCS := $(shell find $(SRC_DIRS) -name '*.cpp')
 OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)

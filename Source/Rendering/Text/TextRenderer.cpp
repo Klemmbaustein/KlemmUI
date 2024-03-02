@@ -13,9 +13,9 @@
 
 std::wstring GetUnicodeString(std::string str);
 
-constexpr int FONT_BITMAP_WIDTH = 2700;
+constexpr int FONT_BITMAP_WIDTH = 3000;
 constexpr int FONT_BITMAP_PADDING = 32;
-constexpr int FONT_MAX_UNICODE_CHARS = 500;
+constexpr int FONT_MAX_UNICODE_CHARS = 800;
 
 namespace _TextRenderer
 {
@@ -128,7 +128,7 @@ TextRenderer::TextRenderer(std::string Filename)
 		int glyph = i;
 		if (i > FONT_MAX_UNICODE_CHARS)
 		{
-			glyph = '#';
+			glyph = 0x000025A1;
 		}
 		int w, h, xoff, yoff;
 		auto bmp = stbtt_GetCodepointBitmap(&finf,
@@ -373,7 +373,7 @@ DrawableText* TextRenderer::MakeText(ColoredText Text, Vector2f Pos, float Scale
 			}
 			if (GlyphIndex > FONT_MAX_UNICODE_CHARS)
 			{
-				GlyphIndex = '#';
+				GlyphIndex = FONT_MAX_UNICODE_CHARS - 31;
 			}
 			Glyph g = LoadedGlyphs[GlyphIndex];
 

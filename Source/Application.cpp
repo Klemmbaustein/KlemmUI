@@ -446,6 +446,9 @@ void HandleEvents()
 							FilteredClipboardText.append({ i });
 						}
 					}
+
+					TextInput::TextIndex = std::min(TextInput::TextIndex, (int)TextInput::Text.size());
+
 					TextInput::Text.insert(TextInput::TextIndex, FilteredClipboardText);
 					if (FilteredClipboardText.find('\n') != std::string::npos)
 					{

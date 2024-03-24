@@ -244,6 +244,7 @@ void UIText::OnAttached()
 Vector2f UIText::GetUsedSize()
 {
 	if (!Renderer) return 0;
+
 	float RenderedSize = TextSize;
 	if (TextSizeMode == SizeMode::PixelRelative)
 	{
@@ -258,5 +259,11 @@ Vector2f UIText::GetUsedSize()
 	{
 		Distance = UIBox::PixelSizeToScreenSize(Vector2f((double)WrapDistance, 0.0)).X;
 	}
-	return Renderer->GetTextSize(RenderedText, RenderedSize, Wrap, Distance);
+	Vector2f Size = Renderer->GetTextSize(RenderedText, RenderedSize, Wrap, Distance);
+
+	if (TextWidthOverride != 0)
+	{
+		return Vector2f(TextWidthOverride, Size.Y);
+	}
+	return Size;
 }

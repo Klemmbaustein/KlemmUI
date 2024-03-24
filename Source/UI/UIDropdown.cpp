@@ -101,7 +101,7 @@ void UIDropdown::GenerateOptions()
 	OptionsBox->DeleteChildren();
 	for (size_t i = 0; i < Options.size(); i++)
 	{
-		UIButton* NewButton = new UIButton(true, 0, Vector3f32::Lerp(DropdownColor, Color, (i == SelectedIndex) ? 0.5f : 0), nullptr, (int)i);
+		UIButton* NewButton = new UIButton(true, 0, Vector3f32::Lerp(DropdownColor, ButtonColor, (i == SelectedIndex) ? 0.5f : 0), nullptr, (int)i);
 		NewButton->SetPadding(0);
 		NewButton->SetMinSize(Vector2f(Size, 0));
 		NewButton->ParentOverride = this;

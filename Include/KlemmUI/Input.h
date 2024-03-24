@@ -564,4 +564,9 @@ namespace TextInput
 	extern int BackspacePresses;
 	extern int DeletePresses;
 	extern int NumPastes;
+	extern int TextSelectionStart;
+
+	std::string GetSelectedTextString();
+
+	void SetTextIndex(int NewIndex, bool ClearSelection);
 }

@@ -1,5 +1,5 @@
 #pragma once
-#include "UIBox.h"
+#include "UIBackground.h"
 #include "../Math/Vector2.h"
 #include "../Math/Vector3.h"
 #include "UIStyle.h"
@@ -24,14 +24,14 @@ protected:
 	virtual void ApplyDerived(UIBox* Target) override;
 };
 
-class UIButton : public UIBox
+class UIButton : public UIBackground
 {
 protected:
 	Vector2f Offset;
 	VertexBuffer* ButtonVertexBuffer = nullptr;
 	bool IsHovered = false;
 	bool IsPressed = false;
-	Vector3f32 Color = 1.0f;
+	Vector3f32 ButtonColor = 1.0f;
 	Vector3f32 HoveredColor = 0.75f;
 	Vector3f32 PressedColor = 0.5f;
 	enum class ButtonState
@@ -53,8 +53,6 @@ protected:
 	int ButtonIndex = 0;
 
 	Shader* UsedShader = nullptr;
-	void ScrollTick(Shader* UsedShader);
-	void MakeGLBuffers();
 	void Tick() override;
 	virtual void OnClicked();
 public:
@@ -80,6 +78,6 @@ public:
 	~UIButton();
 
 	void Update() override;
-	void Draw() override;
+	void DrawBackground() override;
 	UIBox* ParentOverride = nullptr;
 };

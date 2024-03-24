@@ -25,14 +25,17 @@ struct VertexBuffer;
 
 class UIBackground : public UIBox
 {
-	VertexBuffer* BoxVertexBuffer = nullptr;
-	Vector3f32 Color;
-	Shader* BackgroundShader;
 	void ScrollTick(Shader* UsedShader);
 	void MakeGLBuffers(bool InvertTextureCoordinates = false);
 	bool UseTexture = false;
 	unsigned int TextureID = 0;
+protected:
+	Shader* BackgroundShader;
+	virtual void DrawBackground();
+	Vector3f32 Color;
+	VertexBuffer* BoxVertexBuffer = nullptr;
 	float Opacity = 1;
+	Vector3f32 ColorMultiplier = 1;
 public:
 	UIBackground* SetOpacity(float NewOpacity);
 	float GetOpacity();

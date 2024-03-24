@@ -23,8 +23,8 @@ void UIBackground::ScrollTick(Shader* UsedShader)
 
 void UIBackground::MakeGLBuffers(bool InvertTextureCoordinates)
 {
-	if(BoxVertexBuffer)
-	delete BoxVertexBuffer;
+	if (BoxVertexBuffer)
+		delete BoxVertexBuffer;
 	BoxVertexBuffer = new VertexBuffer(
 		{
 			Vertex(Vector2f32(0, 0), Vector2f32(0, 0)),
@@ -36,6 +36,10 @@ void UIBackground::MakeGLBuffers(bool InvertTextureCoordinates)
 			0u, 1u, 2u,
 			1u, 2u, 3u
 		});
+}
+
+void UIBackground::DrawBackground()
+{
 }
 
 UIBackground* UIBackground::SetOpacity(float NewOpacity)
@@ -121,11 +125,9 @@ void UIBackground::Draw()
 		(float)Application::GetWindowResolution().X,
 		(float)Application::GetWindowResolution().Y);
 
-	if (UseTexture)
-		glUniform1i(glGetUniformLocation(BackgroundShader->GetShaderID(), "u_usetexture"), 1);
-	else
-		glUniform1i(glGetUniformLocation(BackgroundShader->GetShaderID(), "u_usetexture"), 0);
+	BackgroundShader->SetInt("u_usetexture", (int)UseTexture);
 	BoxVertexBuffer->Draw();
+	DrawBackground();
 	BoxVertexBuffer->Unbind();
 }
 

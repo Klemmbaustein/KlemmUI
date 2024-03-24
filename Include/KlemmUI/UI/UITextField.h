@@ -1,5 +1,5 @@
 #pragma once
-#include "UIBox.h"
+#include "UIBackground.h"
 #include "../Math/Vector3.h"
 #include "UIStyle.h"
 
@@ -26,26 +26,28 @@ protected:
 	virtual void ApplyDerived(UIBox* Target) override;
 };
 
-class UITextField : public UIBox
+class UITextField : public UIBackground
 {
-	VertexBuffer* ButtonVertexBuffer = nullptr;
 	bool IsHovered = false;
 	bool IsPressed = false;
 	Vector2f IBeamPosition;
 	Vector2f IBeamScale = Vector2(0.001, 0.03);
 	bool ShowIBeam = false;
-	Vector3f32 Color = Vector3f32(0.5);
 	Vector3f32 TextColor = Vector3f32(1);
 	UIText* TextObject = nullptr;
 	bool IsEdited = false;
 	void(*PressedFunc)();
 	std::string EnteredText = "";
 	float TextSize = 0.5f;
-	void ScrollTick(Shader* UsedShader);
-	void MakeGLBuffers();
 	void Tick() override;
+	float TextTimer = 0.0f;
 	float ButtonColorMultiplier = 1;
 	std::string HintText; // Will be displayed when the text field is empty
+	float DoubleClickTimer = 0;
+	bool Dragging = false;
+
+	Vector2f TextHighlightPos;
+	Vector2f TextHighlightSize;
 public:
 	UIBox* ParentOverride = nullptr;
 	bool GetIsEdited() { return IsEdited; }
@@ -65,6 +67,6 @@ public:
 	UITextField(bool Horizontal, Vector2f Position, Vector3f32 Color, TextRenderer* Renderer, void(*PressedFunc)());
 	UITextField(bool Horizontal, Vector2f Position, UIStyle* Style, void(*PressedFunc)());
 	~UITextField() override;
-	void Draw() override;
 	void Update() override;
+	void DrawBackground() override;
 };

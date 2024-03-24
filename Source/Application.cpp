@@ -313,6 +313,26 @@ namespace Application
 	}
 }
 
+static void MoveTextIndex(int Amount, bool RespectShiftPress = true)
+{
+	TextInput::TextIndex = std::max(std::min(TextInput::TextIndex + Amount, (int)TextInput::Text.size()), 0);
+	if ((!Input::IsKeyDown(Input::Key::LSHIFT) && !Input::IsKeyDown(Input::Key::RSHIFT)) || !RespectShiftPress)
+	{
+		TextInput::TextSelectionStart = TextInput::TextIndex;
+	}
+}
+
+static void DeleteSelection()
+{
+	int Difference = std::abs(TextInput::TextSelectionStart - TextInput::TextIndex);
+
+	TextInput::Text.erase(std::min(TextInput::TextIndex, TextInput::TextSelectionStart), Difference);
+
+	TextInput::TextIndex = std::min(TextInput::TextIndex, TextInput::TextSelectionStart);
+
+	TextInput::TextSelectionStart = TextInput::TextIndex;
+}
+
 void HandleEvents()
 {
 	int x;
@@ -356,10 +376,10 @@ void HandleEvents()
 				{
 					TextInput::TextRow--;
 				}
-				TextInput::TextIndex = std::max(std::min(TextInput::TextIndex - 1, (int)TextInput::Text.size()), 0);
+				MoveTextIndex(-1);
 				if (TextInput::Text[TextInput::TextIndex] & 0b10000000)
 				{
-					TextInput::TextIndex = std::max(std::min(TextInput::TextIndex - 1, (int)TextInput::Text.size()), 0);
+					MoveTextIndex(-1);
 				}
 				break;
 			case  SDLK_RIGHT:
@@ -367,10 +387,10 @@ void HandleEvents()
 				{
 					TextInput::TextRow++;
 				}
-				TextInput::TextIndex = std::max(std::min(TextInput::TextIndex + 1, (int)TextInput::Text.size()), 0);
+				MoveTextIndex(1);
 				if (TextInput::Text[TextInput::TextIndex] & 0b10000000)
 				{
-					TextInput::TextIndex = std::max(std::min(TextInput::TextIndex + 1, (int)TextInput::Text.size()), 0);
+					MoveTextIndex(1);
 				}
 				break;
 			case SDLK_DOWN:
@@ -379,46 +399,61 @@ void HandleEvents()
 			case SDLK_UP:
 				TextInput::TextRow--;
 				break;
+			case SDLK_x:
+				if (!TextInput::PollForText || (!Input::IsKeyDown(Input::Key::LCTRL) && !Input::IsKeyDown(Input::Key::RCTRL)))
+					break;
+				SDL_SetClipboardText(TextInput::GetSelectedTextString().c_str());
+				[[fallthrough]];
 			case SDLK_DELETE:
-				if (TextInput::PollForText)
+				if (TextInput::PollForText && TextInput::TextIndex < TextInput::Text.size() && TextInput::TextIndex >= 0)
 				{
-					if (TextInput::TextIndex < TextInput::Text.size() && TextInput::TextIndex >= 0)
+					if (TextInput::TextSelectionStart == TextInput::TextIndex)
 					{
 						TextInput::Text.erase(TextInput::TextIndex, 1);
 					}
-					if (TextInput::TextIndex >= TextInput::Text.size())
+					else
 					{
-						TextInput::DeletePresses++;
+						DeleteSelection();
 					}
+				}
+				if (TextInput::PollForText && TextInput::TextIndex >= TextInput::Text.size())
+				{
+					TextInput::DeletePresses++;
 				}
 				break;
 			case SDLK_BACKSPACE:
-				if(TextInput::TextIndex == 0)
+				if (TextInput::TextIndex == 0)
+				{
 					TextInput::BackspacePresses++;
-				TextInput::TextIndex = std::min((size_t)TextInput::TextIndex, TextInput::Text.size());
+				}
 				if (TextInput::PollForText && TextInput::Text.length() > 0)
 				{
-					bool u8Read = false;
-					do
+					if (TextInput::TextIndex == TextInput::Text.size())
 					{
-						if (TextInput::TextIndex == TextInput::Text.size())
+						int Difference = std::abs(TextInput::TextSelectionStart - TextInput::TextIndex);
+
+						for (int i = 0; i < Difference; i++)
 						{
 							TextInput::Text.pop_back();
+						}
 
-						}
-						else if (TextInput::TextIndex > 0)
+						if (Difference == 0)
 						{
-							TextInput::Text.erase(TextInput::TextIndex - 1, 1);
+							TextInput::Text.pop_back();
 						}
-						TextInput::TextIndex--;
-						if (u8Read)
+					}
+					else if (TextInput::TextIndex > 0 || TextInput::TextSelectionStart > 0)
+					{
+						if (TextInput::TextSelectionStart == TextInput::TextIndex)
 						{
-							break;
+							TextInput::Text.erase(--TextInput::TextIndex, 1);
 						}
-						u8Read = true;
-					} while (TextInput::TextIndex > 1 && (TextInput::Text[TextInput::TextIndex - 1] & 0b10000000));
-
-					TextInput::TextIndex = std::max(std::min(TextInput::TextIndex, (int)TextInput::Text.size()), 0);
+						else
+						{
+							DeleteSelection();
+						}
+					}
+					TextInput::SetTextIndex(std::max(std::min(TextInput::TextIndex, (int)TextInput::Text.size()), 0), true);
 				}
 				break;
 			case SDLK_TAB:
@@ -433,32 +468,27 @@ void HandleEvents()
 				TextInput::ReturnPresses++;
 				TextInput::PollForText = false;
 				break;
-			case SDLK_v:
-				if (Input::IsKeyDown(Input::Key::LCTRL) || Input::IsKeyDown(Input::Key::RCTRL))
+			case SDLK_c:
+				if (TextInput::PollForText && (Input::IsKeyDown(Input::Key::LCTRL) || Input::IsKeyDown(Input::Key::RCTRL)))
 				{
+					SDL_SetClipboardText(TextInput::GetSelectedTextString().c_str());
+				}
+				break;
+			case SDLK_v:
+				if (TextInput::PollForText && (Input::IsKeyDown(Input::Key::LCTRL) || Input::IsKeyDown(Input::Key::RCTRL)))
+				{
+					DeleteSelection();
 					std::string ClipboardText = SDL_GetClipboardText();
-					std::string FilteredClipboardText;
-					std::set<char> UnwantedClipboardCharacters = {'\r', '\0'}; // Windwos supplies newlines in \r\n. The text editor expects \n.
-					for (auto i : ClipboardText)
+					if (TextInput::TextIndex < TextInput::Text.size())
 					{
-						if (!UnwantedClipboardCharacters.contains(i))
-						{
-							FilteredClipboardText.append({ i });
-						}
-					}
-
-					TextInput::TextIndex = std::min(TextInput::TextIndex, (int)TextInput::Text.size());
-
-					TextInput::Text.insert(TextInput::TextIndex, FilteredClipboardText);
-					if (FilteredClipboardText.find('\n') != std::string::npos)
-					{
-						TextInput::TextIndex = FilteredClipboardText.size() - FilteredClipboardText.find_last_of('\n') - 1;
+						TextInput::Text.insert(TextInput::TextIndex, ClipboardText);
 					}
 					else
 					{
-						TextInput::TextIndex += FilteredClipboardText.size();
+						TextInput::Text.append(ClipboardText);
 					}
-					Application::NewTypedText = FilteredClipboardText;
+					MoveTextIndex((int)ClipboardText.size(), false);
+					Application::NewTypedText = ClipboardText;
 					TextInput::NumPastes++;
 				}
 				break;
@@ -491,12 +521,20 @@ void HandleEvents()
 			}
 			break;
 		case SDL_TEXTINPUT:
-			if (TextInput::PollForText && (e.text.text[0] >= 32 || e.text.text[0] < 0))
+			if (TextInput::PollForText &&
+				!(SDL_GetModState() & KMOD_CTRL &&
+					(e.text.text[0] == 'c' || e.text.text[0] == 'C' || e.text.text[0] == 'v' || e.text.text[0] == 'V')))
 			{
-				TextInput::TextIndex = std::min((size_t)TextInput::TextIndex, TextInput::Text.size());
-				TextInput::Text.insert(TextInput::TextIndex, std::string(e.text.text));
-				TextInput::TextIndex += strlen(e.text.text);
-				Application::NewTypedText = std::string(e.text.text);
+				if (e.text.text[0] >= 32)
+				{
+					if (TextInput::Text.size() < TextInput::TextIndex)
+					{
+						TextInput::TextIndex = (int)TextInput::Text.size();
+					}
+					DeleteSelection();
+					TextInput::Text.insert(TextInput::TextIndex, std::string(e.text.text));
+					MoveTextIndex((int)strlen(e.text.text), false);
+				}
 			}
 			break;
 		case SDL_MOUSEWHEEL:

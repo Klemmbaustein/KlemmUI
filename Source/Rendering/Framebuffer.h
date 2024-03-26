@@ -1,5 +1,5 @@
 #pragma once
-#include <KlemmUI/Math/Vector2.h>
+#include <KlemmUI/Vector2.h>
 
 class Framebuffer
 {

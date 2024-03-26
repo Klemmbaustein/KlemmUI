@@ -1,12 +1,13 @@
 #include <KlemmUI/UI/UIDropdown.h>
 #include <KlemmUI/UI/UIText.h>
 #include <KlemmUI/Application.h>
-#include <KlemmUI/Input.h>
+#include <KlemmUI/Window.h>
+using namespace KlemmUI;
 
 UIDropdown::UIDropdown(Vector2f Position,
 	float Size,
-	Vector3f32 Color,
-	Vector3f32 TextColor,
+	Vector3f Color,
+	Vector3f TextColor,
 	std::vector<Option> Options,
 	void(*PressedFunc)(),
 	TextRenderer* Renderer)
@@ -37,8 +38,8 @@ UIDropdown::UIDropdown(Vector2f Position,
 
 UIDropdown::UIDropdown(Vector2f Position,
 	float Size,
-	Vector3f32 Color,
-	Vector3f32 TextColor,
+	Vector3f Color,
+	Vector3f TextColor,
 	std::vector<Option> Options,
 	void(*PressedFunc)(int),
 	int ButtonIndex,
@@ -78,7 +79,7 @@ UIDropdown* UIDropdown::SetTextSize(float Size, float Padding)
 	return this;
 }
 
-UIDropdown* UIDropdown::SetDropdownColor(Vector3f32 NewColor, Vector3f32 TextColor)
+UIDropdown* UIDropdown::SetDropdownColor(Vector3f NewColor, Vector3f TextColor)
 {
 	if (NewColor != DropdownColor || TextColor != DropdownTextColor)
 	{
@@ -101,7 +102,7 @@ void UIDropdown::GenerateOptions()
 	OptionsBox->DeleteChildren();
 	for (size_t i = 0; i < Options.size(); i++)
 	{
-		UIButton* NewButton = new UIButton(true, 0, Vector3f32::Lerp(DropdownColor, ButtonColor, (i == SelectedIndex) ? 0.5f : 0), nullptr, (int)i);
+		UIButton* NewButton = new UIButton(true, 0, Vector3f::Lerp(DropdownColor, ButtonColor, (i == SelectedIndex) ? 0.5f : 0), nullptr, (int)i);
 		NewButton->SetPadding(0);
 		NewButton->SetMinSize(Vector2f(Size, 0));
 		NewButton->ParentOverride = this;
@@ -122,8 +123,8 @@ UIDropdown* UIDropdown::SelectOption(size_t Index, bool CallEvent)
 	SelectedText->SetText(SelectedOption.Name);
 	if (CallEvent)
 	{
-		if (PressedFunc) Application::ButtonEvents.push_back(Application::ButtonEvent(PressedFunc, nullptr, nullptr, 0));
-		if (PressedFuncIndex) Application::ButtonEvents.push_back(Application::ButtonEvent(nullptr, PressedFuncIndex, nullptr, ButtonIndex));
+	//	if (PressedFunc) Application::ButtonEvents.push_back(Application::ButtonEvent(PressedFunc, nullptr, nullptr, 0));
+	//	if (PressedFuncIndex) Application::ButtonEvents.push_back(Application::ButtonEvent(nullptr, PressedFuncIndex, nullptr, ButtonIndex));
 	}
 	GenerateOptions();
 	return this;
@@ -132,7 +133,7 @@ UIDropdown* UIDropdown::SelectOption(size_t Index, bool CallEvent)
 void UIDropdown::Tick()
 {
 	UIButton::Tick();
-	if (Input::IsLMBDown
+	if (Window::GetActiveWindow()->Input.IsLMBDown
 		&& OptionsBox->IsVisible
 		&& (!UI::HoveredBox || !(UI::HoveredBox == this || UI::HoveredBox->IsChildOf(OptionsBox))))
 	{

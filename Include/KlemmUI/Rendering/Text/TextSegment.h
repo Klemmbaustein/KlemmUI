@@ -1,13 +1,13 @@
 #pragma once
 #include <string>
 #include <vector>
-#include "../../Math/Vector3.h"
+#include "../../Vector3.h"
 
 struct TextSegment
 {
 	std::string Text;
-	Vector3f32 Color;
-	TextSegment(std::string Text, Vector3f32 Color)
+	Vector3f Color;
+	TextSegment(std::string Text, Vector3f Color)
 	{
 		this->Text = Text;
 		this->Color = Color;

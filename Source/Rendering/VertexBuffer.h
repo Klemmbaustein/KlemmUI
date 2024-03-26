@@ -1,11 +1,11 @@
 #pragma once
 #include <vector>
-#include <KlemmUI/Math/Vector2.h>
+#include <KlemmUI/Vector2.h>
 
 struct Vertex
 {
-	Vector2f32 Position;
-	Vector2f32 TexCoord;
+	Vector2f Position;
+	Vector2f TexCoord;
 };
 
 struct VertexBuffer

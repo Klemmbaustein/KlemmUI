@@ -5,10 +5,12 @@
 #include <KlemmUI/Rendering/Shader.h>
 #include <KlemmUI/Application.h>
 #include <KlemmUI/Rendering/ScrollObject.h>
+#include <KlemmUI/Window.h>
+using namespace KlemmUI;
 
 namespace UI
 {
-	Shader* UIShader = nullptr;
+	thread_local Shader* UIShader = nullptr;
 }
 
 void UIBackground::ScrollTick(Shader* UsedShader)
@@ -27,10 +29,10 @@ void UIBackground::MakeGLBuffers(bool InvertTextureCoordinates)
 		delete BoxVertexBuffer;
 	BoxVertexBuffer = new VertexBuffer(
 		{
-			Vertex(Vector2f32(0, 0), Vector2f32(0, 0)),
-			Vertex(Vector2f32(0, 1), Vector2f32(0, 1)),
-			Vertex(Vector2f32(1, 0), Vector2f32(1, 0)),
-			Vertex(Vector2f32(1, 1), Vector2f32(1, 1))
+			Vertex(Vector2f(0, 0), Vector2f(0, 0)),
+			Vertex(Vector2f(0, 1), Vector2f(0, 1)),
+			Vertex(Vector2f(1, 0), Vector2f(1, 0)),
+			Vertex(Vector2f(1, 1), Vector2f(1, 1))
 		},
 		{
 			0u, 1u, 2u,
@@ -57,7 +59,7 @@ float UIBackground::GetOpacity()
 	return Opacity;
 }
 
-void UIBackground::SetColor(Vector3f32 NewColor)
+void UIBackground::SetColor(Vector3f NewColor)
 {
 	if (NewColor != Color)
 	{
@@ -66,7 +68,7 @@ void UIBackground::SetColor(Vector3f32 NewColor)
 	}
 }
 
-Vector3f32 UIBackground::GetColor()
+Vector3f UIBackground::GetColor()
 {
 	return Color;
 }
@@ -87,7 +89,7 @@ UIBackground* UIBackground::SetUseTexture(bool UseTexture, unsigned int TextureI
 	return this;
 }
 
-UIBackground::UIBackground(bool Horizontal, Vector2f Position, Vector3f32 Color, Vector2f MinScale, Shader* UsedShader) : UIBox(Horizontal, Position)
+UIBackground::UIBackground(bool Horizontal, Vector2f Position, Vector3f Color, Vector2f MinScale, Shader* UsedShader) : UIBox(Horizontal, Position)
 {
 	SetMinSize(MinScale);
 	this->Color = Color;
@@ -120,10 +122,10 @@ void UIBackground::Draw()
 	glUniform1f(glGetUniformLocation(BackgroundShader->GetShaderID(), "u_opacity"), Opacity);
 	glUniform1i(glGetUniformLocation(BackgroundShader->GetShaderID(), "u_borderType"), (unsigned int)BoxBorder);
 	glUniform1f(glGetUniformLocation(BackgroundShader->GetShaderID(), "u_borderScale"), BorderRadius / 20.0f);
-	glUniform1f(glGetUniformLocation(BackgroundShader->GetShaderID(), "u_aspectratio"), Application::AspectRatio);
+	glUniform1f(glGetUniformLocation(BackgroundShader->GetShaderID(), "u_aspectratio"), Window::GetActiveWindow()->GetAspectRatio());
 	glUniform2f(glGetUniformLocation(BackgroundShader->GetShaderID(), "u_screenRes"),
-		(float)Application::GetWindowResolution().X,
-		(float)Application::GetWindowResolution().Y);
+		(float)Window::GetActiveWindow()->GetSize().X,
+		(float)Window::GetActiveWindow()->GetSize().Y);
 
 	BackgroundShader->SetInt("u_usetexture", (int)UseTexture);
 	BoxVertexBuffer->Draw();
@@ -137,18 +139,4 @@ void UIBackground::Update()
 
 void UIBackground::OnAttached()
 {
-}
-
-UIBackgroundStyle::UIBackgroundStyle(std::string Name) : UIStyle("UIBackground: " + Name)
-{
-	this->UsedShadder = UI::UIShader;
-}
-
-void UIBackgroundStyle::ApplyDerived(UIBox* Target)
-{
-	UIBackground* TargetBG = ToSafeElemPtr<UIBackground>(Target);
-
-	TargetBG->SetColor(Color);
-	TargetBG->SetOpacity(Opacity);
-	TargetBG->SetUseTexture(UseTexture, TextureID);
 }

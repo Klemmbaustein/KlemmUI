@@ -1,7 +1,6 @@
 # VS project files
 .vs/
 x64/
-*.user
 # binaries
 lib/
 *.dll

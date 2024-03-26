@@ -1034,7 +1034,7 @@ extern "C" {
     // the second string interpreted as big-endian utf16... useful for strings from next func
 
     STBTT_DEF const char* stbtt_GetFontNameString(const stbtt_fontinfo* font, int* length, int platformID, int encodingID, int languageID, int nameID);
-    // returns the string (which may be big-endian double byte, e.g. for unicode)
+    // returns the string (which may be big-endian float byte, e.g. for unicode)
     // and puts the length in bytes in *length.
     //
     // some of the values for the IDs are below; for more see the truetype spec:

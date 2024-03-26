@@ -3,9 +3,10 @@
 #include <KlemmUI/Rendering/Shader.h>
 #include "../Rendering/VertexBuffer.h"
 #include <KlemmUI/Application.h>
-#include <KlemmUI/Input.h>
-#include <KlemmUI/Math/MathHelpers.h>
+#include <KlemmUI/Window.h>
 #include <KlemmUI/Rendering/ScrollObject.h>
+
+using namespace KlemmUI;
 
 namespace UI
 {
@@ -50,7 +51,7 @@ void UIButton::Tick()
 
 	if (UI::HoveredBox == this)
 	{
-		if (Input::IsLMBDown)
+		if (Window::GetActiveWindow()->Input.IsLMBDown)
 		{
 			CurrentButtonState = ButtonState::Pressed;
 			if (!IsPressed)
@@ -76,7 +77,7 @@ void UIButton::Tick()
 			}
 		}
 	}
-	else if (Input::IsLMBDown)
+	else if (Window::GetActiveWindow()->Input.IsLMBDown)
 	{
 		IsSelected = false;
 	}
@@ -100,11 +101,11 @@ void UIButton::Tick()
 
 void UIButton::OnClicked()
 {
-	if (PressedFunc) Application::ButtonEvents.push_back(Application::ButtonEvent(PressedFunc, nullptr, nullptr, 0));
-	if (PressedFuncIndex) Application::ButtonEvents.push_back(Application::ButtonEvent(nullptr, PressedFuncIndex, nullptr, ButtonIndex));
+	//if (PressedFunc) Application::ButtonEvents.push_back(Application::ButtonEvent(PressedFunc, nullptr, nullptr, 0));
+	//if (PressedFuncIndex) Application::ButtonEvents.push_back(Application::ButtonEvent(nullptr, PressedFuncIndex, nullptr, ButtonIndex));
 	if (ParentOverride)
 	{
-		Application::ButtonEvents.push_back(Application::ButtonEvent(nullptr, nullptr, ParentOverride, ButtonIndex));
+	//	Application::ButtonEvents.push_back(Application::ButtonEvent(nullptr, nullptr, ParentOverride, ButtonIndex));
 	}
 }
 
@@ -161,7 +162,7 @@ UIButton* UIButton::SetUseTexture(bool UseTexture, unsigned int TextureID)
 	return this;
 }
 
-UIButton* UIButton::SetColor(Vector3f32 NewColor)
+UIButton* UIButton::SetColor(Vector3f NewColor)
 {
 	if (NewColor != ButtonColor)
 	{
@@ -171,7 +172,7 @@ UIButton* UIButton::SetColor(Vector3f32 NewColor)
 	return this;
 }
 
-UIButton* UIButton::SetHoveredColor(Vector3f32 NewColor)
+UIButton* UIButton::SetHoveredColor(Vector3f NewColor)
 {
 	if (NewColor != HoveredColor)
 	{
@@ -184,7 +185,7 @@ UIButton* UIButton::SetHoveredColor(Vector3f32 NewColor)
 	return this;
 }
 
-UIButton* UIButton::SetPressedColor(Vector3f32 NewColor)
+UIButton* UIButton::SetPressedColor(Vector3f NewColor)
 {
 	if (NewColor != PressedColor)
 	{
@@ -197,12 +198,12 @@ UIButton* UIButton::SetPressedColor(Vector3f32 NewColor)
 	return this;
 }
 
-Vector3f32 UIButton::GetColor()
+Vector3f UIButton::GetColor()
 {
 	return ButtonColor;
 }
 
-UIButton::UIButton(bool Horizontal, Vector2f Position, Vector3f32 Color, void(*PressedFunc)()) : UIBackground(Horizontal, Position, Color)
+UIButton::UIButton(bool Horizontal, Vector2f Position, Vector3f Color, void(*PressedFunc)()) : UIBackground(Horizontal, Position, Color)
 {
 	if (UI::UIShader == nullptr) UI::UIShader = new Shader(Application::GetShaderPath() + "/uishader.vert", Application::GetShaderPath() + "/uishader.frag");
 	this->PressedFunc = PressedFunc;
@@ -212,7 +213,7 @@ UIButton::UIButton(bool Horizontal, Vector2f Position, Vector3f32 Color, void(*P
 	HasMouseCollision = true;
 }
 
-UIButton::UIButton(bool Horizontal, Vector2f Position, Vector3f32 Color, void(*PressedFunc)(int), int ButtonIndex) : UIBackground(Horizontal, Position, Color)
+UIButton::UIButton(bool Horizontal, Vector2f Position, Vector3f Color, void(*PressedFunc)(int), int ButtonIndex) : UIBackground(Horizontal, Position, Color)
 {
 	if (UI::UIShader == nullptr) UI::UIShader = new Shader(Application::GetShaderPath() + "/uishader.vert", Application::GetShaderPath() + "/uishader.frag");
 	this->PressedFuncIndex = PressedFunc;
@@ -220,19 +221,6 @@ UIButton::UIButton(bool Horizontal, Vector2f Position, Vector3f32 Color, void(*P
 	this->HoveredColor = Color * 0.75;
 	this->PressedColor = Color * 0.5;	this->ButtonIndex = ButtonIndex;
 	HasMouseCollision = true;
-}
-
-UIButton::UIButton(bool Horizontal, Vector2f Position, UIButtonStyle* Style, void(*PressedFunc)()) 
-	: UIButton(Horizontal, Position, 1, PressedFunc)
-{
-	Style->ApplyTo(this);
-}
-
-UIButton::UIButton(bool Horizontal, Vector2f Position, UIButtonStyle* Style, void(*PressedFunc)(int), int ButtonIndex)
-	: UIButton(Horizontal, Position, 1, PressedFunc, ButtonIndex)
-{
-	Style->ApplyTo(this);
-
 }
 
 UIButton::~UIButton()
@@ -246,18 +234,4 @@ void UIButton::Update()
 
 void UIButton::DrawBackground()
 {
-}
-
-UIButtonStyle::UIButtonStyle(std::string Name) : UIStyle("Button: " + Name)
-{
-}
-
-void UIButtonStyle::ApplyDerived(UIBox* Target)
-{
-	UIButton* TargetButton = ToSafeElemPtr<UIButton>(Target);
-	TargetButton->SetColor(Color);
-	TargetButton->SetHoveredColor(HoveredColor);
-	TargetButton->SetPressedColor(PressedColor);
-	TargetButton->SetUseTexture(UseTexture, TextureID);
-	TargetButton->SetOpacity(Opacity);
 }

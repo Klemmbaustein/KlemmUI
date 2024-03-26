@@ -1,25 +1,9 @@
 #pragma once
 #include "UIBox.h"
-#include "../Math/Vector3.h"
-#include "../Math/Vector2.h"
-#include "UIStyle.h"
+#include "../Vector3.h"
+#include "../Vector2.h"
 
 class Shader;
-
-class UIBackgroundStyle : public UIStyle
-{
-public:
-	UIBackgroundStyle(std::string Name);
-	Vector3f32 Color = 1.0f;
-
-	float Opacity = 1.0f;
-	bool UseTexture = false;
-	unsigned int TextureID = 0;
-	Shader* UsedShadder;
-protected:
-	virtual void ApplyDerived(UIBox* Target) override;
-};
-
 
 struct VertexBuffer;
 
@@ -32,18 +16,18 @@ class UIBackground : public UIBox
 protected:
 	Shader* BackgroundShader;
 	virtual void DrawBackground();
-	Vector3f32 Color;
+	Vector3f Color;
 	VertexBuffer* BoxVertexBuffer = nullptr;
 	float Opacity = 1;
-	Vector3f32 ColorMultiplier = 1;
+	Vector3f ColorMultiplier = 1;
 public:
 	UIBackground* SetOpacity(float NewOpacity);
 	float GetOpacity();
-	void SetColor(Vector3f32 NewColor);
-	Vector3f32 GetColor();
+	void SetColor(Vector3f NewColor);
+	Vector3f GetColor();
 	void SetInvertTextureCoordinates(bool Invert);
 	UIBackground* SetUseTexture(bool UseTexture, unsigned int TextureID = 0);
-	UIBackground(bool Horizontal, Vector2f Position, Vector3f32 Color, Vector2f MinScale = Vector2f(0), Shader* UsedShader = nullptr);
+	UIBackground(bool Horizontal, Vector2f Position, Vector3f Color, Vector2f MinScale = Vector2f(0), Shader* UsedShader = nullptr);
 	virtual ~UIBackground();
 	void Draw() override;
 	void Update() override;

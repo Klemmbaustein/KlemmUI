@@ -13,8 +13,8 @@ class UIDropdown : public UIButton
 	float TextSize = 0.4f, TextPadding = 0.02f;
 	std::vector<UIButton*> DropdownButtons;
 	std::vector<UIText*> DropdownTexts;
-	Vector3f32 DropdownColor = 1;
-	Vector3f32 DropdownTextColor = 0;
+	Vector3f DropdownColor = 1;
+	Vector3f DropdownTextColor = 0;
 public:
 	size_t SelectedIndex = 0;
 	struct Option
@@ -29,10 +29,10 @@ public:
 
 	UIDropdown* SelectOption(size_t Index, bool CallEvent = true);
 
-	UIDropdown(Vector2f Position, float Size, Vector3f32 Color, Vector3f32 TextColor, std::vector<Option> Options, void(*PressedFunc)(), TextRenderer* Renderer);
-	UIDropdown(Vector2f Position, float Size, Vector3f32 Color, Vector3f32 TextColor, std::vector<Option> Options, void(*PressedFunc)(int), int ButtonIndex, TextRenderer* Renderer);
+	UIDropdown(Vector2f Position, float Size, Vector3f Color, Vector3f TextColor, std::vector<Option> Options, void(*PressedFunc)(), TextRenderer* Renderer);
+	UIDropdown(Vector2f Position, float Size, Vector3f Color, Vector3f TextColor, std::vector<Option> Options, void(*PressedFunc)(int), int ButtonIndex, TextRenderer* Renderer);
 	UIDropdown* SetTextSize(float Size, float Padding);
-	UIDropdown* SetDropdownColor(Vector3f32 NewColor, Vector3f32 TextColor);
+	UIDropdown* SetDropdownColor(Vector3f NewColor, Vector3f TextColor);
 	
 	void Tick() override;
 	void OnClicked() override;

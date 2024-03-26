@@ -1,7 +1,9 @@
 #include <KlemmUI/UI/UIScrollBox.h>
-#include <KlemmUI/Math/MathHelpers.h>
-#include <KlemmUI/Input.h>
+#include "../MathHelpers.h"
 #include <KlemmUI/UI/UIBox.h>
+#include <KlemmUI/Window.h>
+
+using namespace KlemmUI;
 
 namespace _ScrollObject
 {
@@ -32,7 +34,7 @@ void ScrollObject::ScrollUp()
 	{
 		return;
 	}
-	if (Math::IsPointIn2DBox(Position - Scale, Position, Input::MouseLocation))
+	if (Math::IsPointIn2DBox(Position - Scale, Position, Window::GetActiveWindow()->Input.MousePosition))
 	{
 		Percentage += Speed / 100.f;
 	}
@@ -49,7 +51,7 @@ void ScrollObject::ScrollDown()
 	{
 		return;
 	}
-	if (Math::IsPointIn2DBox(Position - Scale, Position, Input::MouseLocation))
+	if (Math::IsPointIn2DBox(Position - Scale, Position, Window::GetActiveWindow()->Input.MousePosition))
 	{
 		Percentage -= Speed / 100.f;
 	}

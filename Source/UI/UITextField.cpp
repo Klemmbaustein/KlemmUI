@@ -1,13 +1,16 @@
 #include <KlemmUI/UI/UITextField.h>
 #include <KlemmUI/UI/UIText.h>
-#include <KlemmUI/Math/MathHelpers.h>
 #include <KlemmUI/Input.h>
 #include "../Rendering/VertexBuffer.h"
+#include "../MathHelpers.h"
 #include <GL/glew.h>
 #include <KlemmUI/Application.h>
 #include <KlemmUI/Rendering/ScrollObject.h>
 #include <KlemmUI/Rendering/Shader.h>
+#include <KlemmUI/Window.h>
 #include <cmath>
+
+using namespace KlemmUI;
 
 namespace UI
 {
@@ -16,7 +19,7 @@ namespace UI
 
 void UITextField::Tick()
 {
-	TextObject->WrapDistance = std::max(std::max(Size.X * 1.3, GetMinSize().X), 0.1) * 2;
+	TextObject->WrapDistance = std::max(std::max(Size.X * 1.3f, GetMinSize().X), 0.1f) * 2;
 
 	ButtonColorMultiplier = 1.f;
 	Vector2f Offset;
@@ -26,7 +29,7 @@ void UITextField::Tick()
 	}
 	if (UI::HoveredBox == this)
 	{
-		size_t Nearest = TextObject->GetNearestLetterAtLocation(Input::MouseLocation);
+		size_t Nearest = TextObject->GetNearestLetterAtLocation(Window::GetActiveWindow()->Input.MousePosition);
 		if (!IsHovered)
 		{
 			RedrawUI();
@@ -34,7 +37,7 @@ void UITextField::Tick()
 		IsHovered = true;
 		ButtonColorMultiplier = 0.8f;
 
-		if (Input::IsLMBDown && !(!Dragging && TextInput::PollForText && !IsEdited))
+		if (Window::GetActiveWindow()->Input.IsLMBDown && !(!Dragging && TextInput::PollForText && !IsEdited))
 		{
 			ButtonColorMultiplier = 0.5f;
 			TextInput::PollForText = true;
@@ -73,7 +76,7 @@ void UITextField::Tick()
 		}
 	}
 
-	if (!Input::IsLMBDown)
+	if (!Window::GetActiveWindow()->Input.IsLMBDown)
 	{
 		Dragging = false;
 	}
@@ -84,20 +87,20 @@ void UITextField::Tick()
 		if (!TextInput::PollForText)
 		{
 			IsEdited = false;
-			if (PressedFunc) Application::ButtonEvents.push_back(Application::ButtonEvent(PressedFunc, nullptr, nullptr, 0));
+			//if (PressedFunc) Application::ButtonEvents.push_back(Application::ButtonEvent(PressedFunc, nullptr, nullptr, 0));
 			RedrawUI();
 		}
-		if (!IsHovered && Input::IsLMBDown && !Dragging)
+		if (!IsHovered && Window::GetActiveWindow()->Input.IsLMBDown && !Dragging)
 		{
 			IsEdited = false;
 			TextInput::PollForText = false;
-			if (PressedFunc) Application::ButtonEvents.push_back(Application::ButtonEvent(PressedFunc, nullptr, nullptr, 0));
+			//if (PressedFunc) Application::ButtonEvents.push_back(Application::ButtonEvent(PressedFunc, nullptr, nullptr, 0));
 			RedrawUI();
 		}
 	}
 	std::string RendererdText = EnteredText;
-	DoubleClickTimer += Application::DeltaTime;
-	TextTimer += Application::DeltaTime;
+	DoubleClickTimer += 0.01f;
+	TextTimer += 0.01f;
 	Vector2f EditedTextPos = IsEdited ? TextObject->GetLetterLocation(TextInput::TextIndex) : 0;
 
 	if (fmod(TextTimer, 1) < 0.5f && IsEdited)
@@ -106,7 +109,7 @@ void UITextField::Tick()
 		{
 			TextTimer = 0;
 			IBeamPosition = EditedTextPos;
-			IBeamScale = Vector2f(2.0f / Application::GetWindowResolution().X, TextObject->GetUsedSize().Y);
+			IBeamScale = Vector2f(2.0f / Window::GetActiveWindow()->GetSize().X, TextObject->GetUsedSize().Y);
 			RedrawUI();
 		}
 		if (!ShowIBeam)
@@ -172,7 +175,7 @@ UITextField* UITextField::SetHintText(std::string NewHintText)
 	return this;
 }
 
-UITextField* UITextField::SetColor(Vector3f32 NewColor)
+UITextField* UITextField::SetColor(Vector3f NewColor)
 {
 	if (NewColor != Color)
 	{
@@ -182,18 +185,18 @@ UITextField* UITextField::SetColor(Vector3f32 NewColor)
 	return this;
 }
 
-Vector3f32 UITextField::GetColor()
+Vector3f UITextField::GetColor()
 {
 	return Color;
 }
 
-UITextField* UITextField::SetTextColor(Vector3f32 NewColor)
+UITextField* UITextField::SetTextColor(Vector3f NewColor)
 {
 	TextColor = NewColor;
 	return this;
 }
 
-Vector3f32 UITextField::GetTextColor()
+Vector3f UITextField::GetTextColor()
 {
 	return TextObject->GetColor();
 }
@@ -218,23 +221,17 @@ bool UITextField::GetIsPressed()
 	return IsPressed;
 }
 
-UITextField::UITextField(bool Horizontal, Vector2f Position, Vector3f32 Color, TextRenderer* Renderer, void(*PressedFunc)())
+UITextField::UITextField(bool Horizontal, Vector2f Position, Vector3f Color, TextRenderer* Renderer, void(*PressedFunc)())
 	: UIBackground(Horizontal, Position, Color)
 {
 	if (UI::UIShader == nullptr) UI::UIShader = new Shader(Application::GetShaderPath() + "/uishader.vert", Application::GetShaderPath() + "/uishader.frag");
 	TextObject = new UIText(0, Vector3(1), HintText, Renderer);
-	TextObject->SetTextSize(0.5);
-	TextObject->SetPadding(0.005);
+	TextObject->SetTextSize(0.5f);
+	TextObject->SetPadding(0.005f);
 	TextObject->Wrap = true;
 	HasMouseCollision = true;
 	this->PressedFunc = PressedFunc;
 	AddChild(TextObject);
-}
-
-UITextField::UITextField(bool Horizontal, Vector2f Position, UIStyle* Style, void(*PressedFunc)())
-	: UITextField(Horizontal, Position, 1, nullptr, PressedFunc)
-{
-	Style->ApplyTo(this);
 }
 
 UITextField::~UITextField()
@@ -273,19 +270,4 @@ void UITextField::DrawBackground()
 
 	BoxVertexBuffer->Unbind();
 
-}
-
-UITextFieldStyle::UITextFieldStyle(std::string Name, TextRenderer* Font) : UIStyle("UITextField: " + Name)
-{
-	this->Font = Font;
-}
-
-void UITextFieldStyle::ApplyDerived(UIBox* Target)
-{
-	UITextField* TargetField = ToSafeElemPtr<UITextField>(Target);
-	TargetField->SetText(DefaultText);
-	TargetField->SetHintText(HintText);
-	TargetField->SetColor(Color);
-	TargetField->SetTextColor(TextColor);
-	TargetField->SetTextRenderer(Font);
 }

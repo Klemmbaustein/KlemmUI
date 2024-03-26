@@ -49,12 +49,14 @@
     <LibraryPath>
     </LibraryPath>
     <OutDir>$(ProjectDir)lib\$(Configuration)\</OutDir>
-    <IntDir>$(ProjectDir)$(Platform)\</IntDir>
+    <IntDir>$(ProjectDir)$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>$(ProjectDir)\Include;$(ProjectDir)Dependencies\SDL\include;$(ProjectDir)Dependencies\glew-cmake\include;$(IncludePath)</IncludePath>
     <LibraryPath>
     </LibraryPath>
+    <OutDir>$(ProjectDir)lib\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -99,11 +101,15 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Include\KlemmUI\Input.cpp" />
+    <ClCompile Include="Include\KlemmUI\Timer.cpp" />
     <ClCompile Include="Source\Application.cpp" />
-    <ClCompile Include="Source\Input.cpp" />
-    <ClCompile Include="Source\Math\MathHelpers.cpp" />
-    <ClCompile Include="Source\Math\Vector2.cpp" />
-    <ClCompile Include="Source\Math\Vector3.cpp" />
+    <ClCompile Include="Source\StringReplace.cpp" />
+    <ClCompile Include="Source\Window.cpp" />
+    <ClCompile Include="Source\Internal.cpp" />
+    <ClCompile Include="Source\MathHelpers.cpp" />
+    <ClCompile Include="Source\Vector2.cpp" />
+    <ClCompile Include="Source\Vector3.cpp" />
     <ClCompile Include="Source\Rendering\Framebuffer.cpp" />
     <ClCompile Include="Source\Rendering\MarkdownRendering.cpp" />
     <ClCompile Include="Source\Rendering\ScrollObject.cpp" />
@@ -111,22 +117,23 @@
     <ClCompile Include="Source\Rendering\Texture.cpp" />
     <ClCompile Include="Source\Rendering\Text\TextRenderer.cpp" />
     <ClCompile Include="Source\Rendering\VertexBuffer.cpp" />
-    <ClCompile Include="Source\StringReplace.cpp" />
     <ClCompile Include="Source\UI\UIBackground.cpp" />
     <ClCompile Include="Source\UI\UIBox.cpp" />
     <ClCompile Include="Source\UI\UIButton.cpp" />
     <ClCompile Include="Source\UI\UIDropdown.cpp" />
     <ClCompile Include="Source\UI\UIScrollBox.cpp" />
-    <ClCompile Include="Source\UI\UIStyle.cpp" />
     <ClCompile Include="Source\UI\UIText.cpp" />
     <ClCompile Include="Source\UI\UITextField.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\KlemmUI\Application.h" />
     <ClInclude Include="Include\KlemmUI\Input.h" />
-    <ClInclude Include="Include\KlemmUI\Math\MathHelpers.h" />
-    <ClInclude Include="Include\KlemmUI\Math\Vector2.h" />
-    <ClInclude Include="Include\KlemmUI\Math\Vector3.h" />
+    <ClInclude Include="Include\KlemmUI\Timer.h" />
+    <ClInclude Include="Include\KlemmUI\Window.h" />
+    <ClInclude Include="Source\Internal.h" />
+    <ClInclude Include="Source\MathHelpers.h" />
+    <ClInclude Include="Include\KlemmUI\Vector2.h" />
+    <ClInclude Include="Include\KlemmUI\Vector3.h" />
     <ClInclude Include="Include\KlemmUI\Rendering\MarkdownRendering.h" />
     <ClInclude Include="Include\KlemmUI\Rendering\ScrollObject.h" />
     <ClInclude Include="Include\KlemmUI\Rendering\Texture.h" />
@@ -138,19 +145,16 @@
     <ClInclude Include="Include\KlemmUI\UI\UIButton.h" />
     <ClInclude Include="Include\KlemmUI\UI\UIDropdown.h" />
     <ClInclude Include="Include\KlemmUI\UI\UIScrollBox.h" />
-    <ClInclude Include="Include\KlemmUI\UI\UIStyle.h" />
     <ClInclude Include="Include\KlemmUI\UI\UIText.h" />
     <ClInclude Include="Include\KlemmUI\UI\UITextField.h" />
     <ClInclude Include="Source\Rendering\Framebuffer.h" />
     <ClInclude Include="Include\KlemmUI\Rendering\Shader.h" />
-    <ClInclude Include="Source\Rendering\Text\TextSegment.h" />
     <ClInclude Include="Source\Rendering\VertexBuffer.h" />
     <ClInclude Include="Source\Util\stb_image.hpp" />
     <ClInclude Include="Source\Util\stb_truetype.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitignore" />
-    <None Include="makefile" />
     <None Include="makefile.kbld" />
     <None Include="README.md" />
     <None Include="Setup.ps1" />

@@ -4,6 +4,8 @@
 #include <sstream>
 #include <KlemmUI/Application.h>
 
+using namespace KlemmUI;
+
 void Shader::CheckCompileErrors(unsigned int ShaderID, std::string Type)
 {
 	GLint success;
@@ -14,12 +16,11 @@ void Shader::CheckCompileErrors(unsigned int ShaderID, std::string Type)
 		if (!success)
 		{
 			glGetShaderInfoLog(ShaderID, 1024, NULL, infoLog);
-			Application::Error("Shader compilation error of type: "
+			Application::Error::Error("Shader compilation error of type: "
 				+ Type 
 				+ "\n"
 				+ std::string(infoLog)
-				+ "\n -- --------------------------------------------------- -- ");
-			throw 0;
+				+ "\n -- --------------------------------------------------- -- ", true);
 		}
 	}
 	else
@@ -28,12 +29,11 @@ void Shader::CheckCompileErrors(unsigned int ShaderID, std::string Type)
 		if (!success)
 		{
 			glGetProgramInfoLog(ShaderID, 1024, NULL, infoLog);
-			Application::Error("Shader linking error of type: "
+			Application::Error::Error("Shader linking error of type: "
 				+ Type 
 				+ "\n"
 				+ std::string(infoLog)
-				+ "\n -- --------------------------------------------------- -- ");
-			throw 0;
+				+ "\n -- --------------------------------------------------- -- ", true);
 		}
 	}
 }
@@ -83,10 +83,9 @@ Shader::Shader(std::string VertexPath, std::string FragmentPath, std::string Geo
 	}
 	catch (std::ifstream::failure& e)
 	{
-		Application::Error("Error: Could not read shader file.\n" 
+		Application::Error::Error("Error: Could not read shader file.\n"
 			+ std::string(e.what())
-			+ "\nWhile compiling shader files: " + VertexPath + ", " + FragmentPath);
-		throw 0;
+			+ "\nWhile compiling shader files: " + VertexPath + ", " + FragmentPath, true);
 	}
 	const char* vShaderCode = vertexCode.c_str();
 	const char* fShaderCode = fragmentCode.c_str();

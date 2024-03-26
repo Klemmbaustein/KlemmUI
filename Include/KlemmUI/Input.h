@@ -1,11 +1,14 @@
 #pragma once
-#include "Math/Vector2.h"
+#include "Vector2.h"
+#include <unordered_map>
 
+namespace KlemmUI
+{
 #define SDLK_SCANCODE_MASK (1<<30)
 #define TO_KEYCODE(X)  ((int)X | SDLK_SCANCODE_MASK)
 
-namespace Input
-{
+	class Window;
+
 	enum class Key_Scancode
 	{
 		SCANCODE_UNKNOWN = 0,
@@ -542,31 +545,40 @@ namespace Input
 		ENDCALL = TO_KEYCODE(Key_Scancode::SCANCODE_ENDCALL)
 	};
 
-	bool IsKeyDown(Key key);
-	void SetKeyDown(Key Key, bool KeyDown);
+	namespace TextInput
+	{
+		extern bool PollForText;
+		extern std::string Text;
+		extern int TextIndex;
+		extern int TextRow;
+		extern int ReturnPresses;
+		extern int BackspacePresses;
+		extern int DeletePresses;
+		extern int NumPastes;
+		extern int TextSelectionStart;
 
-	void RegisterOnKeyDownCallback(Key Key, void (*Callback)());
+		std::string GetSelectedTextString();
 
-	extern Vector2f MouseMovement;
-	extern bool IsLMBDown;
-	extern bool IsRMBDown;
-	extern bool CursorVisible;
-	extern Vector2f MouseLocation;
-}
+		void SetTextIndex(int NewIndex, bool ClearSelection);
+	}
+	class InputManager
+	{
+		std::unordered_map<Key, bool> PressedKeys;
 
-namespace TextInput
-{
-	extern bool PollForText;
-	extern std::string Text;
-	extern int TextIndex;
-	extern int TextRow;
-	extern int ReturnPresses;
-	extern int BackspacePresses;
-	extern int DeletePresses;
-	extern int NumPastes;
-	extern int TextSelectionStart;
+		Window* GetWindowBySDLID(uint32_t ID);
 
-	std::string GetSelectedTextString();
+	public:
+		void Poll();
 
-	void SetTextIndex(int NewIndex, bool ClearSelection);
+		bool IsKeyDown(Key PressedKey);
+		void SetKeyDown(Key PressedKey, bool KeyDown);
+
+		void RegisterOnKeyDownCallback(Key PressedKey, void (*Callback)());
+
+		Vector2f MouseMovement;
+		bool IsLMBDown;
+		bool IsRMBDown;
+		bool CursorVisible;
+		Vector2f MousePosition;
+	};
 }

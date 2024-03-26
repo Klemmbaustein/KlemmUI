@@ -10,8 +10,81 @@
 #include <KlemmUI/StringReplace.h>
 #include <GL/glew.h>
 #include <iostream>
+#include <KlemmUI/Window.h>
 
-std::wstring GetUnicodeString(std::string str);
+using namespace KlemmUI;
+
+std::wstring GetUnicodeString(std::string utf8)
+{
+	std::vector<unsigned long> unicode;
+	size_t i = 0;
+	while (i < utf8.size())
+	{
+		unsigned long uni;
+		size_t todo;
+		bool error = false;
+		unsigned char ch = utf8[i++];
+		if (ch <= 0x7F)
+		{
+			uni = ch;
+			todo = 0;
+		}
+		else if (ch <= 0xBF)
+		{
+			return std::wstring(utf8.begin(), utf8.end());
+		}
+		else if (ch <= 0xDF)
+		{
+			uni = ch & 0x1F;
+			todo = 1;
+		}
+		else if (ch <= 0xEF)
+		{
+			uni = ch & 0x0F;
+			todo = 2;
+		}
+		else if (ch <= 0xF7)
+		{
+			uni = ch & 0x07;
+			todo = 3;
+		}
+		else
+		{
+			return std::wstring(utf8.begin(), utf8.end());
+		}
+		for (size_t j = 0; j < todo; ++j)
+		{
+			if (i == utf8.size())
+				return std::wstring(utf8.begin(), utf8.end());
+			unsigned char ch = utf8[i++];
+			if (ch < 0x80 || ch > 0xBF)
+				return std::wstring(utf8.begin(), utf8.end());
+			uni <<= 6;
+			uni += ch & 0x3F;
+		}
+		if (uni >= 0xD800 && uni <= 0xDFFF)
+			return std::wstring(utf8.begin(), utf8.end());
+		if (uni > 0x10FFFF)
+			return std::wstring(utf8.begin(), utf8.end());
+		unicode.push_back(uni);
+	}
+	std::wstring utf16;
+	for (size_t i = 0; i < unicode.size(); ++i)
+	{
+		unsigned long uni = unicode[i];
+		if (uni <= 0xFFFF)
+		{
+			utf16 += (wchar_t)uni;
+		}
+		else
+		{
+			uni -= 0x10000;
+			utf16 += (wchar_t)((uni >> 10) + 0xD800);
+			utf16 += (wchar_t)((uni & 0x3FF) + 0xDC00);
+		}
+	}
+	return utf16;
+}
 
 constexpr int FONT_BITMAP_WIDTH = 3000;
 constexpr int FONT_BITMAP_PADDING = 32;
@@ -19,8 +92,8 @@ constexpr int FONT_MAX_UNICODE_CHARS = 800;
 
 namespace _TextRenderer
 {
-	static Shader* TextShader = nullptr;
-	std::vector<TextRenderer*> Renderers;
+	thread_local static Shader* TextShader = nullptr;
+	thread_local std::vector<TextRenderer*> Renderers;
 }
 
 void TextRenderer::CheckForTextShader()
@@ -36,13 +109,13 @@ size_t TextRenderer::GetCharacterIndexADistance(ColoredText Text, float Dist, fl
 	Scale *= 5.0f;
 	std::wstring TextString = GetUnicodeString(TextSegment::CombineToString(Text));
 	TextString.append(L" ");
-	double MaxHeight = 0.0f;
-	double x = 0.f, y = 0.f;
+	float MaxHeight = 0.0f;
+	float x = 0.f, y = 0.f;
 	size_t i = 0;
 	size_t lastI = 0;
 	size_t CharIndex = 0;
-	double PrevDepth = 0;
-	double PrevMaxDepth = 0;
+	float PrevDepth = 0;
+	float PrevMaxDepth = 0;
 	for (auto& c : TextString)
 	{
 		bool IsTab = false;
@@ -68,7 +141,7 @@ size_t TextRenderer::GetCharacterIndexADistance(ColoredText Text, float Dist, fl
 				x += g.TotalSize.X;
 			} while (++CharIndex % TabSize && IsTab);
 			MaxHeight = std::max(g.Size.Y + g.Offset.Y, MaxHeight);
-			float ldst = x / 450 / Application::AspectRatio * Scale;
+			float ldst = x / 450 / Window::GetActiveWindow()->GetAspectRatio() * Scale;
 			PrevMaxDepth = x;
 			PrevDepth = x;
 			lastI = i;
@@ -101,13 +174,13 @@ TextRenderer::TextRenderer(std::string Filename)
 	Uint8* ttfBuffer = (Uint8*)malloc(1 << 20);
 	if (ttfBuffer == nullptr)
 	{
-		Application::Error("Failed to allocate space for font bitmap");
+		Application::Error::Error("Failed to allocate space for font bitmap");
 	}
 
 	size_t ret = fread(ttfBuffer, 1, 1 << 20, fopen(Filename.c_str(), "rb"));
 	if (!ret)
 	{
-		Application::Error("Failed to load font: " + Filename);
+		Application::Error::Error("Failed to load font: " + Filename);
 		return;
 	}
 	stbtt_fontinfo finf;
@@ -160,10 +233,10 @@ TextRenderer::TextRenderer(std::string Filename)
 			(float)(w + 3) / FONT_BITMAP_WIDTH,
 			(float)(h + 3) / FONT_BITMAP_WIDTH);
 
-		New.Offset = Vector2f((double)xoff, (double)yoff) / 20.0;
-		New.Size = Vector2f((double)w, (double)h) / 20.0;
+		New.Offset = Vector2f((float)xoff, (float)yoff) / 20.0;
+		New.Size = Vector2f((float)w, (float)h) / 20.0;
 
-		CharacterSize = std::max(New.Size.Y + New.Offset.Y, (double)CharacterSize);
+		CharacterSize = std::max(New.Size.Y + New.Offset.Y, (float)CharacterSize);
 
 		// Give some additional space for better anti aliasing
 		New.Size += Vector2(3.0f / 20.0f, 3.0f / 20.0f);
@@ -280,7 +353,7 @@ Vector2f TextRenderer::GetTextSize(ColoredText Text, float Scale, bool Wrapped, 
 				vData += 6;
 				numVertices += 6;
 				MaxX = std::max(MaxX, x);
-				if (x / 200 / Application::AspectRatio > LengthBeforeWrap && Wrapped)
+				if (x / 200 / Window::GetActiveWindow()->GetAspectRatio() > LengthBeforeWrap && Wrapped)
 				{
 					Wraps++;
 					if (LastWordIndex != SIZE_MAX && LastWordIndex != LastWrapIndex)
@@ -296,11 +369,11 @@ Vector2f TextRenderer::GetTextSize(ColoredText Text, float Scale, bool Wrapped, 
 			}
 		}
 	}
-	return Vector2f(MaxX / 450 / Application::AspectRatio * Scale, y / 100 * Scale);
+	return Vector2f(MaxX / 450 / Window::GetActiveWindow()->GetAspectRatio() * Scale, y / 100 * Scale);
 }
 
 
-DrawableText* TextRenderer::MakeText(ColoredText Text, Vector2f Pos, float Scale, Vector3f32 Color, float opacity, float LengthBeforeWrap)
+DrawableText* TextRenderer::MakeText(ColoredText Text, Vector2f Pos, float Scale, Vector3f Color, float opacity, float LengthBeforeWrap)
 {
 	size_t CharIndex = 0;
 	for (auto& i : Text)
@@ -340,7 +413,7 @@ DrawableText* TextRenderer::MakeText(ColoredText Text, Vector2f Pos, float Scale
 	glBindVertexArray(0);
 
 	Scale *= 2.5f;
-	Pos.X = Pos.X * 450 * Application::AspectRatio;
+	Pos.X = Pos.X * 450 * Window::GetActiveWindow()->GetAspectRatio();
 	Pos.Y = Pos.Y * -450;
 	glBindVertexArray(newVAO);
 	glBindBuffer(GL_ARRAY_BUFFER, newVBO);
@@ -352,8 +425,8 @@ DrawableText* TextRenderer::MakeText(ColoredText Text, Vector2f Pos, float Scale
 		delete[] fontVertexBufferData;
 		fontVertexBufferData = new FontVertex[fontVertexBufferCapacity * 6];
 	}
-	double MaxHeight = 0.0f;
-	double x = 0.f, y = 0.f;
+	float MaxHeight = 0.0f;
+	float x = 0.f, y = 0.f;
 	FontVertex* vData = fontVertexBufferData;
 	Uint32 numVertices = 0;
 	for (auto& seg : Text)
@@ -400,7 +473,7 @@ DrawableText* TextRenderer::MakeText(ColoredText Text, Vector2f Pos, float Scale
 			MaxHeight = std::max(StartPos.Y + g.Offset.Y, MaxHeight);
 			vData += 6;
 			numVertices += 6;
-			if (x / 225 / Application::AspectRatio > LengthBeforeWrap)
+			if (x / 225 / Window::GetActiveWindow()->GetAspectRatio() > LengthBeforeWrap)
 			{
 				if (LastWordIndex != SIZE_MAX && LastWordIndex != LastWrapIndex)
 				{
@@ -441,7 +514,7 @@ void OnWindowResized()
 }
 
 DrawableText::DrawableText(unsigned int VAO, unsigned int VBO, unsigned int NumVerts, unsigned int Texture,
-	Vector2f Position, float Scale, Vector3f32 Color, float opacity)
+	Vector2f Position, float Scale, Vector3f Color, float opacity)
 {
 	this->Position = Position;
 	this->Scale = Scale;
@@ -462,12 +535,12 @@ void DrawableText::Draw(ScrollObject* CurrentScrollObject)
 	glBindTexture(GL_TEXTURE_2D, Texture);
 	glUniform1i(glGetUniformLocation(_TextRenderer::TextShader->GetShaderID(), "u_texture"), 0);
 	glUniform3f(glGetUniformLocation(_TextRenderer::TextShader->GetShaderID(), "textColor"), Color.X, Color.Y, Color.Z);
-	glUniform1f(glGetUniformLocation(_TextRenderer::TextShader->GetShaderID(), "u_aspectratio"), Application::AspectRatio);
+	glUniform1f(glGetUniformLocation(_TextRenderer::TextShader->GetShaderID(), "u_aspectratio"), Window::GetActiveWindow()->GetAspectRatio());
 	glUniform3f(glGetUniformLocation(_TextRenderer::TextShader->GetShaderID(), "transform"), (float)Position.X, (float)Position.Y, Scale);
 	glUniform1f(glGetUniformLocation(_TextRenderer::TextShader->GetShaderID(), "u_opacity"), Opacity);
 	glUniform2f(glGetUniformLocation(_TextRenderer::TextShader->GetShaderID(), "u_screenRes"),
-		(float)Application::GetWindowResolution().X,
-		(float)Application::GetWindowResolution().Y);
+		(float)Window::GetActiveWindow()->GetSize().X,
+		(float)Window::GetActiveWindow()->GetSize().Y);
 	if (CurrentScrollObject != nullptr)
 	{
 		glUniform3f(glGetUniformLocation(_TextRenderer::TextShader->GetShaderID(), "u_offset"),

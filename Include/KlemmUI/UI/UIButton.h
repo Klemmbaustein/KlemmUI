@@ -1,28 +1,10 @@
 #pragma once
 #include "UIBackground.h"
-#include "../Math/Vector2.h"
-#include "../Math/Vector3.h"
-#include "UIStyle.h"
+#include "../Vector2.h"
+#include "../Vector3.h"
 
 struct VertexBuffer;
 class Shader;
-
-class UIButtonStyle : public UIStyle
-{
-public:
-	UIButtonStyle(std::string Name);
-	Vector3f32 Color = 1.0f;
-	Vector3f32 HoveredColor = 0.75f;
-	Vector3f32 PressedColor = 0.5f;
-
-	bool UseTexture = false;
-	unsigned int TextureID = 0;
-
-	float Opacity = 1;
-
-protected:
-	virtual void ApplyDerived(UIBox* Target) override;
-};
 
 class UIButton : public UIBackground
 {
@@ -31,9 +13,9 @@ protected:
 	VertexBuffer* ButtonVertexBuffer = nullptr;
 	bool IsHovered = false;
 	bool IsPressed = false;
-	Vector3f32 ButtonColor = 1.0f;
-	Vector3f32 HoveredColor = 0.75f;
-	Vector3f32 PressedColor = 0.5f;
+	Vector3f ButtonColor = 1.0f;
+	Vector3f HoveredColor = 0.75f;
+	Vector3f PressedColor = 0.5f;
 	enum class ButtonState
 	{
 		Normal,
@@ -65,15 +47,13 @@ public:
 	bool GetIsHovered() const;
 	bool GetIsPressed() const;
 	UIButton* SetUseTexture(bool UseTexture, unsigned int TextureID = 0);
-	UIButton* SetColor(Vector3f32 NewColor);
-	UIButton* SetHoveredColor(Vector3f32 NewColor);
-	UIButton* SetPressedColor(Vector3f32 NewColor);
-	Vector3f32 GetColor();
+	UIButton* SetColor(Vector3f NewColor);
+	UIButton* SetHoveredColor(Vector3f NewColor);
+	UIButton* SetPressedColor(Vector3f NewColor);
+	Vector3f GetColor();
 
-	UIButton(bool Horizontal, Vector2f Position, Vector3f32 Color, void(*PressedFunc)());
-	UIButton(bool Horizontal, Vector2f Position, Vector3f32 Color, void(*PressedFunc)(int), int ButtonIndex);
-	UIButton(bool Horizontal, Vector2f Position, UIButtonStyle* Style, void(*PressedFunc)());
-	UIButton(bool Horizontal, Vector2f Position, UIButtonStyle* Style, void(*PressedFunc)(int), int ButtonIndex);
+	UIButton(bool Horizontal, Vector2f Position, Vector3f Color, void(*PressedFunc)());
+	UIButton(bool Horizontal, Vector2f Position, Vector3f Color, void(*PressedFunc)(int), int ButtonIndex);
 
 	~UIButton();
 

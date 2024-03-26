@@ -1,6 +1,8 @@
 #include <KlemmUI/Rendering/MarkdownRendering.h>
 #include <KlemmUI/UI/UIBackground.h>
 #include <cmath>
+#include <KlemmUI/Window.h>
+using namespace KlemmUI;
 
 static void ReplaceAll(std::string& str, const std::string& from, const std::string& to)
 {
@@ -26,7 +28,7 @@ struct MarkdownLine
 	{
 		float TextSize = Style.TextSize;
 
-		double HeadingPadding = 0;
+		float HeadingPadding = 0;
 
 		if (HeadingSize)
 		{
@@ -50,13 +52,13 @@ struct MarkdownLine
 		auto t = new UIText(TextSize, 1, Text, IsCodeBlock ? Style.Code.CodeText : Style.Text);
 		t->Wrap = true;
 		t->WrapDistance = Wrap;
-		t->SetPadding(0.005 + HeadingPadding, 0.005, 0.005, 0.005);
+		t->SetPadding(0.005f + HeadingPadding, 0.005f, 0.005f, 0.005f);
 		TargetParent->AddChild(t);
 
 		if (Seperator)
 		{
 			TargetParent->AddChild((new UIBackground(true, 0, 1, Vector2f(Style.Width, 0.005f)))
-				->SetPadding(0.02, 0.02, 0, 0));
+				->SetPadding(0.02f, 0.02f, 0, 0));
 		}
 	}
 };
@@ -184,7 +186,7 @@ void Markdown::RenderMarkdown(std::string Markdown, UIBox* TargetParent, Markdow
 	for (size_t i = 0; i < Lines.size(); i++)
 	{
 		auto& ln = Lines[i];
-		size_t WrapLength = (size_t)(Style.Width * 220.0f * Style.TextSize * Application::AspectRatio);
+		size_t WrapLength = (size_t)(Style.Width * 220.0f * Style.TextSize * Window::GetActiveWindow()->GetAspectRatio());
 
 		if (ln.HeadingSize)
 		{
@@ -294,7 +296,7 @@ void Markdown::RenderMarkdown(std::string Markdown, UIBox* TargetParent, Markdow
 			if (i.Seperator || LineSeperator)
 			{
 				TargetParent->AddChild((new UIBackground(true, 0, 1, Vector2f(Style.Width, 0.005f)))
-					->SetPadding(0.02, 0.02, 0, 0));
+					->SetPadding(0.02f, 0.02f, 0, 0));
 			}
 			continue;
 		}
@@ -311,17 +313,17 @@ void Markdown::RenderMarkdown(std::string Markdown, UIBox* TargetParent, Markdow
 			{
 				std::string LineNumberString = std::to_string(++LineNumber);
 				LineNumberString.resize(5, ' ');
-				CodeBackground->AddChild((new UIText(Style.TextSize * 0.9,
+				CodeBackground->AddChild((new UIText(Style.TextSize * 0.9f,
 					{ 
 						TextSegment(LineNumberString, Style.Code.Color * 0.5f),
 						TextSegment(ln.Text, Style.Code.Color) 
 					}, Style.Code.CodeText))
-					->SetWrapEnabled(true, Style.Width * 0.7, UIBox::SizeMode::ScreenRelative)
-					->SetPadding(0.005));
+					->SetWrapEnabled(true, Style.Width * 0.7f, UIBox::SizeMode::ScreenRelative)
+					->SetPadding(0.005f));
 			}
 			Title->SetMinSize(Vector2f(Style.Width, 0));
 			TargetParent->AddChild(CodeBackground
-				->SetPadding(0.02, 0.02, 0, 0)
+				->SetPadding(0.02f, 0.02f, 0, 0)
 				->SetBorder(UIBox::BorderType::Rounded, Style.Code.Rounding));
 			continue;
 		}
@@ -350,7 +352,7 @@ void Markdown::RenderMarkdown(std::string Markdown, UIBox* TargetParent, Markdow
 		}
 		else
 		{
-			double TextSize = Style.TextSize;
+			float TextSize = Style.TextSize;
 			if (i.HeadingSize)
 			{
 				TextSize += (5 - i.HeadingSize) * 0.05f + 0.1f;

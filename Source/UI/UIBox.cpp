@@ -3,21 +3,25 @@
 #include <GL/glew.h>
 #include <KlemmUI/Application.h>
 #include <KlemmUI/Input.h>
-#include <KlemmUI/UI/UIStyle.h>
-#include <KlemmUI/Math/MathHelpers.h>
+#include "../MathHelpers.h"
 #include <KlemmUI/Rendering/ScrollObject.h>
 #include <KlemmUI/UI/UIScrollBox.h>
-#include <KlemmUI/Math/MathHelpers.h>
 #include <cmath>
+#include <KlemmUI/Window.h>
+#include <iostream>
 
+using namespace KlemmUI;
+
+// TODO: Move to window.
 namespace UI
 {
-	std::set<UIBox*> ElementsToUpdate;
-	bool RequiresRedraw = true;
-	unsigned int UIBuffer = 0;
-	unsigned int UITexture = 0;
+	thread_local std::set<UIBox*> ElementsToUpdate;
+	thread_local bool RequiresRedraw = true;
+	thread_local unsigned int UIBuffer = 0;
+	thread_local unsigned int UITexture = 0;
 }
-std::vector<UIBox*> UIBox::UIElements;
+
+thread_local std::vector<UIBox*> UIBox::UIElements;
 
 bool UIBox::IsChildOf(UIBox* Parent)
 {
@@ -30,6 +34,19 @@ bool UIBox::IsChildOf(UIBox* Parent)
 		return false;
 	}
 	return this->Parent->IsChildOf(Parent);
+}
+
+void UIBox::GetPadding(Vector2f& UpDown, Vector2f& LeftRight) const
+{
+	UpDown.X = UpPadding;
+	UpDown.Y = DownPadding;
+	LeftRight.X = LeftPadding;
+	LeftRight.Y = RightPadding;
+}
+
+const std::vector<UIBox*>& UIBox::GetChildren()
+{
+	return Children;
 }
 
 void UIBox::UpdateElement()
@@ -52,14 +69,6 @@ UIBox::UIBox(bool Horizontal, Vector2f Position)
 	this->Position = Position;
 	this->Size = Size;
 	this->ChildrenHorizontal = Horizontal;
-	UIElements.push_back(this);
-}
-
-UIBox::UIBox(UIStyle* UsedStyle, bool Horizontal, Vector2f Position)
-{
-	this->Position = Position;
-	this->ChildrenHorizontal = Horizontal;
-	UsedStyle->ApplyTo(this);
 	UIElements.push_back(this);
 }
 
@@ -117,7 +126,7 @@ void UIBox::OnChildClicked(int Index)
 {
 }
 
-UIBox* UIBox::SetBorder(BorderType Type, double Size)
+UIBox* UIBox::SetBorder(BorderType Type, float Size)
 {
 	if (BoxBorder != Type || Size != BorderRadius)
 	{
@@ -153,8 +162,16 @@ void UIBox::InitUI()
 	// create floating point color buffer
 	glGenTextures(1, &UI::UITexture);
 	glBindTexture(GL_TEXTURE_2D, UI::UITexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F,
-		Application::GetWindowResolution().X, Application::GetWindowResolution().Y, 0, GL_RGBA, GL_FLOAT, NULL);
+	glTexImage2D(GL_TEXTURE_2D,
+		0,
+		GL_RGBA16F,
+		Window::GetActiveWindow()->GetSize().X,
+		Window::GetActiveWindow()->GetSize().Y,
+		0,
+		GL_RGBA,
+		GL_FLOAT,
+		NULL);
+
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
@@ -287,7 +304,7 @@ Vector2f UIBox::GetPosition()
 	}
 }
 
-UIBox* UIBox::SetPadding(double Up, double Down, double Left, double Right)
+UIBox* UIBox::SetPadding(float Up, float Down, float Left, float Right)
 {
 	if (Up != UpPadding || Down != DownPadding || Left != LeftPadding || Right != RightPadding)
 	{
@@ -300,7 +317,7 @@ UIBox* UIBox::SetPadding(double Up, double Down, double Left, double Right)
 	return this;
 }
 
-UIBox* UIBox::SetPadding(double AllDirs)
+UIBox* UIBox::SetPadding(float AllDirs)
 {
 	if (AllDirs != UpPadding || AllDirs != DownPadding || AllDirs != LeftPadding || AllDirs != RightPadding)
 	{
@@ -378,13 +395,13 @@ Vector2f UIBox::GetLeftRightPadding(UIBox* Target)
 	{
 		return Vector2f(Target->LeftPadding, Target->RightPadding);
 	}
-	return Vector2f(Target->LeftPadding, Target->RightPadding) / (double)Application::AspectRatio;
+	return Vector2f(Target->LeftPadding, Target->RightPadding) / (float)Window::GetActiveWindow()->GetAspectRatio();
 }
 
 Vector2f UIBox::PixelSizeToScreenSize(Vector2f PixelSize)
 {
-	PixelSize.X = PixelSize.X / (double)Application::GetWindowResolution().X * 1080;
-	PixelSize.Y = PixelSize.Y / (double)Application::GetWindowResolution().Y * 1080;
+	PixelSize.X = PixelSize.X / (float)Window::GetActiveWindow()->GetSize().X * 1080;
+	PixelSize.Y = PixelSize.Y / (float)Window::GetActiveWindow()->GetSize().Y * 1080;
 	return PixelSize;
 }
 
@@ -461,8 +478,8 @@ void UIBox::UpdateScale()
 	Vector2f AdjustedMaxSize = MaxSize;
 	if (BoxSizeMode == SizeMode::AspectRelative)
 	{
-		AdjustedMinSize.X /= Application::AspectRatio;
-		AdjustedMaxSize.X /= Application::AspectRatio;
+		AdjustedMinSize.X /= Window::GetActiveWindow()->GetAspectRatio();
+		AdjustedMaxSize.X /= Window::GetActiveWindow()->GetAspectRatio();
 	}
 	if (BoxSizeMode == SizeMode::PixelRelative)
 	{
@@ -575,7 +592,7 @@ UIBox* UIBox::AddChild(UIBox* NewChild)
 	}
 	else
 	{
-		Application::Error("Attached an UIObject twice");
+		Application::Error::Error("Attached an UIObject twice");
 		throw 0;
 	}
 	return this;
@@ -597,11 +614,11 @@ bool UIBox::IsHovered()
 	{
 		Offset.Y = CurrentScrollObject->Percentage;
 	}
-	return Math::IsPointIn2DBox(OffsetPosition + Offset, OffsetPosition + Size + Offset, Input::MouseLocation) // If the mouse is on top of the box
+	return Math::IsPointIn2DBox(OffsetPosition + Offset, OffsetPosition + Size + Offset, Window::GetActiveWindow()->Input.MousePosition) // If the mouse is on top of the box
 		&& (!CurrentScrollObject // Check if we have a scroll object
 			|| Math::IsPointIn2DBox( // do some very questionable math to check if the mouse is inside the scroll area
 				CurrentScrollObject->Position - CurrentScrollObject->Scale,
-				CurrentScrollObject->Position, Input::MouseLocation));
+				CurrentScrollObject->Position, Window::GetActiveWindow()->Input.MousePosition));
 }
 
 void UIBox::UpdateHoveredState()
@@ -646,7 +663,7 @@ bool UIBox::DrawAllUIElements()
 			elem->UpdateSelfAndChildren();
 		}
 		UI::ElementsToUpdate.clear();
-		glViewport(0, 0, Application::GetWindowResolution().X, Application::GetWindowResolution().Y);
+		glViewport(0, 0, Window::GetActiveWindow()->GetSize().X, Window::GetActiveWindow()->GetSize().Y);
 		glBindFramebuffer(GL_FRAMEBUFFER, UI::UIBuffer);
 		glClearColor(0, 0, 0, 1);
 		glClear(GL_COLOR_BUFFER_BIT);
@@ -655,7 +672,7 @@ bool UIBox::DrawAllUIElements()
 			if (elem->Parent == nullptr)
 				elem->DrawThisAndChildren();
 		}
-		glViewport(0, 0, Application::GetWindowResolution().X, Application::GetWindowResolution().Y);
+		glViewport(0, 0, Window::GetActiveWindow()->GetSize().X, Window::GetActiveWindow()->GetSize().Y);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		return true;
 	}
@@ -696,7 +713,7 @@ bool UIBox::IsVisibleInHierarchy()
 
 bool UIBox::IsBeingHovered()
 {
-	Vector2f MouseLocation = Input::MouseLocation;
+	Vector2f MouseLocation = Window::GetActiveWindow()->Input.MousePosition;
 	if (CurrentScrollObject)
 	{
 		MouseLocation = MouseLocation - Vector2f(0, CurrentScrollObject->Percentage);
@@ -704,7 +721,7 @@ bool UIBox::IsBeingHovered()
 	return (Math::IsPointIn2DBox(OffsetPosition, OffsetPosition + Size, MouseLocation) // If the mouse is on top of the button
 		&& (!CurrentScrollObject || // Check if we have a scroll object
 			Math::IsPointIn2DBox(CurrentScrollObject->Position - CurrentScrollObject->Scale,
-				CurrentScrollObject->Position, Input::MouseLocation))); // do some very questionable math to check if the mouse is inside the scroll area;
+				CurrentScrollObject->Position, Window::GetActiveWindow()->Input.MousePosition))); // do some very questionable math to check if the mouse is inside the scroll area;
 }
 
 namespace UI

@@ -39,16 +39,13 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\Application.cpp">
-      <Filter>Code</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Math\Vector2.cpp">
+    <ClCompile Include="Source\Vector2.cpp">
       <Filter>Code\Math</Filter>
     </ClCompile>
     <ClCompile Include="Source\Rendering\VertexBuffer.cpp">
       <Filter>Code\Rendering</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Math\Vector3.cpp">
+    <ClCompile Include="Source\Vector3.cpp">
       <Filter>Code\Math</Filter>
     </ClCompile>
     <ClCompile Include="Source\Rendering\Shader.cpp">
@@ -78,17 +75,11 @@
     <ClCompile Include="Source\UI\UITextField.cpp">
       <Filter>Code\UI</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Input.cpp">
-      <Filter>Code</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Math\MathHelpers.cpp">
+    <ClCompile Include="Source\MathHelpers.cpp">
       <Filter>Code\Math</Filter>
     </ClCompile>
     <ClCompile Include="Source\Rendering\ScrollObject.cpp">
       <Filter>Code\Rendering</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\StringReplace.cpp">
-      <Filter>Code</Filter>
     </ClCompile>
     <ClCompile Include="Source\Rendering\Texture.cpp">
       <Filter>Code\Rendering</Filter>
@@ -96,12 +87,15 @@
     <ClCompile Include="Source\Rendering\MarkdownRendering.cpp">
       <Filter>Code\Rendering</Filter>
     </ClCompile>
-    <ClCompile Include="Source\UI\UIStyle.cpp">
-      <Filter>Code\UI</Filter>
-    </ClCompile>
     <ClCompile Include="Source\UI\UIDropdown.cpp">
       <Filter>Code\UI</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Window.cpp" />
+    <ClCompile Include="Source\Internal.cpp" />
+    <ClCompile Include="Source\StringReplace.cpp" />
+    <ClCompile Include="Source\Application.cpp" />
+    <ClCompile Include="Include\KlemmUI\Input.cpp" />
+    <ClCompile Include="Include\KlemmUI\Timer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Rendering\VertexBuffer.h">
@@ -115,15 +109,6 @@
     </ClInclude>
     <ClInclude Include="Source\Rendering\Framebuffer.h">
       <Filter>Code\Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Rendering\Text\TextSegment.h">
-      <Filter>Code\Rendering\Text</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\KlemmUI\Application.h">
-      <Filter>Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\KlemmUI\Input.h">
-      <Filter>Headers</Filter>
     </ClInclude>
     <ClInclude Include="Include\KlemmUI\StringReplace.h">
       <Filter>Headers</Filter>
@@ -161,17 +146,14 @@
     <ClInclude Include="Include\KlemmUI\Rendering\Text\TextSegment.h">
       <Filter>Headers\Rendering\Text</Filter>
     </ClInclude>
-    <ClInclude Include="Include\KlemmUI\Math\MathHelpers.h">
+    <ClInclude Include="Source\MathHelpers.h">
       <Filter>Headers\Math</Filter>
     </ClInclude>
-    <ClInclude Include="Include\KlemmUI\Math\Vector2.h">
+    <ClInclude Include="Include\KlemmUI\Vector2.h">
       <Filter>Headers\Math</Filter>
     </ClInclude>
-    <ClInclude Include="Include\KlemmUI\Math\Vector3.h">
+    <ClInclude Include="Include\KlemmUI\Vector3.h">
       <Filter>Headers\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\KlemmUI\UI\UIStyle.h">
-      <Filter>Headers\UI</Filter>
     </ClInclude>
     <ClInclude Include="Include\KlemmUI\Rendering\Shader.h">
       <Filter>Headers\Rendering</Filter>
@@ -179,6 +161,11 @@
     <ClInclude Include="Include\KlemmUI\UI\UIDropdown.h">
       <Filter>Headers\UI</Filter>
     </ClInclude>
+    <ClInclude Include="Include\KlemmUI\Window.h" />
+    <ClInclude Include="Source\Internal.h" />
+    <ClInclude Include="Include\KlemmUI\Application.h" />
+    <ClInclude Include="Include\KlemmUI\Input.h" />
+    <ClInclude Include="Include\KlemmUI\Timer.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="README.md" />
@@ -202,7 +189,6 @@
     <None Include="Shaders\uishader.vert">
       <Filter>Shaders</Filter>
     </None>
-    <None Include="makefile" />
     <None Include="makefile.kbld" />
     <None Include="setup.sh" />
   </ItemGroup>

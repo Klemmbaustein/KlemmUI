@@ -1,19 +1,15 @@
 #pragma once
-#include "../Math/Vector2.h"
+#include "../Vector2.h"
 #include <set>
 #include <vector>
 
 class ScrollObject;
-class UIScrollBox;
 class UIButton;
-class UIStyle;
+class UIScrollBox;
 
 class UIBox
 {
 public:
-	friend UIScrollBox;
-	friend UIStyle;
-
 	bool IsVisible = true;
 	enum class Align
 	{
@@ -43,7 +39,6 @@ public:
 	Align VerticalBoxAlign = Align::Reverse;
 
 	UIBox(bool Horizontal, Vector2f Position);
-	UIBox(UIStyle* UsedStyle, bool Horizontal, Vector2f Position);
 	virtual ~UIBox();
 	virtual void OnAttached();
 	void InvalidateLayout();
@@ -63,14 +58,14 @@ public:
 	Vector2f GetMinSize() const;
 	UIBox* SetPosition(Vector2f NewPosition);
 	Vector2f GetPosition();
-	UIBox* SetPadding(double Up, double Down, double Left, double Right);
-	UIBox* SetPadding(double AllDirs);
+	UIBox* SetPadding(float Up, float Down, float Left, float Right);
+	UIBox* SetPadding(float AllDirs);
 	UIBox* SetPaddingSizeMode(SizeMode NewSizeMode);
 	UIBox* SetTryFill(bool NewTryFill);
 	UIBox* SetHorizontal(bool IsHorizontal);
 	bool GetTryFill() const;
 	virtual void OnChildClicked(int Index);
-	UIBox* SetBorder(BorderType Type, double Size);
+	UIBox* SetBorder(BorderType Type, float Size);
 	static void ForceUpdateUI();
 	static void InitUI();
 	static unsigned int GetUIFramebuffer();
@@ -88,10 +83,14 @@ public:
 	bool HasMouseCollision = false;
 	ScrollObject* CurrentScrollObject = nullptr;
 
+	void GetPadding(Vector2f& UpDown, Vector2f& LeftRight) const;
+
+	const std::vector<UIBox*>& GetChildren();
+
 	void UpdateElement();
+	virtual void UpdateTickState();
 protected:
-	static std::vector<UIBox*> UIElements;
-	UIStyle* UsedStyle = nullptr;
+	thread_local static std::vector<UIBox*> UIElements;
 	
 	SizeMode BoxSizeMode = SizeMode::ScreenRelative;
 	bool ShouldBeTicked = true;
@@ -99,7 +98,6 @@ protected:
 	virtual void Update();
 	virtual void Draw();
 	virtual void Tick();
-	virtual void UpdateTickState();
 	void UpdateHoveredState();
 	bool IsHovered();
 	Vector2f Position;
@@ -107,10 +105,10 @@ protected:
 	Vector2f MaxSize = Vector2(999, 999);
 	Vector2f MinSize = Vector2(0, 0);
 
-	double UpPadding = 0.01;
-	double DownPadding = 0.01;
-	double RightPadding = 0.01;
-	double LeftPadding = 0.01;
+	float UpPadding = 0.01f;
+	float DownPadding = 0.01f;
+	float RightPadding = 0.01f;
+	float LeftPadding = 0.01f;
 	Vector2f Size;
 	SizeMode PaddingSizeMode = SizeMode::ScreenRelative;
 

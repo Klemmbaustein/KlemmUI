@@ -150,7 +150,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitignore" />
-    <None Include="makefile" />
     <None Include="makefile.kbld" />
     <None Include="README.md" />
     <None Include="Setup.ps1" />

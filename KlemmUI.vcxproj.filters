@@ -202,7 +202,6 @@
     <None Include="Shaders\uishader.vert">
       <Filter>Shaders</Filter>
     </None>
-    <None Include="makefile" />
     <None Include="makefile.kbld" />
     <None Include="setup.sh" />
   </ItemGroup>

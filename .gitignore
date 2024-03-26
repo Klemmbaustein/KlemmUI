@@ -14,3 +14,6 @@ Examples/HelloWorld/HelloWorld
 
 *.exe
 *.pdb
+
+CMakeFiles/
+Docs/

@@ -12,4 +12,5 @@ Build/
 .vscode/
 Examples/HelloWorld/HelloWorld
 
-HelloWorld.exe
+*.exe
+*.pdb

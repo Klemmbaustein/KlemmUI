@@ -10,6 +10,6 @@ Release/
 # Linux build
 Build/
 .vscode/
-Examples/FileExplorer/FileExplorer
 Examples/HelloWorld/HelloWorld
-Examples/FileExplorer/Debug
+
+HelloWorld.exe

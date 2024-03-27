@@ -1,4 +1,4 @@
-#include "UIManager.h"
+#include <KlemmUI/UI/UIManager.h>
 #include <GL/glew.h>
 #include <KlemmUI/Window.h>
 #include <KlemmUI/UI/UIBox.h>

@@ -1,5 +1,6 @@
 #include <KlemmUI/Rendering/ShaderManager.h>
 #include <KlemmUI/Application.h>
+using namespace KlemmUI;
 
 Shader* KlemmUI::ShaderManager::LoadShader(std::string VertexName, std::string FragmentName, std::string Name)
 {

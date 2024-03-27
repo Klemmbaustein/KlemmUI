@@ -83,18 +83,18 @@ void UITextField::Tick()
 		if (!TextInput::PollForText)
 		{
 			IsEdited = false;
-			//if (PressedFunc) Application::ButtonEvents.push_back(Application::ButtonEvent(PressedFunc, nullptr, nullptr, 0));
+			if (PressedFunc) ParentWindow->UI.ButtonEvents.push_back(UIManager::ButtonEvent(PressedFunc, nullptr, nullptr, 0));
 			ParentWindow->UI.RedrawUI();
 		}
 		if (!IsHovered && Window::GetActiveWindow()->Input.IsLMBDown && !Dragging)
 		{
 			IsEdited = false;
 			TextInput::PollForText = false;
-			//if (PressedFunc) Application::ButtonEvents.push_back(Application::ButtonEvent(PressedFunc, nullptr, nullptr, 0));
+			if (PressedFunc) ParentWindow->UI.ButtonEvents.push_back(UIManager::ButtonEvent(PressedFunc, nullptr, nullptr, 0));
 			ParentWindow->UI.RedrawUI();
 		}
 	}
-	std::string RendererdText = EnteredText;
+	std::string RenderedText = EnteredText;
 	DoubleClickTimer += 0.01f;
 	TextTimer += 0.01f;
 	Vector2f EditedTextPos = IsEdited ? TextObject->GetLetterLocation(TextInput::TextIndex) : 0;
@@ -132,7 +132,7 @@ void UITextField::Tick()
 		TextHighlightPos.X = MinX;
 	}
 	TextObject->SetColor(EnteredText.empty() && !IsEdited ? TextColor * 0.75 : TextColor);
-	TextObject->SetText(EnteredText.empty() && !IsEdited ? HintText : (IsEdited ? RendererdText : EnteredText));
+	TextObject->SetText(EnteredText.empty() && !IsEdited ? HintText : (IsEdited ? RenderedText : EnteredText));
 }
 
 UITextField* UITextField::SetText(std::string NewText)

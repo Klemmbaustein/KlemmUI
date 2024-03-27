@@ -123,8 +123,7 @@ UIDropdown* UIDropdown::SelectOption(size_t Index, bool CallEvent)
 	SelectedText->SetText(SelectedOption.Name);
 	if (CallEvent)
 	{
-	//	if (PressedFunc) Application::ButtonEvents.push_back(Application::ButtonEvent(PressedFunc, nullptr, nullptr, 0));
-	//	if (PressedFuncIndex) Application::ButtonEvents.push_back(Application::ButtonEvent(nullptr, PressedFuncIndex, nullptr, ButtonIndex));
+		UIButton::OnClicked();
 	}
 	GenerateOptions();
 	return this;

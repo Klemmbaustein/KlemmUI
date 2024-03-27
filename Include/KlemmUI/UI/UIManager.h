@@ -2,10 +2,9 @@
 #include <set>
 #include <vector>
 
-class UIBox;
-
 namespace KlemmUI
 {
+	class UIBox;
 	class UIManager
 	{
 	public:
@@ -33,5 +32,27 @@ namespace KlemmUI
 		bool GetShouldRedrawUI();
 
 		bool DrawElements();
+
+		void UpdateEvents();
+
+		struct ButtonEvent
+		{
+			ButtonEvent(void(*Function)(),
+				void(*FunctionIndex)(int),
+				UIBox* Btn,
+				int Index = 0)
+			{
+				this->Function = Function;
+				this->FunctionIndex = FunctionIndex;
+				this->Btn = Btn;
+				this->Index = Index;
+			}
+			void(*Function)() = nullptr;
+			void(*FunctionIndex)(int) = nullptr;
+			UIBox* Btn = nullptr;
+			int Index = 0;
+		};
+		std::vector<ButtonEvent> ButtonEvents;
+
 	};
 }

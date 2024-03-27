@@ -3,6 +3,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "../Util/stb_image.hpp"
 #include <iostream>
+using namespace KlemmUI;
 
 unsigned int Texture::LoadTexture(std::string File)
 {

@@ -567,7 +567,7 @@ namespace KlemmUI
 		std::unordered_map<Key, bool> PressedKeys;
 
 		Window* GetWindowBySDLID(uint32_t ID);
-		std::unordered_map<int, std::vector<void(*)()>> ButtonPressedCallbacks;
+		std::unordered_map<Key, std::vector<void(*)()>> ButtonPressedCallbacks;
 
 	public:
 		void Poll();

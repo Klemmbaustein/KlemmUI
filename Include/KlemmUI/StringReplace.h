@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 
-namespace StrReplace
+namespace KlemmUI::StrReplace
 {
 	void ReplaceChar(std::string& Target, char A, std::string b);
 }

@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 
-namespace Texture
+namespace KlemmUI::Texture
 {
 	unsigned int LoadTexture(std::string File);
 	struct TextureInfo

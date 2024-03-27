@@ -316,9 +316,9 @@ void UIBox::UpdateSelfAndChildren()
 	Update();
 }
 
-Vector2f UIBox::GetLeftRightPadding(UIBox* Target)
+Vector2f UIBox::GetLeftRightPadding(const UIBox* Target) const
 {
-	if (Target->PaddingSizeMode == SizeMode::ScreenRelative)
+	if (Target->PaddingSizeMode != SizeMode::AspectRelative)
 	{
 		return Vector2f(Target->LeftPadding, Target->RightPadding);
 	}
@@ -327,8 +327,8 @@ Vector2f UIBox::GetLeftRightPadding(UIBox* Target)
 
 Vector2f UIBox::PixelSizeToScreenSize(Vector2f PixelSize, Window* TargetWindow)
 {
-	PixelSize.X = PixelSize.X / (float)TargetWindow->GetSize().X * 1080;
-	PixelSize.Y = PixelSize.Y / (float)TargetWindow->GetSize().Y * 1080;
+	PixelSize.X = (PixelSize.X) / (float)TargetWindow->GetSize().X * 2;
+	PixelSize.Y = (PixelSize.Y) / (float)TargetWindow->GetSize().Y * 2;
 	return PixelSize;
 }
 
@@ -371,33 +371,42 @@ void UIBox::UpdateScale()
 	Size = 0;
 	for (auto c : Children)
 	{
+		Vector2f UpDown, LeftRight;
+		c->GetPaddingScreenSize(UpDown, LeftRight);
+
 		if (ChildrenHorizontal)
 		{
-			Size.X += c->Size.X + GetLeftRightPadding(c).X + GetLeftRightPadding(c).Y;
+			Size.X += c->Size.X + LeftRight.X + LeftRight.Y;
 			if (!c->TryFill)
 			{
-				Size.Y = std::max(Size.Y, c->Size.Y + c->UpPadding + c->DownPadding);
+				Size.Y = std::max(Size.Y, c->Size.Y + UpDown.X + UpDown.Y);
 			}
 		}
 		else
 		{
-			Size.Y += c->Size.Y + c->UpPadding + c->DownPadding;
+			Size.Y += c->Size.Y + UpDown.X + UpDown.Y;
 			if (!c->TryFill)
 			{
-				Size.X = std::max(Size.X, c->Size.X + GetLeftRightPadding(c).X + GetLeftRightPadding(c).Y);
+				Size.X = std::max(Size.X, c->Size.X + LeftRight.X + LeftRight.Y);
 			}
 		}
 	}
 
 	if (TryFill && Parent)
 	{
+		Vector2f UpDown, LeftRight;
+		GetPaddingScreenSize(UpDown, LeftRight);
 		if (Parent->ChildrenHorizontal)
 		{
-			Size.Y = Parent->Size.Y - (UpPadding + DownPadding);
+			Size.Y = Parent->Size.Y - (UpDown.X + UpDown.Y);
+			MinSize.Y = 0;
+			MaxSize.Y = 999999;
 		}
 		else
 		{
-			Size.X = Parent->Size.X - (GetLeftRightPadding(this).X + GetLeftRightPadding(this).Y);
+			Size.X = Parent->Size.X - (LeftRight.X + LeftRight.Y);
+			MinSize.X = 0;
+			MaxSize.X = 999999;
 		}
 	}
 
@@ -438,25 +447,28 @@ void UIBox::UpdatePosition()
 	{
 		for (auto c : Children)
 		{
-			Vector2 LeftRight = GetLeftRightPadding(c);
-			ChildrenSize += ChildrenHorizontal ? (c->Size.X + LeftRight.X + LeftRight.Y) : (c->Size.Y + c->UpPadding + c->DownPadding);
+			Vector2f UpDown, LeftRight;
+			c->GetPaddingScreenSize(UpDown, LeftRight);
+			ChildrenSize += ChildrenHorizontal ? (c->Size.X + LeftRight.X + LeftRight.Y) : (c->Size.Y + UpDown.X + UpDown.Y);
 		}
 	}
 
 
 	for (auto c : Children)
 	{
+		Vector2f UpDown, LeftRight;
+		c->GetPaddingScreenSize(UpDown, LeftRight);
 		if (PrimaryAlign == Align::Centered)
 		{
 			if (ChildrenHorizontal)
 			{
-				c->OffsetPosition = OffsetPosition + Vector2f(Size.X / 2 - ChildrenSize / 2 + GetLeftRightPadding(c).X + Offset, c->GetVerticalOffset());
-				Offset += c->Size.X + GetLeftRightPadding(c).X + GetLeftRightPadding(c).Y;
+				c->OffsetPosition = OffsetPosition + Vector2f(Size.X / 2 - ChildrenSize / 2 + LeftRight.X + Offset, c->GetVerticalOffset());
+				Offset += c->Size.X + LeftRight.X + LeftRight.Y;
 			}
 			else
 			{
-				c->OffsetPosition = OffsetPosition + Vector2f(c->GetHorizontalOffset(), Size.Y / 2 - ChildrenSize / 2 + c->DownPadding + Offset);
-				Offset += c->Size.Y + c->DownPadding + c->UpPadding;
+				c->OffsetPosition = OffsetPosition + Vector2f(c->GetHorizontalOffset(), Size.Y / 2 - ChildrenSize / 2 + UpDown.Y + Offset);
+				Offset += c->Size.Y + UpDown.X + UpDown.Y;
 			}
 		}
 		else
@@ -465,25 +477,25 @@ void UIBox::UpdatePosition()
 			{
 				if (PrimaryAlign == Align::Reverse)
 				{
-					c->OffsetPosition = OffsetPosition + Vector2f(Size.X - Offset - c->Size.X - GetLeftRightPadding(c).Y, c->GetVerticalOffset());
+					c->OffsetPosition = OffsetPosition + Vector2f(Size.X - Offset - c->Size.X - LeftRight.Y, c->GetVerticalOffset());
 				}
 				else
 				{
-					c->OffsetPosition = OffsetPosition + Vector2f(Offset + GetLeftRightPadding(c).X, c->GetVerticalOffset());
+					c->OffsetPosition = OffsetPosition + Vector2f(Offset + LeftRight.X, c->GetVerticalOffset());
 				}
-				Offset += c->Size.X + GetLeftRightPadding(c).X + GetLeftRightPadding(c).Y;
+				Offset += c->Size.X + LeftRight.X + LeftRight.Y;
 			}
 			else
 			{
 				if (PrimaryAlign == Align::Reverse)
 				{
-					c->OffsetPosition = OffsetPosition + Vector2f(c->GetHorizontalOffset(), Size.Y - Offset - c->Size.Y - c->UpPadding);
+					c->OffsetPosition = OffsetPosition + Vector2f(c->GetHorizontalOffset(), Size.Y - Offset - c->Size.Y - UpDown.X);
 				}
 				else
 				{
-					c->OffsetPosition = OffsetPosition + Vector2f(c->GetHorizontalOffset(), Offset + c->DownPadding);
+					c->OffsetPosition = OffsetPosition + Vector2f(c->GetHorizontalOffset(), Offset + UpDown.Y);
 				}
-				Offset += c->Size.Y + c->DownPadding + c->UpPadding;
+				Offset += c->Size.Y + UpDown.X + UpDown.Y;
 			}
 		}
 	}
@@ -491,6 +503,23 @@ void UIBox::UpdatePosition()
 	{
 		c->UpdatePosition();
 		c->Update();
+	}
+}
+
+void KlemmUI::UIBox::GetPaddingScreenSize(Vector2f& UpDown, Vector2f& LeftRight) const
+{
+	UpDown.X = UpPadding;
+	UpDown.Y = DownPadding;
+
+	if (PaddingSizeMode == SizeMode::PixelRelative)
+	{
+		UpDown = UpDown / (float)ParentWindow->GetSize().Y * 2;
+	}
+
+	LeftRight = GetLeftRightPadding(this);
+	if (PaddingSizeMode == SizeMode::PixelRelative)
+	{
+		LeftRight = LeftRight / (float)ParentWindow->GetSize().X * 2;
 	}
 }
 

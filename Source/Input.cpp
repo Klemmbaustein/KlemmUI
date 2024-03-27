@@ -18,6 +18,13 @@ Window* KlemmUI::InputManager::GetWindowBySDLID(uint32_t ID)
 	return nullptr;
 }
 
+
+#define FOR_ALL_WINDOWS(Action) \
+	for (auto& i : Window::GetActiveWindows()) \
+	{ \
+		i->Action; \
+	} \
+
 void InputManager::Poll()
 {
 	SDL_Event Event;
@@ -27,19 +34,45 @@ void InputManager::Poll()
 		switch (Event.type)
 		{
 		case SDL_KEYDOWN:
-			SetKeyDown(static_cast<KlemmUI::Key>(Event.key.keysym.sym), true);
+			FOR_ALL_WINDOWS(Input.SetKeyDown(static_cast<KlemmUI::Key>(Event.key.keysym.sym), true));
 			break;
 		case SDL_KEYUP:
-			SetKeyDown(static_cast<KlemmUI::Key>(Event.key.keysym.sym), false);
+			FOR_ALL_WINDOWS(Input.SetKeyDown(static_cast<KlemmUI::Key>(Event.key.keysym.sym), false));
+			break;
+		case SDL_MOUSEBUTTONDOWN:
+			switch (Event.button.button)
+			{
+			case SDL_BUTTON_LEFT:
+				FOR_ALL_WINDOWS(Input.IsLMBDown = true);
+				break;
+			case SDL_BUTTON_RIGHT:
+				FOR_ALL_WINDOWS(Input.IsRMBDown = true);
+				break;
+			default:
+				break;
+			}
+			break;
+		case SDL_MOUSEBUTTONUP:
+			switch (Event.button.button)
+			{
+			case SDL_BUTTON_LEFT:
+				FOR_ALL_WINDOWS(Input.IsLMBDown = false);
+				break;
+			case SDL_BUTTON_RIGHT:
+				FOR_ALL_WINDOWS(Input.IsRMBDown = false);
+				break;
+			default:
+				break;
+			}
 			break;
 		case SDL_WINDOWEVENT:
 			switch (Event.window.event)
 			{
 			case SDL_WINDOWEVENT_CLOSE:
-				GetWindowBySDLID(Event.window.windowID)->Close();
+				Window::GetActiveWindow()->Close();
 				break;
 			case SDL_WINDOWEVENT_RESIZED:
-				GetWindowBySDLID(Event.window.windowID)->OnResized();
+				Window::GetActiveWindow()->OnResized();
 				break;
 			default:
 				break;
@@ -76,10 +109,25 @@ void InputManager::SetKeyDown(Key PressedKey, bool KeyDown)
 	{
 		Key->second = KeyDown;
 	}
+	if (ButtonPressedCallbacks.contains(PressedKey) && KeyDown)
+	{
+		for (auto Function : ButtonPressedCallbacks[PressedKey])
+		{
+			Function();
+		}
+	}
 }
 
 void InputManager::RegisterOnKeyDownCallback(Key PressedKey, void(*Callback)())
 {
+	if (!ButtonPressedCallbacks.contains(PressedKey))
+	{
+		ButtonPressedCallbacks.insert(std::pair<Key, std::vector<void(*)()>>(PressedKey, { Callback }));
+	}
+	else
+	{
+		ButtonPressedCallbacks[PressedKey].push_back(Callback);
+	}
 }
 
 std::string TextInput::GetSelectedTextString()

@@ -10,11 +10,14 @@
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #endif
+#include <mutex>
 
 void KlemmUI::Internal::InitSDL()
 {
 	SDL_Init(SDL_INIT_EVENTS | SDL_INIT_VIDEO);
 }
+
+bool IsGLEWStarted = false;
 
 KlemmUI::Internal::GLContext KlemmUI::Internal::InitGLContext(Window* From)
 {
@@ -32,11 +35,14 @@ KlemmUI::Internal::GLContext KlemmUI::Internal::InitGLContext(Window* From)
 
 	SDL_GL_MakeCurrent(SDLWindow, OpenGLContext);
 
-	GLenum GLEWStatus = glewInit();
-
-	if (GLEWStatus != GLEW_OK)
+	if (!IsGLEWStarted)
 	{
-		Application::Error::Error((const char*)glewGetErrorString(GLEWStatus), true);
+		GLenum GLEWStatus = glewInit();
+		if (GLEWStatus != GLEW_OK)
+		{
+			Application::Error::Error((const char*)glewGetErrorString(GLEWStatus), true);
+		}
+		IsGLEWStarted = true;
 	}
 
 

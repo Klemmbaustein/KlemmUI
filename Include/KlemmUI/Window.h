@@ -8,10 +8,11 @@
 #include "Rendering/ShaderManager.h"
 #include "UI/UIManager.h"
 
-class UIBox;
 
 namespace KlemmUI
 {
+	class UIBox;
+	
 	/**
 	* @brief
 	* A KlemmUI window.

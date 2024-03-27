@@ -1,7 +1,7 @@
 #pragma once
 #include "../UI/UIText.h"
 
-namespace Markdown
+namespace KlemmUI::Markdown
 {
 	struct MarkdownStyling
 	{

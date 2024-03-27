@@ -113,13 +113,13 @@ void UIBackground::Draw()
 	ScrollTick(BackgroundShader);
 	glUniform4f(glGetUniformLocation(BackgroundShader->GetShaderID(), "u_color"), Color.X, Color.Y, Color.Z, 1.f);
 	glUniform4f(glGetUniformLocation(BackgroundShader->GetShaderID(), "u_transform"), OffsetPosition.X, OffsetPosition.Y, Size.X, Size.Y);
-	glUniform1f(glGetUniformLocation(BackgroundShader->GetShaderID(), "u_opacity"), Opacity);
-	glUniform1i(glGetUniformLocation(BackgroundShader->GetShaderID(), "u_borderType"), (unsigned int)BoxBorder);
-	glUniform1f(glGetUniformLocation(BackgroundShader->GetShaderID(), "u_borderScale"), BorderRadius / 20.0f);
-	glUniform1f(glGetUniformLocation(BackgroundShader->GetShaderID(), "u_aspectratio"), Window::GetActiveWindow()->GetAspectRatio());
-	glUniform2f(glGetUniformLocation(BackgroundShader->GetShaderID(), "u_screenRes"),
+	BackgroundShader->SetFloat("u_opacity", Opacity);
+	BackgroundShader->SetInt("u_borderType", (int)BoxBorder);
+	BackgroundShader->SetFloat("u_borderScale", BorderRadius / 20.0f);
+	BackgroundShader->SetFloat("u_aspectratio", Window::GetActiveWindow()->GetAspectRatio());
+	BackgroundShader->SetVec2("u_screenRes", Vector2f(
 		(float)Window::GetActiveWindow()->GetSize().X,
-		(float)Window::GetActiveWindow()->GetSize().Y);
+		(float)Window::GetActiveWindow()->GetSize().Y));
 
 	BackgroundShader->SetInt("u_usetexture", (int)UseTexture);
 	BoxVertexBuffer->Draw();

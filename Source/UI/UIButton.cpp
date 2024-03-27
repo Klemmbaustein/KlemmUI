@@ -62,7 +62,6 @@ void UIButton::Tick()
 				IsPressed = false;
 				IsSelected = false;
 				ParentWindow->UI.RedrawUI();
-				return;
 			}
 			else
 			{
@@ -95,11 +94,11 @@ void UIButton::Tick()
 
 void UIButton::OnClicked()
 {
-	//if (PressedFunc) Application::ButtonEvents.push_back(Application::ButtonEvent(PressedFunc, nullptr, nullptr, 0));
-	//if (PressedFuncIndex) Application::ButtonEvents.push_back(Application::ButtonEvent(nullptr, PressedFuncIndex, nullptr, ButtonIndex));
+	if (PressedFunc) ParentWindow->UI.ButtonEvents.push_back(UIManager::ButtonEvent(PressedFunc, nullptr, nullptr, 0));
+	if (PressedFuncIndex) ParentWindow->UI.ButtonEvents.push_back(UIManager::ButtonEvent(nullptr, PressedFuncIndex, nullptr, ButtonIndex));
 	if (ParentOverride)
 	{
-	//	Application::ButtonEvents.push_back(Application::ButtonEvent(nullptr, nullptr, ParentOverride, ButtonIndex));
+		ParentWindow->UI.ButtonEvents.push_back(UIManager::ButtonEvent(nullptr, nullptr, ParentOverride, ButtonIndex));
 	}
 }
 

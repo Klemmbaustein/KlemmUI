@@ -93,6 +93,7 @@ std::mutex WindowMutex;
 
 KlemmUI::Window::Window(std::string Name, WindowFlag Flags, Vector2ui WindowPos, Vector2ui WindowSize)
 {	
+	std::lock_guard Guard = std::lock_guard(WindowMutex);
 	if (WindowPos == POSITION_CENTERED)
 	{
 		WindowPos = Vector2ui(SDL_WINDOWPOS_CENTERED);
@@ -133,6 +134,7 @@ KlemmUI::Window::Window(std::string Name, WindowFlag Flags, Vector2ui WindowPos,
 
 KlemmUI::Window::~Window()
 {
+	std::lock_guard Guard = std::lock_guard(WindowMutex);
 	SDL_WINDOW_PTR(SDLWindow);
 
 	for (size_t i = 0; i < ActiveWindows.size(); i++)
@@ -140,8 +142,8 @@ KlemmUI::Window::~Window()
 		if (ActiveWindows[i] == this)
 		{
 			ActiveWindows.erase(ActiveWindows.begin() + i);
+			break;
 		}
-		break;
 	}
 
 	if (ActiveWindow == this)
@@ -253,23 +255,18 @@ bool KlemmUI::Window::UpdateWindow()
 {
 	SetWindowActive();
 	Input.Poll();
+	MakeContextCurrent();
 	if (ShouldUpdateSize)
 	{
-		std::lock_guard Guard = std::lock_guard(WindowMutex);
-		MakeContextCurrent();
 		UpdateSize();
 		UI.ForceUpdateUI();
 	}
 
+	if (UI.DrawElements())
 	{
-		std::lock_guard Guard = std::lock_guard(WindowMutex);
-		MakeContextCurrent();
-
-		if (UI.DrawElements())
-		{
-			Internal::DrawWindow(this);
-		}
+		Internal::DrawWindow(this);
 	}
+	UI.UpdateEvents();
 
 	if (!ActiveWindows.empty() && ActiveWindows[0] == this)
 	{

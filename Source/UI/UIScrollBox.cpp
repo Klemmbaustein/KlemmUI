@@ -73,14 +73,14 @@ UIScrollBox* UIScrollBox::SetDisplayScrollBar(bool NewDisplay)
 	return this;
 }
 
-bool UIScrollBox::GetDiplayScrollBar()
+bool UIScrollBox::GetDisplayScrollBar()
 {
 	return DisplayScrollBar;
 }
 
 void UIScrollBox::Tick()
 {
-	ScrollClass.Active = UI::HoveredBox && (UI::HoveredBox == this || UI::HoveredBox->IsChildOf(this));
+	ScrollClass.Active = ParentWindow->UI.HoveredBox && (ParentWindow->UI.HoveredBox == this || ParentWindow->UI.HoveredBox->IsChildOf(this));
 	CurrentScrollObject = nullptr;
 	bool VisibleInHierarchy = IsVisibleInHierarchy();
 	if (MaxScroll == -1)

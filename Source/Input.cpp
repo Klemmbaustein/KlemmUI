@@ -1,4 +1,4 @@
-#include "Input.h"
+#include <KlemmUI/Input.h>
 #include <KlemmUI/Window.h>
 #include <SDL.h>
 #include <iostream>
@@ -6,7 +6,8 @@ using namespace KlemmUI;
 
 Window* KlemmUI::InputManager::GetWindowBySDLID(uint32_t ID)
 {
-	for (Window* i : Window::GetActiveWindows())
+	std::vector<Window*> ActiveWindows = Window::GetActiveWindows();
+	for (Window* i : ActiveWindows)
 	{
 		SDL_Window* SDLWindow = static_cast<SDL_Window*>(i->GetSDLWindowPtr());
 		if (SDL_GetWindowID(SDLWindow) == ID)

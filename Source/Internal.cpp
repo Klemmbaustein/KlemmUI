@@ -5,18 +5,20 @@
 #include <KlemmUI/Application.h>
 #include <KlemmUI/UI/UIBox.h>
 
+#if _WIN32
+#define NOMINMAX
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
+#endif
+
 void KlemmUI::Internal::InitSDL()
 {
 	SDL_Init(SDL_INIT_EVENTS | SDL_INIT_VIDEO);
 }
 
-namespace KlemmUI::Internal
+KlemmUI::Internal::GLContext KlemmUI::Internal::InitGLContext(Window* From)
 {
-	Shader* WindowShader = nullptr;
-}
-
-void KlemmUI::Internal::InitGLContext(Window* From)
-{
+	SetProcessDPIAware();
 	SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
 	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
 	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
@@ -30,26 +32,34 @@ void KlemmUI::Internal::InitGLContext(Window* From)
 
 	SDL_GL_MakeCurrent(SDLWindow, OpenGLContext);
 
-	GLenum GlewStatus = glewInit();
+	GLenum GLEWStatus = glewInit();
 
-	if (GlewStatus != GLEW_OK)
+	if (GLEWStatus != GLEW_OK)
 	{
-		Application::Error::Error((const char*)glewGetErrorString(GlewStatus), true);
+		Application::Error::Error((const char*)glewGetErrorString(GLEWStatus), true);
 	}
+
+
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	WindowShader = new Shader(Application::GetShaderPath() + "/postprocess.vert", Application::GetShaderPath() + "/postprocess.frag");
+
+	std::string Name = SDL_GetWindowTitle(SDLWindow);
+	From->Shaders.LoadShader("postprocess.vert", "postprocess.frag", "WindowShader");
+
+	return (GLContext)OpenGLContext;
 }
 
 void KlemmUI::Internal::DrawWindow(Window* Target)
 {
+	Shader* WindowShader = Target->Shaders.GetShader("WindowShader");
+
 	WindowShader->Bind();
 	glViewport(0, 0, (GLsizei)Target->GetSize().X, (GLsizei)Target->GetSize().Y);
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, UIBox::GetUIFramebuffer());
+	glBindTexture(GL_TEXTURE_2D, Target->UI.GetUIFramebuffer());
 	WindowShader->SetInt("u_ui", 0);
-	WindowShader->SetInt("u_hasWindowBorder", !false);
+	WindowShader->SetInt("u_hasWindowBorder", int((Target->GetWindowFlags() & Window::WindowFlag::Borderless) == Window::WindowFlag::Borderless));
 	WindowShader->SetVec2("u_screenRes", Target->GetSize());
 	WindowShader->SetVec3("u_borderColor", 1);
 

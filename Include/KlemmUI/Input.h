@@ -1,5 +1,6 @@
 #pragma once
 #include "Vector2.h"
+#include <vector>
 #include <unordered_map>
 
 namespace KlemmUI
@@ -566,6 +567,7 @@ namespace KlemmUI
 		std::unordered_map<Key, bool> PressedKeys;
 
 		Window* GetWindowBySDLID(uint32_t ID);
+		std::unordered_map<int, std::vector<void(*)()>> ButtonPressedCallbacks;
 
 	public:
 		void Poll();

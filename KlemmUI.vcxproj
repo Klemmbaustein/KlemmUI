@@ -101,8 +101,10 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Include\KlemmUI\Input.cpp" />
-    <ClCompile Include="Include\KlemmUI\Timer.cpp" />
+    <ClCompile Include="Include\KlemmUI\UI\UIManager.cpp" />
+    <ClCompile Include="Source\Input.cpp" />
+    <ClCompile Include="Source\Rendering\ShaderManager.cpp" />
+    <ClCompile Include="Source\Timer.cpp" />
     <ClCompile Include="Source\Application.cpp" />
     <ClCompile Include="Source\StringReplace.cpp" />
     <ClCompile Include="Source\Window.cpp" />
@@ -128,7 +130,9 @@
   <ItemGroup>
     <ClInclude Include="Include\KlemmUI\Application.h" />
     <ClInclude Include="Include\KlemmUI\Input.h" />
+    <ClInclude Include="Include\KlemmUI\Rendering\ShaderManager.h" />
     <ClInclude Include="Include\KlemmUI\Timer.h" />
+    <ClInclude Include="Include\KlemmUI\UI\UIManager.h" />
     <ClInclude Include="Include\KlemmUI\Window.h" />
     <ClInclude Include="Source\Internal.h" />
     <ClInclude Include="Source\MathHelpers.h" />

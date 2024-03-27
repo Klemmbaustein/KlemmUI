@@ -8,12 +8,6 @@
 
 using namespace KlemmUI;
 
-namespace UI
-{
-	extern Shader* UIShader;
-}
-
-
 void UIButton::Tick()
 {
 	if (!IsVisible)
@@ -21,27 +15,27 @@ void UIButton::Tick()
 		return;
 	}
 	CurrentButtonState = ButtonState::Normal;
-	if (UI::HoveredBox == this && !IsHovered)
+	if (ParentWindow->UI.HoveredBox == this && !IsHovered)
 	{
-		RedrawUI();
+		ParentWindow->UI.RedrawUI();
 		IsHovered = true;
 	}
-	if (IsHovered && UI::HoveredBox != this)
+	if (IsHovered && ParentWindow->UI.HoveredBox != this)
 	{
-		RedrawUI();
+		ParentWindow->UI.RedrawUI();
 		IsHovered = false;
 	}
 
 
-	if (UI::HoveredBox == this)
+	if (ParentWindow->UI.HoveredBox == this)
 	{
 		CurrentButtonState = ButtonState::Hovered;
 	}
-	else if (IsPressed && UI::HoveredBox != this)
+	else if (IsPressed && ParentWindow->UI.HoveredBox != this)
 	{
 		IsSelected = false;
 		IsPressed = false;
-		RedrawUI();
+		ParentWindow->UI.RedrawUI();
 	}
 
 	if (IsSelected)
@@ -49,14 +43,14 @@ void UIButton::Tick()
 		CurrentButtonState = ButtonState::Hovered;
 	}
 
-	if (UI::HoveredBox == this)
+	if (ParentWindow->UI.HoveredBox == this)
 	{
-		if (Window::GetActiveWindow()->Input.IsLMBDown)
+		if (ParentWindow->Input.IsLMBDown)
 		{
 			CurrentButtonState = ButtonState::Pressed;
 			if (!IsPressed)
 			{
-				RedrawUI();
+				ParentWindow->UI.RedrawUI();
 				IsPressed = true;
 			}
 		}
@@ -67,7 +61,7 @@ void UIButton::Tick()
 				OnClicked();
 				IsPressed = false;
 				IsSelected = false;
-				RedrawUI();
+				ParentWindow->UI.RedrawUI();
 				return;
 			}
 			else
@@ -77,7 +71,7 @@ void UIButton::Tick()
 			}
 		}
 	}
-	else if (Window::GetActiveWindow()->Input.IsLMBDown)
+	else if (ParentWindow->Input.IsLMBDown)
 	{
 		IsSelected = false;
 	}
@@ -114,7 +108,7 @@ UIButton* UIButton::SetOpacity(float NewOpacity)
 	if (NewOpacity != Opacity)
 	{
 		Opacity = NewOpacity;
-		RedrawUI();
+		ParentWindow->UI.RedrawUI();
 	}
 	return this;
 }
@@ -167,7 +161,7 @@ UIButton* UIButton::SetColor(Vector3f NewColor)
 	if (NewColor != ButtonColor)
 	{
 		ButtonColor = NewColor;
-		RedrawUI();
+		ParentWindow->UI.RedrawUI();
 	}
 	return this;
 }
@@ -179,7 +173,7 @@ UIButton* UIButton::SetHoveredColor(Vector3f NewColor)
 		HoveredColor = NewColor;
 		if (IsHovered)
 		{
-			RedrawUI();
+			ParentWindow->UI.RedrawUI();
 		}
 	}
 	return this;
@@ -192,7 +186,7 @@ UIButton* UIButton::SetPressedColor(Vector3f NewColor)
 		PressedColor = NewColor;
 		if (IsPressed)
 		{
-			RedrawUI();
+			ParentWindow->UI.RedrawUI();
 		}
 	}
 	return this;
@@ -205,7 +199,6 @@ Vector3f UIButton::GetColor()
 
 UIButton::UIButton(bool Horizontal, Vector2f Position, Vector3f Color, void(*PressedFunc)()) : UIBackground(Horizontal, Position, Color)
 {
-	if (UI::UIShader == nullptr) UI::UIShader = new Shader(Application::GetShaderPath() + "/uishader.vert", Application::GetShaderPath() + "/uishader.frag");
 	this->PressedFunc = PressedFunc;
 	this->ButtonColor = Color;
 	this->HoveredColor = Color * 0.75;
@@ -215,7 +208,6 @@ UIButton::UIButton(bool Horizontal, Vector2f Position, Vector3f Color, void(*Pre
 
 UIButton::UIButton(bool Horizontal, Vector2f Position, Vector3f Color, void(*PressedFunc)(int), int ButtonIndex) : UIBackground(Horizontal, Position, Color)
 {
-	if (UI::UIShader == nullptr) UI::UIShader = new Shader(Application::GetShaderPath() + "/uishader.vert", Application::GetShaderPath() + "/uishader.frag");
 	this->PressedFuncIndex = PressedFunc;
 	this->ButtonColor = Color;
 	this->HoveredColor = Color * 0.75;

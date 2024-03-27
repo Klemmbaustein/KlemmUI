@@ -4,53 +4,152 @@
 #include "Internal.h"
 #include <KlemmUI/UI/UIBox.h>
 #include <iostream>
+#include <KlemmUI/Application.h>
+#include <mutex>
 
 #define SDL_WINDOW_PTR(x) SDL_Window* x = static_cast<SDL_Window*>(this->SDLWindowPtr)
 
 static thread_local KlemmUI::Window* ActiveWindow = nullptr;
 
 const Vector2ui KlemmUI::Window::POSITION_CENTERED = Vector2ui(UINT64_MAX, UINT64_MAX);
+const Vector2ui KlemmUI::Window::SIZE_DEFAULT = Vector2ui(UINT64_MAX, UINT64_MAX);
 std::vector<KlemmUI::Window*> KlemmUI::Window::ActiveWindows;
+
+static const int MOUSE_GRAB_PADDING = 8;
+
+static SDL_HitTestResult WindowHitTest(SDL_Window* SDLWindow, const SDL_Point* Area, void* Data)
+{
+	int Width, Height;
+	SDL_GetWindowSize(SDLWindow, &Width, &Height);
+	int x;
+	int y;
+	SDL_GetMouseState(&x, &y);
+
+	KlemmUI::Window* HitTestWindow = static_cast<KlemmUI::Window*>(Data);
+
+	HitTestWindow->Input.MousePosition = Vector2(((float)Area->x / (float)Width - 0.5f) * 2.0f, 1.0f - ((float)Area->y / (float)Height * 2.0f));
+
+	if (bool(HitTestWindow->GetWindowFlags() & KlemmUI::Window::WindowFlag::Resizable))
+	{
+		if (Area->y < MOUSE_GRAB_PADDING)
+		{
+			if (Area->x < MOUSE_GRAB_PADDING)
+			{
+				return SDL_HITTEST_RESIZE_TOPLEFT;
+			}
+			else if (Area->x > Width - MOUSE_GRAB_PADDING)
+			{
+				return SDL_HITTEST_RESIZE_TOPRIGHT;
+			}
+			else
+			{
+				return SDL_HITTEST_RESIZE_TOP;
+			}
+		}
+		else if (Area->y > Height - MOUSE_GRAB_PADDING)
+		{
+			if (Area->x < MOUSE_GRAB_PADDING)
+			{
+				return SDL_HITTEST_RESIZE_BOTTOMLEFT;
+			}
+			else if (Area->x > Width - MOUSE_GRAB_PADDING)
+			{
+				return SDL_HITTEST_RESIZE_BOTTOMRIGHT;
+			}
+			else
+			{
+				return SDL_HITTEST_RESIZE_BOTTOM;
+			}
+		}
+		else if (Area->x < MOUSE_GRAB_PADDING)
+		{
+			return SDL_HITTEST_RESIZE_LEFT;
+		}
+		else if (Area->x > Width - MOUSE_GRAB_PADDING)
+		{
+			return SDL_HITTEST_RESIZE_RIGHT;
+		}
+	}
+	if (!HitTestWindow->UI.HoveredBox && HitTestWindow->IsAreaGrabbableCallback && HitTestWindow->IsAreaGrabbableCallback(HitTestWindow))
+	{
+		return SDL_HITTEST_DRAGGABLE;
+	}
+
+	return SDL_HITTEST_NORMAL;
+}
 
 void KlemmUI::Window::UpdateSize()
 {
-	SDL_Window* SDLWindow = static_cast<SDL_Window*>(this->GetSDLWindowPtr());
+	SDL_WINDOW_PTR(SDLWindow);
 
 	int w = 0, h = 0;
 
-	SDL_GetWindowSize(SDLWindow, &w, &h);
+	SDL_GetWindowSizeInPixels(SDLWindow, &w, &h);
 
 	WindowSize = Vector2ui(w, h);
 }
 
-KlemmUI::Window::Window(std::string Name, Vector2ui WindowPos, Vector2ui WindowSize)
-{
+std::mutex WindowMutex;
+
+KlemmUI::Window::Window(std::string Name, WindowFlag Flags, Vector2ui WindowPos, Vector2ui WindowSize)
+{	
 	if (WindowPos == POSITION_CENTERED)
 	{
 		WindowPos = Vector2ui(SDL_WINDOWPOS_CENTERED);
 	}
 
-	Internal::InitSDL();
+	if (WindowSize == SIZE_DEFAULT)
+	{
+		SDL_DisplayMode Mode;
+		SDL_GetDisplayMode(0, 0, &Mode);
+		WindowSize = Vector2ui(uint64_t((float)Mode.w * 0.6f), uint64_t((float)Mode.h * 0.6f));
+	}
 
-	SDL_Window* SDLWindow = SDL_CreateWindow(Name.c_str(), WindowPos.X, WindowPos.Y, WindowSize.X, WindowSize.Y, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+	SDL_SetHint("SDL_BORDERLESS_WINDOWED_STYLE", "1");
+	SDL_SetHint("SDL_BORDERLESS_RESIZABLE_STYLE", "1");
+	CurrentWindowFlags = Flags;
+	SDL_Window* SDLWindow = SDL_CreateWindow(Name.c_str(),
+		WindowPos.X,
+		WindowPos.Y,
+		WindowSize.X,
+		WindowSize.Y, 
+		ToSDLWindowFlags(Flags) | SDL_WINDOW_OPENGL);
+
+	SDL_SetWindowHitTest(SDLWindow, WindowHitTest, this);
+
+	if (!SDLWindow)
+	{
+		KlemmUI::Application::Error::Error(SDL_GetError(), true);
+	}
 	SDLWindowPtr = SDLWindow;
 
 	UpdateSize();
 	SetAsActiveWindow();
-
-	Internal::InitGLContext(this);
-
-	UIBox::InitUI();
+	GLContext = Internal::InitGLContext(this);
+	UI.InitUI();
 
 	ActiveWindows.push_back(this);
 }
 
 KlemmUI::Window::~Window()
 {
+	SDL_WINDOW_PTR(SDLWindow);
+
+	for (size_t i = 0; i < ActiveWindows.size(); i++)
+	{
+		if (ActiveWindows[i] == this)
+		{
+			ActiveWindows.erase(ActiveWindows.begin() + i);
+		}
+		break;
+	}
+
 	if (ActiveWindow == this)
 	{
-		ClearActiveWindow();
+		ActiveWindow = nullptr;
 	}
+
+	SDL_DestroyWindow(SDLWindow);
 }
 
 KlemmUI::Window* KlemmUI::Window::GetActiveWindow()
@@ -87,11 +186,6 @@ void KlemmUI::Window::WaitFrame()
 	SDL_Delay((int)(TimeToWait * 1000.f));
 }
 
-void KlemmUI::Window::ClearActiveWindow()
-{
-	ActiveWindow = nullptr;
-}
-
 void* KlemmUI::Window::GetSDLWindowPtr() const
 {
 	return SDLWindowPtr;
@@ -107,24 +201,81 @@ Vector2ui KlemmUI::Window::GetSize() const
 	return WindowSize;
 }
 
+void KlemmUI::Window::SetWindowFlags(WindowFlag NewFlags)
+{
+	SDL_WINDOW_PTR(SDLWindow);
+
+	CurrentWindowFlags = CurrentWindowFlags;
+
+	SDL_SetWindowBordered(SDLWindow, SDL_bool((NewFlags & WindowFlag::Borderless) != WindowFlag::Borderless));
+	SDL_SetWindowAlwaysOnTop(SDLWindow, SDL_bool((NewFlags & WindowFlag::AlwaysOnTop) == WindowFlag::AlwaysOnTop));
+	SDL_SetWindowResizable(SDLWindow, SDL_bool((NewFlags & WindowFlag::Resizable) == WindowFlag::Resizable));
+}
+
+KlemmUI::Window::WindowFlag KlemmUI::Window::GetWindowFlags() const
+{
+	return CurrentWindowFlags;
+}
+
+void KlemmUI::Window::MakeContextCurrent()
+{
+	SDL_WINDOW_PTR(SDLWindow);
+	if (SDL_GL_MakeCurrent(SDLWindow, GLContext))
+	{
+		Application::Error::Error(SDL_GetError());
+	}
+}
+
+int KlemmUI::Window::ToSDLWindowFlags(WindowFlag Flags)
+{
+	int SDLFlags = 0;
+
+	if ((Flags & WindowFlag::Borderless) == WindowFlag::Borderless)
+	{
+		SDLFlags |= SDL_WINDOW_BORDERLESS;
+	}
+	if ((Flags & WindowFlag::AlwaysOnTop) == WindowFlag::AlwaysOnTop)
+	{
+		SDLFlags |= SDL_WINDOW_ALWAYS_ON_TOP;
+	}
+	if ((Flags & WindowFlag::FullScreen) == WindowFlag::FullScreen)
+	{
+		SDLFlags |= SDL_WINDOW_MAXIMIZED;
+	}
+	if ((Flags & WindowFlag::Resizable) == WindowFlag::Resizable)
+	{
+		SDLFlags |= SDL_WINDOW_RESIZABLE;
+	}
+	return SDLFlags;
+}
+
 bool KlemmUI::Window::UpdateWindow()
 {
+	SetWindowActive();
 	Input.Poll();
-
-	if (ShouldUpdate)
+	if (ShouldUpdateSize)
 	{
+		std::lock_guard Guard = std::lock_guard(WindowMutex);
+		MakeContextCurrent();
 		UpdateSize();
-		UIBox::ForceUpdateUI();
+		UI.ForceUpdateUI();
 	}
 
-	bool RedrawWindow = UIBox::DrawAllUIElements();
-	if (RedrawWindow)
 	{
-		Internal::DrawWindow(this);
+		std::lock_guard Guard = std::lock_guard(WindowMutex);
+		MakeContextCurrent();
+
+		if (UI.DrawElements())
+		{
+			Internal::DrawWindow(this);
+		}
 	}
 
-	WaitFrame();
-
+	if (!ActiveWindows.empty() && ActiveWindows[0] == this)
+	{
+		WaitFrame();
+	}
+	
 	FrameDelta = WindowDeltaTimer.Get();
 	Time += FrameDelta;
 	WindowDeltaTimer.Reset();
@@ -134,9 +285,27 @@ bool KlemmUI::Window::UpdateWindow()
 	return !ReturnShouldClose;
 }
 
+void KlemmUI::Window::SetWindowActive()
+{
+	ActiveWindow = this;
+	MakeContextCurrent();
+}
+
 void KlemmUI::Window::OnResized()
 {
-	ShouldUpdate = true;
+	ShouldUpdateSize = true;
+}
+
+void KlemmUI::Window::SetMinSize(Vector2ui MinimumSize)
+{
+	SDL_WINDOW_PTR(SDLWindow);
+	SDL_SetWindowMinimumSize(SDLWindow, MinimumSize.X, MinimumSize.Y);
+}
+
+void KlemmUI::Window::SetMaxSize(Vector2ui MaximumSize)
+{
+	SDL_WINDOW_PTR(SDLWindow);
+	SDL_SetWindowMaximumSize(SDLWindow, MaximumSize.X, MaximumSize.Y);
 }
 
 const std::vector<KlemmUI::Window*>& KlemmUI::Window::GetActiveWindows()
@@ -152,4 +321,14 @@ void KlemmUI::Window::Close()
 float KlemmUI::Window::GetDeltaTime() const
 {
 	return FrameDelta;
+}
+
+KlemmUI::Window::WindowFlag KlemmUI::operator|(Window::WindowFlag a, Window::WindowFlag b)
+{
+	return Window::WindowFlag((int)a | (int)b);
+}
+
+KlemmUI::Window::WindowFlag KlemmUI::operator&(Window::WindowFlag a, Window::WindowFlag b)
+{
+	return Window::WindowFlag((int)a & (int)b);
 }

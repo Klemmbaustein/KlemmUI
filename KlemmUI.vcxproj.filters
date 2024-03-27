@@ -94,8 +94,10 @@
     <ClCompile Include="Source\Internal.cpp" />
     <ClCompile Include="Source\StringReplace.cpp" />
     <ClCompile Include="Source\Application.cpp" />
-    <ClCompile Include="Include\KlemmUI\Input.cpp" />
-    <ClCompile Include="Include\KlemmUI\Timer.cpp" />
+    <ClCompile Include="Source\Input.cpp" />
+    <ClCompile Include="Source\Timer.cpp" />
+    <ClCompile Include="Source\Rendering\ShaderManager.cpp" />
+    <ClCompile Include="Include\KlemmUI\UI\UIManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Rendering\VertexBuffer.h">
@@ -166,6 +168,8 @@
     <ClInclude Include="Include\KlemmUI\Application.h" />
     <ClInclude Include="Include\KlemmUI\Input.h" />
     <ClInclude Include="Include\KlemmUI\Timer.h" />
+    <ClInclude Include="Include\KlemmUI\Rendering\ShaderManager.h" />
+    <ClInclude Include="Include\KlemmUI\UI\UIManager.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="README.md" />

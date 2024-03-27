@@ -6,6 +6,11 @@
 class ScrollObject;
 class UIButton;
 class UIScrollBox;
+namespace KlemmUI
+{
+	class Window;
+	class UIManager;
+}
 
 class UIBox
 {
@@ -44,7 +49,6 @@ public:
 	void InvalidateLayout();
 	UIBox* AddChild(UIBox* NewChild);
 	UIBox* GetAbsoluteParent();
-	static bool DrawAllUIElements();
 	void DrawThisAndChildren();
 	void DeleteChildren();
 
@@ -66,12 +70,6 @@ public:
 	bool GetTryFill() const;
 	virtual void OnChildClicked(int Index);
 	UIBox* SetBorder(BorderType Type, float Size);
-	static void ForceUpdateUI();
-	static void InitUI();
-	static unsigned int GetUIFramebuffer();
-	static void RedrawUI();
-	static void ClearUI();
-	static bool GetShouldRedrawUI();
 	void MoveToFront();
 	virtual Vector2f GetUsedSize();
 	Vector2f GetScreenPosition() const;
@@ -89,8 +87,11 @@ public:
 
 	void UpdateElement();
 	virtual void UpdateTickState();
+
+	UIBox* GetParent();
+
+	KlemmUI::Window* GetParentWindow();
 protected:
-	thread_local static std::vector<UIBox*> UIElements;
 	
 	SizeMode BoxSizeMode = SizeMode::ScreenRelative;
 	bool ShouldBeTicked = true;
@@ -111,13 +112,14 @@ protected:
 	float LeftPadding = 0.01f;
 	Vector2f Size;
 	SizeMode PaddingSizeMode = SizeMode::ScreenRelative;
+	KlemmUI::Window* ParentWindow = nullptr;
 
 	std::vector<UIBox*> Children;
 	UIBox* Parent = nullptr;
 	void UpdateSelfAndChildren();
 	Vector2f GetLeftRightPadding(UIBox* Target);
 
-	static Vector2f PixelSizeToScreenSize(Vector2f PixelSize);
+	static Vector2f PixelSizeToScreenSize(Vector2f PixelSize, KlemmUI::Window* TargetWindow);
 
 private:
 	float GetVerticalOffset();
@@ -126,10 +128,6 @@ private:
 	void UpdateScale();
 	void UpdatePosition();
 	bool ChildrenHorizontal;
-};
 
-namespace UI
-{
-	extern UIBox* HoveredBox;
-	extern UIBox* NewHoveredBox;
-}
+	friend KlemmUI::UIManager;
+};

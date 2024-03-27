@@ -26,7 +26,7 @@ public:
 	UIButton* GetScrollBarBackground();
 
 	UIScrollBox* SetDisplayScrollBar(bool NewDisplay);
-	bool GetDiplayScrollBar();
+	bool GetDisplayScrollBar();
 	UIScrollBox* SetScrollSpeed(float NewScrollSpeed);
 	float GetScrollSpeed();
 

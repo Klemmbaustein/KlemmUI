@@ -35,7 +35,7 @@ class TextRenderer
 {
 	friend class DrawableText;
 private:
-	static void CheckForTextShader();
+	static Shader* GetTextShader();
 	unsigned int fontTexture;
 	unsigned int fontVao;
 	unsigned int fontVertexBufferId;

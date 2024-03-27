@@ -90,18 +90,11 @@ constexpr int FONT_BITMAP_WIDTH = 3000;
 constexpr int FONT_BITMAP_PADDING = 32;
 constexpr int FONT_MAX_UNICODE_CHARS = 800;
 
-namespace _TextRenderer
-{
-	thread_local static Shader* TextShader = nullptr;
-	thread_local std::vector<TextRenderer*> Renderers;
-}
+const std::string TextShaderName = "TextShader";
 
-void TextRenderer::CheckForTextShader()
+Shader* TextRenderer::GetTextShader()
 {
-	if (!_TextRenderer::TextShader)
-	{
-		_TextRenderer::TextShader = new Shader(Application::GetShaderPath() + "/text.vert", Application::GetShaderPath() + "/text.frag");
-	}
+	return Window::GetActiveWindow()->Shaders.GetShader(TextShaderName);
 }
 
 size_t TextRenderer::GetCharacterIndexADistance(ColoredText Text, float Dist, float Scale)
@@ -169,8 +162,8 @@ size_t TextRenderer::GetCharacterIndexADistance(ColoredText Text, float Dist, fl
 
 TextRenderer::TextRenderer(std::string Filename)
 {
-	CheckForTextShader();
-	_TextRenderer::Renderers.push_back(this);
+	Window::GetActiveWindow()->Shaders.LoadShader("text.vert", "text.frag", TextShaderName);
+
 	Uint8* ttfBuffer = (Uint8*)malloc(1 << 20);
 	if (ttfBuffer == nullptr)
 	{
@@ -301,7 +294,7 @@ TextRenderer::TextRenderer(std::string Filename)
 Vector2f TextRenderer::GetTextSize(ColoredText Text, float Scale, bool Wrapped, float LengthBeforeWrap)
 {
 	float originalScale = Scale;
-	Scale *= 5.0f;
+	Scale *= 2.5f;
 	float x = 0.f, y = CharacterSize;
 	float MaxX = 0.0f;
 	FontVertex* vData = fontVertexBufferData;
@@ -494,12 +487,6 @@ DrawableText* TextRenderer::MakeText(ColoredText Text, Vector2f Pos, float Scale
 TextRenderer::~TextRenderer()
 {
 	unsigned int i = 0;
-	for (TextRenderer* r : _TextRenderer::Renderers)
-	{
-		if (r == this)
-			_TextRenderer::Renderers.erase(_TextRenderer::Renderers.begin() + i);
-		i++;
-	}
 	glDeleteTextures(1, &fontTexture);
 	glDeleteBuffers(1, &fontVertexBufferId);
 	glDeleteBuffers(1, &fontVao);
@@ -528,23 +515,23 @@ DrawableText::DrawableText(unsigned int VAO, unsigned int VBO, unsigned int NumV
 
 void DrawableText::Draw(ScrollObject* CurrentScrollObject)
 {
-	TextRenderer::CheckForTextShader();
+	Shader* TextShader = TextRenderer::GetTextShader();
 	glBindVertexArray(VAO);
-	_TextRenderer::TextShader->Bind();
+	TextShader->Bind();
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, Texture);
-	glUniform1i(glGetUniformLocation(_TextRenderer::TextShader->GetShaderID(), "u_texture"), 0);
-	glUniform3f(glGetUniformLocation(_TextRenderer::TextShader->GetShaderID(), "textColor"), Color.X, Color.Y, Color.Z);
-	glUniform1f(glGetUniformLocation(_TextRenderer::TextShader->GetShaderID(), "u_aspectratio"), Window::GetActiveWindow()->GetAspectRatio());
-	glUniform3f(glGetUniformLocation(_TextRenderer::TextShader->GetShaderID(), "transform"), (float)Position.X, (float)Position.Y, Scale);
-	glUniform1f(glGetUniformLocation(_TextRenderer::TextShader->GetShaderID(), "u_opacity"), Opacity);
+	TextShader->SetInt("u_texture", 0);
+	TextShader->SetVec3("textColor", Vector3f(Color.X, Color.Y, Color.Z));
+	TextShader->SetFloat("u_aspectratio", Window::GetActiveWindow()->GetAspectRatio());
+	TextShader->SetVec3("transform", Vector3f((float)Position.X, (float)Position.Y, Scale));
+	TextShader->SetFloat("u_opacity", Opacity);
 	if (CurrentScrollObject != nullptr)
 	{
-		glUniform3f(glGetUniformLocation(_TextRenderer::TextShader->GetShaderID(), "u_offset"),
-			-CurrentScrollObject->Percentage, CurrentScrollObject->Position.Y, CurrentScrollObject->Position.Y - CurrentScrollObject->Scale.Y);
+		TextShader->SetVec3("u_offset",
+			Vector3f(-CurrentScrollObject->Percentage, CurrentScrollObject->Position.Y, CurrentScrollObject->Position.Y - CurrentScrollObject->Scale.Y));
 	}
 	else
-		glUniform3f(glGetUniformLocation(_TextRenderer::TextShader->GetShaderID(), "u_offset"), 0, -1000, 1000);
+		TextShader->SetVec3("u_offset", Vector3(0, -1000, 1000));
 	glDrawArrays(GL_TRIANGLES, 0, NumVerts);
 }
 

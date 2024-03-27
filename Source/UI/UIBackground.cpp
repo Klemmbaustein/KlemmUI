@@ -8,11 +8,6 @@
 #include <KlemmUI/Window.h>
 using namespace KlemmUI;
 
-namespace UI
-{
-	thread_local Shader* UIShader = nullptr;
-}
-
 void UIBackground::ScrollTick(Shader* UsedShader)
 {
 	if (CurrentScrollObject != nullptr)
@@ -49,7 +44,7 @@ UIBackground* UIBackground::SetOpacity(float NewOpacity)
 	if (NewOpacity != Opacity)
 	{
 		Opacity = NewOpacity;
-		RedrawUI();
+		ParentWindow->UI.RedrawUI();
 	}
 	return this;
 }
@@ -64,7 +59,7 @@ void UIBackground::SetColor(Vector3f NewColor)
 	if (NewColor != Color)
 	{
 		Color = NewColor;
-		RedrawUI();
+		ParentWindow->UI.RedrawUI();
 	}
 }
 
@@ -84,7 +79,7 @@ UIBackground* UIBackground::SetUseTexture(bool UseTexture, unsigned int TextureI
 	{
 		this->UseTexture = UseTexture;
 		this->TextureID = TextureID;
-		RedrawUI();
+		ParentWindow->UI.RedrawUI();
 	}
 	return this;
 }
@@ -93,10 +88,9 @@ UIBackground::UIBackground(bool Horizontal, Vector2f Position, Vector3f Color, V
 {
 	SetMinSize(MinScale);
 	this->Color = Color;
-	if (UI::UIShader == nullptr) UI::UIShader = new Shader(Application::GetShaderPath() + "/uishader.vert", Application::GetShaderPath() + "/uishader.frag");
 	if (!UsedShader)
 	{
-		this->BackgroundShader = UI::UIShader;
+		this->BackgroundShader = Window::GetActiveWindow()->Shaders.LoadShader("uishader.vert", "uishader.frag", "UI Shader");
 	}
 	else
 	{

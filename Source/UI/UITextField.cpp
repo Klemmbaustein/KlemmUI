@@ -12,10 +12,6 @@
 
 using namespace KlemmUI;
 
-namespace UI
-{
-	extern Shader* UIShader;
-}
 
 void UITextField::Tick()
 {
@@ -27,12 +23,12 @@ void UITextField::Tick()
 	{
 		Offset.Y = CurrentScrollObject->Percentage;
 	}
-	if (UI::HoveredBox == this)
+	if (ParentWindow->UI.HoveredBox == this)
 	{
 		size_t Nearest = TextObject->GetNearestLetterAtLocation(Window::GetActiveWindow()->Input.MousePosition);
 		if (!IsHovered)
 		{
-			RedrawUI();
+			ParentWindow->UI.RedrawUI();
 		}
 		IsHovered = true;
 		ButtonColorMultiplier = 0.8f;
@@ -49,7 +45,7 @@ void UITextField::Tick()
 			IsEdited = true;
 			if (!IsPressed)
 			{
-				RedrawUI();
+				ParentWindow->UI.RedrawUI();
 				IsPressed = true;
 			}
 		}
@@ -60,7 +56,7 @@ void UITextField::Tick()
 			TextInput::Text = EnteredText;
 			IsPressed = false;
 			TextInput::TextIndex = Nearest;
-			RedrawUI();
+			ParentWindow->UI.RedrawUI();
 		}
 	}
 	else
@@ -72,7 +68,7 @@ void UITextField::Tick()
 		if (IsHovered)
 		{
 			IsHovered = false;
-			RedrawUI();
+			ParentWindow->UI.RedrawUI();
 		}
 	}
 
@@ -88,14 +84,14 @@ void UITextField::Tick()
 		{
 			IsEdited = false;
 			//if (PressedFunc) Application::ButtonEvents.push_back(Application::ButtonEvent(PressedFunc, nullptr, nullptr, 0));
-			RedrawUI();
+			ParentWindow->UI.RedrawUI();
 		}
 		if (!IsHovered && Window::GetActiveWindow()->Input.IsLMBDown && !Dragging)
 		{
 			IsEdited = false;
 			TextInput::PollForText = false;
 			//if (PressedFunc) Application::ButtonEvents.push_back(Application::ButtonEvent(PressedFunc, nullptr, nullptr, 0));
-			RedrawUI();
+			ParentWindow->UI.RedrawUI();
 		}
 	}
 	std::string RendererdText = EnteredText;
@@ -110,11 +106,11 @@ void UITextField::Tick()
 			TextTimer = 0;
 			IBeamPosition = EditedTextPos;
 			IBeamScale = Vector2f(2.0f / Window::GetActiveWindow()->GetSize().X, TextObject->GetUsedSize().Y);
-			RedrawUI();
+			ParentWindow->UI.RedrawUI();
 		}
 		if (!ShowIBeam)
 		{
-			RedrawUI();
+			ParentWindow->UI.RedrawUI();
 		}
 		ShowIBeam = true;
 	}
@@ -122,7 +118,7 @@ void UITextField::Tick()
 	{
 		if (ShowIBeam)
 		{
-			RedrawUI();
+			ParentWindow->UI.RedrawUI();
 		}
 		ShowIBeam = false;
 	}
@@ -180,7 +176,7 @@ UITextField* UITextField::SetColor(Vector3f NewColor)
 	if (NewColor != Color)
 	{
 		Color = NewColor;
-		RedrawUI();
+		ParentWindow->UI.RedrawUI();
 	}
 	return this;
 }
@@ -224,7 +220,6 @@ bool UITextField::GetIsPressed()
 UITextField::UITextField(bool Horizontal, Vector2f Position, Vector3f Color, TextRenderer* Renderer, void(*PressedFunc)())
 	: UIBackground(Horizontal, Position, Color)
 {
-	if (UI::UIShader == nullptr) UI::UIShader = new Shader(Application::GetShaderPath() + "/uishader.vert", Application::GetShaderPath() + "/uishader.frag");
 	TextObject = new UIText(0, Vector3(1), HintText, Renderer);
 	TextObject->SetTextSize(0.5f);
 	TextObject->SetPadding(0.005f);

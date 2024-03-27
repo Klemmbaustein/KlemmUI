@@ -3,9 +3,11 @@
 
 namespace KlemmUI::Internal
 {
+	typedef void* GLContext;
+
 	void InitSDL();
 
-	void InitGLContext(Window* From);
+	GLContext InitGLContext(Window* From);
 
 	void DrawWindow(Window* Target);
 }

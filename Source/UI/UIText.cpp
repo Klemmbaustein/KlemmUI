@@ -23,7 +23,7 @@ float UIText::GetWrapDistance() const
 	}
 	if (WrapSizeMode == SizeMode::PixelRelative)
 	{
-		Distance = UIBox::PixelSizeToScreenSize(Vector2f((float)WrapDistance, 0.0)).X;
+		Distance = UIBox::PixelSizeToScreenSize(Vector2f((float)WrapDistance, 0.0), ParentWindow).X;
 	}
 	return Distance;
 }
@@ -58,7 +58,7 @@ UIText* UIText::SetColor(Vector3f NewColor)
 		{
 			i.Color = Color;
 		}
-		RedrawUI();
+		ParentWindow->UI.RedrawUI();
 	}
 	return this;
 }
@@ -68,7 +68,7 @@ UIText* UIText::SetOpacity(float NewOpacity)
 	if (Opacity != NewOpacity)
 	{
 		Opacity = NewOpacity;
-		RedrawUI();
+		ParentWindow->UI.RedrawUI();
 	}
 	return this;
 }
@@ -88,7 +88,7 @@ UIText* UIText::SetTextSizeMode(SizeMode NewMode)
 {
 	if (this->TextSizeMode != NewMode)
 	{
-		RedrawUI();
+		ParentWindow->UI.RedrawUI();
 		this->TextSizeMode = NewMode;
 	}
 	return this;

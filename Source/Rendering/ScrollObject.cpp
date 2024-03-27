@@ -42,7 +42,7 @@ void ScrollObject::ScrollUp()
 	{
 		Percentage = MaxScroll;
 	}
-	UIBox::RedrawUI();
+	Window::GetActiveWindow()->UI.RedrawUI();
 }
 
 void ScrollObject::ScrollDown()
@@ -57,5 +57,5 @@ void ScrollObject::ScrollDown()
 	}
 	if (Percentage < 0)
 		Percentage = 0;
-	UIBox::RedrawUI();
+	Window::GetActiveWindow()->UI.RedrawUI();
 }

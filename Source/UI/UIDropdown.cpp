@@ -135,7 +135,7 @@ void UIDropdown::Tick()
 	UIButton::Tick();
 	if (Window::GetActiveWindow()->Input.IsLMBDown
 		&& OptionsBox->IsVisible
-		&& (!UI::HoveredBox || !(UI::HoveredBox == this || UI::HoveredBox->IsChildOf(OptionsBox))))
+		&& (!ParentWindow->UI.HoveredBox || !(ParentWindow->UI.HoveredBox == this || ParentWindow->UI.HoveredBox->IsChildOf(OptionsBox))))
 	{
 		OptionsBox->IsVisible = false;
 	}

@@ -9,6 +9,10 @@ namespace KlemmUI
 	struct VertexBuffer;
 	class Shader;
 
+	/**
+	 * @brief
+	 * A button.
+	 */
 	class UIButton : public UIBackground
 	{
 	protected:
@@ -41,21 +45,68 @@ namespace KlemmUI
 		void Tick() override;
 		virtual void OnClicked();
 	public:
-		UIButton* SetOpacity(float NewOpacity);
-		float GetOpacity();
-		void SetCanBeDragged(bool NewCanBeDragged);
 		bool GetIsSelected();
 		void SetNeedsToBeSelected(bool NeedsToBeSelected);
-		UIButton* SetShader(Shader* NewShader);
+		/// Returns true of the button is hovered, false if it isn't.
 		bool GetIsHovered() const;
-		bool GetIsPressed() const;
-		UIButton* SetUseTexture(bool UseTexture, unsigned int TextureID = 0);
-		UIButton* SetColor(Vector3f NewColor);
-		UIButton* SetHoveredColor(Vector3f NewColor);
-		UIButton* SetPressedColor(Vector3f NewColor);
-		Vector3f GetColor();
 
+		/// Returns true of the button is pressed, false if it isn't.
+		bool GetIsPressed() const;
+
+		/**
+		 * @brief
+		 * Sets the button's normal color, when it isn't hovered or pressed.
+		 */
+		virtual UIBackground* SetColor(Vector3f NewColor) override;
+		/**
+		 * @brief
+		 * Sets the button's hovered color.
+		 */
+		UIButton* SetHoveredColor(Vector3f NewColor);
+		/**
+		 * @brief
+		 * Sets the button's pressed color.
+		 */
+		UIButton* SetPressedColor(Vector3f NewColor);
+		virtual Vector3f GetColor() override;
+
+		/**
+		 * @brief
+		 * UIButton constructor.
+		 * 
+		 * @param Horizontal
+		 * True if should the children be laid out horizontally, false if vertically.
+		 *
+		 * @param Position
+		 * The position of the UIButton. If it has a parent, this will be ignored.
+		 *
+		 * @param Color
+		 * The color of the UIButton. The hovered and pressed colors will be derived from this.
+		 * 
+		 * @param PressedFunc
+		 * This function will be called when the button has been pressed.
+		 */
 		UIButton(bool Horizontal, Vector2f Position, Vector3f Color, void(*PressedFunc)());
+
+		/**
+		 * @brief
+		 * UIButton constructor.
+		 *
+		 * @param Horizontal
+		 * True if should the children be laid out horizontally, false if vertically.
+		 *
+		 * @param Position
+		 * The position of the UIButton. If it has a parent, this will be ignored.
+		 *
+		 * @param Color
+		 * The color of the UIButton. The hovered and pressed colors will be derived from this.
+		 *
+		 * @param PressedFunc
+		 * This function will be called when the button has been pressed.
+		 * 
+		 * @param ButtonIndex
+		 * An index for the button. Will be passed to PressedFunc.
+		 */
 		UIButton(bool Horizontal, Vector2f Position, Vector3f Color, void(*PressedFunc)(int), int ButtonIndex);
 
 		~UIButton();

@@ -122,7 +122,7 @@ KlemmUI::Window::Window(std::string Name, WindowFlag Flags, Vector2ui WindowPos,
 	SDLWindowPtr = SDLWindow;
 
 	UpdateSize();
-	SetAsActiveWindow();
+	SetWindowActive();
 	GLContext = Internal::InitGLContext(this);
 	UI.InitUI();
 
@@ -154,11 +154,6 @@ KlemmUI::Window::~Window()
 KlemmUI::Window* KlemmUI::Window::GetActiveWindow()
 {
 	return ActiveWindow;
-}
-
-void KlemmUI::Window::SetAsActiveWindow()
-{
-	ActiveWindow = this;
 }
 
 void KlemmUI::Window::WaitFrame()
@@ -219,6 +214,12 @@ KlemmUI::Window::WindowFlag KlemmUI::Window::GetWindowFlags() const
 void KlemmUI::Window::MakeContextCurrent()
 {
 	SDL_WINDOW_PTR(SDLWindow);
+
+	if (!GLContext)
+	{
+		return;
+	}
+
 	if (SDL_GL_MakeCurrent(SDLWindow, GLContext))
 	{
 		Application::Error::Error(SDL_GetError());

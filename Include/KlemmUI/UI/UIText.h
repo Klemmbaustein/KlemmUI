@@ -8,6 +8,12 @@ namespace KlemmUI
 	class Shader;
 	class DrawableText;
 
+	/**
+	 * @brief
+	 * A text.
+	 * 
+	 * @todo Document
+	 */
 	class UIText : public UIBox
 	{
 		Font* Renderer = nullptr;

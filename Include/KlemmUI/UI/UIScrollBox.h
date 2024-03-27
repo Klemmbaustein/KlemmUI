@@ -7,6 +7,12 @@ namespace KlemmUI
 	class UIBackground;
 	class UIButton;
 
+	/**
+	 * @brief
+	 * A scroll box.
+	 * 
+	 * All children of this box can be scrolled through if their combined size exceeds this box's maximum size.
+	 */
 	class UIScrollBox : public UIBox
 	{
 		ScrollObject ScrollClass = ScrollObject(OffsetPosition, Size, 15);

@@ -6,6 +6,10 @@ namespace KlemmUI
 {
 	class UIText;
 
+	/**
+	 * @brief
+	 * UI dropdown element.
+	 */
 	class UIDropdown : public UIButton
 	{
 		Font* Renderer;

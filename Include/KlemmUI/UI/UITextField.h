@@ -9,7 +9,12 @@ namespace KlemmUI
 	class UIText;
 	struct VertexBuffer;
 	class Shader;
-
+	/**
+	 * @brief
+	 * Functions like a UIButton, but you can input text into it when clicking it.
+	 *
+	 * The Text field can have a color and opacity.
+	 */
 	class UITextField : public UIBackground
 	{
 		bool IsHovered = false;

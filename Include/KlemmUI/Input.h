@@ -3,6 +3,14 @@
 #include <vector>
 #include <unordered_map>
 
+/**
+ * @file
+ */
+
+/**
+ * @brief
+ * Namespace containing all KlemmUI functions.
+ */
 namespace KlemmUI
 {
 #define SDLK_SCANCODE_MASK (1<<30)
@@ -278,6 +286,7 @@ namespace KlemmUI
 
 	/**
 	* @brief
+	* Input keycode.
 	*/
 	enum class Key
 	{
@@ -546,6 +555,12 @@ namespace KlemmUI
 		ENDCALL = TO_KEYCODE(Key_Scancode::SCANCODE_ENDCALL)
 	};
 
+	/**
+	 * @brief
+	 * An input manager, handling input for a window.
+	 * 
+	 * See KlemmUI::Window::Input.
+	 */
 	class InputManager
 	{
 		std::unordered_map<Key, bool> PressedKeys;
@@ -565,17 +580,40 @@ namespace KlemmUI
 
 		void MoveMouseWheel(int Amount);
 
+		/// Inserts the given string to the current text input.
 		void AddTextInput(std::string Str);
 		void DeleteTextSelection();
 
+		/**
+		 * @brief
+		 * Checks if the given key is pressed.
+		 * 
+		 * @param PressedKey
+		 * The key that should be checked.
+		 * 
+		 * @return
+		 * True if the key is pressed, false if not.
+		 */
 		bool IsKeyDown(Key PressedKey);
 		void SetKeyDown(Key PressedKey, bool KeyDown);
 
+		/**
+		 * @brief
+		 * Adds a callback that will be run of the given key is pressed.
+		 */
 		void RegisterOnKeyDownCallback(Key PressedKey, void (*Callback)(Window*));
 
+		/// True if the left mouse button is pressed.
 		bool IsLMBDown;
+		/// True if the right mouse button is pressed.
 		bool IsRMBDown;
 		bool CursorVisible;
+		/**
+		 * @brief
+		 * The position of the moue cursor relative to the window.
+		 * 
+		 * -1, -1 is the bottom left corner of the screen and 1, 1 is the top right corner.
+		 */
 		Vector2f MousePosition = 100;
 
 		bool PollForText;
@@ -583,7 +621,7 @@ namespace KlemmUI
 		int TextIndex;
 		int TextSelectionStart;
 
-
+		/// Gets the string selected for text input.
 		std::string GetSelectedTextString() const;
 
 		void SetTextIndex(int NewIndex, bool ClearSelection);

@@ -102,26 +102,6 @@ void UIButton::OnClicked()
 	}
 }
 
-UIButton* UIButton::SetOpacity(float NewOpacity)
-{
-	if (NewOpacity != Opacity)
-	{
-		Opacity = NewOpacity;
-		ParentWindow->UI.RedrawUI();
-	}
-	return this;
-}
-
-float UIButton::GetOpacity()
-{
-	return Opacity;
-}
-
-void UIButton::SetCanBeDragged(bool NewCanBeDragged)
-{
-	CanBeDragged = NewCanBeDragged;
-}
-
 bool UIButton::GetIsSelected()
 {
 	return IsSelected;
@@ -130,12 +110,6 @@ bool UIButton::GetIsSelected()
 void UIButton::SetNeedsToBeSelected(bool NeedsToBeSelected)
 {
 	this->NeedsToBeSelected = NeedsToBeSelected;
-}
-
-UIButton* UIButton::SetShader(Shader* NewShader)
-{
-	UsedShader = NewShader;
-	return this;
 }
 
 bool UIButton::GetIsHovered() const
@@ -148,14 +122,7 @@ bool UIButton::GetIsPressed() const
 	return IsPressed;
 }
 
-UIButton* UIButton::SetUseTexture(bool UseTexture, unsigned int TextureID)
-{
-	this->UseTexture = UseTexture;
-	this->TextureID = TextureID;
-	return this;
-}
-
-UIButton* UIButton::SetColor(Vector3f NewColor)
+UIBackground* UIButton::SetColor(Vector3f NewColor)
 {
 	if (NewColor != ButtonColor)
 	{

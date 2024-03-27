@@ -18,7 +18,7 @@ void UIBackground::ScrollTick(Shader* UsedShader)
 		glUniform3f(glGetUniformLocation(UsedShader->GetShaderID(), "u_offset"), 0, -1000, 1000);
 }
 
-void UIBackground::MakeGLBuffers(bool InvertTextureCoordinates)
+void UIBackground::MakeGLBuffers()
 {
 	if (BoxVertexBuffer)
 		delete BoxVertexBuffer;
@@ -54,23 +54,19 @@ float UIBackground::GetOpacity()
 	return Opacity;
 }
 
-void UIBackground::SetColor(Vector3f NewColor)
+UIBackground* UIBackground::SetColor(Vector3f NewColor)
 {
 	if (NewColor != Color)
 	{
 		Color = NewColor;
 		ParentWindow->UI.RedrawUI();
 	}
+	return this;
 }
 
 Vector3f UIBackground::GetColor()
 {
 	return Color;
-}
-
-void UIBackground::SetInvertTextureCoordinates(bool Invert)
-{
-	MakeGLBuffers(Invert);
 }
 
 UIBackground* UIBackground::SetUseTexture(bool UseTexture, unsigned int TextureID)

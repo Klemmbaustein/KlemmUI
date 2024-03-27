@@ -18,8 +18,10 @@ namespace KlemmUI
 	* A KlemmUI window.
 	* 
 	* Every new UI element will be added to the active window. By default, the active window is the window that was last updated or created.
-	* The active window can be set using the KlemmUI::Window::SetAsActiveWindow() function.
+	* The active window can be set using the KlemmUI::Window::SetWindowActive() function.
 	* The active window is thread local. On a different thread, another window might be active.
+	* 
+	* Everything related to a window should be done on the thread it was created on.
 	*/
 	class Window
 	{
@@ -41,8 +43,12 @@ namespace KlemmUI
 		void* GLContext = nullptr;
 	public:
 		
-		void SetAsActiveWindow();
-		
+		/**
+		 * @brief
+		 * Sets this window as the active window.
+		 * 
+		 * Any new UI elements will be added to the active window.
+		 */
 		void SetWindowActive();
 
 		void OnResized();
@@ -73,6 +79,7 @@ namespace KlemmUI
 
 		/**
 		* @brief
+		* The time elapsed since the Window was created.
 		*/
 		float Time = 0;
 
@@ -90,11 +97,17 @@ namespace KlemmUI
 		*/
 		float GetDeltaTime() const;
 
+		/// The input manager of this window.
 		InputManager Input = InputManager(this);
+		/// The shader manager of this window.
 		ShaderManager Shaders;
+		/// The ui manager of this window.
 		UIManager UI;
 
+		/// Centered window position.
 		static const Vector2ui POSITION_CENTERED;
+
+		/// Default window size. Window has 60% of the screen's resolution.
 		static const Vector2ui SIZE_DEFAULT;
 
 		/**
@@ -122,6 +135,12 @@ namespace KlemmUI
 		Window(std::string Name, WindowFlag Flags, Vector2ui WindowPos = POSITION_CENTERED, Vector2ui WindowSize = SIZE_DEFAULT);
 		virtual ~Window();
 
+		/**
+		 * @brief
+		 * Gets the currently active window.
+		 * 
+		 * The active window is thread-local. Each thread can have a different active window.
+		 */
 		static Window* GetActiveWindow();
 
 		void* GetSDLWindowPtr() const;

@@ -3,6 +3,7 @@
 #include <KlemmUI/UI/UIText.h>
 #include <KlemmUI/UI/UIButton.h>
 #include <KlemmUI/UI/UIBackground.h>
+#include <KlemmUI/UI/UITextField.h>
 #include <thread>
 #include <iostream>
 
@@ -14,10 +15,10 @@ void OtherWindow()
 	
 	Window Window2 = Window("KlemmUI 2.0 but THAT'S A 2ND WINDOW HOLY SHIT WHAT???", Window::WindowFlag::Resizable);
 
-	(new UIButton(true, 0, 1, []() {
+	(new UITextField(0, 1, new TextRenderer("C:/Windows/Fonts/SegoeUI.ttf"), []() {
+		Application::Error::Error("AAAAAAA");
 		}))
-		->AddChild((new UIText(10, 0, "AAAAAAAAAAAAAAAAAAAAAAAAAA", new TextRenderer("C:/Windows/Fonts/SegoeUI.ttf")))
-			->SetTextSizeMode(UIBox::SizeMode::PixelRelative));
+		->SetTextColor(0);
 
 
 	while (Window2.UpdateWindow())
@@ -57,7 +58,6 @@ int main()
 		while (MainWindow.UpdateWindow())
 		{
 		}
-		
 	}
 	b.join();
 }

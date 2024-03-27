@@ -90,7 +90,7 @@ namespace KlemmUI
 		*/
 		float GetDeltaTime() const;
 
-		InputManager Input;
+		InputManager Input = InputManager(this);
 		ShaderManager Shaders;
 		UIManager UI;
 

@@ -16,7 +16,7 @@ float UIScrollBox::GetDesiredChildrenSize()
 	{
 		Vector2f UpDown;
 		Vector2f LeftRight;
-		i->GetPadding(UpDown, LeftRight);
+		i->GetPaddingScreenSize(UpDown, LeftRight);
 		DesiredSize += UpDown.X + UpDown.Y + std::max(std::max(i->GetUsedSize().Y, i->GetMinSize().Y), 0.0f);
 	}
 	return DesiredSize;

@@ -317,7 +317,9 @@ namespace KlemmUI
 		 * Returns the KlemmUI::Window that this UIBox belongs to.
 		 */
 		Window* GetParentWindow();
-	protected:
+		void GetPaddingScreenSize(Vector2f& UpDown, Vector2f& LeftRight) const;
+
+protected:
 
 		SizeMode BoxSizeMode = SizeMode::ScreenRelative;
 		bool ShouldBeTicked = true;
@@ -355,7 +357,6 @@ namespace KlemmUI
 		void UpdatePosition();
 		bool ChildrenHorizontal;
 
-		void GetPaddingScreenSize(Vector2f& UpDown, Vector2f& LeftRight) const;
 
 		friend UIManager;
 	};

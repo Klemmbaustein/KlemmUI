@@ -99,7 +99,7 @@ Shader* TextRenderer::GetTextShader()
 
 size_t TextRenderer::GetCharacterIndexADistance(ColoredText Text, float Dist, float Scale)
 {
-	Scale *= 5.0f;
+	Scale *= 2.5f;
 	std::wstring TextString = GetUnicodeString(TextSegment::CombineToString(Text));
 	TextString.append(L" ");
 	float MaxHeight = 0.0f;
@@ -531,7 +531,7 @@ void DrawableText::Draw(ScrollObject* CurrentScrollObject)
 			Vector3f(-CurrentScrollObject->Percentage, CurrentScrollObject->Position.Y, CurrentScrollObject->Position.Y - CurrentScrollObject->Scale.Y));
 	}
 	else
-		TextShader->SetVec3("u_offset", Vector3(0, -1000, 1000));
+		TextShader->SetVec3("u_offset", Vector3f(0, -1000, 1000));
 	glDrawArrays(GL_TRIANGLES, 0, NumVerts);
 }
 

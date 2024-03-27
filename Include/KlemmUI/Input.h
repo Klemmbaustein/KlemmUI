@@ -546,41 +546,46 @@ namespace KlemmUI
 		ENDCALL = TO_KEYCODE(Key_Scancode::SCANCODE_ENDCALL)
 	};
 
-	namespace TextInput
-	{
-		extern bool PollForText;
-		extern std::string Text;
-		extern int TextIndex;
-		extern int TextRow;
-		extern int ReturnPresses;
-		extern int BackspacePresses;
-		extern int DeletePresses;
-		extern int NumPastes;
-		extern int TextSelectionStart;
-
-		std::string GetSelectedTextString();
-
-		void SetTextIndex(int NewIndex, bool ClearSelection);
-	}
 	class InputManager
 	{
 		std::unordered_map<Key, bool> PressedKeys;
 
 		Window* GetWindowBySDLID(uint32_t ID);
-		std::unordered_map<Key, std::vector<void(*)()>> ButtonPressedCallbacks;
+		std::unordered_map<Key, std::vector<void(*)(Window*)>> ButtonPressedCallbacks;
+		Window* ParentWindow = nullptr;
+
+		void MoveTextIndex(int Amount, bool RespectShiftPress = true);
 
 	public:
+		InputManager(Window* ParentWindow);
+
+		void UpdateCursorPosition();
+
 		void Poll();
+
+		void MoveMouseWheel(int Amount);
+
+		void AddTextInput(std::string Str);
+		void DeleteTextSelection();
 
 		bool IsKeyDown(Key PressedKey);
 		void SetKeyDown(Key PressedKey, bool KeyDown);
 
-		void RegisterOnKeyDownCallback(Key PressedKey, void (*Callback)());
+		void RegisterOnKeyDownCallback(Key PressedKey, void (*Callback)(Window*));
 
-		Vector2f MouseMovement;
 		bool IsLMBDown;
 		bool IsRMBDown;
 		bool CursorVisible;
-		Vector2f MousePosition;
+		Vector2f MousePosition = 100;
+
+		bool PollForText;
+		std::string Text;
+		int TextIndex;
+		int TextSelectionStart;
+
+
+		std::string GetSelectedTextString() const;
+
+		void SetTextIndex(int NewIndex, bool ClearSelection);
 	};
 }

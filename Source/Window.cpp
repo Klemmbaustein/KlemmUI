@@ -21,9 +21,6 @@ static SDL_HitTestResult WindowHitTest(SDL_Window* SDLWindow, const SDL_Point* A
 {
 	int Width, Height;
 	SDL_GetWindowSize(SDLWindow, &Width, &Height);
-	int x;
-	int y;
-	SDL_GetMouseState(&x, &y);
 
 	KlemmUI::Window* HitTestWindow = static_cast<KlemmUI::Window*>(Data);
 
@@ -254,6 +251,7 @@ int KlemmUI::Window::ToSDLWindowFlags(WindowFlag Flags)
 bool KlemmUI::Window::UpdateWindow()
 {
 	SetWindowActive();
+	Input.UpdateCursorPosition();
 	Input.Poll();
 	MakeContextCurrent();
 	if (ShouldUpdateSize)

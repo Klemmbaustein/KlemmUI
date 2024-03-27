@@ -78,3 +78,4 @@ template class Vector2<uint64_t>;
 template class Vector2<int64_t>;
 template class Vector2<int32_t>;
 template class Vector2<float>;
+template class Vector2<double>;

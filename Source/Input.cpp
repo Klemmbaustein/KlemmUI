@@ -195,6 +195,7 @@ void InputManager::Poll()
 			break;
 		case SDL_MOUSEWHEEL:
 			MoveMouseWheel(Event.wheel.y);
+			break;
 		default:
 			break;
 		}

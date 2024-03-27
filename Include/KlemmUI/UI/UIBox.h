@@ -20,6 +20,11 @@ namespace KlemmUI
 	class UIBox
 	{
 	public:
+
+		/**
+		 * @brief
+		 * Controls the visibility of the UIBox.
+		 */
 		bool IsVisible = true;
 
 		/**
@@ -49,7 +54,10 @@ namespace KlemmUI
 			/// Darkened edge around the box.
 			DarkenedEdge = 2
 		};
-
+		/**
+		 * @brief
+		 * Describes the way size should be calculated for a UIBox.
+		 */
 		enum class SizeMode
 		{
 			/**
@@ -80,6 +88,7 @@ namespace KlemmUI
 			PixelRelative = 2
 		};
 
+
 		UIBox* SetSizeMode(SizeMode NewMode);
 
 		BorderType BoxBorder = BorderType::None;
@@ -87,7 +96,25 @@ namespace KlemmUI
 		Align HorizontalBoxAlign = Align::Default;
 		Align VerticalBoxAlign = Align::Reverse;
 
-		UIBox(bool Horizontal, Vector2f Position);
+		/**
+		 * @brief
+		 * Constructs a UIBox with either horizontal or vertical child align with the given position.
+		 * 
+		 * @param Horizontal
+		 * If true, the UIBox's children will be laid out horizontally. If false, they will be laid out vertically.
+		 * See KlemmUI::UIBox::SetHorizontal() for more details.
+		 * 
+		 * @param Position
+		 * The position of the UIBox.
+		 * If the UIBox is a child of another UIBox, this is ignored.
+		 */
+		UIBox(bool Horizontal, Vector2f Position = 0);
+		/**
+		 * @brief
+		 * UIBox destructor.
+		 * 
+		 * When deleted, a UIBox will also delete all children.
+		 */
 		virtual ~UIBox();
 		virtual void OnAttached();
 
@@ -163,6 +190,7 @@ namespace KlemmUI
 		 *
 		 * @param NewPosition
 		 * The new position of the box, where -1, -1 is the bottom left corner of the screen and 1, 1 is the top right corner.
+		 * The position is ignored if this UIBox is a child of another UIBox.
 		 * 
 		 * @return
 		 * A reference to this UIBox.
@@ -177,7 +205,27 @@ namespace KlemmUI
 		 * The position of the box, where -1, -1 is the bottom left corner of the screen and 1, 1 is the top right corner.
 		 */
 		Vector2f GetPosition();
+
+		/**
+		 * @brief
+		 * Sets the padding of a UIBox in each direction.
+		 *
+		 * Padding works like margin in CSS.
+		 *
+		 * @return
+		 * A reference to this UIBox.
+		 */
 		UIBox* SetPadding(float Up, float Down, float Left, float Right);
+	
+		/**
+		 * @brief
+		 * Sets the padding of a UIBox, in all directions.
+		 *
+		 * Padding works like margin in CSS.
+		 *
+		 * @return
+		 * A pointer to this UIBox.
+		 */
 		UIBox* SetPadding(float AllDirs);
 		UIBox* SetPaddingSizeMode(SizeMode NewSizeMode);
 		UIBox* SetTryFill(bool NewTryFill);

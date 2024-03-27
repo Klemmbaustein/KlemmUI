@@ -1,6 +1,6 @@
 #pragma once
 #include "UIButton.h"
-#include "../Rendering/Text/TextRenderer.h"
+#include "../Rendering/Text/Font.h"
 
 namespace KlemmUI
 {

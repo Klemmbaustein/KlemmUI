@@ -1,5 +1,5 @@
 #define _CRT_SECURE_NO_WARNINGS
-#include <KlemmUI/Rendering/Text/TextRenderer.h>
+#include <KlemmUI/Rendering/Text/Font.h>
 #define STB_TRUETYPE_IMPLEMENTATION
 #include "../../Util/stb_truetype.hpp"
 #include <KlemmUI/Rendering/Shader.h>
@@ -9,8 +9,8 @@
 #include <KlemmUI/Rendering/ScrollObject.h>
 #include <KlemmUI/StringReplace.h>
 #include <GL/glew.h>
-#include <iostream>
 #include <KlemmUI/Window.h>
+#include <filesystem>
 
 using namespace KlemmUI;
 
@@ -92,12 +92,12 @@ constexpr int FONT_MAX_UNICODE_CHARS = 800;
 
 const std::string TextShaderName = "TextShader";
 
-Shader* TextRenderer::GetTextShader()
+Shader* Font::GetTextShader()
 {
 	return Window::GetActiveWindow()->Shaders.GetShader(TextShaderName);
 }
 
-size_t TextRenderer::GetCharacterIndexADistance(ColoredText Text, float Dist, float Scale)
+size_t Font::GetCharacterIndexADistance(ColoredText Text, float Dist, float Scale)
 {
 	Scale *= 2.5f;
 	std::wstring TextString = GetUnicodeString(TextSegment::CombineToString(Text));
@@ -160,8 +160,13 @@ size_t TextRenderer::GetCharacterIndexADistance(ColoredText Text, float Dist, fl
 	return std::min(i, TextSegment::CombineToString(Text).size());
 }
 
-TextRenderer::TextRenderer(std::string Filename)
+Font::Font(std::string Filename)
 {
+	if (!std::filesystem::exists(Filename))
+	{
+		Application::Error::Error("Failed to load font: " + Filename, true);
+	}
+
 	Window::GetActiveWindow()->Shaders.LoadShader("text.vert", "text.frag", TextShaderName);
 
 	Uint8* ttfBuffer = (Uint8*)malloc(1 << 20);
@@ -291,7 +296,7 @@ TextRenderer::TextRenderer(std::string Filename)
 	delete[] GlypthBitmap;
 }
 
-Vector2f TextRenderer::GetTextSize(ColoredText Text, float Scale, bool Wrapped, float LengthBeforeWrap)
+Vector2f Font::GetTextSize(ColoredText Text, float Scale, bool Wrapped, float LengthBeforeWrap)
 {
 	float originalScale = Scale;
 	Scale *= 2.5f;
@@ -366,7 +371,7 @@ Vector2f TextRenderer::GetTextSize(ColoredText Text, float Scale, bool Wrapped, 
 }
 
 
-DrawableText* TextRenderer::MakeText(ColoredText Text, Vector2f Pos, float Scale, Vector3f Color, float opacity, float LengthBeforeWrap)
+DrawableText* Font::MakeText(ColoredText Text, Vector2f Pos, float Scale, Vector3f Color, float opacity, float LengthBeforeWrap)
 {
 	size_t CharIndex = 0;
 	for (auto& i : Text)
@@ -484,7 +489,7 @@ DrawableText* TextRenderer::MakeText(ColoredText Text, Vector2f Pos, float Scale
 	return new DrawableText(newVAO, newVBO, numVertices, fontTexture, Pos, Scale, Color, opacity);
 }
 
-TextRenderer::~TextRenderer()
+Font::~Font()
 {
 	unsigned int i = 0;
 	glDeleteTextures(1, &fontTexture);
@@ -515,7 +520,7 @@ DrawableText::DrawableText(unsigned int VAO, unsigned int VBO, unsigned int NumV
 
 void DrawableText::Draw(ScrollObject* CurrentScrollObject)
 {
-	Shader* TextShader = TextRenderer::GetTextShader();
+	Shader* TextShader = Font::GetTextShader();
 	glBindVertexArray(VAO);
 	TextShader->Bind();
 	glActiveTexture(GL_TEXTURE0);

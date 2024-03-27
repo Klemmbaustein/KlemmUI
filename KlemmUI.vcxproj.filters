@@ -51,7 +51,7 @@
     <ClCompile Include="Source\Rendering\Shader.cpp">
       <Filter>Code\Rendering</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Rendering\Text\TextRenderer.cpp">
+    <ClCompile Include="Source\Rendering\Text\Font.cpp">
       <Filter>Code\Rendering\Text</Filter>
     </ClCompile>
     <ClCompile Include="Source\Rendering\Framebuffer.cpp">
@@ -142,7 +142,7 @@
     <ClInclude Include="Include\KlemmUI\Rendering\Texture.h">
       <Filter>Headers\Rendering</Filter>
     </ClInclude>
-    <ClInclude Include="Include\KlemmUI\Rendering\Text\TextRenderer.h">
+    <ClInclude Include="Include\KlemmUI\Rendering\Text\Font.h">
       <Filter>Headers\Rendering\Text</Filter>
     </ClInclude>
     <ClInclude Include="Include\KlemmUI\Rendering\Text\TextSegment.h">

@@ -15,7 +15,7 @@ void OtherWindow()
 	
 	Window Window2 = Window("KlemmUI 2.0 but THAT'S A 2ND WINDOW HOLY SHIT WHAT???", Window::WindowFlag::Resizable);
 
-	(new UITextField(0, 1, new TextRenderer("C:/Windows/Fonts/SegoeUI.ttf"), []() {
+	(new UITextField(0, 1, new Font("C:/Windows/Fonts/SegoeUI.ttf"), []() {
 		Application::Error::Error("AAAAAAA");
 		}))
 		->SetTextColor(0);
@@ -51,7 +51,7 @@ int main()
 				->SetPaddingSizeMode(UIBox::SizeMode::PixelRelative)
 				->SetSizeMode(UIBox::SizeMode::PixelRelative)
 				->SetTryFill(true))
-			->AddChild((new UIText(20, 1, "KlemmUI 2.0 woah", new TextRenderer("C:/Windows/Fonts/SegoeUI.ttf")))
+			->AddChild((new UIText(20, 1, "KlemmUI 2.0 woah", new Font("C:/Windows/Fonts/SegoeUI.ttf")))
 				->SetTextSizeMode(UIBox::SizeMode::PixelRelative)
 				->SetPadding(0));
 

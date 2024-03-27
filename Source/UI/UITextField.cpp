@@ -155,7 +155,7 @@ UITextField* UITextField::SetTextSize(float NewTextSize)
 	return this;
 }
 
-UITextField* UITextField::SetTextRenderer(TextRenderer* Font)
+UITextField* UITextField::SetTextRenderer(Font* Font)
 {
 	TextObject->SetTextRenderer(Font);
 	return this;
@@ -213,7 +213,7 @@ bool UITextField::GetIsPressed() const
 	return IsPressed;
 }
 
-UITextField::UITextField(Vector2f Position, Vector3f Color, TextRenderer* Renderer, void(*PressedFunc)())
+UITextField::UITextField(Vector2f Position, Vector3f Color, Font* Renderer, void(*PressedFunc)())
 	: UIBackground(true, Position, Color)
 {
 	TextFieldColor = Color;

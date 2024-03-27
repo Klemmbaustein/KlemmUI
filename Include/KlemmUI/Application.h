@@ -11,5 +11,7 @@ namespace KlemmUI::Application
 	namespace Error
 	{
 		void Error(std::string Message, bool Fatal = false);
+
+		void SetErrorCallback(void(*Callback)(std::string Message));
 	}
 }

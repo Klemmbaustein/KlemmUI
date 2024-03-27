@@ -117,7 +117,7 @@
     <ClCompile Include="Source\Rendering\ScrollObject.cpp" />
     <ClCompile Include="Source\Rendering\Shader.cpp" />
     <ClCompile Include="Source\Rendering\Texture.cpp" />
-    <ClCompile Include="Source\Rendering\Text\TextRenderer.cpp" />
+    <ClCompile Include="Source\Rendering\Text\Font.cpp" />
     <ClCompile Include="Source\Rendering\VertexBuffer.cpp" />
     <ClCompile Include="Source\UI\UIBackground.cpp" />
     <ClCompile Include="Source\UI\UIBox.cpp" />
@@ -141,7 +141,7 @@
     <ClInclude Include="Include\KlemmUI\Rendering\MarkdownRendering.h" />
     <ClInclude Include="Include\KlemmUI\Rendering\ScrollObject.h" />
     <ClInclude Include="Include\KlemmUI\Rendering\Texture.h" />
-    <ClInclude Include="Include\KlemmUI\Rendering\Text\TextRenderer.h" />
+    <ClInclude Include="Include\KlemmUI\Rendering\Text\Font.h" />
     <ClInclude Include="Include\KlemmUI\Rendering\Text\TextSegment.h" />
     <ClInclude Include="Include\KlemmUI\StringReplace.h" />
     <ClInclude Include="Include\KlemmUI\UI\UIBackground.h" />

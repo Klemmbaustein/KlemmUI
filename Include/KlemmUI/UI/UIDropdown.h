@@ -8,7 +8,7 @@ namespace KlemmUI
 
 	class UIDropdown : public UIButton
 	{
-		TextRenderer* Renderer;
+		Font* Renderer;
 		UIText* SelectedText = nullptr;
 		UIBox* OptionsBox = nullptr;
 		float Size = 0.0f;
@@ -31,8 +31,8 @@ namespace KlemmUI
 
 		UIDropdown* SelectOption(size_t Index, bool CallEvent = true);
 
-		UIDropdown(Vector2f Position, float Size, Vector3f Color, Vector3f TextColor, std::vector<Option> Options, void(*PressedFunc)(), TextRenderer* Renderer);
-		UIDropdown(Vector2f Position, float Size, Vector3f Color, Vector3f TextColor, std::vector<Option> Options, void(*PressedFunc)(int), int ButtonIndex, TextRenderer* Renderer);
+		UIDropdown(Vector2f Position, float Size, Vector3f Color, Vector3f TextColor, std::vector<Option> Options, void(*PressedFunc)(), Font* Renderer);
+		UIDropdown(Vector2f Position, float Size, Vector3f Color, Vector3f TextColor, std::vector<Option> Options, void(*PressedFunc)(int), int ButtonIndex, Font* Renderer);
 		UIDropdown* SetTextSize(float Size, float Padding);
 		UIDropdown* SetDropdownColor(Vector3f NewColor, Vector3f TextColor);
 

@@ -1,6 +1,6 @@
 #pragma once
 #include "UIBox.h"
-#include "../Rendering/Text/TextRenderer.h"
+#include "../Rendering/Text/Font.h"
 #include "../Vector3.h"
 
 namespace KlemmUI
@@ -10,7 +10,7 @@ namespace KlemmUI
 
 	class UIText : public UIBox
 	{
-		TextRenderer* Renderer = nullptr;
+		Font* Renderer = nullptr;
 		Vector3f Color;
 		ColoredText RenderedText;
 		float TextSize = 0.5f;
@@ -22,7 +22,7 @@ namespace KlemmUI
 		float GetRenderedSize() const;
 		float GetWrapDistance() const;
 	public:
-		UIText* SetTextRenderer(TextRenderer* Font);
+		UIText* SetTextRenderer(Font* Font);
 		void Tick() override;
 		bool Wrap = false;
 		float WrapDistance = 0.0f;
@@ -32,7 +32,7 @@ namespace KlemmUI
 		UIText* SetTextSize(float Size);
 		UIText* SetTextSizeMode(SizeMode NewMode);
 		float GetTextSize() const;
-		static Vector2f GetTextSizeAtScale(float Scale, SizeMode ScaleType, TextRenderer* Renderer);
+		static Vector2f GetTextSizeAtScale(float Scale, SizeMode ScaleType, Font* Renderer);
 		UIText* SetTextWidthOverride(float NewTextWidthOverride);
 
 		size_t GetNearestLetterAtLocation(Vector2f Location) const;
@@ -43,8 +43,8 @@ namespace KlemmUI
 		void SetText(std::string NewText);
 		void SetText(ColoredText NewText);
 		std::string GetText() const;
-		UIText(float Scale, Vector3f Color, std::string Text, TextRenderer* Renderer);
-		UIText(float Scale, ColoredText Text, TextRenderer* Renderer);
+		UIText(float Scale, Vector3f Color, std::string Text, Font* Renderer);
+		UIText(float Scale, ColoredText Text, Font* Renderer);
 		virtual ~UIText();
 		void Draw() override;
 		void Update() override;

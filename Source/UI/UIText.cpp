@@ -28,7 +28,7 @@ float UIText::GetWrapDistance() const
 	return Distance;
 }
 
-UIText* UIText::SetTextRenderer(TextRenderer* Font)
+UIText* UIText::SetTextRenderer(Font* Font)
 {
 	if (Font != Renderer)
 	{
@@ -99,7 +99,7 @@ float UIText::GetTextSize() const
 	return TextSize / 2;
 }
 
-Vector2f UIText::GetTextSizeAtScale(float Scale, SizeMode ScaleType, TextRenderer* Renderer)
+Vector2f UIText::GetTextSizeAtScale(float Scale, SizeMode ScaleType, Font* Renderer)
 {
 	float RenderedSize = Scale;
 	if (ScaleType == SizeMode::PixelRelative)
@@ -152,7 +152,7 @@ std::string UIText::GetText() const
 	return TextSegment::CombineToString(RenderedText);
 }
 
-UIText::UIText(float Scale, Vector3f Color, std::string Text, TextRenderer* Renderer) : UIBox(true, Position)
+UIText::UIText(float Scale, Vector3f Color, std::string Text, Font* Renderer) : UIBox(true, Position)
 {
 	this->TextSize = Scale * 2;
 	this->Color = Color;
@@ -160,7 +160,7 @@ UIText::UIText(float Scale, Vector3f Color, std::string Text, TextRenderer* Rend
 	RenderedText = { TextSegment(Text, Color) };
 }
 
-UIText::UIText(float Scale, ColoredText Text, TextRenderer* Renderer) : UIBox(true, Position)
+UIText::UIText(float Scale, ColoredText Text, Font* Renderer) : UIBox(true, Position)
 {
 	this->TextSize = Scale * 2;
 	this->Color = Color;

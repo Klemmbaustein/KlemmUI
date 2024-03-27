@@ -18,7 +18,7 @@ namespace KlemmUI
 	class Shader;
 	class DrawableText
 	{
-		friend class TextRenderer;
+		friend class Font;
 		unsigned int VAO = 0, VBO = 0;
 		unsigned int Texture = 0;
 		Vector3f Color = 0;
@@ -33,7 +33,7 @@ namespace KlemmUI
 		~DrawableText();
 	};
 
-	class TextRenderer
+	class Font
 	{
 		friend class DrawableText;
 	private:
@@ -58,10 +58,10 @@ namespace KlemmUI
 		uint8_t TabSize = 4;
 		std::string Filename;
 		size_t GetCharacterIndexADistance(ColoredText Text, float Dist, float Scale);
-		TextRenderer(std::string filename);
+		Font(std::string filename);
 		Vector2f GetTextSize(ColoredText Text, float Scale, bool Wrapped, float LengthBeforeWrap);
 		DrawableText* MakeText(ColoredText Text, Vector2f Pos, float Scale, Vector3f Color, float opacity, float LengthBeforeWrap);
-		~TextRenderer();
+		~Font();
 
 	};
 

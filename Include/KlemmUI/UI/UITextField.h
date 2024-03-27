@@ -5,7 +5,7 @@
 namespace KlemmUI
 {
 
-	class TextRenderer;
+	class Font;
 	class UIText;
 	struct VertexBuffer;
 	class Shader;
@@ -36,7 +36,7 @@ namespace KlemmUI
 		bool GetIsEdited() const { return IsEdited; }
 		UITextField* SetText(std::string NewText);
 		UITextField* SetTextSize(float NewTextSize);
-		UITextField* SetTextRenderer(TextRenderer* Font);
+		UITextField* SetTextRenderer(Font* Font);
 		UITextField* SetHintText(std::string NewHintText);
 		UITextField* SetColor(Vector3f NewColor);
 		Vector3f GetColor() const;
@@ -47,7 +47,7 @@ namespace KlemmUI
 		bool GetIsHovered() const;
 		bool GetIsPressed() const;
 
-		UITextField(Vector2f Position, Vector3f Color, TextRenderer* Renderer, void(*PressedFunc)());
+		UITextField(Vector2f Position, Vector3f Color, Font* Renderer, void(*PressedFunc)());
 		~UITextField() override;
 		void Update() override;
 		void DrawBackground() override;

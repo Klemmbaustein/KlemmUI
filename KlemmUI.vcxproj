@@ -101,7 +101,7 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Include\KlemmUI\UI\UIManager.cpp" />
+    <ClCompile Include="Source\UI\UIManager.cpp" />
     <ClCompile Include="Source\Input.cpp" />
     <ClCompile Include="Source\Rendering\ShaderManager.cpp" />
     <ClCompile Include="Source\Timer.cpp" />

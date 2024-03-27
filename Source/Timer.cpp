@@ -1,4 +1,4 @@
-#include "Timer.h"
+#include <KlemmUI/Timer.h>
 #include <SDL.h>
 
 KlemmUI::Timer::Timer()

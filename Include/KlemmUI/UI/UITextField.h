@@ -41,7 +41,7 @@ namespace KlemmUI
 		bool GetIsEdited() const { return IsEdited; }
 		UITextField* SetText(std::string NewText);
 		UITextField* SetTextSize(float NewTextSize);
-		UITextField* SetTextRenderer(Font* Font);
+		UITextField* SetFont(Font* NewFont);
 		UITextField* SetHintText(std::string NewHintText);
 		UITextField* SetColor(Vector3f NewColor);
 		Vector3f GetColor() const;

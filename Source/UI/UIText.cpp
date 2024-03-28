@@ -28,11 +28,11 @@ float UIText::GetWrapDistance() const
 	return Distance;
 }
 
-UIText* UIText::SetTextRenderer(Font* Font)
+UIText* UIText::SetFont(Font* NewFont)
 {
-	if (Font != Renderer)
+	if (NewFont != Renderer)
 	{
-		Font = Renderer;
+		NewFont = Renderer;
 		InvalidateLayout();
 	}
 	return this;
@@ -125,7 +125,7 @@ void UIText::SetText(std::string NewText)
 	SetText({TextSegment(NewText, Color)});
 }
 
-void UIText::SetText(ColoredText NewText)
+void UIText::SetText(std::vector<TextSegment> NewText)
 {
 	if (TextSegment::CombineToString(NewText) != TextSegment::CombineToString(RenderedText))
 	{
@@ -152,19 +152,19 @@ std::string UIText::GetText() const
 	return TextSegment::CombineToString(RenderedText);
 }
 
-UIText::UIText(float Scale, Vector3f Color, std::string Text, Font* Renderer) : UIBox(true, Position)
+UIText::UIText(float Scale, Vector3f Color, std::string Text, Font* NewFont) : UIBox(true, Position)
 {
 	this->TextSize = Scale * 2;
 	this->Color = Color;
-	this->Renderer = Renderer;
+	this->Renderer = NewFont;
 	RenderedText = { TextSegment(Text, Color) };
 }
 
-UIText::UIText(float Scale, ColoredText Text, Font* Renderer) : UIBox(true, Position)
+UIText::UIText(float Scale, std::vector<TextSegment> Text, Font* NewFont) : UIBox(true, Position)
 {
 	this->TextSize = Scale * 2;
 	this->Color = Color;
-	this->Renderer = Renderer;
+	this->Renderer = NewFont;
 	RenderedText = Text;
 }
 

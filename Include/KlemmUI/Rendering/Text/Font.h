@@ -57,10 +57,10 @@ namespace KlemmUI
 
 		uint8_t TabSize = 4;
 		std::string Filename;
-		size_t GetCharacterIndexADistance(ColoredText Text, float Dist, float Scale);
+		size_t GetCharacterIndexADistance(std::vector<TextSegment> Text, float Dist, float Scale);
 		Font(std::string filename);
-		Vector2f GetTextSize(ColoredText Text, float Scale, bool Wrapped, float LengthBeforeWrap);
-		DrawableText* MakeText(ColoredText Text, Vector2f Pos, float Scale, Vector3f Color, float opacity, float LengthBeforeWrap);
+		Vector2f GetTextSize(std::vector<TextSegment> Text, float Scale, bool Wrapped, float LengthBeforeWrap);
+		DrawableText* MakeText(std::vector<TextSegment> Text, Vector2f Pos, float Scale, Vector3f Color, float opacity, float LengthBeforeWrap);
 		~Font();
 
 	};

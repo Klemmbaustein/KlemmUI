@@ -5,9 +5,15 @@
 
 namespace KlemmUI
 {
+	/**
+	 * @brief
+	 * A segment of a rendered text with a color and text attribute.
+	 */
 	struct TextSegment
 	{
+		/// The text of the segment
 		std::string Text;
+		/// The color of the segment
 		Vector3f Color;
 		TextSegment(std::string Text, Vector3f Color)
 		{
@@ -30,5 +36,4 @@ namespace KlemmUI
 		}
 	};
 
-	typedef std::vector<TextSegment> ColoredText;
 }

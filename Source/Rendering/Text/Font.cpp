@@ -97,7 +97,7 @@ Shader* Font::GetTextShader()
 	return Window::GetActiveWindow()->Shaders.GetShader(TextShaderName);
 }
 
-size_t Font::GetCharacterIndexADistance(ColoredText Text, float Dist, float Scale)
+size_t Font::GetCharacterIndexADistance(std::vector<TextSegment> Text, float Dist, float Scale)
 {
 	Scale *= 2.5f;
 	std::wstring TextString = GetUnicodeString(TextSegment::CombineToString(Text));
@@ -296,7 +296,7 @@ Font::Font(std::string Filename)
 	delete[] GlypthBitmap;
 }
 
-Vector2f Font::GetTextSize(ColoredText Text, float Scale, bool Wrapped, float LengthBeforeWrap)
+Vector2f Font::GetTextSize(std::vector<TextSegment> Text, float Scale, bool Wrapped, float LengthBeforeWrap)
 {
 	float originalScale = Scale;
 	Scale *= 2.5f;
@@ -371,7 +371,7 @@ Vector2f Font::GetTextSize(ColoredText Text, float Scale, bool Wrapped, float Le
 }
 
 
-DrawableText* Font::MakeText(ColoredText Text, Vector2f Pos, float Scale, Vector3f Color, float opacity, float LengthBeforeWrap)
+DrawableText* Font::MakeText(std::vector<TextSegment> Text, Vector2f Pos, float Scale, Vector3f Color, float opacity, float LengthBeforeWrap)
 {
 	size_t CharIndex = 0;
 	for (auto& i : Text)

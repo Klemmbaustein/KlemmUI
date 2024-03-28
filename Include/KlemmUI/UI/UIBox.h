@@ -131,7 +131,7 @@ namespace KlemmUI
 		 * Adds the given UIBox to this UIBox's children.
 		 * 
 		 * @return
-		 * A reference to this UIBox.
+		 * A pointer to this UIBox.
 		 */
 		UIBox* AddChild(UIBox* NewChild);
 		UIBox* GetAbsoluteParent();
@@ -166,7 +166,7 @@ namespace KlemmUI
 		 * The new maximum size the UIBox should occupy.
 		 *
 		 * @return
-		 * A reference to this UIBox.
+		 * A pointer to this UIBox.
 		 */
 		UIBox* SetMaxSize(Vector2f NewMaxSize);
 		Vector2f GetMaxSize() const;
@@ -179,7 +179,7 @@ namespace KlemmUI
 		 * The new minimum size the UIBox should occupy.
 		 *
 		 * @return
-		 * A reference to this UIBox.
+		 * A pointer to this UIBox.
 		 */
 		UIBox* SetMinSize(Vector2f NewMinSize);
 		Vector2f GetMinSize() const;
@@ -193,7 +193,7 @@ namespace KlemmUI
 		 * The position is ignored if this UIBox is a child of another UIBox.
 		 * 
 		 * @return
-		 * A reference to this UIBox.
+		 * A pointer to this UIBox.
 		 */
 		UIBox* SetPosition(Vector2f NewPosition);
 
@@ -213,7 +213,7 @@ namespace KlemmUI
 		 * Padding works like margin in CSS.
 		 *
 		 * @return
-		 * A reference to this UIBox.
+		 * A pointer to this UIBox.
 		 */
 		UIBox* SetPadding(float Up, float Down, float Left, float Right);
 	
@@ -249,7 +249,7 @@ namespace KlemmUI
 		 * |____________________________________|  |____________________________________|
 		 * ```
 		 * @return
-		 * A reference to this UIBox.
+		 * A pointer to this UIBox.
 		 */
 		UIBox* SetHorizontal(bool IsHorizontal);
 
@@ -281,6 +281,9 @@ namespace KlemmUI
 		 * 
 		 * @param Parent
 		 * The parent which should be checked for.
+		 * 
+		 * @return
+		 * True if this UIBox is a parent to the given UIBox, or any parent of this UIBox is a child of the parent.
 		 */
 		bool IsChildOf(UIBox* Parent);
 

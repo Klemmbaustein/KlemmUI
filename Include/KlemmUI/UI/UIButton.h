@@ -11,7 +11,7 @@ namespace KlemmUI
 
 	/**
 	 * @brief
-	 * A button.
+	 * A UI element that functions as a button.
 	 */
 	class UIButton : public UIBackground
 	{

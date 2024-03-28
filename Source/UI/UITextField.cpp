@@ -155,9 +155,9 @@ UITextField* UITextField::SetTextSize(float NewTextSize)
 	return this;
 }
 
-UITextField* UITextField::SetTextRenderer(Font* Font)
+UITextField* UITextField::SetFont(Font* Font)
 {
-	TextObject->SetTextRenderer(Font);
+	TextObject->SetFont(Font);
 	return this;
 }
 

@@ -356,7 +356,7 @@ void Markdown::RenderMarkdown(std::string Markdown, UIBox* TargetParent, Markdow
 			{
 				TextSize += (5 - i.HeadingSize) * 0.05f + 0.1f;
 			}
-			i.Add(TargetParent, Style, Style.Width * 0.2f * (1 / TextSize), false);
+			i.Add(TargetParent, Style, Style.Width * 0.4f * (1 / TextSize), false);
 		}
 	}
 }

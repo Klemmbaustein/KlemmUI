@@ -32,7 +32,7 @@ struct MarkdownLine
 
 		if (HeadingSize)
 		{
-			TextSize += (5 - HeadingSize) * 0.05f + 0.05f;
+			TextSize += (5 - HeadingSize) * 0.1f + 0.1f;
 			if (HasHeadingPadding)
 			{
 				HeadingPadding += (5 - HeadingSize) * 0.01f + 0.03f;
@@ -186,7 +186,7 @@ void Markdown::RenderMarkdown(std::string Markdown, UIBox* TargetParent, Markdow
 	for (size_t i = 0; i < Lines.size(); i++)
 	{
 		auto& ln = Lines[i];
-		size_t WrapLength = (size_t)(Style.Width * 220.0f * Style.TextSize * Window::GetActiveWindow()->GetAspectRatio());
+		size_t WrapLength = (size_t)(Style.Width * 110.0f * Style.TextSize * Window::GetActiveWindow()->GetAspectRatio());
 
 		if (ln.HeadingSize)
 		{
@@ -331,7 +331,6 @@ void Markdown::RenderMarkdown(std::string Markdown, UIBox* TargetParent, Markdow
 		{
 			UIBox* Sidebox = new UIBox(true, 0);
 			Sidebox->SetPadding(0);
-			float WrapSize = 0;
 			for (auto& c : i.Children)
 			{
 				if (c.Text.empty())

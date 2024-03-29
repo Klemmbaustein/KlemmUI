@@ -3,8 +3,9 @@
 
 #include "Internal.h"
 #include <KlemmUI/UI/UIBox.h>
-#include <iostream>
 #include <KlemmUI/Application.h>
+#include <KlemmUI/UI/UIButton.h>
+#include <KlemmUI/UI/UITextField.h>
 #include <mutex>
 
 #define SDL_WINDOW_PTR(x) SDL_Window* x = static_cast<SDL_Window*>(this->SDLWindowPtr)
@@ -121,6 +122,15 @@ KlemmUI::Window::Window(std::string Name, WindowFlag Flags, Vector2ui WindowPos,
 	}
 	SDLWindowPtr = SDLWindow;
 
+	void* NewCursors[(int)Cursor::Cursor_End] =
+	{
+		SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_ARROW),
+		SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND),
+		SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_IBEAM),
+	};
+
+	memcpy(Cursors, NewCursors, sizeof(NewCursors));
+
 	UpdateSize();
 	SetWindowActive();
 	GLContext = Internal::InitGLContext(this);
@@ -199,7 +209,7 @@ void KlemmUI::Window::SetWindowFlags(WindowFlag NewFlags)
 {
 	SDL_WINDOW_PTR(SDLWindow);
 
-	CurrentWindowFlags = CurrentWindowFlags;
+	CurrentWindowFlags = NewFlags;
 
 	SDL_SetWindowBordered(SDLWindow, SDL_bool((NewFlags & WindowFlag::Borderless) != WindowFlag::Borderless));
 	SDL_SetWindowAlwaysOnTop(SDLWindow, SDL_bool((NewFlags & WindowFlag::AlwaysOnTop) == WindowFlag::AlwaysOnTop));
@@ -224,6 +234,19 @@ void KlemmUI::Window::MakeContextCurrent()
 	{
 		Application::Error::Error(SDL_GetError());
 	}
+}
+
+void KlemmUI::Window::SetTitle(std::string NewTitle)
+{
+	SDL_WINDOW_PTR(SDLWindow);
+
+	SDL_SetWindowTitle(SDLWindow, NewTitle.c_str());
+}
+
+void KlemmUI::Window::HandleCursor()
+{
+	SDL_SetCursor(static_cast<SDL_Cursor*>(Cursors[(int)CurrentCursor]));
+	CurrentCursor = dynamic_cast<UIButton*>(UI.HoveredBox) ? Cursor::Hand : (dynamic_cast<UITextField*>(UI.HoveredBox) ? Cursor::Text : Cursor::Default);
 }
 
 int KlemmUI::Window::ToSDLWindowFlags(WindowFlag Flags)
@@ -266,6 +289,7 @@ bool KlemmUI::Window::UpdateWindow()
 		Internal::DrawWindow(this);
 	}
 	UI.UpdateEvents();
+	HandleCursor();
 
 	if (!ActiveWindows.empty() && ActiveWindows[0] == this)
 	{
@@ -307,6 +331,29 @@ void KlemmUI::Window::SetMaxSize(Vector2ui MaximumSize)
 const std::vector<KlemmUI::Window*>& KlemmUI::Window::GetActiveWindows()
 {
 	return ActiveWindows;
+}
+
+void KlemmUI::Window::SetWindowFullScreen(bool NewIsFullScreen)
+{
+	SDL_WINDOW_PTR(SDLWindow);
+	
+	if (NewIsFullScreen)
+	{
+		SDL_MaximizeWindow(SDLWindow);
+	}
+	else
+	{
+		SDL_RestoreWindow(SDLWindow);
+	}
+}
+
+bool KlemmUI::Window::GetWindowFullScreen()
+{
+	SDL_WINDOW_PTR(SDLWindow);
+
+	Uint32 Flags = SDL_GetWindowFlags(SDLWindow);
+
+	return Flags & SDL_WINDOW_MAXIMIZED;
 }
 
 void KlemmUI::Window::Close()

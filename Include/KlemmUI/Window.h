@@ -71,6 +71,15 @@ namespace KlemmUI
 		static const std::vector<Window*>& GetActiveWindows();
 
 		/**
+		 * @brief
+		 * Either maximizes or restores the window.
+		 */
+		void SetWindowFullScreen(bool NewIsFullScreen);
+
+		/// Returns if the window is maximized.
+		bool GetWindowFullScreen();
+
+		/**
 		* @brief
 		* Target framerate of the window.
 		* A value of 0 uses the framerate of the window's monitor.
@@ -185,12 +194,36 @@ namespace KlemmUI
 
 		/**
 		* @brief
+		* Sets the window flags.
 		*/
 		void SetWindowFlags(WindowFlag NewFlags);
 		WindowFlag GetWindowFlags() const;
 		void MakeContextCurrent();
 
+		/**
+		 * @brief
+		 * The border color used when the window is borderless.
+		 */
+		Vector3f BorderColor = 1;
+
+		enum class Cursor
+		{
+			Default,
+			Hand,
+			Text,
+			Cursor_End
+		};
+
+		Cursor CurrentCursor = Cursor::Default;
+
+		/**
+		 * @brief
+		 * Sets the window's title.
+		 */
+		void SetTitle(std::string NewTitle);
 	private:
+		void HandleCursor();
+		void* Cursors[(int)Cursor::Cursor_End];
 		int ToSDLWindowFlags(WindowFlag Flags);
 		WindowFlag CurrentWindowFlags;
 	};

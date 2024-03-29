@@ -8,7 +8,7 @@ namespace KlemmUI::Markdown
 		float Width = 1;
 		Vector3f Color = 1;
 		Font* Text = nullptr;
-		float TextSize = 0.3f;
+		float TextSize = 1.0f;
 		struct CodeStyling
 		{
 			Font* CodeText = nullptr;

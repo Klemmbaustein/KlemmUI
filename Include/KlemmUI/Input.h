@@ -1,7 +1,7 @@
 #pragma once
 #include "Vector2.h"
 #include <vector>
-#include <unordered_map>
+#include <map>
 
 /**
  * @file
@@ -563,10 +563,10 @@ namespace KlemmUI
 	 */
 	class InputManager
 	{
-		std::unordered_map<Key, bool> PressedKeys;
+		std::map<Key, bool> PressedKeys;
 
 		Window* GetWindowBySDLID(uint32_t ID);
-		std::unordered_map<Key, std::vector<void(*)(Window*)>> ButtonPressedCallbacks;
+		std::map<Key, std::vector<void(*)(Window*)>> ButtonPressedCallbacks;
 		Window* ParentWindow = nullptr;
 
 		void MoveTextIndex(int Amount, bool RespectShiftPress = true);

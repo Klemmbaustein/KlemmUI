@@ -1,7 +1,7 @@
 ﻿# KlemmUI 1
 ## About
 A simple C++ library that renders UI elements using OpenGL.
-Most of the UI code is taken from my [Game Engine](https://github.com/Legofan0807/Klemmgine).
+Most of the UI code is taken from my [Game Engine](https://github.com/Klemmbaustein/Klemmgine).
 
 ## Installing
 

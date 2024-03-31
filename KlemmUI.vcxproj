@@ -170,6 +170,9 @@
     <None Include="Shaders\uishader.frag" />
     <None Include="Shaders\uishader.vert" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="CMakeLists.txt" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

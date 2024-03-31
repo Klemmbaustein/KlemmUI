@@ -196,4 +196,7 @@
     <None Include="makefile.kbld" />
     <None Include="setup.sh" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="CMakeLists.txt" />
+  </ItemGroup>
 </Project>

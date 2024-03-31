@@ -334,26 +334,31 @@ Vector2f UIBox::PixelSizeToScreenSize(Vector2f PixelSize, Window* TargetWindow)
 
 float UIBox::GetVerticalOffset()
 {
-	float VerticalOffset = DownPadding;
+	Vector2f UpDown, LeftRight;
+	GetPaddingScreenSize(UpDown, LeftRight);
+
+	float VerticalOffset = UpDown.Y;
 
 	if (Parent->VerticalBoxAlign == Align::Reverse)
 	{
-		VerticalOffset = Parent->Size.Y - UpPadding - Size.Y;
+		VerticalOffset = Parent->Size.Y - UpDown.X - Size.Y;
 	}
 	else if (Parent->VerticalBoxAlign == Align::Centered)
 	{
-		VerticalOffset = std::lerp(Parent->Size.Y - UpPadding - Size.Y, DownPadding, 0.5f);
+		VerticalOffset = std::lerp(Parent->Size.Y - UpDown.X - Size.Y, UpDown.Y, 0.5f);
 	}
 	return VerticalOffset;
 }
 
 float UIBox::GetHorizontalOffset()
 {
-	float HorizontalOffset = GetLeftRightPadding(this).X;
+	Vector2f UpDown, LeftRight;
+	GetPaddingScreenSize(UpDown, LeftRight);
+	float HorizontalOffset = LeftRight.X;
 
 	if (Parent->HorizontalBoxAlign == Align::Reverse)
 	{
-		HorizontalOffset = Parent->Size.X - GetLeftRightPadding(this).Y - Size.X;
+		HorizontalOffset = Parent->Size.X - LeftRight.Y - Size.X;
 	}
 	else if (Parent->HorizontalBoxAlign == Align::Centered)
 	{

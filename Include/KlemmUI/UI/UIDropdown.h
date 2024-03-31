@@ -72,42 +72,13 @@ namespace KlemmUI
 		 * The dropdown options.
 		 * 
 		 * @param PressedFunc
-		 * The function called when an option is selected.
+		 * The function called when an option is selected. The index of the selected option will be given.
 		 * 
 		 * @param TextFont
 		 * The font of the dropdown text.
 		 */
-		UIDropdown(Vector2f Position, float Size, Vector3f Color, Vector3f TextColor, std::vector<Option> Options, void(*PressedFunc)(), Font* TextFont);
+		UIDropdown(Vector2f Position, float Size, Vector3f Color, Vector3f TextColor, std::vector<Option> Options, void(*PressedFunc)(int), Font* TextFont);
 
-		/**
-		 * @brief
-		 * UIDropdown constructor.
-		 * 
-		 * @param Position
-		 * The position of the UIDropdown. If it has a parent, this will be ignored.
-		 * 
-		 * @param Size
-		 * The horizontal size of the dropdown.
-		 * 
-		 * @param Color
-		 * The background color of the dropdown.
-		 * 
-		 * @param TextColor
-		 * The text color of the dropdown.
-		 * 
-		 * @param Options
-		 * The dropdown options.
-		 * 
-		 * @param PressedFunc
-		 * The function called when an option is selected.
-		 *
-		 * @param ButtonIndex
-		 * An index for the dropdown. Will be passed to PressedFunc.
-		 *
-		 * @param TextFont
-		 * The font of the dropdown text.
-		 */
-		UIDropdown(Vector2f Position, float Size, Vector3f Color, Vector3f TextColor, std::vector<Option> Options, void(*PressedFunc)(int), int ButtonIndex, Font* TextFont);
 		/// Sets the size and padding of the dropdown text.
 		UIDropdown* SetTextSize(float Size, float Padding);
 		/// Sets the background and text color of the dropdown.

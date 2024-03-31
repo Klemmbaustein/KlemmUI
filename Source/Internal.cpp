@@ -69,7 +69,7 @@ void KlemmUI::Internal::DrawWindow(Window* Target)
 	WindowShader->SetInt("u_ui", 0);
 	WindowShader->SetInt("u_hasWindowBorder", int((Target->GetWindowFlags() & Window::WindowFlag::Borderless) == Window::WindowFlag::Borderless));
 	WindowShader->SetVec2("u_screenRes", Target->GetSize());
-	WindowShader->SetVec3("u_borderColor", 1);
+	WindowShader->SetVec3("u_borderColor", Target->BorderColor);
 
 	glClear(GL_COLOR_BUFFER_BIT);
 	glDrawArrays(GL_TRIANGLES, 0, 3);

@@ -2,6 +2,7 @@
 #include <KlemmUI/UI/UIText.h>
 #include <KlemmUI/Application.h>
 #include <KlemmUI/Window.h>
+#include <iostream>
 using namespace KlemmUI;
 
 UIDropdown::UIDropdown(Vector2f Position,
@@ -9,47 +10,13 @@ UIDropdown::UIDropdown(Vector2f Position,
 	Vector3f Color,
 	Vector3f TextColor,
 	std::vector<Option> Options,
-	void(*PressedFunc)(),
-	Font* Renderer)
-	:
-	UIButton(true,
-		Position,
-		Color,
-		PressedFunc)
-{
-	this->Renderer = Renderer;
-	this->Options = Options;
-	this->Size = Size;
-	if (!this->Options.size())
-	{
-		this->Options.push_back(Option());
-	}
-	SelectedOption = Options.at(0);
-	SelectedText = new UIText(TextSize, TextColor, this->Options.at(0).Name, Renderer);
-	SelectedText->SetPadding(TextPadding);
-	AddChild(SelectedText);
-	SetMinSize(Vector2f(Size, 0));
-
-	OptionsBox = new UIBox(false, Position + Vector2(0, -1));
-	OptionsBox->SetMinSize(Vector2(0, 1));
-	OptionsBox->IsVisible = false;
-	GenerateOptions();
-}
-
-UIDropdown::UIDropdown(Vector2f Position,
-	float Size,
-	Vector3f Color,
-	Vector3f TextColor,
-	std::vector<Option> Options,
 	void(*PressedFunc)(int),
-	int ButtonIndex,
 	Font* Renderer)
 	:
 	UIButton(true,
 		Position,
 		Color,
-		PressedFunc,
-		ButtonIndex)
+		PressedFunc, 0)
 {
 	this->Renderer = Renderer;
 	this->Options = Options;
@@ -123,6 +90,7 @@ UIDropdown* UIDropdown::SelectOption(size_t Index, bool CallEvent)
 	SelectedText->SetText(SelectedOption.Name);
 	if (CallEvent)
 	{
+		ButtonIndex = (int)Index;
 		UIButton::OnClicked();
 	}
 	GenerateOptions();

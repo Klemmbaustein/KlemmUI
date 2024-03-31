@@ -21,6 +21,6 @@ add_library(
    KlemmUI STATIC
    ${SRCS}
 )
-target_include_directories(KlemmUI PRIVATE "${INC_DIR}")
+target_include_directories(KlemmUI PUBLIC "${INC_DIR}")
 target_link_libraries(KlemmUI PUBLIC SDL2::SDL2)
 target_link_libraries(KlemmUI PUBLIC libglew_static)

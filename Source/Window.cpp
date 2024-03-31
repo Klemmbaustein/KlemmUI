@@ -6,6 +6,7 @@
 #include <iostream>
 #include <KlemmUI/Application.h>
 #include <mutex>
+#include <cstring>
 
 #define SDL_WINDOW_PTR(x) SDL_Window* x = static_cast<SDL_Window*>(this->SDLWindowPtr)
 

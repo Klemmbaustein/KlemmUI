@@ -357,6 +357,26 @@ bool KlemmUI::Window::GetWindowFullScreen()
 	return Flags & SDL_WINDOW_MAXIMIZED;
 }
 
+bool KlemmUI::Window::GetMinimized()
+{
+	SDL_WINDOW_PTR(SDLWindow);
+	return SDL_GetWindowFlags(SDLWindow) & SDL_WINDOW_MINIMIZED;
+}
+
+void KlemmUI::Window::SetMinimized(bool NewIsMinimized)
+{
+	SDL_WINDOW_PTR(SDLWindow);
+	
+	if (NewIsMinimized)
+	{
+		SDL_MinimizeWindow(SDLWindow);
+	}
+	else
+	{
+		SDL_RestoreWindow(SDLWindow);
+	}
+}
+
 void KlemmUI::Window::Close()
 {
 	ShouldClose = true;

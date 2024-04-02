@@ -79,6 +79,9 @@ namespace KlemmUI
 		/// Returns if the window is maximized.
 		bool GetWindowFullScreen();
 
+		void SetMinimized(bool NewIsMinimized);
+		bool GetMinimized();
+
 		/**
 		* @brief
 		* Target framerate of the window.

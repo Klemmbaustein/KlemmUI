@@ -224,7 +224,14 @@ namespace KlemmUI
 		 * Sets the window's title.
 		 */
 		void SetTitle(std::string NewTitle);
+
+		float DPIMultiplier = 1;
+
+		float GetDPI() const;
+
 	private:
+		float DPI = 1;
+		void UpdateDPI();
 		void HandleCursor();
 		void* Cursors[(int)Cursor::Cursor_End];
 		int ToSDLWindowFlags(WindowFlag Flags);

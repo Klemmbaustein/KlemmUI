@@ -327,8 +327,8 @@ Vector2f UIBox::GetLeftRightPadding(const UIBox* Target) const
 
 Vector2f UIBox::PixelSizeToScreenSize(Vector2f PixelSize, Window* TargetWindow)
 {
-	PixelSize.X = (PixelSize.X) / (float)TargetWindow->GetSize().X * 2;
-	PixelSize.Y = (PixelSize.Y) / (float)TargetWindow->GetSize().Y * 2;
+	PixelSize.X = (PixelSize.X) / (float)TargetWindow->GetSize().X * 2 * TargetWindow->GetDPI();
+	PixelSize.Y = (PixelSize.Y) / (float)TargetWindow->GetSize().Y * 2 * TargetWindow->GetDPI();
 	return PixelSize;
 }
 

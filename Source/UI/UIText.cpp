@@ -9,7 +9,7 @@ float UIText::GetRenderedSize() const
 	float RenderedSize = TextSize;
 	if (TextSizeMode == SizeMode::PixelRelative)
 	{
-		RenderedSize = RenderedSize / Window::GetActiveWindow()->GetSize().Y * 50;
+		RenderedSize = RenderedSize / Window::GetActiveWindow()->GetSize().Y * 50 * ParentWindow->GetDPI();
 	}
 	return RenderedSize;
 }

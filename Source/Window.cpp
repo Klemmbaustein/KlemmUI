@@ -137,6 +137,8 @@ KlemmUI::Window::Window(std::string Name, WindowFlag Flags, Vector2ui WindowPos,
 	GLContext = Internal::InitGLContext(this);
 	UI.InitUI();
 
+	UpdateDPI();
+
 	ActiveWindows.push_back(this);
 }
 
@@ -244,6 +246,29 @@ void KlemmUI::Window::SetTitle(std::string NewTitle)
 	SDL_SetWindowTitle(SDLWindow, NewTitle.c_str());
 }
 
+float KlemmUI::Window::GetDPI() const
+{
+	return DPI;
+}
+
+void KlemmUI::Window::UpdateDPI()
+{
+	SDL_WINDOW_PTR(SDLWindow);
+
+	float ddpi, hdpi, vdpi;
+
+	SDL_GetDisplayDPI(SDL_GetWindowDisplayIndex(SDLWindow), &ddpi, &hdpi, &vdpi);
+
+	hdpi /= 96;
+	hdpi *= DPIMultiplier;
+
+	if (hdpi != DPI)
+	{
+		DPI = hdpi;
+		UI.ForceUpdateUI();
+	}
+}
+
 void KlemmUI::Window::HandleCursor()
 {
 	SDL_SetCursor(static_cast<SDL_Cursor*>(Cursors[(int)CurrentCursor]));
@@ -291,6 +316,7 @@ bool KlemmUI::Window::UpdateWindow()
 	}
 	UI.UpdateEvents();
 	HandleCursor();
+	UpdateDPI();
 
 	if (!ActiveWindows.empty() && ActiveWindows[0] == this)
 	{

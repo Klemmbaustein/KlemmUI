@@ -12,6 +12,7 @@
 #define SDL_WINDOW_PTR(x) SDL_Window* x = static_cast<SDL_Window*>(this->SDLWindowPtr)
 
 static thread_local KlemmUI::Window* ActiveWindow = nullptr;
+static thread_local bool HasMainWindow = false;
 
 const Vector2ui KlemmUI::Window::POSITION_CENTERED = Vector2ui(UINT64_MAX, UINT64_MAX);
 const Vector2ui KlemmUI::Window::SIZE_DEFAULT = Vector2ui(UINT64_MAX, UINT64_MAX);
@@ -161,6 +162,11 @@ KlemmUI::Window::~Window()
 		ActiveWindow = nullptr;
 	}
 
+	if (IsMainWindow)
+	{
+		HasMainWindow = false;
+	}
+
 	SDL_DestroyWindow(SDLWindow);
 }
 
@@ -239,6 +245,11 @@ void KlemmUI::Window::MakeContextCurrent()
 	}
 }
 
+void KlemmUI::Window::CancelClose()
+{
+	ShouldClose = false;
+}
+
 void KlemmUI::Window::SetTitle(std::string NewTitle)
 {
 	SDL_WINDOW_PTR(SDLWindow);
@@ -300,6 +311,12 @@ int KlemmUI::Window::ToSDLWindowFlags(WindowFlag Flags)
 
 bool KlemmUI::Window::UpdateWindow()
 {
+	if (!HasMainWindow)
+	{
+		HasMainWindow = true;
+		IsMainWindow = true;
+	}
+
 	SetWindowActive();
 	Input.UpdateCursorPosition();
 	Input.Poll();
@@ -318,7 +335,7 @@ bool KlemmUI::Window::UpdateWindow()
 	HandleCursor();
 	UpdateDPI();
 
-	if (!ActiveWindows.empty() && ActiveWindows[0] == this)
+	if (IsMainWindow)
 	{
 		WaitFrame();
 	}
@@ -327,9 +344,7 @@ bool KlemmUI::Window::UpdateWindow()
 	Time += FrameDelta;
 	WindowDeltaTimer.Reset();
 
-	bool ReturnShouldClose = ShouldClose;
-	ShouldClose = false;
-	return !ReturnShouldClose;
+	return !ShouldClose;
 }
 
 void KlemmUI::Window::SetWindowActive()

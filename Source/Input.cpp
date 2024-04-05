@@ -13,6 +13,7 @@ Window* KlemmUI::InputManager::GetWindowBySDLID(uint32_t ID)
 		SDL_Window* SDLWindow = static_cast<SDL_Window*>(i->GetSDLWindowPtr());
 		if (SDL_GetWindowID(SDLWindow) == ID)
 		{
+			std::cout << SDL_GetWindowTitle(SDLWindow) << std::endl;
 			return i;
 		}
 	}
@@ -128,10 +129,16 @@ void KlemmUI::InputManager::UpdateCursorPosition()
 {
 	SDL_Window* SDLWindow = static_cast<SDL_Window*>(ParentWindow->GetSDLWindowPtr());
 
+	if (SDL_GetMouseFocus() != SDLWindow)
+	{
+		return;
+	}
+
 	int Width, Height;
 	SDL_GetWindowSize(SDLWindow, &Width, &Height);
 	int x;
 	int y;
+
 	SDL_GetMouseState(&x, &y);
 
 	ParentWindow->Input.MousePosition = Vector2(((float)x / (float)Width - 0.5f) * 2.0f, 1.0f - ((float)y / (float)Height * 2.0f));

@@ -203,6 +203,8 @@ namespace KlemmUI
 		WindowFlag GetWindowFlags() const;
 		void MakeContextCurrent();
 
+		void CancelClose();
+
 		/**
 		 * @brief
 		 * The border color used when the window is borderless.
@@ -230,6 +232,7 @@ namespace KlemmUI
 		float GetDPI() const;
 
 	private:
+		bool IsMainWindow = false;
 		float DPI = 1;
 		void UpdateDPI();
 		void HandleCursor();

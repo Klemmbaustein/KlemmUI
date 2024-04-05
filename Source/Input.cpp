@@ -13,7 +13,6 @@ Window* KlemmUI::InputManager::GetWindowBySDLID(uint32_t ID)
 		SDL_Window* SDLWindow = static_cast<SDL_Window*>(i->GetSDLWindowPtr());
 		if (SDL_GetWindowID(SDLWindow) == ID)
 		{
-			std::cout << SDL_GetWindowTitle(SDLWindow) << std::endl;
 			return i;
 		}
 	}

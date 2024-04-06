@@ -111,16 +111,21 @@ KlemmUI::InputManager::InputManager(Window* Parent)
 		});
 
 	RegisterOnKeyDownCallback(Key::c, [](Window* Win) {
-		SDL_SetClipboardText(Win->Input.GetSelectedTextString().c_str());
+		if (Win->Input.IsKeyDown(Key::LCTRL) || Win->Input.IsKeyDown(Key::RCTRL))
+			SDL_SetClipboardText(Win->Input.GetSelectedTextString().c_str());
 		});
 
 	RegisterOnKeyDownCallback(Key::x, [](Window* Win) {
-		SDL_SetClipboardText(Win->Input.GetSelectedTextString().c_str());
-		Win->Input.DeleteTextSelection();
+		if (Win->Input.IsKeyDown(Key::LCTRL) || Win->Input.IsKeyDown(Key::RCTRL))
+		{
+			SDL_SetClipboardText(Win->Input.GetSelectedTextString().c_str());
+			Win->Input.DeleteTextSelection();
+		}
 		});
 
 	RegisterOnKeyDownCallback(Key::v, [](Window* Win) {
-		Win->Input.AddTextInput(SDL_GetClipboardText());
+		if (Win->Input.IsKeyDown(Key::LCTRL) || Win->Input.IsKeyDown(Key::RCTRL))
+			Win->Input.AddTextInput(SDL_GetClipboardText());
 		});
 }
 
@@ -130,6 +135,7 @@ void KlemmUI::InputManager::UpdateCursorPosition()
 
 	if (SDL_GetMouseFocus() != SDLWindow)
 	{
+		ParentWindow->Input.MousePosition = 99;
 		return;
 	}
 

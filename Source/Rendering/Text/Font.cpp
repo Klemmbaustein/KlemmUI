@@ -529,6 +529,7 @@ void DrawableText::Draw(ScrollObject* CurrentScrollObject)
 	TextShader->SetVec3("textColor", Vector3f(Color.X, Color.Y, Color.Z));
 	TextShader->SetFloat("u_aspectratio", Window::GetActiveWindow()->GetAspectRatio());
 	TextShader->SetVec3("transform", Vector3f((float)Position.X, (float)Position.Y, Scale));
+	TextShader->SetVec2("u_screenRes", Window::GetActiveWindow()->GetSize());
 	TextShader->SetFloat("u_opacity", Opacity);
 	if (CurrentScrollObject != nullptr)
 	{

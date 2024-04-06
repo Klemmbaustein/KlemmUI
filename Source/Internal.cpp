@@ -5,11 +5,6 @@
 #include <KlemmUI/Application.h>
 #include <KlemmUI/UI/UIBox.h>
 
-#if _WIN32
-#define NOMINMAX
-#define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
-#endif
 #include <mutex>
 
 void KlemmUI::Internal::InitSDL()
@@ -21,9 +16,6 @@ bool IsGLEWStarted = false;
 
 KlemmUI::Internal::GLContext KlemmUI::Internal::InitGLContext(Window* From)
 {
-#if _WIN32
-	SetProcessDPIAware();
-#endif
 	SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
 	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
 	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);

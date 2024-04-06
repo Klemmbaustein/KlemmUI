@@ -1,6 +1,11 @@
 #include <KlemmUI/Application.h>
 #include <iostream>
 #include "Internal.h"
+#if _WIN32
+#define NOMINMAX
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
+#endif
 
 namespace KlemmUI::Application
 {
@@ -23,6 +28,10 @@ void KlemmUI::Application::SetShaderPath(std::string NewShaderPath)
 
 void KlemmUI::Application::Initialize(std::string ShaderPath)
 {
+#if _WIN32
+	SetProcessDPIAware();
+#endif
+
 	SetShaderPath(ShaderPath);
 	Internal::InitSDL();
 }

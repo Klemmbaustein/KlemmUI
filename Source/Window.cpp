@@ -99,7 +99,9 @@ KlemmUI::Window::Window(std::string Name, WindowFlag Flags, Vector2ui WindowPos,
 		WindowPos = Vector2ui(SDL_WINDOWPOS_CENTERED);
 	}
 
-	if (WindowSize == SIZE_DEFAULT)
+	const bool IsDefaultSize = WindowSize == SIZE_DEFAULT;
+
+	if (IsDefaultSize)
 	{
 		SDL_DisplayMode Mode;
 		SDL_GetDisplayMode(0, 0, &Mode);
@@ -133,12 +135,16 @@ KlemmUI::Window::Window(std::string Name, WindowFlag Flags, Vector2ui WindowPos,
 
 	memcpy(Cursors, NewCursors, sizeof(NewCursors));
 
+	UpdateDPI();
+	if (!IsDefaultSize)
+	{
+		SDL_SetWindowSize(SDLWindow, int((float)WindowSize.X * GetDPI()), int((float)WindowSize.Y * GetDPI()));
+	}
+
 	UpdateSize();
 	SetWindowActive();
 	GLContext = Internal::InitGLContext(this);
 	UI.InitUI();
-
-	UpdateDPI();
 
 	ActiveWindows.push_back(this);
 }
@@ -272,12 +278,11 @@ void KlemmUI::Window::UpdateDPI()
 
 	hdpi /= 96;
 	hdpi *= DPIMultiplier;
-
-	if (hdpi != DPI)
+	if (hdpi != DPI && UI.UIElements.size())
 	{
-		DPI = hdpi;
 		UI.ForceUpdateUI();
 	}
+	DPI = hdpi;
 }
 
 void KlemmUI::Window::HandleCursor()
@@ -361,7 +366,7 @@ void KlemmUI::Window::OnResized()
 void KlemmUI::Window::SetMinSize(Vector2ui MinimumSize)
 {
 	SDL_WINDOW_PTR(SDLWindow);
-	SDL_SetWindowMinimumSize(SDLWindow, MinimumSize.X, MinimumSize.Y);
+	SDL_SetWindowMinimumSize(SDLWindow, int((float)MinimumSize.X * GetDPI()), int((float)MinimumSize.Y * GetDPI()));
 }
 
 void KlemmUI::Window::SetMaxSize(Vector2ui MaximumSize)

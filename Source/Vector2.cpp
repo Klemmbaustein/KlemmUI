@@ -67,6 +67,22 @@ std::string Vector2<T>::ToString()
 }
 
 template<typename T>
+Vector2<T> Vector2<T>::Min(Vector2<T> A, Vector2<T> B)
+{
+	T NewX = std::min(A.X, B.X);
+	T NewY = std::min(A.Y, B.Y);
+	return Vector2<T>(NewX, NewY);
+}
+
+template<typename T>
+Vector2<T> Vector2<T>::Max(Vector2<T> A, Vector2<T> B)
+{
+	T NewX = std::max(A.X, B.X);
+	T NewY = std::max(A.Y, B.Y);
+	return Vector2<T>(NewX, NewY);
+}
+
+template<typename T>
 Vector2<T> Vector2<T>::Clamp(Vector2<T> Min, Vector2<T> Max)
 {
 	T NewX = std::min(Max.X, std::max(Min.X, X));

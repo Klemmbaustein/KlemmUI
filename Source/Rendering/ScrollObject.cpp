@@ -5,27 +5,24 @@
 
 using namespace KlemmUI;
 
-namespace _ScrollObject
-{
-	static std::set<ScrollObject*> AllScrollObjects;
-}
+std::set<ScrollObject*> ScrollObject::AllScrollObjects;
 
 std::set<ScrollObject*> ScrollObject::GetAllScrollObjects()
 {
-	return _ScrollObject::AllScrollObjects;
+	return AllScrollObjects;
 }
 
 ScrollObject::ScrollObject(Vector2f Position, Vector2f Scale, float MaxScroll)
 {
 	this->Position = Position;
 	this->Scale = Vector2f() - Scale;
-	_ScrollObject::AllScrollObjects.insert(this);
+	AllScrollObjects.insert(this);
 	this->MaxScroll = MaxScroll;
 }
 
 ScrollObject::~ScrollObject()
 {
-	_ScrollObject::AllScrollObjects.erase(this);
+	AllScrollObjects.erase(this);
 }
 
 void ScrollObject::ScrollUp()
@@ -42,7 +39,10 @@ void ScrollObject::ScrollUp()
 	{
 		Percentage = MaxScroll;
 	}
-	Window::GetActiveWindow()->UI.RedrawUI();
+	Window::GetActiveWindow()->UI.RedrawArea(UIManager::RedrawBox{
+		.Min = Position,
+		.Max = Position - Scale,
+		});
 }
 
 void ScrollObject::ScrollDown()
@@ -57,5 +57,9 @@ void ScrollObject::ScrollDown()
 	}
 	if (Percentage < 0)
 		Percentage = 0;
-	Window::GetActiveWindow()->UI.RedrawUI();
+
+	Window::GetActiveWindow()->UI.RedrawArea(UIManager::RedrawBox{
+		.Min = Position,
+		.Max = Position - Scale,
+		});
 }

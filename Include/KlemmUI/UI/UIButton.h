@@ -45,7 +45,7 @@ namespace KlemmUI
 		void Tick() override;
 		virtual void OnClicked();
 	public:
-		bool GetIsSelected();
+		bool GetIsSelected() const;
 		void SetNeedsToBeSelected(bool NeedsToBeSelected);
 		/// Returns true of the button is hovered, false if it isn't.
 		bool GetIsHovered() const;

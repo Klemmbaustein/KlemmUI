@@ -36,7 +36,7 @@ namespace KlemmUI
 		UIScrollBox* SetDisplayScrollBar(bool NewDisplay);
 		bool GetDisplayScrollBar();
 		UIScrollBox* SetScrollSpeed(float NewScrollSpeed);
-		float GetScrollSpeed();
+		float GetScrollSpeed() const;
 
 		void SetMaxScroll(float NewMaxScroll);
 		float GetMaxScroll();

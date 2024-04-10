@@ -52,6 +52,8 @@ namespace KlemmUI
 		bool GetIsHovered() const;
 		bool GetIsPressed() const;
 
+		KlemmUI::UITextField* SetTextSizeMode(UIBox::SizeMode Mode);
+
 		UITextField(Vector2f Position, Vector3f Color, Font* Renderer, void(*PressedFunc)());
 		~UITextField() override;
 		void Update() override;

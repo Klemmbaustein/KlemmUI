@@ -2,6 +2,7 @@
 #include "../Vector2.h"
 #include <set>
 #include <vector>
+#include "../Window.h"
 
 namespace KlemmUI
 {
@@ -135,7 +136,7 @@ namespace KlemmUI
 		 */
 		UIBox* AddChild(UIBox* NewChild);
 		UIBox* GetAbsoluteParent();
-		void DrawThisAndChildren();
+		void DrawThisAndChildren(const UIManager::RedrawBox& Box);
 		
 		/**
 		 * @brief
@@ -370,6 +371,8 @@ namespace KlemmUI
 		Window* GetParentWindow();
 		void GetPaddingScreenSize(Vector2f& UpDown, Vector2f& LeftRight) const;
 
+		void RedrawElement();
+
 protected:
 
 		SizeMode BoxSizeMode = SizeMode::ScreenRelative;
@@ -381,7 +384,7 @@ protected:
 		void UpdateHoveredState();
 		bool IsHovered();
 		Vector2f Position;
-		Vector2f OffsetPosition;
+		Vector2f OffsetPosition = NAN;
 		Vector2f MaxSize = Vector2(999, 999);
 		Vector2f MinSize = Vector2(0, 0);
 
@@ -401,6 +404,9 @@ protected:
 		static Vector2f PixelSizeToScreenSize(Vector2f PixelSize, Window* TargetWindow);
 
 	private:
+
+		void SetOffsetPosition(Vector2f NewPos);
+
 		float GetVerticalOffset();
 		float GetHorizontalOffset();
 		bool PrevIsVisible = true;

@@ -60,6 +60,8 @@ public:
 
 	std::string ToString();
 
+	static Vector2<T> Min(Vector2<T> A, Vector2<T> B);
+	static Vector2<T> Max(Vector2<T> A, Vector2<T> B);
 	Vector2<T> Clamp(Vector2<T> Min, Vector2<T> Max);
 };
 

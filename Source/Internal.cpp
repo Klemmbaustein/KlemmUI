@@ -6,6 +6,7 @@
 #include <KlemmUI/UI/UIBox.h>
 
 #include <mutex>
+#include <iostream>
 
 void KlemmUI::Internal::InitSDL()
 {
@@ -53,7 +54,7 @@ KlemmUI::Internal::GLContext KlemmUI::Internal::InitGLContext(Window* From)
 void KlemmUI::Internal::DrawWindow(Window* Target)
 {
 	Shader* WindowShader = Target->Shaders.GetShader("WindowShader");
-
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	WindowShader->Bind();
 	glViewport(0, 0, (GLsizei)Target->GetSize().X, (GLsizei)Target->GetSize().Y);
 	glActiveTexture(GL_TEXTURE0);
@@ -63,7 +64,6 @@ void KlemmUI::Internal::DrawWindow(Window* Target)
 	WindowShader->SetVec2("u_screenRes", Target->GetSize());
 	WindowShader->SetVec3("u_borderColor", Target->BorderColor);
 
-	glClear(GL_COLOR_BUFFER_BIT);
 	glDrawArrays(GL_TRIANGLES, 0, 3);
 	WindowShader->Unbind();
 

@@ -29,7 +29,8 @@ static SDL_HitTestResult WindowHitTest(SDL_Window* SDLWindow, const SDL_Point* A
 
 	HitTestWindow->Input.MousePosition = Vector2(((float)Area->x / (float)Width - 0.5f) * 2.0f, 1.0f - ((float)Area->y / (float)Height * 2.0f));
 
-	if (bool(HitTestWindow->GetWindowFlags() & KlemmUI::Window::WindowFlag::Resizable))
+	if (bool(HitTestWindow->GetWindowFlags() & KlemmUI::Window::WindowFlag::Resizable)
+		&& bool(HitTestWindow->GetWindowFlags() & KlemmUI::Window::WindowFlag::Borderless))
 	{
 		if (Area->y < MOUSE_GRAB_PADDING)
 		{
@@ -118,7 +119,14 @@ KlemmUI::Window::Window(std::string Name, WindowFlag Flags, Vector2ui WindowPos,
 		WindowSize.Y, 
 		ToSDLWindowFlags(Flags) | SDL_WINDOW_OPENGL);
 
-	SDL_SetWindowHitTest(SDLWindow, WindowHitTest, this);
+	if ((Flags & WindowFlag::Borderless) == WindowFlag::Borderless)
+	{
+		SDL_SetWindowHitTest(SDLWindow, WindowHitTest, this);
+	}
+	else
+	{
+		SDL_SetWindowHitTest(SDLWindow, nullptr, this);
+	}
 
 	if (!SDLWindow)
 	{
@@ -173,6 +181,7 @@ KlemmUI::Window::~Window()
 		HasMainWindow = false;
 	}
 
+	SDL_GL_DeleteContext(GLContext);
 	SDL_DestroyWindow(SDLWindow);
 }
 
@@ -227,6 +236,15 @@ void KlemmUI::Window::SetWindowFlags(WindowFlag NewFlags)
 	CurrentWindowFlags = NewFlags;
 
 	SDL_SetWindowBordered(SDLWindow, SDL_bool((NewFlags & WindowFlag::Borderless) != WindowFlag::Borderless));
+	if ((NewFlags & WindowFlag::Borderless) == WindowFlag::Borderless)
+	{
+		SDL_SetWindowHitTest(SDLWindow, WindowHitTest, this);
+	}
+	else
+	{
+		SDL_SetWindowHitTest(SDLWindow, nullptr, this);
+	}
+
 	SDL_SetWindowAlwaysOnTop(SDLWindow, SDL_bool((NewFlags & WindowFlag::AlwaysOnTop) == WindowFlag::AlwaysOnTop));
 	SDL_SetWindowResizable(SDLWindow, SDL_bool((NewFlags & WindowFlag::Resizable) == WindowFlag::Resizable));
 }
@@ -330,6 +348,7 @@ bool KlemmUI::Window::UpdateWindow()
 	{
 		UpdateSize();
 		UI.ForceUpdateUI();
+		ShouldUpdateSize = false;
 	}
 
 	if (UI.DrawElements())

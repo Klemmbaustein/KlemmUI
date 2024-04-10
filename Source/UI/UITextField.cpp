@@ -28,7 +28,7 @@ void UITextField::Tick()
 		size_t Nearest = TextObject->GetNearestLetterAtLocation(ParentWindow->Input.MousePosition);
 		if (!IsHovered)
 		{
-			ParentWindow->UI.RedrawUI();
+			RedrawElement();
 		}
 		IsHovered = true;
 
@@ -42,7 +42,7 @@ void UITextField::Tick()
 			IsEdited = true;
 			if (!IsPressed)
 			{
-				ParentWindow->UI.RedrawUI();
+				RedrawElement();
 				IsPressed = true;
 			}
 		}
@@ -53,7 +53,7 @@ void UITextField::Tick()
 			ParentWindow->Input.Text = EnteredText;
 			IsPressed = false;
 			ParentWindow->Input.TextIndex = Nearest;
-			ParentWindow->UI.RedrawUI();
+			RedrawElement();
 		}
 	}
 	else
@@ -65,7 +65,7 @@ void UITextField::Tick()
 		if (IsHovered)
 		{
 			IsHovered = false;
-			ParentWindow->UI.RedrawUI();
+			RedrawElement();
 		}
 	}
 
@@ -81,14 +81,14 @@ void UITextField::Tick()
 		{
 			IsEdited = false;
 			if (PressedFunc) ParentWindow->UI.ButtonEvents.push_back(UIManager::ButtonEvent(PressedFunc, nullptr, nullptr, 0));
-			ParentWindow->UI.RedrawUI();
+			RedrawElement();
 		}
 		if (!IsHovered && ParentWindow->Input.IsLMBDown && !Dragging)
 		{
 			IsEdited = false;
 			ParentWindow->Input.PollForText = false;
 			if (PressedFunc) ParentWindow->UI.ButtonEvents.push_back(UIManager::ButtonEvent(PressedFunc, nullptr, nullptr, 0));
-			ParentWindow->UI.RedrawUI();
+			RedrawElement();
 		}
 	}
 	std::string RenderedText = EnteredText;
@@ -102,11 +102,11 @@ void UITextField::Tick()
 			TextTimer = 0;
 			IBeamPosition = EditedTextPos;
 			IBeamScale = Vector2f(2.0f / ParentWindow->GetSize().X, TextObject->GetUsedSize().Y);
-			ParentWindow->UI.RedrawUI();
+			RedrawElement();
 		}
 		if (!ShowIBeam)
 		{
-			ParentWindow->UI.RedrawUI();
+			RedrawElement();
 		}
 		ShowIBeam = true;
 	}
@@ -114,7 +114,7 @@ void UITextField::Tick()
 	{
 		if (ShowIBeam)
 		{
-			ParentWindow->UI.RedrawUI();
+			RedrawElement();
 		}
 		ShowIBeam = false;
 	}
@@ -127,7 +127,7 @@ void UITextField::Tick()
 		float MinX = std::min(EditedTextPos.X, TextHighlightPos.X);
 		TextHighlightPos.X = MinX;
 	}
-	TextObject->SetColor(EnteredText.empty() && !IsEdited ? TextColor * 0.75 : TextColor);
+	TextObject->SetColor(EnteredText.empty() && !IsEdited ? Vector3f::Lerp(TextColor, Color, 0.25f) : TextColor);
 	TextObject->SetText(EnteredText.empty() && !IsEdited ? HintText : (IsEdited ? RenderedText : EnteredText));
 }
 
@@ -211,6 +211,12 @@ bool UITextField::GetIsHovered() const
 bool UITextField::GetIsPressed() const
 {
 	return IsPressed;
+}
+
+KlemmUI::UITextField* KlemmUI::UITextField::SetTextSizeMode(UIBox::SizeMode Mode)
+{
+	TextObject->SetTextSizeMode(Mode);
+	return this;
 }
 
 UITextField::UITextField(Vector2f Position, Vector3f Color, Font* Renderer, void(*PressedFunc)())

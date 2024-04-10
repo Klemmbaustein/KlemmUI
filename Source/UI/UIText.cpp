@@ -58,7 +58,7 @@ UIText* UIText::SetColor(Vector3f NewColor)
 		{
 			i.Color = Color;
 		}
-		ParentWindow->UI.RedrawUI();
+		RedrawElement();
 	}
 	return this;
 }
@@ -68,7 +68,7 @@ UIText* UIText::SetOpacity(float NewOpacity)
 	if (Opacity != NewOpacity)
 	{
 		Opacity = NewOpacity;
-		ParentWindow->UI.RedrawUI();
+		RedrawElement();
 	}
 	return this;
 }
@@ -138,6 +138,7 @@ void UIText::SetText(std::vector<TextSegment> NewText)
 			Vector2 s = Renderer->GetTextSize(RenderedText, GetRenderedSize(), Wrap, GetWrapDistance());
 		}
 		InvalidateLayout();
+		RedrawElement();
 	}
 }
 

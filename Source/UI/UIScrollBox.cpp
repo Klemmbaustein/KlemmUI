@@ -160,7 +160,7 @@ UIScrollBox* UIScrollBox::SetScrollSpeed(float NewScrollSpeed)
 	return this;
 }
 
-float UIScrollBox::GetScrollSpeed()
+float UIScrollBox::GetScrollSpeed() const
 {
 	return ScrollClass.Speed;
 }

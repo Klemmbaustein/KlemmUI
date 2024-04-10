@@ -17,12 +17,12 @@ void UIButton::Tick()
 	CurrentButtonState = ButtonState::Normal;
 	if (ParentWindow->UI.HoveredBox == this && !IsHovered)
 	{
-		ParentWindow->UI.RedrawUI();
+		RedrawElement();
 		IsHovered = true;
 	}
 	if (IsHovered && ParentWindow->UI.HoveredBox != this)
 	{
-		ParentWindow->UI.RedrawUI();
+		RedrawElement();
 		IsHovered = false;
 	}
 
@@ -35,7 +35,7 @@ void UIButton::Tick()
 	{
 		IsSelected = false;
 		IsPressed = false;
-		ParentWindow->UI.RedrawUI();
+		RedrawElement();
 	}
 
 	if (IsSelected)
@@ -50,7 +50,7 @@ void UIButton::Tick()
 			CurrentButtonState = ButtonState::Pressed;
 			if (!IsPressed)
 			{
-				ParentWindow->UI.RedrawUI();
+				RedrawElement();
 				IsPressed = true;
 			}
 		}
@@ -61,7 +61,7 @@ void UIButton::Tick()
 				OnClicked();
 				IsPressed = false;
 				IsSelected = false;
-				ParentWindow->UI.RedrawUI();
+				RedrawElement();
 			}
 			else
 			{
@@ -102,7 +102,7 @@ void UIButton::OnClicked()
 	}
 }
 
-bool UIButton::GetIsSelected()
+bool UIButton::GetIsSelected() const
 {
 	return IsSelected;
 }
@@ -127,7 +127,7 @@ UIBackground* UIButton::SetColor(Vector3f NewColor)
 	if (NewColor != ButtonColor)
 	{
 		ButtonColor = NewColor;
-		ParentWindow->UI.RedrawUI();
+		RedrawElement();
 	}
 	return this;
 }
@@ -139,7 +139,7 @@ UIButton* UIButton::SetHoveredColor(Vector3f NewColor)
 		HoveredColor = NewColor;
 		if (IsHovered)
 		{
-			ParentWindow->UI.RedrawUI();
+			RedrawElement();
 		}
 	}
 	return this;
@@ -152,7 +152,7 @@ UIButton* UIButton::SetPressedColor(Vector3f NewColor)
 		PressedColor = NewColor;
 		if (IsPressed)
 		{
-			ParentWindow->UI.RedrawUI();
+			RedrawElement();
 		}
 	}
 	return this;

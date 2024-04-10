@@ -1,6 +1,7 @@
 #pragma once
 #include <set>
 #include <vector>
+#include "../Vector2.h"
 
 namespace KlemmUI
 {
@@ -29,7 +30,7 @@ namespace KlemmUI
 		unsigned int GetUIFramebuffer() const;
 		void RedrawUI();
 		void ClearUI();
-		bool GetShouldRedrawUI();
+		bool GetShouldRedrawUI() const;
 
 		bool DrawElements();
 
@@ -54,5 +55,15 @@ namespace KlemmUI
 		};
 		std::vector<ButtonEvent> ButtonEvents;
 
+		struct RedrawBox
+		{
+			Vector2f Min;
+			Vector2f Max;
+
+			static bool IsBoxOverlapping(const UIManager::RedrawBox& BoxA, const UIManager::RedrawBox& BoxB);
+		};
+
+		std::vector<RedrawBox> RedrawBoxes;
+		void RedrawArea(RedrawBox Box);
 	};
 }

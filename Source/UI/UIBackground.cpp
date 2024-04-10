@@ -44,12 +44,12 @@ UIBackground* UIBackground::SetOpacity(float NewOpacity)
 	if (NewOpacity != Opacity)
 	{
 		Opacity = NewOpacity;
-		ParentWindow->UI.RedrawUI();
+		RedrawElement();
 	}
 	return this;
 }
 
-float UIBackground::GetOpacity()
+float UIBackground::GetOpacity() const
 {
 	return Opacity;
 }
@@ -59,7 +59,7 @@ UIBackground* UIBackground::SetColor(Vector3f NewColor)
 	if (NewColor != Color)
 	{
 		Color = NewColor;
-		ParentWindow->UI.RedrawUI();
+		RedrawElement();
 	}
 	return this;
 }
@@ -75,7 +75,7 @@ UIBackground* UIBackground::SetUseTexture(bool UseTexture, unsigned int TextureI
 	{
 		this->UseTexture = UseTexture;
 		this->TextureID = TextureID;
-		ParentWindow->UI.RedrawUI();
+		RedrawElement();
 	}
 	return this;
 }

@@ -7,6 +7,7 @@ namespace KlemmUI
 
 	class ScrollObject
 	{
+		static std::set<ScrollObject*> AllScrollObjects;
 	public:
 		Vector2f Position;
 		Vector2f Scale;

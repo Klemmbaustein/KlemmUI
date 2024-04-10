@@ -64,7 +64,7 @@ UIBox::UIBox(bool Horizontal, Vector2f Position)
 
 UIBox::~UIBox()
 {
-	GetAbsoluteParent()->InvalidateLayout();
+	InvalidateLayout();
 	DeleteChildren();
 	if (ParentWindow->UI.HoveredBox == this)
 	{
@@ -85,6 +85,7 @@ UIBox::~UIBox()
 	ParentWindow->UI.ElementsToUpdate.erase(this);
 	if (Parent)
 	{
+		Parent->RedrawElement();
 		for (int i = 0; i < Parent->Children.size(); i++)
 		{
 			if (Parent->Children[i] == this)
@@ -92,6 +93,10 @@ UIBox::~UIBox()
 				Parent->Children.erase(Parent->Children.begin() + i);
 			}
 		}
+	}
+	else
+	{
+		RedrawElement();
 	}
 }
 
@@ -332,6 +337,20 @@ Vector2f UIBox::PixelSizeToScreenSize(Vector2f PixelSize, Window* TargetWindow)
 	return PixelSize;
 }
 
+void KlemmUI::UIBox::SetOffsetPosition(Vector2f NewPos)
+{
+	if (NewPos != OffsetPosition)
+	{
+		Vector2f ScreenPos = GetPosition();
+		OffsetPosition = NewPos;
+		Vector2f NewScreenPos = GetPosition();
+		ParentWindow->UI.RedrawArea(UIManager::RedrawBox{
+			.Min = Vector2f::Min(ScreenPos, NewScreenPos),
+			.Max = Vector2f::Max(ScreenPos, NewScreenPos) + GetUsedSize(),
+			});
+	}
+}
+
 float UIBox::GetVerticalOffset()
 {
 	Vector2f UpDown, LeftRight;
@@ -373,7 +392,7 @@ void UIBox::UpdateScale()
 	{
 		c->UpdateScale();
 	}
-	Size = 0;
+	Vector2f NewSize = 0;
 	for (auto c : Children)
 	{
 		Vector2f UpDown, LeftRight;
@@ -381,18 +400,18 @@ void UIBox::UpdateScale()
 
 		if (ChildrenHorizontal)
 		{
-			Size.X += c->Size.X + LeftRight.X + LeftRight.Y;
+			NewSize.X += c->Size.X + LeftRight.X + LeftRight.Y;
 			if (!c->TryFill)
 			{
-				Size.Y = std::max(Size.Y, c->Size.Y + UpDown.X + UpDown.Y);
+				NewSize.Y = std::max(NewSize.Y, c->Size.Y + UpDown.X + UpDown.Y);
 			}
 		}
 		else
 		{
-			Size.Y += c->Size.Y + UpDown.X + UpDown.Y;
+			NewSize.Y += c->Size.Y + UpDown.X + UpDown.Y;
 			if (!c->TryFill)
 			{
-				Size.X = std::max(Size.X, c->Size.X + LeftRight.X + LeftRight.Y);
+				NewSize.X = std::max(NewSize.X, c->Size.X + LeftRight.X + LeftRight.Y);
 			}
 		}
 	}
@@ -403,13 +422,13 @@ void UIBox::UpdateScale()
 		GetPaddingScreenSize(UpDown, LeftRight);
 		if (Parent->ChildrenHorizontal)
 		{
-			Size.Y = Parent->Size.Y - (UpDown.X + UpDown.Y);
+			NewSize.Y = Parent->Size.Y - (UpDown.X + UpDown.Y);
 			MinSize.Y = 0;
 			MaxSize.Y = 999999;
 		}
 		else
 		{
-			Size.X = Parent->Size.X - (LeftRight.X + LeftRight.Y);
+			NewSize.X = Parent->Size.X - (LeftRight.X + LeftRight.Y);
 			MinSize.X = 0;
 			MaxSize.X = 999999;
 		}
@@ -427,8 +446,16 @@ void UIBox::UpdateScale()
 		AdjustedMinSize = PixelSizeToScreenSize(AdjustedMinSize, ParentWindow);
 		AdjustedMaxSize = PixelSizeToScreenSize(AdjustedMaxSize, ParentWindow);
 	}
+	NewSize = NewSize.Clamp(AdjustedMinSize, AdjustedMaxSize);
 
-	Size = Size.Clamp(AdjustedMinSize, AdjustedMaxSize);
+	if (NewSize != Size)
+	{
+		ParentWindow->UI.RedrawArea(UIManager::RedrawBox{
+			.Min = GetPosition(),
+			.Max = GetPosition() + Vector2f::Max(Size, NewSize),
+			});
+		Size = NewSize;
+	}
 	for (auto c : Children)
 	{
 		c->UpdateScale();
@@ -441,7 +468,7 @@ void UIBox::UpdatePosition()
 
 	if (!Parent)
 	{
-		OffsetPosition = Position;
+		SetOffsetPosition(Position);
 	}
 
 	Align PrimaryAlign = ChildrenHorizontal ? HorizontalBoxAlign : VerticalBoxAlign;
@@ -467,12 +494,12 @@ void UIBox::UpdatePosition()
 		{
 			if (ChildrenHorizontal)
 			{
-				c->OffsetPosition = OffsetPosition + Vector2f(Size.X / 2 - ChildrenSize / 2 + LeftRight.X + Offset, c->GetVerticalOffset());
+				c->SetOffsetPosition(OffsetPosition + Vector2f(Size.X / 2 - ChildrenSize / 2 + LeftRight.X + Offset, c->GetVerticalOffset()));
 				Offset += c->Size.X + LeftRight.X + LeftRight.Y;
 			}
 			else
 			{
-				c->OffsetPosition = OffsetPosition + Vector2f(c->GetHorizontalOffset(), Size.Y / 2 - ChildrenSize / 2 + UpDown.Y + Offset);
+				c->SetOffsetPosition(OffsetPosition + Vector2f(c->GetHorizontalOffset(), Size.Y / 2 - ChildrenSize / 2 + UpDown.Y + Offset));
 				Offset += c->Size.Y + UpDown.X + UpDown.Y;
 			}
 		}
@@ -482,11 +509,11 @@ void UIBox::UpdatePosition()
 			{
 				if (PrimaryAlign == Align::Reverse)
 				{
-					c->OffsetPosition = OffsetPosition + Vector2f(Size.X - Offset - c->Size.X - LeftRight.Y, c->GetVerticalOffset());
+					c->SetOffsetPosition(OffsetPosition + Vector2f(Size.X - Offset - c->Size.X - LeftRight.Y, c->GetVerticalOffset()));
 				}
 				else
 				{
-					c->OffsetPosition = OffsetPosition + Vector2f(Offset + LeftRight.X, c->GetVerticalOffset());
+					c->SetOffsetPosition(OffsetPosition + Vector2f(Offset + LeftRight.X, c->GetVerticalOffset()));
 				}
 				Offset += c->Size.X + LeftRight.X + LeftRight.Y;
 			}
@@ -494,11 +521,11 @@ void UIBox::UpdatePosition()
 			{
 				if (PrimaryAlign == Align::Reverse)
 				{
-					c->OffsetPosition = OffsetPosition + Vector2f(c->GetHorizontalOffset(), Size.Y - Offset - c->Size.Y - UpDown.X);
+					c->SetOffsetPosition(OffsetPosition + Vector2f(c->GetHorizontalOffset(), Size.Y - Offset - c->Size.Y - UpDown.X));
 				}
 				else
 				{
-					c->OffsetPosition = OffsetPosition + Vector2f(c->GetHorizontalOffset(), Offset + UpDown.Y);
+					c->SetOffsetPosition(OffsetPosition + Vector2f(c->GetHorizontalOffset(), Offset + UpDown.Y));
 				}
 				Offset += c->Size.Y + UpDown.X + UpDown.Y;
 			}
@@ -511,7 +538,7 @@ void UIBox::UpdatePosition()
 	}
 }
 
-void KlemmUI::UIBox::GetPaddingScreenSize(Vector2f& UpDown, Vector2f& LeftRight) const
+void UIBox::GetPaddingScreenSize(Vector2f& UpDown, Vector2f& LeftRight) const
 {
 	UpDown.X = UpPadding;
 	UpDown.Y = DownPadding;
@@ -528,10 +555,16 @@ void KlemmUI::UIBox::GetPaddingScreenSize(Vector2f& UpDown, Vector2f& LeftRight)
 	}
 }
 
+void UIBox::RedrawElement()
+{
+	ParentWindow->UI.RedrawArea(UIManager::RedrawBox{
+		.Min = GetPosition(),
+		.Max = GetPosition() + GetUsedSize(),
+		});
+}
+
 void UIBox::InvalidateLayout()
 {
-	ParentWindow->UI.RedrawUI();
-
 	if (Parent)
 	{
 		Parent->InvalidateLayout();
@@ -549,7 +582,7 @@ UIBox* UIBox::AddChild(UIBox* NewChild)
 		NewChild->Parent = this;
 		Children.push_back(NewChild);
 		NewChild->OnAttached();
-		GetAbsoluteParent()->InvalidateLayout();
+		InvalidateLayout();
 	}
 	else
 	{
@@ -594,7 +627,7 @@ void UIBox::UpdateHoveredState()
 	}
 }
 
-void UIBox::DrawThisAndChildren()
+void UIBox::DrawThisAndChildren(const UIManager::RedrawBox& Box)
 {
 	for (auto c : Children)
 	{
@@ -602,10 +635,16 @@ void UIBox::DrawThisAndChildren()
 	}
 	if (IsVisible)
 	{
-		Draw();
+		if (UIManager::RedrawBox::IsBoxOverlapping(Box, UIManager::RedrawBox{
+			.Min = GetPosition(),
+			.Max = GetPosition() + Size
+			}))
+		{
+			Draw();
+		}
 		for (auto c : Children)
 		{
-			c->DrawThisAndChildren();
+			c->DrawThisAndChildren(Box);
 		}
 	}
 }

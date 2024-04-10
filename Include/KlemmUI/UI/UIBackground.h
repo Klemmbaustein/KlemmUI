@@ -39,7 +39,7 @@ namespace KlemmUI
 		 * @brief
 		 * Returns the opacity of the UIBackground.
 		 */
-		float GetOpacity();
+		float GetOpacity() const;
 
 		/**
 		 * @brief

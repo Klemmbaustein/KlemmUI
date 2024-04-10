@@ -126,11 +126,17 @@ void UIScrollBox::Tick()
 			}
 			else if (IsDragging)
 			{
-				ScrollClass.Percentage = std::max(
+				float NewPercentage = std::max(
 					std::min(
 						InitialScrollPosition - (float)((Window::GetActiveWindow()->Input.MousePosition.Y - InitialDragPosition) * Size.Y / ScrollBar->GetUsedSize().Y),
 						ScrollClass.MaxScroll),
 					0.0f);
+
+				if (NewPercentage != ScrollClass.Percentage)
+				{
+					ScrollClass.Percentage = NewPercentage;
+					RedrawElement();
+				}
 			}
 			IsDragging = true;
 			IsDraggingScrollBox = true;

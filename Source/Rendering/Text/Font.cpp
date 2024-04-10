@@ -471,7 +471,7 @@ DrawableText* Font::MakeText(std::vector<TextSegment> Text, Vector2f Pos, float 
 			MaxHeight = std::max(StartPos.Y + g.Offset.Y, MaxHeight);
 			vData += 6;
 			numVertices += 6;
-			if (x / 225 > LengthBeforeWrap)
+			if (x / 225 / Window::GetActiveWindow()->GetAspectRatio() > LengthBeforeWrap)
 			{
 				if (LastWordIndex != SIZE_MAX && LastWordIndex != LastWrapIndex)
 				{

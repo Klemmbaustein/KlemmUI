@@ -557,6 +557,11 @@ void UIBox::GetPaddingScreenSize(Vector2f& UpDown, Vector2f& LeftRight) const
 
 void UIBox::RedrawElement()
 {
+	if (!IsVisibleInHierarchy())
+	{
+		return;
+	}
+
 	ParentWindow->UI.RedrawArea(UIManager::RedrawBox{
 		.Min = GetPosition(),
 		.Max = GetPosition() + GetUsedSize(),

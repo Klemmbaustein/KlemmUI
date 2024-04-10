@@ -186,7 +186,7 @@ void Markdown::RenderMarkdown(std::string Markdown, UIBox* TargetParent, Markdow
 	for (size_t i = 0; i < Lines.size(); i++)
 	{
 		auto& ln = Lines[i];
-		size_t WrapLength = (size_t)(Style.Width * 110.0f * Style.TextSize * Window::GetActiveWindow()->GetAspectRatio());
+		size_t WrapLength = (size_t)(Style.Width * 90.0f * Style.TextSize * Window::GetActiveWindow()->GetAspectRatio());
 
 		if (ln.HeadingSize)
 		{

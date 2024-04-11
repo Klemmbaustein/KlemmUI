@@ -2,6 +2,7 @@
 #include "../Vector2.h"
 #include <set>
 #include <vector>
+#include <cmath>
 #include "../Window.h"
 
 namespace KlemmUI

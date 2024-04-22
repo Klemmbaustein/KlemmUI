@@ -2,6 +2,15 @@
 #include <KlemmUI/Application.h>
 using namespace KlemmUI;
 
+KlemmUI::ShaderManager::~ShaderManager()
+{
+	for (auto& i : Shaders)
+	{
+		delete i.second;
+	}
+	Shaders.clear();
+}
+
 Shader* KlemmUI::ShaderManager::LoadShader(std::string VertexName, std::string FragmentName, std::string Name)
 {
 	auto LoadedShader = Shaders.find(Name);

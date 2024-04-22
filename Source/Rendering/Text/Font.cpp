@@ -11,6 +11,7 @@
 #include <GL/glew.h>
 #include <KlemmUI/Window.h>
 #include <filesystem>
+#include <iostream>
 
 using namespace KlemmUI;
 
@@ -105,7 +106,6 @@ size_t Font::GetCharacterIndexADistance(std::vector<TextSegment> Text, float Dis
 	float MaxHeight = 0.0f;
 	float x = 0.f, y = 0.f;
 	size_t i = 0;
-	size_t lastI = 0;
 	size_t CharIndex = 0;
 	float PrevDepth = 0;
 	float PrevMaxDepth = 0;
@@ -137,15 +137,14 @@ size_t Font::GetCharacterIndexADistance(std::vector<TextSegment> Text, float Dis
 			float ldst = x / 450 / Window::GetActiveWindow()->GetAspectRatio() * Scale;
 			PrevMaxDepth = x;
 			PrevDepth = x;
-			lastI = i;
 			if (ldst > Dist)
 			{
-				if (i && !IsTab && ldst > Dist + 25)
+				if (ldst > Dist + (g.TotalSize.X / 800 / Window::GetActiveWindow()->GetAspectRatio() * Scale))
 				{
-					return std::min(lastI, TextSegment::CombineToString(Text).size());
+					return std::min(i, TextSegment::CombineToString(Text).size());
 				}
 
-				return std::min(i, TextSegment::CombineToString(Text).size());
+				return std::min(i + 1, TextSegment::CombineToString(Text).size());
 			}
 			if (c >= 128)
 			{
@@ -257,6 +256,7 @@ Font::Font(std::string Filename)
 		maxH = std::max(maxH, h);
 		xcoord += w + FONT_BITMAP_PADDING;
 		LoadedGlyphs.push_back(New);
+		free(bmp);
 	}
 
 	glGenTextures(1, &fontTexture);
@@ -529,7 +529,7 @@ void DrawableText::Draw(ScrollObject* CurrentScrollObject)
 	TextShader->SetVec3("textColor", Vector3f(Color.X, Color.Y, Color.Z));
 	TextShader->SetFloat("u_aspectratio", Window::GetActiveWindow()->GetAspectRatio());
 	TextShader->SetVec3("transform", Vector3f((float)Position.X, (float)Position.Y, Scale));
-	TextShader->SetVec2("u_screenRes", Window::GetActiveWindow()->GetSize());
+	TextShader->SetVec2("u_screenRes", Vector2f(Window::GetActiveWindow()->GetSize().Y * 1.5f));
 	TextShader->SetFloat("u_opacity", Opacity);
 	if (CurrentScrollObject != nullptr)
 	{

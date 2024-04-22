@@ -371,6 +371,7 @@ namespace KlemmUI
 		 */
 		Window* GetParentWindow();
 		void GetPaddingScreenSize(Vector2f& UpDown, Vector2f& LeftRight) const;
+		static Vector2f PixelSizeToScreenSize(Vector2f PixelSize, Window* TargetWindow);
 
 		void RedrawElement();
 
@@ -401,8 +402,6 @@ protected:
 		UIBox* Parent = nullptr;
 		void UpdateSelfAndChildren();
 		Vector2f GetLeftRightPadding(const UIBox* Target) const;
-
-		static Vector2f PixelSizeToScreenSize(Vector2f PixelSize, Window* TargetWindow);
 
 	private:
 

@@ -97,7 +97,7 @@ void UIScrollBox::Tick()
 	}
 	if (ScrollBar && VisibleInHierarchy)
 	{
-		ScrollBarBackground->SetMinSize(Vector2f(0.015f, GetUsedSize().Y));
+		ScrollBarBackground->SetMinSize(Vector2f(0, GetUsedSize().Y));
 		ScrollBarBackground->SetPosition(OffsetPosition + Vector2f(Size.X - ScrollBarBackground->GetUsedSize().X, 0));
 
 		float ScrollPercentage = ScrollClass.Percentage / ScrollClass.MaxScroll;

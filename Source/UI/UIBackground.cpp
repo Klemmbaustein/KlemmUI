@@ -39,11 +39,46 @@ void UIBackground::DrawBackground()
 {
 }
 
+float KlemmUI::UIBackground::GetBorderSize(float InSize, UIBox::SizeMode Mode)
+{
+	switch (Mode)
+	{
+	case KlemmUI::UIBox::SizeMode::ScreenRelative:
+	case KlemmUI::UIBox::SizeMode::AspectRelative:
+		return InSize / 20.0f;
+		break;
+	case KlemmUI::UIBox::SizeMode::PixelRelative:
+		return (InSize / (float)Window::GetActiveWindow()->GetSize().Y) * 4.01f;
+	default:
+		return 0.0f;
+	}
+}
+
 UIBackground* UIBackground::SetOpacity(float NewOpacity)
 {
 	if (NewOpacity != Opacity)
 	{
 		Opacity = NewOpacity;
+		RedrawElement();
+	}
+	return this;
+}
+
+UIBackground* KlemmUI::UIBackground::SetBorderSizeMode(SizeMode NewBorderSize)
+{
+	if (NewBorderSize != BorderSizeMode)
+	{
+		BorderSizeMode = NewBorderSize;
+		RedrawElement();
+	}
+	return this;
+}
+
+UIBackground* KlemmUI::UIBackground::SetBorderColor(Vector3f NewColor)
+{
+	if (NewColor != BorderColor)
+	{
+		BorderColor = NewColor;
 		RedrawElement();
 	}
 	return this;
@@ -108,10 +143,11 @@ void UIBackground::Draw()
 	BoxVertexBuffer->Bind();
 	ScrollTick(BackgroundShader);
 	glUniform4f(glGetUniformLocation(BackgroundShader->GetShaderID(), "u_color"), Color.X, Color.Y, Color.Z, 1.f);
+	glUniform4f(glGetUniformLocation(BackgroundShader->GetShaderID(), "u_borderColor"), BorderColor.X, BorderColor.Y, BorderColor.Z, 1.f);
 	glUniform4f(glGetUniformLocation(BackgroundShader->GetShaderID(), "u_transform"), OffsetPosition.X, OffsetPosition.Y, Size.X, Size.Y);
 	BackgroundShader->SetFloat("u_opacity", Opacity);
 	BackgroundShader->SetInt("u_borderType", (int)BoxBorder);
-	BackgroundShader->SetFloat("u_borderScale", BorderRadius / 20.0f);
+	BackgroundShader->SetFloat("u_borderScale", GetBorderSize(BorderRadius, BorderSizeMode));
 	BackgroundShader->SetFloat("u_aspectratio", Window::GetActiveWindow()->GetAspectRatio());
 	BackgroundShader->SetVec2("u_screenRes", Vector2f(
 		(float)Window::GetActiveWindow()->GetSize().X,

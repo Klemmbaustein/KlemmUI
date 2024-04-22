@@ -75,7 +75,6 @@ static SDL_HitTestResult WindowHitTest(SDL_Window* SDLWindow, const SDL_Point* A
 	{
 		return SDL_HITTEST_DRAGGABLE;
 	}
-
 	return SDL_HITTEST_NORMAL;
 }
 
@@ -224,9 +223,20 @@ float KlemmUI::Window::GetAspectRatio() const
 	return (float)WindowSize.X / (float)WindowSize.Y;
 }
 
+bool KlemmUI::Window::HasFocus()
+{
+	return SDL_GetMouseFocus() == SDLWindowPtr;
+}
+
 Vector2ui KlemmUI::Window::GetSize() const
 {
 	return WindowSize;
+}
+
+void KlemmUI::Window::SetPosition(Vector2ui Pos)
+{
+	SDL_WINDOW_PTR(SDLWindow);
+	SDL_SetWindowPosition(SDLWindow, Pos.X, Pos.Y);
 }
 
 void KlemmUI::Window::SetWindowFlags(WindowFlag NewFlags)
@@ -329,6 +339,10 @@ int KlemmUI::Window::ToSDLWindowFlags(WindowFlag Flags)
 	{
 		SDLFlags |= SDL_WINDOW_RESIZABLE;
 	}
+	if ((Flags & WindowFlag::Tooltip) == WindowFlag::Tooltip)
+	{
+		SDLFlags |= SDL_WINDOW_TOOLTIP | SDL_WINDOW_SKIP_TASKBAR;
+	}
 	return SDLFlags;
 }
 
@@ -349,6 +363,10 @@ bool KlemmUI::Window::UpdateWindow()
 		UpdateSize();
 		UI.ForceUpdateUI();
 		ShouldUpdateSize = false;
+		if (OnResizedCallback)
+		{
+			OnResizedCallback(this);
+		}
 	}
 
 	if (UI.DrawElements())

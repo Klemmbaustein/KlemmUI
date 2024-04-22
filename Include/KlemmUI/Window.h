@@ -138,6 +138,8 @@ namespace KlemmUI
 			AlwaysOnTop    = 0b00100,
 			/// The window should start maximized.
 			FullScreen     = 0b01000,
+			/// The window is a tooltip.
+			Tooltip    = 0b10000,
 		};
 
 		/**
@@ -181,11 +183,15 @@ namespace KlemmUI
 		*/
 		float GetAspectRatio() const;
 
+		bool HasFocus();
+
 		/**
 		* @brief
 		* Gets the window size in pixels.
 		*/
 		Vector2ui GetSize() const;
+
+		void SetPosition(Vector2ui Pos);
 
 		/**
 		* @brief
@@ -194,6 +200,7 @@ namespace KlemmUI
 		* For a borderless window, the window manager has to know which area is grabbable by the mouse cursor, eg. the mouse cursor.
 		*/
 		bool(*IsAreaGrabbableCallback)(KlemmUI::Window* Target);
+		void(*OnResizedCallback)(KlemmUI::Window* Target);
 
 		/**
 		* @brief

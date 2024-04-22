@@ -144,7 +144,13 @@ void KlemmUI::InputManager::UpdateCursorPosition()
 	int x;
 	int y;
 
-	SDL_GetMouseState(&x, &y);
+	int PosX, PosY;
+	SDL_GetWindowPosition(SDLWindow, &PosX, &PosY);
+
+	SDL_GetGlobalMouseState(&x, &y);
+
+	x -= PosX;
+	y -= PosY;
 
 	ParentWindow->Input.MousePosition = Vector2(((float)x / (float)Width - 0.5f) * 2.0f, 1.0f - ((float)y / (float)Height * 2.0f));
 }
@@ -152,6 +158,25 @@ void KlemmUI::InputManager::UpdateCursorPosition()
 void InputManager::Poll()
 {
 	SDL_Event Event;
+	int MouseState = 0;
+	MouseState = SDL_GetGlobalMouseState(nullptr, nullptr);
+
+	IsLMBClicked = false;
+	IsRMBClicked = false;
+
+	bool NewLMBDown = MouseState & SDL_BUTTON(SDL_BUTTON_LEFT);
+	bool NewRMBDown = MouseState & SDL_BUTTON(SDL_BUTTON_RIGHT);
+	if (!IsLMBDown && NewLMBDown)
+	{
+		IsLMBClicked = true;
+	}
+	if (!IsRMBDown && NewRMBDown)
+	{
+		IsRMBClicked = true;
+	}
+
+	IsLMBDown = NewLMBDown;
+	IsRMBDown = NewRMBDown;
 
 	while (SDL_PollEvent(&Event))
 	{
@@ -162,32 +187,6 @@ void InputManager::Poll()
 			break;
 		case SDL_KEYUP:
 			GetWindowBySDLID(Event.window.windowID)->Input.SetKeyDown(static_cast<KlemmUI::Key>(Event.key.keysym.sym), false);
-			break;
-		case SDL_MOUSEBUTTONDOWN:
-			switch (Event.button.button)
-			{
-			case SDL_BUTTON_LEFT:
-				FOR_ALL_WINDOWS(Input.IsLMBDown = true);
-				break;
-			case SDL_BUTTON_RIGHT:
-				FOR_ALL_WINDOWS(Input.IsRMBDown = true);
-				break;
-			default:
-				break;
-			}
-			break;
-		case SDL_MOUSEBUTTONUP:
-			switch (Event.button.button)
-			{
-			case SDL_BUTTON_LEFT:
-				FOR_ALL_WINDOWS(Input.IsLMBDown = false);
-				break;
-			case SDL_BUTTON_RIGHT:
-				FOR_ALL_WINDOWS(Input.IsRMBDown = false);
-				break;
-			default:
-				break;
-			}
 			break;
 		case SDL_WINDOWEVENT:
 			switch (Event.window.event)
@@ -286,6 +285,13 @@ void InputManager::SetKeyDown(Key PressedKey, bool KeyDown)
 			Function(ParentWindow);
 		}
 	}
+}
+
+Vector2ui KlemmUI::InputManager::GetMouseScreenPosition()
+{
+	int x, y;
+	SDL_GetGlobalMouseState(&x, &y);
+	return Vector2ui(x, y);
 }
 
 void InputManager::RegisterOnKeyDownCallback(Key PressedKey, void(*Callback)(Window*))

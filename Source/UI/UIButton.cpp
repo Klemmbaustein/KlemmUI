@@ -14,6 +14,12 @@ void UIButton::Tick()
 	{
 		return;
 	}
+
+	if (!ParentWindow->HasFocus())
+	{
+		return;
+	}
+
 	CurrentButtonState = ButtonState::Normal;
 	if (ParentWindow->UI.HoveredBox == this && !IsHovered)
 	{
@@ -34,6 +40,10 @@ void UIButton::Tick()
 	else if (IsPressed && ParentWindow->UI.HoveredBox != this)
 	{
 		IsSelected = false;
+		if (OnDragged)
+		{
+			ParentWindow->UI.ButtonEvents.push_back(UIManager::ButtonEvent(nullptr, OnDragged, nullptr, ButtonIndex));
+		}
 		IsPressed = false;
 		RedrawElement();
 	}

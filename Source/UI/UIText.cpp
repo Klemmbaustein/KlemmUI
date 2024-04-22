@@ -40,8 +40,6 @@ UIText* UIText::SetFont(Font* NewFont)
 
 void UIText::Tick()
 {
-	if (!Renderer) return;
-	SetMinSize(GetUsedSize());
 }
 
 Vector3f UIText::GetColor() const
@@ -104,10 +102,9 @@ Vector2f UIText::GetTextSizeAtScale(float Scale, SizeMode ScaleType, Font* Rende
 	float RenderedSize = Scale;
 	if (ScaleType == SizeMode::PixelRelative)
 	{
-		RenderedSize = RenderedSize / Window::GetActiveWindow()->GetSize().Y * 50;
+		RenderedSize = RenderedSize / Window::GetActiveWindow()->GetSize().Y * 50 * Window::GetActiveWindow()->GetDPI();
 	}
 	return Renderer->GetTextSize({ TextSegment("A", 1) }, RenderedSize, false, 999999);
-
 }
 
 UIText* UIText::SetTextWidthOverride(float NewTextWidthOverride)
@@ -209,6 +206,7 @@ void UIText::Update()
 	{
 		delete Text;
 	}
+	SetMinSize(GetUsedSize());
 	if (Wrap)
 	{
 		Text = Renderer->MakeText(RenderedText, OffsetPosition + Vector2f(0, Size.Y - GetRenderedSize() / 40),

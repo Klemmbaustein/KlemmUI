@@ -597,6 +597,8 @@ namespace KlemmUI
 		bool IsKeyDown(Key PressedKey);
 		void SetKeyDown(Key PressedKey, bool KeyDown);
 
+		Vector2ui GetMouseScreenPosition();
+
 		/**
 		 * @brief
 		 * Adds a callback that will be run of the given key is pressed.
@@ -607,6 +609,12 @@ namespace KlemmUI
 		bool IsLMBDown;
 		/// True if the right mouse button is pressed.
 		bool IsRMBDown;
+
+		/// True if the left mouse has been pressed on the last update.
+		bool IsLMBClicked;
+		/// True if the right mouse has been pressed on the last update.
+		bool IsRMBClicked;
+
 		bool CursorVisible;
 		/**
 		 * @brief

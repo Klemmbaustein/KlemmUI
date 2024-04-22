@@ -7,6 +7,7 @@ namespace KlemmUI
 {
 	class Shader;
 	struct VertexBuffer;
+
 	/**
 	 * @brief
 	 * UI element that draws a square over the space it occupies.
@@ -23,9 +24,13 @@ namespace KlemmUI
 		Shader* BackgroundShader;
 		virtual void DrawBackground();
 		Vector3f Color;
+		Vector3f BorderColor;
 		VertexBuffer* BoxVertexBuffer = nullptr;
 		float Opacity = 1;
 		Vector3f ColorMultiplier = 1;
+		static float GetBorderSize(float InSize, UIBox::SizeMode Mode);
+		SizeMode BorderSizeMode = SizeMode::ScreenRelative;
+
 	public:
 		/**
 		 * @brief
@@ -34,6 +39,10 @@ namespace KlemmUI
 		 * An opacity of 1 is fully visible, an opacity of 0 is completely transparent.
 		 */
 		UIBackground* SetOpacity(float NewOpacity);
+
+		UIBackground* SetBorderSizeMode(SizeMode NewBorderSize);
+
+		UIBackground* SetBorderColor(Vector3f NewColor);
 
 		/**
 		 * @brief

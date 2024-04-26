@@ -57,48 +57,47 @@ KlemmUI::InputManager::InputManager(Window* Parent)
 		});
 
 	RegisterOnKeyDownCallback(Key::DELETE, [](Window* Win) {
-		if (Win->Input.PollForText && Win->Input.TextIndex < Win->Input.Text.size() && Win->Input.TextIndex >= 0)
+		InputManager& In = Win->Input;
+		
+		if (In.PollForText && In.TextIndex < In.Text.size() && In.TextIndex >= 0)
 		{
-			if (Win->Input.TextSelectionStart == Win->Input.TextIndex)
+			if (In.TextSelectionStart == In.TextIndex)
 			{
-				Win->Input.Text.erase(Win->Input.TextIndex, 1);
+				do
+				{
+					In.Text.erase(In.TextIndex, 1);
+				} while (In.Text.size() && (In.Text[In.TextIndex] & char(0xC0)) == char(0x80));
 			}
 			else
 			{
-				Win->Input.DeleteTextSelection();
+				In.DeleteTextSelection();
 			}
+			In.SetTextIndex(std::max(std::min(In.TextIndex, (int)In.Text.size()), 0), true);
 		}
 		});
 
 	RegisterOnKeyDownCallback(Key::BACKSPACE, [](Window* Win) {
-		if (Win->Input.PollForText && Win->Input.Text.length() > 0)
+		InputManager& In = Win->Input;
+		if (In.PollForText && In.Text.length() > 0)
 		{
-			if (Win->Input.TextIndex == Win->Input.Text.size())
+			if (In.TextIndex > 0 || In.TextSelectionStart > 0)
 			{
-				int Difference = std::abs(Win->Input.TextSelectionStart - Win->Input.TextIndex);
-
-				for (int i = 0; i < Difference; i++)
+				if (In.TextSelectionStart == In.TextIndex)
 				{
-					Win->Input.Text.pop_back();
-				}
-
-				if (Difference == 0)
-				{
-					Win->Input.Text.pop_back();
-				}
-			}
-			else if (Win->Input.TextIndex > 0 || Win->Input.TextSelectionStart > 0)
-			{
-				if (Win->Input.TextSelectionStart == Win->Input.TextIndex)
-				{
-					Win->Input.Text.erase(--Win->Input.TextIndex, 1);
+					char c = 0;
+					do
+					{
+						In.TextIndex--;
+						In.Text.erase(In.TextIndex, 1);
+						c = In.Text[In.TextIndex - 1];
+					} while (In.Text.size() && (c & char(0xC0)) != char(0x80) && c <= 0);
 				}
 				else
 				{
-					Win->Input.DeleteTextSelection();
+					In.DeleteTextSelection();
 				}
 			}
-			Win->Input.SetTextIndex(std::max(std::min(Win->Input.TextIndex, (int)Win->Input.Text.size()), 0), true);
+			In.SetTextIndex(std::max(std::min(In.TextIndex, (int)In.Text.size()), 0), true);
 		}
 		});
 

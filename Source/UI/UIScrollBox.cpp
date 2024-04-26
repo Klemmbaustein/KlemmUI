@@ -55,7 +55,9 @@ UIScrollBox* UIScrollBox::SetDisplayScrollBar(bool NewDisplay)
 		{
 			ScrollBarBackground = new UIButton(false, 0, 0.3f, nullptr, 0);
 			ScrollBarBackground->ParentOverride = this;
-			ScrollBarBackground->SetBorder(UIBox::BorderType::DarkenedEdge, 0.2f);
+			ScrollBarBackground->SetBorder(UIBox::BorderType::DarkenedEdge, 1.0f);
+			ScrollBarBackground->SetBorderColor(0.1f);
+			ScrollBarBackground->SetBorderSizeMode(UIBox::SizeMode::PixelRelative);
 			ScrollBarBackground->SetVerticalAlign(UIBox::Align::Reverse);
 			ScrollBarBackground->SetPosition(OffsetPosition + Vector2f(Size.X - ScrollBarBackground->GetUsedSize().X, 0));
 			ScrollBar = new UIBackground(true, 0, 0.75, Vector2f(0.01f, 0.1f));
@@ -73,7 +75,7 @@ UIScrollBox* UIScrollBox::SetDisplayScrollBar(bool NewDisplay)
 	return this;
 }
 
-bool UIScrollBox::GetDisplayScrollBar()
+bool UIScrollBox::GetDisplayScrollBar() const
 {
 	return DisplayScrollBar;
 }

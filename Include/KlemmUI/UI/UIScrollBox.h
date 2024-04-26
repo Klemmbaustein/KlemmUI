@@ -37,7 +37,7 @@ namespace KlemmUI
 		UIButton* GetScrollBarBackground();
 
 		UIScrollBox* SetDisplayScrollBar(bool NewDisplay);
-		bool GetDisplayScrollBar();
+		bool GetDisplayScrollBar() const;
 		UIScrollBox* SetScrollSpeed(float NewScrollSpeed);
 		float GetScrollSpeed() const;
 

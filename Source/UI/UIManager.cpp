@@ -99,7 +99,7 @@ bool UIManager::DrawElements()
 	{
 		if (elem->IsVisible != elem->PrevIsVisible)
 		{
-			elem->RedrawElement();
+			elem->RedrawElement(true);
 			elem->PrevIsVisible = elem->IsVisible;
 		}
 		if (elem->ShouldBeTicked)

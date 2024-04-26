@@ -555,9 +555,9 @@ void UIBox::GetPaddingScreenSize(Vector2f& UpDown, Vector2f& LeftRight) const
 	}
 }
 
-void UIBox::RedrawElement()
+void UIBox::RedrawElement(bool Force)
 {
-	if (!IsVisibleInHierarchy())
+	if (!IsVisibleInHierarchy() && !Force)
 	{
 		return;
 	}

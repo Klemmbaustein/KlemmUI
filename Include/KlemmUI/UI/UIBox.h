@@ -373,7 +373,14 @@ namespace KlemmUI
 		void GetPaddingScreenSize(Vector2f& UpDown, Vector2f& LeftRight) const;
 		static Vector2f PixelSizeToScreenSize(Vector2f PixelSize, Window* TargetWindow);
 
-		void RedrawElement();
+		/**
+		 * @brief
+		 * If this is called, the area this element occupies will be redrawn.
+		 * 
+		 * @param Force
+		 * If this is true, the element will be redrawn even if it is not visible.
+		 */
+		void RedrawElement(bool Force = false);
 
 protected:
 

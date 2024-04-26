@@ -355,8 +355,6 @@ bool KlemmUI::Window::UpdateWindow()
 	}
 
 	SetWindowActive();
-	Input.UpdateCursorPosition();
-	Input.Poll();
 	MakeContextCurrent();
 	if (ShouldUpdateSize)
 	{
@@ -381,7 +379,9 @@ bool KlemmUI::Window::UpdateWindow()
 	{
 		WaitFrame();
 	}
-	
+	Input.UpdateCursorPosition();
+	Input.Poll();
+
 	FrameDelta = WindowDeltaTimer.Get();
 	Time += FrameDelta;
 	WindowDeltaTimer.Reset();

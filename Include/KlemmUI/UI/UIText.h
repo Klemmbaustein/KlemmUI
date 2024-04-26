@@ -88,7 +88,7 @@ namespace KlemmUI
 		 * @brief
 		 * Sets the text of this UIText from a list of TextSegments.
 		 */
-		void SetText(std::vector<TextSegment> NewText);
+		UIText* SetText(std::vector<TextSegment> NewText);
 		std::string GetText() const;
 
 		/**

@@ -123,7 +123,7 @@ void UIText::SetText(std::string NewText)
 	SetText({TextSegment(NewText, Color)});
 }
 
-void UIText::SetText(std::vector<TextSegment> NewText)
+UIText* UIText::SetText(std::vector<TextSegment> NewText)
 {
 	if (TextSegment::CombineToString(NewText) != TextSegment::CombineToString(RenderedText))
 	{
@@ -131,13 +131,14 @@ void UIText::SetText(std::vector<TextSegment> NewText)
 		if (Wrap)
 		{
 			if (!Renderer) 
-				return;
+				return this;
 
 			Vector2 s = Renderer->GetTextSize(RenderedText, GetRenderedSize(), Wrap, GetWrapDistance());
 		}
 		InvalidateLayout();
 		RedrawElement();
 	}
+	return this;
 }
 
 size_t UIText::GetNearestLetterAtLocation(Vector2f Location) const

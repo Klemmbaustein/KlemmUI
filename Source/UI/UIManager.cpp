@@ -77,12 +77,9 @@ void UIManager::RedrawUI()
 void UIManager::ClearUI()
 {
 	ElementsToUpdate.clear();
-	for (UIBox* elem : UIElements)
+	while (UIElements.size())
 	{
-		if (!elem->GetParent())
-		{
-			delete elem;
-		}
+		delete UIElements[0];
 	}
 	UIElements.clear();
 	RedrawUI();

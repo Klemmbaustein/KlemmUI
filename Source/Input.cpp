@@ -236,7 +236,7 @@ void KlemmUI::InputManager::MoveMouseWheel(int Amount)
 
 void KlemmUI::InputManager::AddTextInput(std::string Str)
 {
-	if (PollForText && (Str[0] >= 32 || Str[0] < 0))
+	if (PollForText)
 	{
 		if (Text.size() < TextIndex)
 		{
@@ -303,6 +303,23 @@ void InputManager::RegisterOnKeyDownCallback(Key PressedKey, void(*Callback)(Win
 	else
 	{
 		ButtonPressedCallbacks[PressedKey].push_back(Callback);
+	}
+}
+
+void KlemmUI::InputManager::RemoveOnKeyDownCallback(Key PressedKey, void(*Callback)(Window*))
+{
+	if (ButtonPressedCallbacks.contains(PressedKey))
+	{
+		auto& Keys = ButtonPressedCallbacks[PressedKey];
+
+		for (size_t i = 0; i < Keys.size(); i++)
+		{
+			if (Keys[i] == Callback)
+			{
+				Keys.erase(Keys.begin() + i);
+				return;
+			}
+		}
 	}
 }
 

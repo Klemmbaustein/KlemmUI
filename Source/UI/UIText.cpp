@@ -40,6 +40,7 @@ UIText* UIText::SetFont(Font* NewFont)
 
 void UIText::Tick()
 {
+	SetMinSize(GetUsedSize());
 }
 
 Vector3f UIText::GetColor() const
@@ -206,7 +207,6 @@ void UIText::Update()
 	{
 		delete Text;
 	}
-	SetMinSize(GetUsedSize());
 	if (Wrap)
 	{
 		Text = Renderer->MakeText(RenderedText, OffsetPosition + Vector2f(0, Size.Y - GetRenderedSize() / 40),

@@ -24,10 +24,13 @@ namespace KlemmUI
 		float InitialScrollPosition = 0;
 		bool DisplayScrollBar = false;
 
+		float OldPercentage = 0;
 		float DesiredMaxScroll = 0;
 		float GetDesiredChildrenSize();
 		void UpdateScrollObjectOfObject(UIBox* o);
 	public:
+		void(*OnScrolled)(UIScrollBox* Target) = nullptr;
+		
 		static bool IsDraggingScrollBox;
 		ScrollObject* GetScrollObject();
 		UIBackground* GetScrollBarSlider();

@@ -147,6 +147,15 @@ void UIScrollBox::Tick()
 		IsDraggingScrollBox = false;
 		IsDragging = false;
 	}
+
+	if (OldPercentage != ScrollClass.Percentage)
+	{
+		OldPercentage = ScrollClass.Percentage;
+		if (OnScrolled)
+		{
+			OnScrolled(this);
+		}
+	}
 }
 
 void UIScrollBox::SetMaxScroll(float NewMaxScroll)

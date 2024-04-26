@@ -119,7 +119,7 @@ size_t Font::GetCharacterIndexADistance(std::vector<TextSegment> Text, float Dis
 		}
 		if (c >= 32)
 		{
-			int GlyphIndex = (int)TextString[i] - 32;
+			int GlyphIndex = (int)c - 32;
 			if (GlyphIndex < 0)
 			{
 				continue;
@@ -146,10 +146,6 @@ size_t Font::GetCharacterIndexADistance(std::vector<TextSegment> Text, float Dis
 
 				return std::min(i + 1, TextSegment::CombineToString(Text).size());
 			}
-			if (c >= 128)
-			{
-				i += 1;
-			}
 			PrevMaxDepth = g.Offset.Y + g.Size.X, 0;
 			PrevDepth = g.Offset.Y;
 		}
@@ -172,10 +168,11 @@ Font::Font(std::string Filename)
 	if (ttfBuffer == nullptr)
 	{
 		Application::Error::Error("Failed to allocate space for font bitmap");
+		return;
 	}
 
 	size_t ret = fread(ttfBuffer, 1, 1 << 20, fopen(Filename.c_str(), "rb"));
-	if (!ret)
+	if (!ret || !ttfBuffer)
 	{
 		Application::Error::Error("Failed to load font: " + Filename);
 		return;
@@ -235,8 +232,11 @@ Font::Font(std::string Filename)
 
 		CharacterSize = std::max(New.Size.Y + New.Offset.Y, (float)CharacterSize);
 
-		// Give some additional space for better anti aliasing
-		New.Size += Vector2(3.0f / 20.0f, 3.0f / 20.0f);
+		if (New.Size != 0)
+		{
+			// Give some additional space for better anti aliasing
+			New.Size += Vector2(3.0f / 20.0f, 3.0f / 20.0f);
+		}
 
 		if (w == 0 || h == 0 || i == ' ')
 		{
@@ -376,23 +376,21 @@ DrawableText* Font::MakeText(std::vector<TextSegment> Text, Vector2f Pos, float 
 	size_t CharIndex = 0;
 	for (auto& i : Text)
 	{
-		std::string NewString = i.Text;
 		for (size_t it = 0; it < i.Text.size(); it++)
 		{
 			if (i.Text[it] == '\t')
 			{
 				i.Text[it] = ' ';
-				do
+				while (++CharIndex % TabSize)
 				{
-					NewString.insert(NewString.begin() + it, ' ');
-				} while (++CharIndex % TabSize);
+					i.Text.insert(i.Text.begin() + it++, ' ');
+				}
 			}
 			else
 			{
 				CharIndex++;
 			}
 		}
-		i.Text = NewString;
 	}
 
 	GLuint newVAO = 0, newVBO = 0;
@@ -449,16 +447,20 @@ DrawableText* Font::MakeText(std::vector<TextSegment> Text, Vector2f Pos, float 
 			Glyph g = LoadedGlyphs[GlyphIndex];
 
 			Vector2 StartPos = Vector2(x, y) + g.Offset;
-
-			vData[0].position = StartPos + Vector2f(0, g.Size.Y); vData[0].texCoords = g.TexCoordStart + Vector2f(0, g.TexCoordOffset.Y);
-			vData[1].position = StartPos + g.Size;                vData[1].texCoords = g.TexCoordStart + g.TexCoordOffset;
-			vData[2].position = StartPos + Vector2f(g.Size.X, 0); vData[2].texCoords = g.TexCoordStart + Vector2f(g.TexCoordOffset.X, 0);
-			vData[3].position = StartPos;                         vData[3].texCoords = g.TexCoordStart;
-			vData[4].position = StartPos + Vector2f(0, g.Size.Y); vData[4].texCoords = g.TexCoordStart + Vector2f(0, g.TexCoordOffset.Y);
-			vData[5].position = StartPos + Vector2f(g.Size.X, 0); vData[5].texCoords = g.TexCoordStart + Vector2f(g.TexCoordOffset.X, 0);
-			vData[0].color = seg.Color;		vData[1].color = seg.Color;
-			vData[2].color = seg.Color;		vData[3].color = seg.Color;
-			vData[4].color = seg.Color;		vData[5].color = seg.Color;
+			if (g.Size != 0)
+			{
+				vData[0].position = StartPos + Vector2f(0, g.Size.Y); vData[0].texCoords = g.TexCoordStart + Vector2f(0, g.TexCoordOffset.Y);
+				vData[1].position = StartPos + g.Size;                vData[1].texCoords = g.TexCoordStart + g.TexCoordOffset;
+				vData[2].position = StartPos + Vector2f(g.Size.X, 0); vData[2].texCoords = g.TexCoordStart + Vector2f(g.TexCoordOffset.X, 0);
+				vData[3].position = StartPos;                         vData[3].texCoords = g.TexCoordStart;
+				vData[4].position = StartPos + Vector2f(0, g.Size.Y); vData[4].texCoords = g.TexCoordStart + Vector2f(0, g.TexCoordOffset.Y);
+				vData[5].position = StartPos + Vector2f(g.Size.X, 0); vData[5].texCoords = g.TexCoordStart + Vector2f(g.TexCoordOffset.X, 0);
+				vData[0].color = seg.Color;		vData[1].color = seg.Color;
+				vData[2].color = seg.Color;		vData[3].color = seg.Color;
+				vData[4].color = seg.Color;		vData[5].color = seg.Color;
+				vData += 6;
+				numVertices += 6;
+			}
 			x += g.TotalSize.X;
 
 			if (UTFString[i] == ' ')
@@ -469,8 +471,6 @@ DrawableText* Font::MakeText(std::vector<TextSegment> Text, Vector2f Pos, float 
 			}
 
 			MaxHeight = std::max(StartPos.Y + g.Offset.Y, MaxHeight);
-			vData += 6;
-			numVertices += 6;
 			if (x / 225 / Window::GetActiveWindow()->GetAspectRatio() > LengthBeforeWrap)
 			{
 				if (LastWordIndex != SIZE_MAX && LastWordIndex != LastWrapIndex)

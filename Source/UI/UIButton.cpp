@@ -137,6 +137,10 @@ UIBackground* UIButton::SetColor(Vector3f NewColor)
 	if (NewColor != ButtonColor)
 	{
 		ButtonColor = NewColor;
+		if (!IsHovered && !IsPressed)
+		{
+			Color = ButtonColor;
+		}
 		RedrawElement();
 	}
 	return this;
@@ -149,6 +153,7 @@ UIButton* UIButton::SetHoveredColor(Vector3f NewColor)
 		HoveredColor = NewColor;
 		if (IsHovered)
 		{
+			Color = ButtonColor;
 			RedrawElement();
 		}
 	}
@@ -162,6 +167,7 @@ UIButton* UIButton::SetPressedColor(Vector3f NewColor)
 		PressedColor = NewColor;
 		if (IsPressed)
 		{
+			Color = ButtonColor;
 			RedrawElement();
 		}
 	}

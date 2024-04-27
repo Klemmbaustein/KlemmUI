@@ -199,8 +199,8 @@ namespace KlemmUI
 		* 
 		* For a borderless window, the window manager has to know which area is grabbable by the mouse cursor, eg. the mouse cursor.
 		*/
-		bool(*IsAreaGrabbableCallback)(KlemmUI::Window* Target);
-		void(*OnResizedCallback)(KlemmUI::Window* Target);
+		bool(*IsAreaGrabbableCallback)(KlemmUI::Window* Target) = nullptr;
+		void(*OnResizedCallback)(KlemmUI::Window* Target) = nullptr;
 
 		/**
 		* @brief

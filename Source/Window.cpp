@@ -92,7 +92,7 @@ void KlemmUI::Window::UpdateSize()
 std::mutex WindowMutex;
 
 KlemmUI::Window::Window(std::string Name, WindowFlag Flags, Vector2ui WindowPos, Vector2ui WindowSize)
-{	
+{
 	std::lock_guard Guard = std::lock_guard(WindowMutex);
 	if (WindowPos == POSITION_CENTERED)
 	{
@@ -115,7 +115,7 @@ KlemmUI::Window::Window(std::string Name, WindowFlag Flags, Vector2ui WindowPos,
 		WindowPos.X,
 		WindowPos.Y,
 		WindowSize.X,
-		WindowSize.Y, 
+		WindowSize.Y,
 		ToSDLWindowFlags(Flags) | SDL_WINDOW_OPENGL);
 
 	if ((Flags & WindowFlag::Borderless) == WindowFlag::Borderless)
@@ -304,8 +304,14 @@ void KlemmUI::Window::UpdateDPI()
 
 	SDL_GetDisplayDPI(SDL_GetWindowDisplayIndex(SDLWindow), &ddpi, &hdpi, &vdpi);
 
+	if (hdpi == 0)
+	{
+		hdpi = 96.0f;
+	}
+
 	hdpi /= 96;
 	hdpi *= DPIMultiplier;
+
 	if (hdpi != DPI && UI.UIElements.size())
 	{
 		UI.ForceUpdateUI();
@@ -420,7 +426,7 @@ const std::vector<KlemmUI::Window*>& KlemmUI::Window::GetActiveWindows()
 void KlemmUI::Window::SetWindowFullScreen(bool NewIsFullScreen)
 {
 	SDL_WINDOW_PTR(SDLWindow);
-	
+
 	if (NewIsFullScreen)
 	{
 		SDL_MaximizeWindow(SDLWindow);
@@ -449,7 +455,7 @@ bool KlemmUI::Window::GetMinimized()
 void KlemmUI::Window::SetMinimized(bool NewIsMinimized)
 {
 	SDL_WINDOW_PTR(SDLWindow);
-	
+
 	if (NewIsMinimized)
 	{
 		SDL_MinimizeWindow(SDLWindow);

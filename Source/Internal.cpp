@@ -32,7 +32,7 @@ KlemmUI::Internal::GLContext KlemmUI::Internal::InitGLContext(Window* From)
 
 	if (!IsGLEWStarted)
 	{
-		GLenum GLEWStatus = glewInit();
+		GLenum GLEWStatus = glewContextInit();
 		if (GLEWStatus != GLEW_OK)
 		{
 			Application::Error::Error((const char*)glewGetErrorString(GLEWStatus), true);

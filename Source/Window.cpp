@@ -84,7 +84,7 @@ void KlemmUI::Window::UpdateSize()
 
 	int w = 0, h = 0;
 
-	SDL_GetWindowSizeInPixels(SDLWindow, &w, &h);
+	SDL_GetWindowSize(SDLWindow, &w, &h);
 
 	WindowSize = Vector2ui(w, h);
 }

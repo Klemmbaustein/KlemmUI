@@ -33,6 +33,7 @@ namespace KlemmUI
 		bool GetShouldRedrawUI() const;
 
 		bool DrawElements();
+		void TickElements();
 
 		void UpdateEvents();
 

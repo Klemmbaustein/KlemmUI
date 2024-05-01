@@ -92,26 +92,7 @@ bool UIManager::GetShouldRedrawUI() const
 
 bool UIManager::DrawElements()
 {
-
-	NewHoveredBox = nullptr;
-
-	for (UIBox* elem : UIElements)
-	{
-		if (elem->IsVisible != elem->PrevIsVisible)
-		{
-			elem->RedrawElement(true);
-			elem->PrevIsVisible = elem->IsVisible;
-		}
-		if (elem->ShouldBeTicked)
-		{
-			elem->Tick();
-		}
-		if (!elem->Parent)
-		{
-			elem->UpdateHoveredState();
-		}
-	}
-	HoveredBox = NewHoveredBox;
+	TickElements();
 
 	if (!ElementsToUpdate.empty())
 	{
@@ -150,6 +131,28 @@ bool UIManager::DrawElements()
 		return true;
 	}
 	return false;
+}
+
+void KlemmUI::UIManager::TickElements()
+{
+	NewHoveredBox = nullptr;
+	for (UIBox* elem : UIElements)
+	{
+		if (elem->IsVisible != elem->PrevIsVisible)
+		{
+			elem->RedrawElement(true);
+			elem->PrevIsVisible = elem->IsVisible;
+		}
+		if (elem->ShouldBeTicked)
+		{
+			elem->Tick();
+		}
+		if (!elem->Parent)
+		{
+			elem->UpdateHoveredState();
+		}
+	}
+	HoveredBox = NewHoveredBox;
 }
 
 void UIManager::UpdateEvents()

@@ -106,13 +106,13 @@ void UIScrollBox::Tick()
 
 		if (DesiredMaxScroll <= Size.Y)
 		{
-			ScrollBar->SetMinSize(Vector2f(0.01f, Size.Y - 0.005f));
+			ScrollBar->SetMinSize(Vector2f(0.0075f, Size.Y - 0.005f));
 			ScrollBar->SetPadding(0.0025f);
 			ScrollPercentage = 0;
 		}
 		else
 		{
-			ScrollBar->SetMinSize(Vector2f(0.01f, Size.Y / (DesiredMaxScroll / Size.Y)));
+			ScrollBar->SetMinSize(Vector2f(0.0075f, Size.Y / (DesiredMaxScroll / Size.Y)));
 
 			ScrollBar->SetPadding(std::max((ScrollPercentage * Size.Y) - (ScrollPercentage * ScrollBar->GetUsedSize().Y) - 0.005f, 0.0025f),
 				0.0025f,

@@ -18,6 +18,7 @@ using namespace KlemmUI;
 std::wstring GetUnicodeString(std::string utf8)
 {
 	std::vector<unsigned long> unicode;
+	unicode.reserve(utf8.size());
 	size_t i = 0;
 	while (i < utf8.size())
 	{

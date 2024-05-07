@@ -125,7 +125,7 @@ void UIText::SetText(std::string NewText)
 
 UIText* UIText::SetText(std::vector<TextSegment> NewText)
 {
-	if (TextSegment::CombineToString(NewText) != TextSegment::CombineToString(RenderedText))
+	if (NewText != RenderedText)
 	{
 		RenderedText = NewText;
 		if (Wrap)

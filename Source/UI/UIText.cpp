@@ -57,6 +57,7 @@ UIText* UIText::SetColor(Vector3f NewColor)
 		{
 			i.Color = Color;
 		}
+		Update();
 		RedrawElement();
 	}
 	return this;

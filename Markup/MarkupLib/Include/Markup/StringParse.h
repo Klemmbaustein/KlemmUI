@@ -16,10 +16,16 @@ namespace KlemmUI::StringParse
 		std::string Peek();
 		bool Empty() const;
 		std::string GetUntil(std::string str);
+		bool Contains(std::string str) const;
 		Line GetLineUntil(std::string str, bool RespectBraces = false);
 		Line GetInBraces(bool SquareBraces = false);
 		std::vector<Line> GetLinesInBraces();
 	};
+
+	bool IsStringToken(std::string Element);
+	bool IsVectorToken(std::string Element);
+
+	std::string ToCppCode(std::string Value);
 
 	std::vector<Line> SeparateString(std::string String);
 }

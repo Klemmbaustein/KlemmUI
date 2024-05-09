@@ -11,7 +11,10 @@ int main()
 	std::string SourceString = std::string(std::istreambuf_iterator<char>(Source.rdbuf()),
 		std::istreambuf_iterator<char>());
 
-	auto a = KlemmUI::MarkupParse::ParseFiles({SourceString});
+	auto a = KlemmUI::MarkupParse::ParseFiles({ KlemmUI::MarkupParse::FileEntry{
+			.Content = SourceString,
+			.Name = "test",
+		} });
 
 	MarkupElement e;
 	e.Root = UIElement{
@@ -38,7 +41,8 @@ int main()
 		}}
 	};
 
-	e.WriteHeader("D:/VS/KlemmUIML/Source/Elements");
-	if (a.size())
-		a[0].WriteHeader("D:/VS/KlemmUIML/Source/Elements");
+	for (auto& i : a)
+	{
+		i.WriteHeader("D:/VS/KlemmUIML/Source/Elements");
+	}
 }

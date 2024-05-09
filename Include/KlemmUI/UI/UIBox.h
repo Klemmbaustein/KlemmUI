@@ -397,10 +397,10 @@ protected:
 		Vector2f MaxSize = Vector2(999, 999);
 		Vector2f MinSize = Vector2(0, 0);
 
-		float UpPadding = 0.01f;
-		float DownPadding = 0.01f;
-		float RightPadding = 0.01f;
-		float LeftPadding = 0.01f;
+		float UpPadding = 0;
+		float DownPadding = 0;
+		float RightPadding = 0;
+		float LeftPadding = 0;
 		Vector2f Size;
 		SizeMode PaddingSizeMode = SizeMode::ScreenRelative;
 		Window* ParentWindow = nullptr;

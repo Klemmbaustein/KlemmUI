@@ -75,6 +75,18 @@ std::string StringParse::Line::GetUntil(std::string str)
 	return Condition;
 }
 
+bool KlemmUI::StringParse::Line::Contains(std::string str) const
+{
+	for (auto& i : Strings)
+	{
+		if (i == str)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 StringParse::Line StringParse::Line::GetLineUntil(std::string str, bool RespectBraces)
 {
 	uint8_t Depth = 1;
@@ -203,6 +215,38 @@ static void ParseWord(std::string& CurrentWord, StringParse::Line& CurrentLine)
 	CurrentWord.clear();
 }
 
+bool KlemmUI::StringParse::IsStringToken(std::string Element)
+{
+	if (Element.size() < 2)
+	{
+		return false;
+	}
+	return Element[0] == '"' && Element[Element.size() - 1] == '"';
+}
+
+bool KlemmUI::StringParse::IsVectorToken(std::string Element)
+{
+	if (Element.size() < 2)
+	{
+		return false;
+	}
+	return Element[0] == '(' && Element[Element.size() - 1] == ')';
+}
+
+std::string KlemmUI::StringParse::ToCppCode(std::string Value)
+{
+	if (IsVectorToken(Value))
+	{		
+		return Value.substr(1, Value.size() - 2);
+	}
+	if (IsStringToken(Value))
+	{
+		return Value;
+	}
+
+	return Value;
+}
+
 std::vector<StringParse::Line> StringParse::SeparateString(std::string String)
 {
 	std::vector<Line> Lines;
@@ -210,6 +254,7 @@ std::vector<StringParse::Line> StringParse::SeparateString(std::string String)
 	CurrentLine.Index = 1;
 	std::string CurrentWord;
 	size_t LineIndex = 0;
+	size_t LineBeginIndex = SIZE_MAX;
 
 	bool InQuotes = false;
 
@@ -245,7 +290,15 @@ std::vector<StringParse::Line> StringParse::SeparateString(std::string String)
 
 		if (c == ';' || c == '}' || c == '{')
 		{
-			CurrentLine.Index = LineIndex;
+			if (c == '{')
+			{
+				ParseWord(CurrentWord, CurrentLine);
+				CurrentWord = { c };
+				ParseWord(CurrentWord, CurrentLine);
+			}
+
+			CurrentLine.Index = LineBeginIndex;
+			LineBeginIndex = SIZE_MAX;
 			if (!CurrentWord.empty())
 			{
 				CurrentLine.Strings.push_back(CurrentWord);
@@ -257,7 +310,7 @@ std::vector<StringParse::Line> StringParse::SeparateString(std::string String)
 
 			CurrentLine = Line();
 			CurrentWord.clear();
-			if (c == '}' || c == '{')
+			if (c == '}')
 			{
 				Line l;
 				l.Index = LineIndex;
@@ -274,17 +327,21 @@ std::vector<StringParse::Line> StringParse::SeparateString(std::string String)
 			ParseWord(CurrentWord, CurrentLine);
 			CurrentWord = { c };
 			ParseWord(CurrentWord, CurrentLine);
+			if (LineBeginIndex == SIZE_MAX)
+				LineBeginIndex = LineIndex;
 		}
 		else
 		{
+			if (LineBeginIndex == SIZE_MAX)
+				LineBeginIndex = LineIndex;
 			CurrentWord.push_back(c);
 		}
 	}
 	ParseWord(CurrentWord, CurrentLine);
 
 	if (!CurrentLine.Strings.empty())
-	{
-		Lines.push_back(CurrentLine);
+		Lines.push_back(CurrentLine);	{
+
 	}
 	return Lines;
 }

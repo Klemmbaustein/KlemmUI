@@ -4,15 +4,26 @@
 
 namespace KlemmUI::MarkupParse
 {
-	std::vector<MarkupStructure::MarkupElement> ParseFiles(std::vector<std::string> FileStrings);
+	struct FileEntry
+	{
+		std::string Content;
+		std::string Name;
+	};
+	std::vector<MarkupStructure::MarkupElement> ParseFiles(std::vector<FileEntry> Files);
 
 	struct ParsedElement
 	{
 		std::string Name;
 		std::string File;
 		size_t Start;
+		size_t StartLine;
 		size_t End;
+		MarkupStructure::MarkupElement StructureElement;
 	};
 
 	std::vector<ParsedElement> GetElementsInFile(std::vector<StringParse::Line>& Lines, std::string FileName);
+
+	MarkupStructure::MarkupElement ParseElement(ParsedElement& Elem, std::vector<StringParse::Line>& Lines);
+
+	void ParseScope(MarkupStructure::UIElement& Elem, std::vector<StringParse::Line> Lines, size_t Start, bool IsRoot);
 }

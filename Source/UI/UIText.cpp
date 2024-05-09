@@ -32,7 +32,7 @@ UIText* UIText::SetFont(Font* NewFont)
 {
 	if (NewFont != Renderer)
 	{
-		NewFont = Renderer;
+		Renderer = NewFont;
 		InvalidateLayout();
 	}
 	return this;

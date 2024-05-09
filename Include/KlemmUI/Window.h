@@ -163,6 +163,7 @@ namespace KlemmUI
 		* @brief
 		* Updates the current window, re-draws the screen if necessary.
 		* 
+		* Usage example:
 		* ```
 		* while (MyWindow.UpdateWindow())
 		* {
@@ -171,7 +172,7 @@ namespace KlemmUI
 		* ```
 		* 
 		* @return
-		* Returns if the window should continue being shown.
+		* Returns true if the window should continue being shown, false if not.
 		*/
 		bool UpdateWindow();
 

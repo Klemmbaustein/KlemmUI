@@ -101,6 +101,7 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Markup\MarkupElement.cpp" />
     <ClCompile Include="Source\UI\UIManager.cpp" />
     <ClCompile Include="Source\Input.cpp" />
     <ClCompile Include="Source\Rendering\ShaderManager.cpp" />
@@ -130,6 +131,7 @@
   <ItemGroup>
     <ClInclude Include="Include\KlemmUI\Application.h" />
     <ClInclude Include="Include\KlemmUI\Input.h" />
+    <ClInclude Include="Include\KlemmUI\Markup\MarkupElement.h" />
     <ClInclude Include="Include\KlemmUI\Rendering\ShaderManager.h" />
     <ClInclude Include="Include\KlemmUI\Timer.h" />
     <ClInclude Include="Include\KlemmUI\UI\UIManager.h" />

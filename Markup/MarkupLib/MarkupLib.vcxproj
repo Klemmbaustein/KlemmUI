@@ -90,6 +90,7 @@
     <ClInclude Include="Include\Markup\MarkupStructure.h" />
     <ClInclude Include="Include\Markup\ParseError.h" />
     <ClInclude Include="Include\Markup\StringParse.h" />
+    <ClInclude Include="Source\ElementProperties.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\ParseError.cpp" />

@@ -25,6 +25,7 @@ namespace KlemmUI::StringParse
 	bool IsStringToken(std::string Element);
 	bool IsVectorToken(std::string Element);
 	bool IsSizeValue(std::string Element);
+	std::string GetAlign(std::string Element);
 	bool IsNumber(std::string Element);
 
 	std::string ToCppCode(std::string Value);

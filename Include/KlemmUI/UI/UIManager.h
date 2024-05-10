@@ -1,5 +1,6 @@
 #pragma once
 #include <set>
+#include <map>
 #include <vector>
 #include "../Vector2.h"
 
@@ -8,6 +9,15 @@ namespace KlemmUI
 	class UIBox;
 	class UIManager
 	{
+		struct ReferenceTexture
+		{
+			std::string Name;
+			size_t RefCount = 0;
+		};
+
+		std::map<unsigned int, ReferenceTexture> ReferencedTextures;
+		std::string TexturePath;
+
 	public:
 		UIManager();
 		~UIManager();
@@ -36,6 +46,11 @@ namespace KlemmUI
 		void TickElements();
 
 		void UpdateEvents();
+
+		unsigned int LoadReferenceTexture(std::string FilePath);
+		void UnloadReferenceTexture(unsigned int TextureID);
+
+		void SetTexturePath(std::string NewPath);
 
 		struct ButtonEvent
 		{

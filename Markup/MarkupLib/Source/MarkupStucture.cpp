@@ -104,180 +104,21 @@ std::map<UIElement::Variable::VariableType, UIElement::Variable::VariableTypeDes
 },
 };
 
-static std::vector<PropertyElement> Properties
-{
-	PropertyElement{
-		.Type = PropElementType::UIText,
-		.Name = "text",
-		.SetFormat = {"SetText({val})"},
-		.VarType = UIElement::Variable::VariableType::String,
-	},
-	PropertyElement{
-		.Type = PropElementType::UIText,
-		.Name = "sizeMode",
-		.SetFormat = {"SetTextSizeMode({val})"},
-		.VarType = UIElement::Variable::VariableType::SizeMode,
-	},
-	PropertyElement{
-		.Type = PropElementType::UIText,
-		.Name = "color",
-		.SetFormat = {"SetColor(Vector3f({val}))"},
-		.VarType = UIElement::Variable::VariableType::Vector3,
-	},
-	PropertyElement{
-		.Type = PropElementType::UIText,
-		.Name = "size",
-		.SetFormat = {"SetTextSize({val})"},
-		.SetSizeFormat = "SetTextSizeMode({val})",
-		.VarType = UIElement::Variable::VariableType::Size,
-	},
-	PropertyElement{
-		.Type = PropElementType::UIText,
-		.Name = "font",
-		.SetFormat = {"SetFont(KlemmUI::MarkupLanguageManager::GetActive()->GetFont({val}))"},
-		.VarType = UIElement::Variable::VariableType::String,
-		.AlwaysSet = true,
-		.Default = "\"\""
-	},
-	PropertyElement{
-		.Type = PropElementType::UIBackground,
-		.Name = "color",
-		.SetFormat = {"SetColor(Vector3f({val}))", "SetHoveredColor(Vector3f({val}) * 0.75f)", "SetPressedColor(Vector3f({val}) * 0.5f)"},
-		.VarType = UIElement::Variable::VariableType::Vector3,
-	},
-	PropertyElement{
-		.Type = PropElementType::UIBackground,
-		.Name = "opacity",
-		.SetFormat = {"SetOpacity({val})"},
-		.VarType = UIElement::Variable::VariableType::Number,
-	},
-	PropertyElement{
-		.Type = PropElementType::UIButton,
-		.Name = "onClicked",
-		.SetFormat = {"OnClickedFunction = {val}"},
-		.VarType = UIElement::Variable::VariableType::Callback,
-	},
-	PropertyElement{
-		.Type = PropElementType::UIBox,
-		.Name = "minSize",
-		.SetFormat = {"SetMinSize({val})"},
-		.VarType = UIElement::Variable::VariableType::Size,
-	},
-	PropertyElement{
-		.Type = PropElementType::UIBox,
-		.Name = "size",
-		.SetFormat = {"SetMinSize(Vector2f({val}))", "SetMaxSize(Vector2f({val}))"},
-		.SetSizeFormat = "SetSizeMode({val})",
-		.VarType = UIElement::Variable::VariableType::Size,
-	},
-	PropertyElement{
-		.Type = PropElementType::UIBox,
-		.Name = "position",
-		.SetFormat = {"SetPosition(Vector2f({val}))"},
-		.VarType = UIElement::Variable::VariableType::Vector2,
-	},
-	PropertyElement{
-		.Type = PropElementType::UIBox,
-		.Name = "allAlign",
-		.SetFormat = {"SetVerticalAlign(KlemmUI::UIBox::Align::{val})", "SetHorizontalAlign(KlemmUI::UIBox::Align::{val})"},
-		.VarType = UIElement::Variable::VariableType::Align,
-	},
-	PropertyElement{
-		.Type = PropElementType::UIBox,
-		.Name = "horizontalAlign",
-		.SetFormat = {"SetHorizontalAlign(KlemmUI::UIBox::Align::{val})"},
-		.VarType = UIElement::Variable::VariableType::Align,
-	},
-	PropertyElement{
-		.Type = PropElementType::UIBox,
-		.Name = "verticalAlign",
-		.SetFormat = {"SetVerticalAlign(KlemmUI::UIBox::Align::{val})"},
-			.VarType = UIElement::Variable::VariableType::Align,
-	},
-	PropertyElement{
-		.Type = PropElementType::UIBox,
-		.Name = "paddingSizeMode",
-		.SetFormat = {"SetPaddingSizeMode({val})"},
-		.VarType = UIElement::Variable::VariableType::SizeMode,
-	},
-	PropertyElement{
-		.Type = PropElementType::UIBox,
-		.Name = "sizeMode",
-		.SetFormat = {"SetSizeMode({val})"},
-		.VarType = UIElement::Variable::VariableType::SizeMode,
-	},
-	PropertyElement{
-		.Type = PropElementType::UIBox,
-		.Name = "padding",
-		.SetFormat = {"SetPadding((float){val})"},
-		.VarType = UIElement::Variable::VariableType::Number,
-	},
-	PropertyElement{
-		.Type = PropElementType::UIBox,
-		.Name = "upPadding",
-		.SetFormat = {"SetUpPadding((float){val})"},
-		.VarType = UIElement::Variable::VariableType::Number,
-	},
-	PropertyElement{
-		.Type = PropElementType::UIBox,
-		.Name = "downPadding",
-		.SetFormat = {"SetDownPadding((float){val})"},
-		.VarType = UIElement::Variable::VariableType::Number,
-	},
-	PropertyElement{
-		.Type = PropElementType::UIBox,
-		.Name = "leftPadding",
-		.SetFormat = {"SetLeftPadding((float){val})"},
-		.VarType = UIElement::Variable::VariableType::Number,
-	},
-	PropertyElement{
-		.Type = PropElementType::UIBox,
-		.Name = "rightPadding",
-		.SetFormat = {"SetRightPadding((float){val})"},
-		.VarType = UIElement::Variable::VariableType::Number,
-	},
-	PropertyElement{
-		.Type = PropElementType::UIBox,
-		.Name = "hasMouseCollision",
-		.SetFormat = {"HasMouseCollision((bool){val})"},
-		.VarType = UIElement::Variable::VariableType::Bool,
-	},
-	PropertyElement{
-		.Type = PropElementType::UIBox,
-		.Name = "tryFill",
-		.SetFormat = {"SetTryFill((bool){val})"},
-		.VarType = UIElement::Variable::VariableType::Bool,
-	},
-	PropertyElement{
-		.Type = PropElementType::UIBox,
-		.Name = "orientation",
-		.CreateCodeFunction = [](std::string Val) -> std::string {
-			if (Val == "Horizontal")
-			{
-				return "SetHorizontal(true)";
-			}
-			if (Val == "Vertical")
-			{
-				return "SetHorizontal(false)";
-			}
-			return "";
-		},
-		.VarType = UIElement::Variable::VariableType::Bool,
-	},
-};
+#include "ElementProperties.h"
 
 static std::map<PropElementType, std::string> DefaultConstructors =
 {
 	{PropElementType::UIBox, "true"},
 	{PropElementType::UIText, "1, 1, \"\", nullptr"},
 	{PropElementType::UIButton, "true, 0, 1, nullptr"},
+	{PropElementType::UIBackground, "true, 0, 1"},
 };
 
 void MarkupElement::WriteHeader(const std::string& Path, std::vector<MarkupElement>& MarkupElements)
 {
 	std::filesystem::create_directories(Path);
 	std::string ElementPath = Path + "/" + Root.TypeName + ".hpp";
-	std::ofstream Out = std::ofstream(ElementPath);
+	std::stringstream Out;
 	Out << "#pragma once" << std::endl;
 
 	auto Dependencies = Root.GetElementDependencies();
@@ -320,7 +161,19 @@ void MarkupElement::WriteHeader(const std::string& Path, std::vector<MarkupEleme
 	}
 
 	Out << "};" << std::endl;
-	Out.close();
+
+
+	std::ifstream In = std::ifstream(ElementPath);
+	std::string OldContent = std::string(std::istreambuf_iterator<char>(In.rdbuf()),
+		std::istreambuf_iterator<char>());
+	In.close();
+	if (Out.str() != OldContent)
+	{
+		std::ofstream OutFile = std::ofstream(ElementPath);
+		OutFile << Out.rdbuf();
+		OutFile.close();
+	}
+
 }
 
 std::string MarkupElement::MakeConstructor(std::vector<MarkupElement>& MarkupElements)
@@ -370,7 +223,7 @@ static std::string WriteElementProperty(UIElement* Target, UIElement* Root, std:
 			}
 			else
 			{
-				KlemmUI::ParseError::ErrorNoLine("Variable '" + Variable->first + "' has a type mismatch.");
+				KlemmUI::ParseError::ErrorNoLine("Variable '" + Variable->first + "' does not have the correct type for the value of '" + i.Name + "'");
 			}
 		}
 		if (Target->ElementName.empty())
@@ -386,11 +239,18 @@ static std::string WriteElementProperty(UIElement* Target, UIElement* Root, std:
 	{
 		KlemmUI::ParseError::ErrorNoLine("Expected a size for value '" + i.Name + "'");
 	}
+	else if (i.VarType == UIElement::Variable::VariableType::Align)
+	{
+		if (KlemmUI::StringParse::GetAlign(p.Value).empty())
+		{
+			KlemmUI::ParseError::ErrorNoLine("Expected a valid align value for '" + i.Name + "'");
+		}
+		p.Value = KlemmUI::StringParse::GetAlign(p.Value);
+	}
 	else if (i.VarType == UIElement::Variable::VariableType::SizeMode)
 	{
 		p.Value = KlemmUI::StringParse::Size::SizeModeToKUISizeMode(p.Value);
 	}
-
 
 	if (i.CreateCodeFunction)
 	{
@@ -509,7 +369,7 @@ std::string UIElement::MakeCode(std::string Parent, UIElement* Root, size_t Dept
 		OutStream << "\t{\n";
 		for (auto& i : Children)
 		{
-			OutStream << i.MakeCode(ElemName, Root, Depth + 1, MarkupElements);
+			OutStream << i.MakeCode(ElemName, Root, Depth++, MarkupElements);
 		}
 		OutStream << "\t}\n";
 	}

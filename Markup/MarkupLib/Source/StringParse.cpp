@@ -238,6 +238,23 @@ bool KlemmUI::StringParse::IsSizeValue(std::string Element)
 	return !Size(Element).SizeValue.empty();
 }
 
+std::string KlemmUI::StringParse::GetAlign(std::string Element)
+{
+	if (Element == "default")
+	{
+		return "KlemmUI::UIBox::Align::Default";
+	}
+	if (Element == "reverse")
+	{
+		return "KlemmUI::UIBox::Align::Reverse";
+	}
+	if (Element == "centered")
+	{
+		return "KlemmUI::UIBox::Align::Centered";
+	}
+	return "";
+}
+
 bool KlemmUI::StringParse::IsNumber(std::string Element)
 {
 	return !Element.empty() && std::find_if(Element.begin(), Element.end(),

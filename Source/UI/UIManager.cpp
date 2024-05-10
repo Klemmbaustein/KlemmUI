@@ -2,6 +2,7 @@
 #include <GL/glew.h>
 #include <KlemmUI/Window.h>
 #include <KlemmUI/UI/UIBox.h>
+#include <KlemmUI/Rendering/Texture.h>
 #include <iostream>
 #include <algorithm>
 using namespace KlemmUI;
@@ -15,6 +16,12 @@ UIManager::~UIManager()
 	ClearUI();
 	glDeleteFramebuffers(1, &UIBuffer);
 	glDeleteTextures(1, &UITexture);
+
+	for (auto& i : ReferencedTextures)
+	{
+		Texture::UnloadTexture(i.first);
+	}
+	ReferencedTextures.clear();
 }
 
 void UIManager::ForceUpdateUI()
@@ -182,6 +189,53 @@ void UIManager::UpdateEvents()
 		if (e.Btn)
 			e.Btn->OnChildClicked(e.Index);
 	}
+}
+
+unsigned int KlemmUI::UIManager::LoadReferenceTexture(std::string FilePath)
+{
+	for (auto& i : ReferencedTextures)
+	{
+		if (i.second.Name == FilePath)
+		{
+			i.second.RefCount++;
+			return i.first;
+		}
+	}
+
+	if (!TexturePath.empty())
+	{
+		FilePath = TexturePath + "/" + FilePath;
+	}
+
+	unsigned int NewTexture = Texture::LoadTexture(FilePath);
+	ReferencedTextures.insert(std::pair(NewTexture, ReferenceTexture{
+		.Name = FilePath,
+		.RefCount = 1,
+		}));
+
+	return NewTexture;
+}
+
+void KlemmUI::UIManager::UnloadReferenceTexture(unsigned int TextureID)
+{
+	auto Texture = ReferencedTextures.find(TextureID);
+
+	if (Texture == ReferencedTextures.end())
+	{
+		return;
+	}
+
+	Texture->second.RefCount--;
+	if (Texture->second.RefCount == 0)
+	{
+		Texture::UnloadTexture(Texture->first);
+		ReferencedTextures.erase(Texture);
+	}
+}
+
+void KlemmUI::UIManager::SetTexturePath(std::string NewPath)
+{
+	TexturePath = NewPath;
 }
 
 static UIManager::RedrawBox CombineBoxes(const UIManager::RedrawBox& BoxA, const UIManager::RedrawBox& BoxB)

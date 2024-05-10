@@ -48,6 +48,12 @@ void ParseError::Error(const std::string& Message)
 	ErrorCount++;
 }
 
+void KlemmUI::ParseError::ErrorNoLine(const std::string& Message)
+{
+	std::cout << "Error: " << Message << std::endl;
+	ErrorCount++;
+}
+
 int ParseError::GetErrorCount()
 {
 	return ErrorCount;

@@ -10,13 +10,13 @@ UIDropdown::UIDropdown(Vector2f Position,
 	Vector3f Color,
 	Vector3f TextColor,
 	std::vector<Option> Options,
-	void(*PressedFunc)(int),
+	void(*OnClickedFunction)(int),
 	Font* Renderer)
 	:
 	UIButton(true,
 		Position,
 		Color,
-		PressedFunc, 0)
+		OnClickedFunction, 0)
 {
 	this->Renderer = Renderer;
 	this->Options = Options;

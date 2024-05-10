@@ -568,6 +568,42 @@ void UIBox::RedrawElement(bool Force)
 		});
 }
 
+void KlemmUI::UIBox::SetUpPadding(float Value)
+{
+	if (UpPadding != Value)
+	{
+		UpPadding = Value;
+		GetAbsoluteParent()->InvalidateLayout();
+	}
+}
+
+void KlemmUI::UIBox::SetDownPadding(float Value)
+{
+	if (DownPadding != Value)
+	{
+		DownPadding = Value;
+		GetAbsoluteParent()->InvalidateLayout();
+	}
+}
+
+void KlemmUI::UIBox::SetLeftPadding(float Value)
+{
+	if (LeftPadding != Value)
+	{
+		LeftPadding = Value;
+		GetAbsoluteParent()->InvalidateLayout();
+	}
+}
+
+void KlemmUI::UIBox::SetRightPadding(float Value)
+{
+	if (RightPadding != Value)
+	{
+		RightPadding = Value;
+		GetAbsoluteParent()->InvalidateLayout();
+	}
+}
+
 void UIBox::InvalidateLayout()
 {
 	if (Parent)
@@ -605,24 +641,9 @@ UIBox* UIBox::GetAbsoluteParent()
 	}
 	return this;
 }
-
-bool UIBox::IsHovered()
-{
-	Vector2f Offset;
-	if (CurrentScrollObject)
-	{
-		Offset.Y = CurrentScrollObject->Percentage;
-	}
-	return Math::IsPointIn2DBox(OffsetPosition + Offset, OffsetPosition + Size + Offset, Window::GetActiveWindow()->Input.MousePosition) // If the mouse is on top of the box
-		&& (!CurrentScrollObject // Check if we have a scroll object
-			|| Math::IsPointIn2DBox( // do some very questionable math to check if the mouse is inside the scroll area
-				CurrentScrollObject->Position - CurrentScrollObject->Scale,
-				CurrentScrollObject->Position, Window::GetActiveWindow()->Input.MousePosition));
-}
-
 void UIBox::UpdateHoveredState()
 {
-	if (IsHovered() && HasMouseCollision && IsVisibleInHierarchy())
+	if (IsBeingHovered() && HasMouseCollision && IsVisibleInHierarchy())
 	{
 		ParentWindow->UI.NewHoveredBox = this;
 	}
@@ -677,8 +698,9 @@ bool UIBox::IsBeingHovered()
 	{
 		MouseLocation = MouseLocation - Vector2f(0, CurrentScrollObject->Percentage);
 	}
-	return (Math::IsPointIn2DBox(OffsetPosition, OffsetPosition + Size, MouseLocation) // If the mouse is on top of the button
+	return (Math::IsPointIn2DBox(OffsetPosition, OffsetPosition + Size, MouseLocation) // If the mouse is on top of the box
 		&& (!CurrentScrollObject || // Check if we have a scroll object
+			// If there is a scroll object, is the mouse on top of the box with it's scroll offset
 			Math::IsPointIn2DBox(CurrentScrollObject->Position - CurrentScrollObject->Scale,
-				CurrentScrollObject->Position, ParentWindow->Input.MousePosition))); // do some very questionable math to check if the mouse is inside the scroll area;
+				CurrentScrollObject->Position, ParentWindow->Input.MousePosition)));
 }

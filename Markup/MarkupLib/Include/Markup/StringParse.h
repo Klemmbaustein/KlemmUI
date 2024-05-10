@@ -24,8 +24,20 @@ namespace KlemmUI::StringParse
 
 	bool IsStringToken(std::string Element);
 	bool IsVectorToken(std::string Element);
+	bool IsSizeValue(std::string Element);
+	bool IsNumber(std::string Element);
 
 	std::string ToCppCode(std::string Value);
 
 	std::vector<Line> SeparateString(std::string String);
+
+	struct Size
+	{
+		std::string SizeValue;
+		std::string SizeMode;
+
+		Size(std::string SizeString);
+
+		static std::string SizeModeToKUISizeMode(std::string Mode);
+	};
 }

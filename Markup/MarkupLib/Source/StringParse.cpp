@@ -226,6 +226,11 @@ bool KlemmUI::StringParse::IsStringToken(std::string Element)
 
 bool KlemmUI::StringParse::IsVectorToken(std::string Element)
 {
+	if (IsNumber(Element))
+	{
+		return true;
+	}
+
 	if (Element.size() < 2)
 	{
 		return false;
@@ -233,11 +238,30 @@ bool KlemmUI::StringParse::IsVectorToken(std::string Element)
 	return Element[0] == '(' && Element[Element.size() - 1] == ')';
 }
 
+bool KlemmUI::StringParse::IsSizeValue(std::string Element)
+{
+	return !Size(Element).SizeValue.empty();
+}
+
+bool KlemmUI::StringParse::IsNumber(std::string Element)
+{
+	return !Element.empty() && std::find_if(Element.begin(), Element.end(),
+		[](unsigned char c) { return !std::isdigit(c); }) == Element.end();
+}
+
 std::string KlemmUI::StringParse::ToCppCode(std::string Value)
 {
+	if (IsNumber(Value))
+	{
+		return Value;
+	}
 	if (IsVectorToken(Value))
-	{		
+	{
 		return Value.substr(1, Value.size() - 2);
+	}
+	if (IsSizeValue(Value))
+	{
+		return ToCppCode(Size(Value).SizeValue);
 	}
 	if (IsStringToken(Value))
 	{
@@ -245,6 +269,67 @@ std::string KlemmUI::StringParse::ToCppCode(std::string Value)
 	}
 
 	return Value;
+}
+
+KlemmUI::StringParse::Size::Size(std::string SizeString)
+{
+	// Just a vector.
+	if (IsVectorToken(SizeString))
+	{
+		SizeValue = SizeString;
+		SizeMode.clear();
+	}
+	if (SizeString.size() <= 2)
+	{
+		// Size suffix is always 2 characters. If there's only 2 characters, there is either no valid size suffix
+		// or no number attached to it.
+		return;
+	}
+
+	std::string SizeSuffix = SizeString.substr(SizeString.size() - 2);
+
+	std::string Value = SizeString.substr(0, SizeString.size() - 2);
+
+	// Value before size suffix is not a size.
+	if (!IsVectorToken(Value))
+	{
+		return;
+	}
+
+	// Pixel Relative
+	if (SizeSuffix == "px" || SizeSuffix == "pr")
+	{
+		SizeValue = Value;
+		SizeMode = "pr";
+		return;
+	}
+	// Aspect Relative
+	if (SizeSuffix == "ar")
+	{
+		SizeValue = Value;
+		SizeMode = "ar";
+		return;
+	}
+	// Screen Relative (default)
+	if (SizeSuffix == "sr")
+	{
+		SizeValue = Value;
+		SizeMode.clear();
+		return;
+	}
+}
+
+std::string KlemmUI::StringParse::Size::SizeModeToKUISizeMode(std::string Mode)
+{
+	if (Mode == "pr" || Mode == "px")
+	{
+		return "KlemmUI::UIBox::SizeMode::PixelRelative";
+	}
+	if (Mode == "ar")
+	{
+		return "KlemmUI::UIBox::SizeMode::AspectRelative";
+	}
+	return "KlemmUI::UIBox::SizeMode::ScreenRelative";
 }
 
 std::vector<StringParse::Line> StringParse::SeparateString(std::string String)

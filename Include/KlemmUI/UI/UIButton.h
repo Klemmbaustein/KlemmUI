@@ -30,21 +30,21 @@ namespace KlemmUI
 			Pressed
 		};
 		ButtonState CurrentButtonState = ButtonState::Normal;
-
-		void(*PressedFunc)() = nullptr;
-		void(*PressedFuncIndex)(int) = nullptr;
 		bool UseTexture = false;
 		unsigned int TextureID = 0;
 		bool IsSelected = false;
 		bool NeedsToBeSelected = false;
 		bool CanBeDragged = false;
 		float Opacity = 1;
-		int ButtonIndex = 0;
 
 		Shader* UsedShader = nullptr;
 		void Tick() override;
 		virtual void OnClicked();
 	public:
+
+		void(*OnClickedFunction)() = nullptr;
+		void(*OnClickedFunctionIndex)(int) = nullptr;
+		int ButtonIndex = 0;
 
 		void(*OnDragged)(int Index) = nullptr;
 
@@ -86,10 +86,10 @@ namespace KlemmUI
 		 * @param Color
 		 * The color of the UIButton. The hovered and pressed colors will be derived from this.
 		 * 
-		 * @param PressedFunc
+		 * @param OnClickedFunction
 		 * This function will be called when the button has been pressed.
 		 */
-		UIButton(bool Horizontal, Vector2f Position, Vector3f Color, void(*PressedFunc)());
+		UIButton(bool Horizontal, Vector2f Position, Vector3f Color, void(*OnClickedFunction)());
 
 		/**
 		 * @brief
@@ -104,13 +104,13 @@ namespace KlemmUI
 		 * @param Color
 		 * The color of the UIButton. The hovered and pressed colors will be derived from this.
 		 *
-		 * @param PressedFunc
+		 * @param OnClickedFunction
 		 * This function will be called when the button has been pressed.
 		 * 
 		 * @param ButtonIndex
-		 * An index for the button. Will be passed to PressedFunc.
+		 * An index for the button. Will be passed to OnClickedFunction.
 		 */
-		UIButton(bool Horizontal, Vector2f Position, Vector3f Color, void(*PressedFunc)(int), int ButtonIndex);
+		UIButton(bool Horizontal, Vector2f Position, Vector3f Color, void(*OnClickedFunction)(int), int ButtonIndex);
 
 		~UIButton();
 

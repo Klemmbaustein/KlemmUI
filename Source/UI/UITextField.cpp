@@ -80,14 +80,14 @@ void UITextField::Tick()
 		if (!ParentWindow->Input.PollForText)
 		{
 			IsEdited = false;
-			if (PressedFunc) ParentWindow->UI.ButtonEvents.push_back(UIManager::ButtonEvent(PressedFunc, nullptr, nullptr, 0));
+			if (OnClickedFunction) ParentWindow->UI.ButtonEvents.push_back(UIManager::ButtonEvent(OnClickedFunction, nullptr, nullptr, 0));
 			RedrawElement();
 		}
 		if (!IsHovered && ParentWindow->Input.IsLMBDown && !Dragging)
 		{
 			IsEdited = false;
 			ParentWindow->Input.PollForText = false;
-			if (PressedFunc) ParentWindow->UI.ButtonEvents.push_back(UIManager::ButtonEvent(PressedFunc, nullptr, nullptr, 0));
+			if (OnClickedFunction) ParentWindow->UI.ButtonEvents.push_back(UIManager::ButtonEvent(OnClickedFunction, nullptr, nullptr, 0));
 			RedrawElement();
 		}
 	}
@@ -219,7 +219,7 @@ KlemmUI::UITextField* KlemmUI::UITextField::SetTextSizeMode(UIBox::SizeMode Mode
 	return this;
 }
 
-UITextField::UITextField(Vector2f Position, Vector3f Color, Font* Renderer, void(*PressedFunc)())
+UITextField::UITextField(Vector2f Position, Vector3f Color, Font* Renderer, void(*OnClickedFunction)())
 	: UIBackground(true, Position, Color)
 {
 	TextFieldColor = Color;
@@ -228,7 +228,7 @@ UITextField::UITextField(Vector2f Position, Vector3f Color, Font* Renderer, void
 	TextObject->SetPadding(0.005f);
 	TextObject->Wrap = true;
 	HasMouseCollision = true;
-	this->PressedFunc = PressedFunc;
+	this->OnClickedFunction = OnClickedFunction;
 	AddChild(TextObject);
 }
 

@@ -183,11 +183,15 @@ void KlemmUI::MarkupParse::ParseScope(MarkupStructure::UIElement& Elem, std::vec
 			else
 			{
 				New.ElementName = Next;
-				if (ln.Get() != "{")
-				{
-					ParseError::Error("Expected a '{'");
-				}
 				Elem.Children.push_back(New);
+				if (ln.Empty())
+				{
+					continue;
+				}
+				else if (ln.Get() != "{")
+				{
+					ParseError::Error("Unexpected '" + ln.Previous() + "'");
+				}
 			}
 		}
 		else

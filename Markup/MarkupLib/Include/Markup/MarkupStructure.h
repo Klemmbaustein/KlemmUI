@@ -6,6 +6,8 @@
 
 namespace KlemmUI::MarkupStructure
 {
+	struct MarkupElement;
+
 	struct Property
 	{
 		std::string Name;
@@ -35,13 +37,39 @@ namespace KlemmUI::MarkupStructure
 		{
 			std::string Value;
 			std::vector<std::string> References;
+
+			enum class VariableType
+			{
+				None,
+				Number,
+				String,
+				Size,
+				SizeMode,
+				Align,
+				Vector3,
+				Vector2,
+				Bool,
+				Orientation,
+				Callback,
+				CallbackIndex,
+			};
+
+			struct VariableTypeDescription
+			{
+				std::string Name;
+				std::string CppName;
+			};
+
+			static std::map<VariableType, VariableTypeDescription> Descriptions;
+
+			VariableType Type;
 		};
 		std::map<std::string, Variable> Variables;
 		std::string WriteVariableSetter(std::pair<std::string, Variable> Var);
 		std::set<std::string> GetElementDependencies() const;
 		std::set<std::string> GetNamedElements() const;
 
-		std::string MakeCode(std::string Parent, UIElement* Root, size_t Depth);
+		std::string MakeCode(std::string Parent, UIElement* Root, size_t Depth, std::vector<MarkupElement>& MarkupElements);
 	};
 
 	struct MarkupElement
@@ -49,8 +77,8 @@ namespace KlemmUI::MarkupStructure
 		UIElement Root;
 		std::string File;
 
-		void WriteHeader(const std::string& Path);
+		void WriteHeader(const std::string& Path, std::vector<MarkupElement>& MarkupElements);
 	private:
-		std::string MakeConstructor();
+		std::string MakeConstructor(std::vector<MarkupElement>& MarkupElements);
 	};
 }

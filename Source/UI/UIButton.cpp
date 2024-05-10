@@ -104,8 +104,8 @@ void UIButton::Tick()
 
 void UIButton::OnClicked()
 {
-	if (PressedFunc) ParentWindow->UI.ButtonEvents.push_back(UIManager::ButtonEvent(PressedFunc, nullptr, nullptr, 0));
-	if (PressedFuncIndex) ParentWindow->UI.ButtonEvents.push_back(UIManager::ButtonEvent(nullptr, PressedFuncIndex, nullptr, ButtonIndex));
+	if (OnClickedFunction) ParentWindow->UI.ButtonEvents.push_back(UIManager::ButtonEvent(OnClickedFunction, nullptr, nullptr, 0));
+	if (OnClickedFunctionIndex) ParentWindow->UI.ButtonEvents.push_back(UIManager::ButtonEvent(nullptr, OnClickedFunctionIndex, nullptr, ButtonIndex));
 	if (ParentOverride)
 	{
 		ParentWindow->UI.ButtonEvents.push_back(UIManager::ButtonEvent(nullptr, nullptr, ParentOverride, ButtonIndex));
@@ -179,18 +179,18 @@ Vector3f UIButton::GetColor()
 	return ButtonColor;
 }
 
-UIButton::UIButton(bool Horizontal, Vector2f Position, Vector3f Color, void(*PressedFunc)()) : UIBackground(Horizontal, Position, Color)
+UIButton::UIButton(bool Horizontal, Vector2f Position, Vector3f Color, void(*OnClickedFunction)()) : UIBackground(Horizontal, Position, Color)
 {
-	this->PressedFunc = PressedFunc;
+	this->OnClickedFunction = OnClickedFunction;
 	this->ButtonColor = Color;
 	this->HoveredColor = Color * 0.75;
 	this->PressedColor = Color * 0.5;
 	HasMouseCollision = true;
 }
 
-UIButton::UIButton(bool Horizontal, Vector2f Position, Vector3f Color, void(*PressedFunc)(int), int ButtonIndex) : UIBackground(Horizontal, Position, Color)
+UIButton::UIButton(bool Horizontal, Vector2f Position, Vector3f Color, void(*OnClickedFunction)(int), int ButtonIndex) : UIBackground(Horizontal, Position, Color)
 {
-	this->PressedFuncIndex = PressedFunc;
+	this->OnClickedFunctionIndex = OnClickedFunction;
 	this->ButtonColor = Color;
 	this->HoveredColor = Color * 0.75;
 	this->PressedColor = Color * 0.5;	this->ButtonIndex = ButtonIndex;

@@ -7,7 +7,7 @@
 #include <atomic>
 #include "Rendering/ShaderManager.h"
 #include "UI/UIManager.h"
-
+#include "Markup/Markup.h"
 
 namespace KlemmUI
 {
@@ -113,8 +113,9 @@ namespace KlemmUI
 		InputManager Input = InputManager(this);
 		/// The shader manager of this window.
 		ShaderManager Shaders;
-		/// The ui manager of this window.
+		/// The UI manager of this window.
 		UIManager UI;
+		MarkupLanguageManager Markup;
 
 		/// Centered window position.
 		static const Vector2ui POSITION_CENTERED;

@@ -3,7 +3,7 @@
 #include <set>
 #include <vector>
 #include <cmath>
-#include "../Window.h"
+#include <KlemmUI/UI/UIManager.h>
 
 namespace KlemmUI
 {
@@ -11,7 +11,6 @@ namespace KlemmUI
 	class UIButton;
 	class UIScrollBox;
 	class Window;
-	class UIManager;
 
 	/**
 	* @brief
@@ -382,6 +381,11 @@ namespace KlemmUI
 		 */
 		void RedrawElement(bool Force = false);
 
+		void SetUpPadding(float Value);
+		void SetDownPadding(float Value);
+		void SetLeftPadding(float Value);
+		void SetRightPadding(float Value);
+
 protected:
 
 		SizeMode BoxSizeMode = SizeMode::ScreenRelative;
@@ -391,7 +395,6 @@ protected:
 		virtual void Draw();
 		virtual void Tick();
 		void UpdateHoveredState();
-		bool IsHovered();
 		Vector2f Position;
 		Vector2f OffsetPosition = NAN;
 		Vector2f MaxSize = Vector2(999, 999);

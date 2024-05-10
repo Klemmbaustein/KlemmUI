@@ -8,6 +8,7 @@ namespace KlemmUI::ParseError
 	void SetLine(size_t Index);
 
 	void Error(const std::string& Message);
+	void ErrorNoLine(const std::string& Message);
 
 	int GetErrorCount();
 	void ResetError();

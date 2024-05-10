@@ -1,48 +1,80 @@
 #include <Markup/MarkupStructure.h>
 #include "Markup/MarkupParse.h"
+#include "Markup/ParseError.h"
 #include <fstream>
+#include <iostream>
+#include <filesystem>
 
 using namespace KlemmUI::MarkupStructure;
 
-int main()
+int main(int argc, const char** argv)
 {
-	std::ifstream Source = std::ifstream("D:/VS/KlemmUIML/Sheets/test.kui");
+	std::vector<std::string> InPaths;
+	std::string OutPath;
 
-	std::string SourceString = std::string(std::istreambuf_iterator<char>(Source.rdbuf()),
-		std::istreambuf_iterator<char>());
-
-	auto a = KlemmUI::MarkupParse::ParseFiles({ KlemmUI::MarkupParse::FileEntry{
-			.Content = SourceString,
-			.Name = "test",
-		} });
-
-	MarkupElement e;
-	e.Root = UIElement{
-		.TypeName = "test",
-		.Type = UIElement::ElementType::UserDefined,
-		.Children = {
-			UIElement{
-			.TypeName = "UIBox",
-			.Children = {UIElement{
-				.TypeName = "UIText",
-				.ElementProperties = {
-					Property("text", "Hello, World!"),
-					Property("size", "20"),
-					Property("sizeMode", "PixelRelative"),
-					Property("color", "1, 0, 0"),
-					Property("font", "")
-				}
-			}},
-			.ElementProperties = {
-				Property("allAlign", "Centered"),
-				Property("position", "-1"),
-				Property("size", "2")
-			},
-		}}
-	};
-
-	for (auto& i : a)
+	const char* LastCommand = nullptr;
+	for (int i = 1; i < argc; i++)
 	{
-		i.WriteHeader("D:/VS/KlemmUIML/Source/Elements");
+		if (strlen(argv[i]) > 0 && argv[i][0] == '-')
+		{
+			LastCommand = argv[i];
+		}
+		else
+		{
+			if (LastCommand == nullptr)
+			{
+				std::cout << "Error parsing command line: Unexpected '" << argv[i] << "'" << std::endl;
+				return 1;
+			}
+			else if (strcmp(LastCommand, "-i") == 0)
+			{
+				InPaths.push_back(argv[i]);
+			}
+			else if (strcmp(LastCommand, "-o") == 0)
+			{
+				OutPath = argv[i];
+			}
+		}
 	}
+
+	std::vector<KlemmUI::MarkupParse::FileEntry> Entries;
+	try
+	{
+		for (const std::string& InPath : InPaths)
+		{
+			for (const auto& File : std::filesystem::directory_iterator(InPath))
+			{
+				KlemmUI::MarkupParse::FileEntry Entry;
+				Entry.Name = File.path().filename().string();
+				std::ifstream Source = std::ifstream(File.path());
+				Entry.Content = std::string(std::istreambuf_iterator<char>(Source.rdbuf()),
+					std::istreambuf_iterator<char>());
+				Entries.push_back(Entry);
+			}
+		}
+	}
+	catch (std::exception& e)
+	{
+		std::cout << e.what() << std::endl;
+		return 2;
+	}
+
+	auto ParsedFiles = KlemmUI::MarkupParse::ParseFiles(Entries);
+
+	if (KlemmUI::ParseError::GetErrorCount())
+	{
+		std::cout << "Errors occurred - stopping." << std::endl;
+		return 1;
+	}
+
+	for (auto& i : ParsedFiles)
+	{
+		i.WriteHeader(OutPath, ParsedFiles);
+	}
+	if (KlemmUI::ParseError::GetErrorCount())
+	{
+		std::cout << "Errors occurred - stopping." << std::endl;
+		return 1;
+	}
+
 }

@@ -76,11 +76,13 @@ namespace KlemmUI
 		}
 	};
 
-	class MarkupElement
+	class MarkupLanguageManager
 	{
 	public:
-		static void AddFont(std::string FontName, Font* FontPointer);
-		static void SetDefaultFont(Font* FontPointer);
-		static Font* GetFont(std::string FontName);
+		void AddFont(std::string FontName, Font* FontPointer);
+		void SetDefaultFont(Font* FontPointer);
+		Font* GetFont(std::string FontName);
+
+		static MarkupLanguageManager* GetActive();
 	};
 }

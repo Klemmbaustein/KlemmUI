@@ -94,14 +94,14 @@ static std::vector<PropertyElement> Properties
 	PropertyElement{
 		.Type = PropElementType::UIBox,
 		.Name = "minSize",
-		.SetFormat = {"SetMinSize({val})"},
+		.SetFormat = {"SetMinSize(Vector2f({val}))"},
 		.SetSizeFormat = "SetSizeMode({val})",
 		.VarType = UIElement::Variable::VariableType::Size,
 	},
 	PropertyElement{
 		.Type = PropElementType::UIBox,
 		.Name = "maxSize",
-		.SetFormat = {"SetMaxSize({val})"},
+		.SetFormat = {"SetMaxSize(Vector2f({val}))"},
 		.SetSizeFormat = "SetSizeMode({val})",
 		.VarType = UIElement::Variable::VariableType::Size,
 	},

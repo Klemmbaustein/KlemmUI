@@ -34,10 +34,20 @@ static std::vector<PropertyElement> Properties
 		.AlwaysSet = true,
 		.Default = "\"\""
 	},
+
+
+	PropertyElement{
+		.Type = PropElementType::UIButton,
+		.Name = "color",
+		.SetFormat = {"SetColor(Vector3f({val}))", "SetHoveredColor(Vector3f({val}) * 0.75f)", "SetPressedColor(Vector3f({val}) * 0.5f)"},
+		.VarType = UIElement::Variable::VariableType::Vector3,
+	},
+
+
 	PropertyElement{
 		.Type = PropElementType::UIBackground,
 		.Name = "color",
-		.SetFormat = {"SetColor(Vector3f({val}))", "SetHoveredColor(Vector3f({val}) * 0.75f)", "SetPressedColor(Vector3f({val}) * 0.5f)"},
+		.SetFormat = {"SetColor(Vector3f({val}))"},
 		.VarType = UIElement::Variable::VariableType::Vector3,
 	},
 	PropertyElement{
@@ -53,11 +63,34 @@ static std::vector<PropertyElement> Properties
 		.VarType = UIElement::Variable::VariableType::String,
 	},
 	PropertyElement{
+		.Type = PropElementType::UIBackground,
+		.Name = "borderType",
+		.SetFormat = {"BoxBorder = {val}"},
+		.VarType = UIElement::Variable::VariableType::BorderType,
+	},
+	PropertyElement{
+		.Type = PropElementType::UIBackground,
+		.Name = "borderSize",
+		.SetFormat = {"BorderRadius = {val}"},
+		.SetSizeFormat = "BorderSizeMode = {val}",
+		.VarType = UIElement::Variable::VariableType::Size,
+	},
+	PropertyElement{
+		.Type = PropElementType::UIBackground,
+		.Name = "borderColor",
+		.SetFormat = {"BorderColor = Vector3f({val})"},
+		.VarType = UIElement::Variable::VariableType::Vector3,
+	},
+
+
+	PropertyElement{
 		.Type = PropElementType::UIButton,
 		.Name = "onClicked",
 		.SetFormat = {"OnClickedFunction = {val}"},
 		.VarType = UIElement::Variable::VariableType::Callback,
 	},
+
+
 	PropertyElement{
 		.Type = PropElementType::UIBox,
 		.Name = "minSize",

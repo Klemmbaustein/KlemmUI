@@ -24,14 +24,15 @@ namespace KlemmUI
 		Shader* BackgroundShader;
 		virtual void DrawBackground();
 		Vector3f Color;
-		Vector3f BorderColor;
 		VertexBuffer* BoxVertexBuffer = nullptr;
 		float Opacity = 1;
 		Vector3f ColorMultiplier = 1;
 		static float GetBorderSize(float InSize, UIBox::SizeMode Mode);
-		SizeMode BorderSizeMode = SizeMode::ScreenRelative;
 
 	public:
+		SizeMode BorderSizeMode = SizeMode::ScreenRelative;
+		Vector3f BorderColor;
+
 		/**
 		 * @brief
 		 * Sets the opacity of the UIBackground.

@@ -247,6 +247,14 @@ static std::string WriteElementProperty(UIElement* Target, UIElement* Root, std:
 		}
 		p.Value = KlemmUI::StringParse::GetAlign(p.Value);
 	}
+	else if (i.VarType == UIElement::Variable::VariableType::BorderType)
+	{
+		if (KlemmUI::StringParse::GetBorderType(p.Value).empty())
+		{
+			KlemmUI::ParseError::ErrorNoLine("Expected a valid border type value for '" + i.Name + "'");
+		}
+		p.Value = KlemmUI::StringParse::GetBorderType(p.Value);
+	}
 	else if (i.VarType == UIElement::Variable::VariableType::SizeMode)
 	{
 		p.Value = KlemmUI::StringParse::Size::SizeModeToKUISizeMode(p.Value);

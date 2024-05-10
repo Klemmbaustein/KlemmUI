@@ -50,6 +50,7 @@ namespace KlemmUI::MarkupStructure
 				Vector2,
 				Bool,
 				Orientation,
+				BorderType,
 				Callback,
 				CallbackIndex,
 			};

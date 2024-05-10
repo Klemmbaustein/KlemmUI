@@ -255,6 +255,23 @@ std::string KlemmUI::StringParse::GetAlign(std::string Element)
 	return "";
 }
 
+std::string KlemmUI::StringParse::GetBorderType(std::string Element)
+{
+	if (Element == "none")
+	{
+		return "KlemmUI::UIBox::BorderType::None";
+	}
+	if (Element == "rounded")
+	{
+		return "KlemmUI::UIBox::BorderType::Rounded";
+	}
+	if (Element == "border")
+	{
+		return "KlemmUI::UIBox::BorderType::DarkenedEdge";
+	}
+	return "";
+}
+
 bool KlemmUI::StringParse::IsNumber(std::string Element)
 {
 	return !Element.empty() && std::find_if(Element.begin(), Element.end(),

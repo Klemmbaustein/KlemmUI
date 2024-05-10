@@ -71,6 +71,10 @@ std::map<UIElement::Variable::VariableType, UIElement::Variable::VariableTypeDes
 	VariableTypeDescription("Size", "Vector2f"),
 },
 {
+	VariableType::SizeNumber,
+	VariableTypeDescription("1d Size", "float"),
+},
+{
 	VariableType::SizeMode,
 	VariableTypeDescription("SizeMode", "KlemmUI::UIBox::SizeMode"),
 },
@@ -97,6 +101,10 @@ std::map<UIElement::Variable::VariableType, UIElement::Variable::VariableTypeDes
 {
 	VariableType::Callback,
 	VariableTypeDescription("Callback", ""),
+},
+{
+	VariableType::BorderType,
+	VariableTypeDescription("Border type", "KlemmUI::UIBox::BorderType"),
 },
 {
 	VariableType::CallbackIndex,
@@ -239,6 +247,10 @@ static std::string WriteElementProperty(UIElement* Target, UIElement* Root, std:
 	{
 		KlemmUI::ParseError::ErrorNoLine("Expected a size for value '" + i.Name + "'");
 	}
+	else if (i.VarType == UIElement::Variable::VariableType::SizeNumber && !KlemmUI::StringParse::Is1DSizeValue(p.Value))
+	{
+		KlemmUI::ParseError::ErrorNoLine("Expected a size for value '" + i.Name + "'");
+	}
 	else if (i.VarType == UIElement::Variable::VariableType::Align)
 	{
 		if (KlemmUI::StringParse::GetAlign(p.Value).empty())
@@ -278,7 +290,7 @@ static std::string WriteElementProperty(UIElement* Target, UIElement* Root, std:
 		}
 	}
 
-	if (i.VarType == UIElement::Variable::VariableType::Size)
+	if (i.VarType == UIElement::Variable::VariableType::Size || i.VarType == UIElement::Variable::VariableType::SizeNumber)
 	{
 		auto val = KlemmUI::StringParse::Size(p.Value);
 

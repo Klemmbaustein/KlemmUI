@@ -238,6 +238,11 @@ bool KlemmUI::StringParse::IsSizeValue(std::string Element)
 	return !Size(Element).SizeValue.empty();
 }
 
+bool KlemmUI::StringParse::Is1DSizeValue(std::string Element)
+{
+	return !Size(Element, true).SizeValue.empty();
+}
+
 std::string KlemmUI::StringParse::GetAlign(std::string Element)
 {
 	if (Element == "default")
@@ -300,10 +305,10 @@ std::string KlemmUI::StringParse::ToCppCode(std::string Value)
 	return Value;
 }
 
-KlemmUI::StringParse::Size::Size(std::string SizeString)
+KlemmUI::StringParse::Size::Size(std::string SizeString, bool Is1D)
 {
-	// Just a vector.
-	if (IsVectorToken(SizeString))
+	// Just a vector/number.
+	if ((!Is1D && IsVectorToken(SizeString)) || IsNumber(SizeString))
 	{
 		SizeValue = SizeString;
 		SizeMode.clear();
@@ -320,7 +325,7 @@ KlemmUI::StringParse::Size::Size(std::string SizeString)
 	std::string Value = SizeString.substr(0, SizeString.size() - 2);
 
 	// Value before size suffix is not a size.
-	if (!IsVectorToken(Value))
+	if ((Is1D && !IsVectorToken(Value)) || !IsNumber(Value))
 	{
 		return;
 	}

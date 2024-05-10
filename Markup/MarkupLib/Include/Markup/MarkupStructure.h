@@ -44,6 +44,7 @@ namespace KlemmUI::MarkupStructure
 				Number,
 				String,
 				Size,
+				SizeNumber,
 				SizeMode,
 				Align,
 				Vector3,

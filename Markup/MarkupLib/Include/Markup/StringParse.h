@@ -25,6 +25,7 @@ namespace KlemmUI::StringParse
 	bool IsStringToken(std::string Element);
 	bool IsVectorToken(std::string Element);
 	bool IsSizeValue(std::string Element);
+	bool Is1DSizeValue(std::string Element);
 	std::string GetAlign(std::string Element);
 	std::string GetBorderType(std::string Element);
 	bool IsNumber(std::string Element);
@@ -38,7 +39,7 @@ namespace KlemmUI::StringParse
 		std::string SizeValue;
 		std::string SizeMode;
 
-		Size(std::string SizeString);
+		Size(std::string SizeString, bool Is1D = false);
 
 		static std::string SizeModeToKUISizeMode(std::string Mode);
 	};

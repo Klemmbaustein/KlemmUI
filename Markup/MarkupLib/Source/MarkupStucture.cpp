@@ -574,7 +574,6 @@ std::set<std::string> KlemmUI::MarkupStructure::UIElement::GetNamedElements() co
 				Out = "KlemmUI::" + Out;
 			}
 			Deps.insert(Out);
-			std::cout << "FOUND: " << i.ElementName << std::endl;
 		}
 		auto ElemDeps = i.GetNamedElements();
 

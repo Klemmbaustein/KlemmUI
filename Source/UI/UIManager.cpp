@@ -3,6 +3,7 @@
 #include <KlemmUI/Window.h>
 #include <KlemmUI/UI/UIBox.h>
 #include <iostream>
+#include <algorithm>
 using namespace KlemmUI;
 
 UIManager::UIManager()
@@ -108,15 +109,27 @@ bool UIManager::DrawElements()
 		glBindFramebuffer(GL_FRAMEBUFFER, UIBuffer);
 		glClearColor(0, 0, 0, 1);
 		glEnable(GL_SCISSOR_TEST);
-		glViewport(0, 0, Window::GetActiveWindow()->GetSize().X, Window::GetActiveWindow()->GetSize().Y);
+
+		Vector2ui WindowSize = Window::GetActiveWindow()->GetSize();
+
+		glViewport(0, 0, WindowSize.X, WindowSize.Y);
 		for (auto& i : RedrawBoxes)
 		{
+			i.Max += Vector2f(3) / Vector2f(WindowSize);
+			i.Min = i.Min - Vector2f(3) / Vector2f(WindowSize);
+
 			i.Min = i.Min.Clamp(-1, 1);
 			i.Max = i.Max.Clamp(-1, 1);
-			Vector2ui Pos = Vector2f(i.Min / 2 + 0.5f) * Vector2f(Window::GetActiveWindow()->GetSize());
-			Vector2ui Res = Vector2f((i.Max - i.Min) / 2) * Vector2f(Window::GetActiveWindow()->GetSize());
 
-			glScissor(Pos.X, Pos.Y, Res.X + 2, Res.Y + 2);
+			Vector2f Pos = (i.Min / 2 + 0.5f) * Vector2f(WindowSize);
+			Vector2f Res = (i.Max - i.Min) / 2 * Vector2f(WindowSize);
+
+			glScissor(
+				(GLsizei)Pos.X,
+				(GLsizei)Pos.Y,
+				std::clamp((GLsizei)Res.X, 0, (GLsizei)WindowSize.X),
+				std::clamp((GLsizei)Res.Y, 0, (GLsizei)WindowSize.Y)
+			);
 			glClear(GL_COLOR_BUFFER_BIT);
 			for (UIBox* elem : UIElements)
 			{

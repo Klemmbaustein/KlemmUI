@@ -65,12 +65,7 @@ std::string StringParse::Line::GetUntil(std::string str)
 		{
 			break;
 		}
-		Condition.append(Next + " ");
-	}
-
-	if (Condition.size())
-	{
-		Condition.pop_back();
+		Condition.append(Next);
 	}
 	return Condition;
 }

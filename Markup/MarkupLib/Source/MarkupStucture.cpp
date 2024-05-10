@@ -372,6 +372,15 @@ std::string UIElement::MakeCode(std::string Parent, UIElement* Root, size_t Dept
 		}
 	}
 
+	for (auto& i : PropertyCopy)
+	{
+		if (i.Name.empty())
+		{
+			continue;
+		}
+		ParseError::ErrorNoLine("Unknown property: " + i.Name);
+	}
+
 	if (!Parent.empty())
 	{
 		OutStream << "\t" << Parent << "->AddChild(" << ElemName << ");" << std::endl;

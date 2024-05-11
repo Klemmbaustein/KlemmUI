@@ -117,6 +117,11 @@ UIBackground* UIBackground::SetUseTexture(bool UseTexture, unsigned int TextureI
 
 UIBackground* KlemmUI::UIBackground::SetUseTexture(bool UseTexture, std::string TextureFile)
 {
+	if (TextureFile.empty())
+	{
+		UseTexture = false;
+	}
+
 	unsigned int NewTextureID = 0;
 	if (UseTexture)
 	{

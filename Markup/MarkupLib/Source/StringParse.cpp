@@ -280,7 +280,7 @@ std::string KlemmUI::StringParse::GetBorderType(std::string Element)
 bool KlemmUI::StringParse::IsNumber(std::string Element)
 {
 	return !Element.empty() && std::find_if(Element.begin(), Element.end(),
-		[](unsigned char c) { return !std::isdigit(c); }) == Element.end();
+		[](unsigned char c) { return !std::isdigit(c) && c != '.'; }) == Element.end();
 }
 
 std::string KlemmUI::StringParse::ToCppCode(std::string Value)

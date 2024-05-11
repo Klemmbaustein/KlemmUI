@@ -22,6 +22,8 @@ namespace KlemmUI
 		Vector3f DropdownColor = 1;
 		Vector3f DropdownTextColor = 0;
 	public:
+		UIBox::SizeMode TextSizeMode = UIBox::SizeMode::AspectRelative;
+		UIDropdown* SetTextSizeMode(UIBox::SizeMode NewMode);
 		size_t SelectedIndex = 0;
 		
 		/// A dropdown option.

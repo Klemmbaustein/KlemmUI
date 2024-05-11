@@ -80,6 +80,7 @@
     <IncludePath>$(ProjectDir)..\MarkupLib\Include;$(IncludePath)</IncludePath>
     <OutDir>$(ProjectDir)</OutDir>
     <LibraryPath>$(ProjectDir)..\MarkupLib\lib\$(Configuration);$(LibraryPath)</LibraryPath>
+    <TargetName>KlemmUIHT</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

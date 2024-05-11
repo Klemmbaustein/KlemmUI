@@ -122,8 +122,10 @@ static std::map<PropElementType, std::string> DefaultConstructors =
 	{PropElementType::UIBackground, "true, 0, 1"},
 };
 
+static int UnnamedCounter = 0;
 void MarkupElement::WriteHeader(const std::string& Path, std::vector<MarkupElement>& MarkupElements)
 {
+	UnnamedCounter = 0;
 	std::filesystem::create_directories(Path);
 	std::string ElementPath = Path + "/" + Root.TypeName + ".hpp";
 	std::stringstream Out;
@@ -215,7 +217,6 @@ static PropElementType GetTypeFromString(std::string TypeName)
 	}
 	return PropElementType::Unknown;
 }
-static int UnnamedCounter = 0;
 
 static std::string WriteElementProperty(UIElement* Target, UIElement* Root, std::string ElementName, Property p, const PropertyElement& i)
 {
@@ -236,7 +237,7 @@ static std::string WriteElementProperty(UIElement* Target, UIElement* Root, std:
 		}
 		if (Target->ElementName.empty())
 		{
-			Target->ElementName = "unnamed_" + std::to_string(UnnamedCounter);
+			Target->ElementName = "unnamed_" + std::to_string(UnnamedCounter++);
 		}
 	}
 	else if (i.VarType == UIElement::Variable::VariableType::String && !KlemmUI::StringParse::IsStringToken(p.Value))

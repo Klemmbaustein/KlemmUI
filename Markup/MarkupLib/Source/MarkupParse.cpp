@@ -58,7 +58,6 @@ std::vector<MarkupParse::ParsedElement> MarkupParse::GetElementsInFile(std::vect
 		{
 			ln.Get(); // element
 			std::string Name = ln.Get();
-
 			if (MarkupStructure::UIElement::IsDefaultElement(Name))
 			{
 				ParseError::Error("Invalid name: '" + Name + "'. A default element with this name already exists.");

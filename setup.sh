@@ -15,3 +15,8 @@ mkdir -p lib/Release
 
 cp Dependencies/glew-cmake/bld/lib/libglew.a lib/Debug/
 cp Dependencies/glew-cmake/bld/lib/libglew.a lib/Release/
+
+cd Markup/MarkupHeaderTool
+cmake -S . -B Build/
+cd Build
+make

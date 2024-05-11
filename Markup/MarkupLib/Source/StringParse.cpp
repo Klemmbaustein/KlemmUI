@@ -279,8 +279,10 @@ std::string KlemmUI::StringParse::GetBorderType(std::string Element)
 
 bool KlemmUI::StringParse::IsNumber(std::string Element)
 {
-	return !Element.empty() && std::find_if(Element.begin(), Element.end(),
-		[](unsigned char c) { return !std::isdigit(c) && c != '.'; }) == Element.end();
+	char* p;
+	long converted = strtol(Element.c_str(), &p, 10);
+	return !(*p);
+
 }
 
 std::string KlemmUI::StringParse::ToCppCode(std::string Value)
@@ -459,8 +461,8 @@ std::vector<StringParse::Line> StringParse::SeparateString(std::string String)
 	ParseWord(CurrentWord, CurrentLine);
 
 	if (!CurrentLine.Strings.empty())
-		Lines.push_back(CurrentLine);	{
-
+	{
+		Lines.push_back(CurrentLine);
 	}
 	return Lines;
 }

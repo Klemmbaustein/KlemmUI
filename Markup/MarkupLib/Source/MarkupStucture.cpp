@@ -173,17 +173,21 @@ void MarkupElement::WriteHeader(const std::string& Path, std::vector<MarkupEleme
 	Out << "};" << std::endl;
 
 
-	std::ifstream In = std::ifstream(ElementPath);
-	std::string OldContent = std::string(std::istreambuf_iterator<char>(In.rdbuf()),
-		std::istreambuf_iterator<char>());
-	In.close();
-	if (Out.str() != OldContent)
+	bool ShouldWrite = true;
+	if (std::filesystem::exists(ElementPath))
+	{
+		std::ifstream In = std::ifstream(ElementPath);
+		std::string OldContent = std::string(std::istreambuf_iterator<char>(In.rdbuf()),
+			std::istreambuf_iterator<char>());
+		In.close();
+		ShouldWrite = Out.str() != OldContent;
+	}
+	if (ShouldWrite)
 	{
 		std::ofstream OutFile = std::ofstream(ElementPath);
 		OutFile << Out.rdbuf();
 		OutFile.close();
 	}
-
 }
 
 std::string MarkupElement::MakeConstructor(std::vector<MarkupElement>& MarkupElements)

@@ -3,6 +3,7 @@
 #include "Markup/ParseError.h"
 #include <fstream>
 #include <iostream>
+#include <cstring>
 #include <filesystem>
 
 using namespace KlemmUI::MarkupStructure;

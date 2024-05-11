@@ -200,5 +200,6 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="CMakeLists.txt" />
+    <Text Include="Markup\MarkupLib\CMakeLists.txt" />
   </ItemGroup>
 </Project>

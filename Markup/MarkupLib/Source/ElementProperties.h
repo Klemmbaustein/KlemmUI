@@ -34,12 +34,37 @@ static std::vector<PropertyElement> Properties
 		.AlwaysSet = true,
 		.Default = "\"\""
 	},
+	PropertyElement{
+		.Type = PropElementType::UIText,
+		.Name = "wrap",
+		.SetFormat = {"WrapDistance = {val}", "Wrap = true"},
+		.SetSizeFormat = "WrapSizeMode = {val}",
+		.VarType = UIElement::Variable::VariableType::SizeNumber,
+	},
 
 
 	PropertyElement{
 		.Type = PropElementType::UIButton,
 		.Name = "color",
 		.SetFormat = {"SetColor(Vector3f({val}))", "SetHoveredColor(Vector3f({val}) * 0.75f)", "SetPressedColor(Vector3f({val}) * 0.5f)"},
+		.VarType = UIElement::Variable::VariableType::Vector3,
+	},
+	PropertyElement{
+		.Type = PropElementType::UIButton,
+		.Name = "normalColor",
+		.SetFormat = {"SetNormalColor(Vector3f({val}))"},
+		.VarType = UIElement::Variable::VariableType::Vector3,
+	},
+	PropertyElement{
+		.Type = PropElementType::UIButton,
+		.Name = "hoveredColor",
+		.SetFormat = {"SetHoveredColor(Vector3f({val}))"},
+		.VarType = UIElement::Variable::VariableType::Vector3,
+	},
+	PropertyElement{
+		.Type = PropElementType::UIButton,
+		.Name = "pressedColor",
+		.SetFormat = {"SetPressedColor(Vector3f({val}))"},
 		.VarType = UIElement::Variable::VariableType::Vector3,
 	},
 

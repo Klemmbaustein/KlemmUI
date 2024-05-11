@@ -300,6 +300,7 @@ Vector2f Font::GetTextSize(std::vector<TextSegment> Text, float Scale, bool Wrap
 {
 	float originalScale = Scale;
 	Scale *= 2.5f;
+	LengthBeforeWrap = LengthBeforeWrap * Window::GetActiveWindow()->GetAspectRatio() / Scale;
 	float x = 0.f, y = CharacterSize;
 	float MaxX = 0.0f;
 	FontVertex* vData = fontVertexBufferData;
@@ -351,7 +352,7 @@ Vector2f Font::GetTextSize(std::vector<TextSegment> Text, float Scale, bool Wrap
 				vData += 6;
 				numVertices += 6;
 				MaxX = std::max(MaxX, x);
-				if (x / 200 / Window::GetActiveWindow()->GetAspectRatio() > LengthBeforeWrap && Wrapped)
+				if (x / 225 > LengthBeforeWrap && Wrapped)
 				{
 					Wraps++;
 					if (LastWordIndex != SIZE_MAX && LastWordIndex != LastWrapIndex)
@@ -409,6 +410,7 @@ DrawableText* Font::MakeText(std::vector<TextSegment> Text, Vector2f Pos, float 
 	glBindVertexArray(0);
 
 	Scale *= 2.5f;
+	LengthBeforeWrap = LengthBeforeWrap * Window::GetActiveWindow()->GetAspectRatio() / Scale;
 	Pos.X = Pos.X * 450 * Window::GetActiveWindow()->GetAspectRatio();
 	Pos.Y = Pos.Y * -450;
 	glBindVertexArray(newVAO);
@@ -471,7 +473,7 @@ DrawableText* Font::MakeText(std::vector<TextSegment> Text, Vector2f Pos, float 
 			}
 
 			MaxHeight = std::max(StartPos.Y + g.Offset.Y, MaxHeight);
-			if (x / 225 / Window::GetActiveWindow()->GetAspectRatio() > LengthBeforeWrap)
+			if (x / 225 > LengthBeforeWrap)
 			{
 				if (LastWordIndex != SIZE_MAX && LastWordIndex != LastWrapIndex)
 				{

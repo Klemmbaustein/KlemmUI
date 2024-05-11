@@ -23,7 +23,7 @@ float UIText::GetWrapDistance() const
 	}
 	if (WrapSizeMode == SizeMode::PixelRelative)
 	{
-		Distance = UIBox::PixelSizeToScreenSize(Vector2f((float)WrapDistance, 0.0), ParentWindow).X;
+		Distance = UIBox::PixelSizeToScreenSize(Vector2f((float)Distance, 0.0), ParentWindow).X;
 	}
 	return Distance;
 }

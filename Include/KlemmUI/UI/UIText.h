@@ -21,13 +21,13 @@ namespace KlemmUI
 		DrawableText* Text = nullptr;
 		float TextWidthOverride = 0;
 		float Opacity = 1.f;
-		SizeMode WrapSizeMode = SizeMode::ScreenRelative;
 		SizeMode TextSizeMode = SizeMode::AspectRelative;
 		float GetRenderedSize() const;
 		float GetWrapDistance() const;
 	public:
 		UIText* SetFont(Font* NewFont);
 		void Tick() override;
+		SizeMode WrapSizeMode = SizeMode::ScreenRelative;
 		bool Wrap = false;
 		float WrapDistance = 0.0f;
 		Vector3f GetColor() const;

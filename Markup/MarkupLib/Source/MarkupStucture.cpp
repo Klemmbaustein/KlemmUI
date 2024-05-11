@@ -191,7 +191,8 @@ std::string MarkupElement::MakeConstructor(std::vector<MarkupElement>& MarkupEle
 	std::stringstream OutStream;
 
 	OutStream << "\t" << Root.TypeName << "() : UIBox(true)\n\t{\n";
-	OutStream << Root.MakeCode("", &Root, 0, MarkupElements);
+	size_t Depth = 0;
+	OutStream << Root.MakeCode("", &Root, Depth, MarkupElements);
 	OutStream << "\n\t}" << std::endl;
 
 	return OutStream.str();
@@ -307,7 +308,7 @@ static std::string WriteElementProperty(UIElement* Target, UIElement* Root, std:
 	return Value;
 }
 
-std::string UIElement::MakeCode(std::string Parent, UIElement* Root, size_t Depth, std::vector<MarkupElement>& MarkupElements)
+std::string UIElement::MakeCode(std::string Parent, UIElement* Root, size_t& Depth, std::vector<MarkupElement>& MarkupElements)
 {
 	bool HasName = !ElementName.empty();
 	std::stringstream OutStream;
@@ -399,7 +400,7 @@ std::string UIElement::MakeCode(std::string Parent, UIElement* Root, size_t Dept
 		OutStream << "\t{\n";
 		for (auto& i : Children)
 		{
-			OutStream << i.MakeCode(ElemName, Root, Depth++, MarkupElements);
+			OutStream << i.MakeCode(ElemName, Root, ++Depth, MarkupElements);
 		}
 		OutStream << "\t}\n";
 	}

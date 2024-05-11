@@ -71,7 +71,7 @@ namespace KlemmUI::MarkupStructure
 		std::set<std::string> GetElementDependencies() const;
 		std::set<std::string> GetNamedElements() const;
 
-		std::string MakeCode(std::string Parent, UIElement* Root, size_t Depth, std::vector<MarkupElement>& MarkupElements);
+		std::string MakeCode(std::string Parent, UIElement* Root, size_t& Depth, std::vector<MarkupElement>& MarkupElements);
 	};
 
 	struct MarkupElement

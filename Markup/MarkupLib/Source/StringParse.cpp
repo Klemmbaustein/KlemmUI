@@ -325,7 +325,7 @@ KlemmUI::StringParse::Size::Size(std::string SizeString, bool Is1D)
 	std::string Value = SizeString.substr(0, SizeString.size() - 2);
 
 	// Value before size suffix is not a size.
-	if ((Is1D && !IsVectorToken(Value)) || !IsNumber(Value))
+	if ((!Is1D && !IsVectorToken(Value)) || (Is1D && !IsNumber(Value)))
 	{
 		return;
 	}

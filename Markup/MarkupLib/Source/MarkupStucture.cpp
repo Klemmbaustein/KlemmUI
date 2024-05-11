@@ -371,6 +371,7 @@ std::string UIElement::MakeCode(std::string Parent, UIElement* Root, size_t& Dep
 				continue;
 			}
 			OutStream << "\t" << ElementName << "->Set" << prop.Name << "(" << prop.Value << ");" << std::endl;
+			prop.Name.clear();
 		}
 	}
 

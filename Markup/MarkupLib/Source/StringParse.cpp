@@ -2,6 +2,7 @@
 #include "Markup/ParseError.h"
 #include <unordered_set>
 #include <iostream>
+#include <cstring>
 using namespace KlemmUI;
 
 static std::unordered_set<char> Whitespace =
@@ -280,7 +281,7 @@ std::string KlemmUI::StringParse::GetBorderType(std::string Element)
 bool KlemmUI::StringParse::IsNumber(std::string Element)
 {
 	char* p;
-	long converted = strtol(Element.c_str(), &p, 10);
+	return(strspn(Element.c_str(), "-.0123456789") == Element.size());
 	return !(*p);
 
 }

@@ -352,19 +352,19 @@ Vector2f Font::GetTextSize(std::vector<TextSegment> Text, float Scale, bool Wrap
 				vData += 6;
 				numVertices += 6;
 				MaxX = std::max(MaxX, x);
-				if (x / 225 > LengthBeforeWrap && Wrapped)
+			}
+			if (x / 225 > LengthBeforeWrap && Wrapped || SegmentText[i] == (int)'\n')
+			{
+				Wraps++;
+				if (LastWordIndex != SIZE_MAX && LastWordIndex != LastWrapIndex)
 				{
-					Wraps++;
-					if (LastWordIndex != SIZE_MAX && LastWordIndex != LastWrapIndex)
-					{
-						i = LastWordIndex;
-						LastWrapIndex = i;
-						vData = LastWordVDataPtr;
-						numVertices = LastWordNumVertices;
-					}
-					x = 0;
-					y += CharacterSize;
+					i = LastWordIndex;
+					LastWrapIndex = i;
+					vData = LastWordVDataPtr;
+					numVertices = LastWordNumVertices;
 				}
+				x = 0;
+				y += CharacterSize;
 			}
 		}
 	}
@@ -438,42 +438,40 @@ DrawableText* Font::MakeText(std::vector<TextSegment> Text, Vector2f Pos, float 
 		for (size_t i = 0; i < UTFString.size(); i++)
 		{
 			int GlyphIndex = (int)UTFString[i] - 32;
-			if (GlyphIndex < 0)
+			if (GlyphIndex >= 0)
 			{
-				continue;
-			}
-			if (GlyphIndex > FONT_MAX_UNICODE_CHARS)
-			{
-				GlyphIndex = FONT_MAX_UNICODE_CHARS - 31;
-			}
-			Glyph g = LoadedGlyphs[GlyphIndex];
+				if (GlyphIndex > FONT_MAX_UNICODE_CHARS)
+				{
+					GlyphIndex = FONT_MAX_UNICODE_CHARS - 31;
+				}
+				Glyph g = LoadedGlyphs[GlyphIndex];
 
-			Vector2 StartPos = Vector2(x, y) + g.Offset;
-			if (g.Size != 0)
-			{
-				vData[0].position = StartPos + Vector2f(0, g.Size.Y); vData[0].texCoords = g.TexCoordStart + Vector2f(0, g.TexCoordOffset.Y);
-				vData[1].position = StartPos + g.Size;                vData[1].texCoords = g.TexCoordStart + g.TexCoordOffset;
-				vData[2].position = StartPos + Vector2f(g.Size.X, 0); vData[2].texCoords = g.TexCoordStart + Vector2f(g.TexCoordOffset.X, 0);
-				vData[3].position = StartPos;                         vData[3].texCoords = g.TexCoordStart;
-				vData[4].position = StartPos + Vector2f(0, g.Size.Y); vData[4].texCoords = g.TexCoordStart + Vector2f(0, g.TexCoordOffset.Y);
-				vData[5].position = StartPos + Vector2f(g.Size.X, 0); vData[5].texCoords = g.TexCoordStart + Vector2f(g.TexCoordOffset.X, 0);
-				vData[0].color = seg.Color;		vData[1].color = seg.Color;
-				vData[2].color = seg.Color;		vData[3].color = seg.Color;
-				vData[4].color = seg.Color;		vData[5].color = seg.Color;
-				vData += 6;
-				numVertices += 6;
-			}
-			x += g.TotalSize.X;
+				Vector2 StartPos = Vector2(x, y) + g.Offset;
+				if (g.Size != 0)
+				{
+					vData[0].position = StartPos + Vector2f(0, g.Size.Y); vData[0].texCoords = g.TexCoordStart + Vector2f(0, g.TexCoordOffset.Y);
+					vData[1].position = StartPos + g.Size;                vData[1].texCoords = g.TexCoordStart + g.TexCoordOffset;
+					vData[2].position = StartPos + Vector2f(g.Size.X, 0); vData[2].texCoords = g.TexCoordStart + Vector2f(g.TexCoordOffset.X, 0);
+					vData[3].position = StartPos;                         vData[3].texCoords = g.TexCoordStart;
+					vData[4].position = StartPos + Vector2f(0, g.Size.Y); vData[4].texCoords = g.TexCoordStart + Vector2f(0, g.TexCoordOffset.Y);
+					vData[5].position = StartPos + Vector2f(g.Size.X, 0); vData[5].texCoords = g.TexCoordStart + Vector2f(g.TexCoordOffset.X, 0);
+					vData[0].color = seg.Color;		vData[1].color = seg.Color;
+					vData[2].color = seg.Color;		vData[3].color = seg.Color;
+					vData[4].color = seg.Color;		vData[5].color = seg.Color;
+					vData += 6;
+					numVertices += 6;
+				}
+				x += g.TotalSize.X;
 
-			if (UTFString[i] == ' ')
-			{
-				LastWordIndex = i;
-				LastWordNumVertices = numVertices;
-				LastWordVDataPtr = vData;
+				if (UTFString[i] == ' ')
+				{
+					LastWordIndex = i;
+					LastWordNumVertices = numVertices;
+					LastWordVDataPtr = vData;
+				}
+				MaxHeight = std::max(StartPos.Y + g.Offset.Y, MaxHeight);
 			}
-
-			MaxHeight = std::max(StartPos.Y + g.Offset.Y, MaxHeight);
-			if (x / 225 > LengthBeforeWrap)
+			if (x / 225 > LengthBeforeWrap || UTFString[i] == (int)'\n')
 			{
 				if (LastWordIndex != SIZE_MAX && LastWordIndex != LastWrapIndex)
 				{

@@ -30,6 +30,11 @@ namespace KlemmUI
 		static float GetBorderSize(float InSize, UIBox::SizeMode Mode);
 
 	public:
+		bool HasTexture() const
+		{
+			return UseTexture;
+		}
+
 		SizeMode BorderSizeMode = SizeMode::ScreenRelative;
 		Vector3f BorderColor;
 

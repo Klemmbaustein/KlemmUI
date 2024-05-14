@@ -10,6 +10,21 @@ unsigned int Texture::LoadTexture(std::string File)
 	return LoadTextureWithInfo(File).ID;
 }
 
+unsigned int KlemmUI::Texture::LoadTexture(uint8_t* Bytes, size_t Width, size_t Height)
+{
+	GLuint TextureID;
+	glGenTextures(1, &TextureID);
+	glBindTexture(GL_TEXTURE_2D, TextureID);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, Width, Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, Bytes);
+
+	return TextureID;
+}
+
 Texture::TextureInfo Texture::LoadTextureWithInfo(std::string File)
 {
 	int TextureWidth = 0;
@@ -25,18 +40,8 @@ Texture::TextureInfo Texture::LoadTextureWithInfo(std::string File)
 	TextureInfo Ret;
 	Ret.Width = TextureWidth;
 	Ret.Height = TextureHeight;
-	GLuint TextureID;
-	glGenTextures(1, &TextureID);
-	glBindTexture(GL_TEXTURE_2D, TextureID);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, TextureWidth, TextureHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, TextureBuffer);
-
+	Ret.ID = LoadTexture(TextureBuffer, TextureWidth, TextureHeight);
 	stbi_image_free(TextureBuffer);
-	Ret.ID = TextureID;
 	return Ret;
 }
 

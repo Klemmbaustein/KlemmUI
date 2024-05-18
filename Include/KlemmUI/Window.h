@@ -68,7 +68,7 @@ namespace KlemmUI
 		* @brief
 		* Gets a list of all currently active windows.
 		*/
-		static const std::vector<Window*>& GetActiveWindows();
+		static std::vector<Window*> GetActiveWindows();
 
 		/**
 		 * @brief

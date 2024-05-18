@@ -418,8 +418,9 @@ void KlemmUI::Window::SetMaxSize(Vector2ui MaximumSize)
 	SDL_SetWindowMaximumSize(SDLWindow, MaximumSize.X, MaximumSize.Y);
 }
 
-const std::vector<KlemmUI::Window*>& KlemmUI::Window::GetActiveWindows()
+std::vector<KlemmUI::Window*> KlemmUI::Window::GetActiveWindows()
 {
+	std::lock_guard Guard = std::lock_guard(WindowMutex);
 	return ActiveWindows;
 }
 

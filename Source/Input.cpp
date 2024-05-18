@@ -89,6 +89,11 @@ KlemmUI::InputManager::InputManager(Window* Parent)
 					{
 						In.TextIndex--;
 						In.Text.erase(In.TextIndex, 1);
+						if (In.TextIndex == 0)
+						{
+							break;
+						}
+
 						c = In.Text[In.TextIndex - 1];
 					} while (In.Text.size() && (c & char(0xC0)) != char(0x80) && c <= 0);
 				}

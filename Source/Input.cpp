@@ -199,14 +199,27 @@ void InputManager::Poll()
 				GetWindowBySDLID(Event.window.windowID)->Close();
 				break;
 			case SDL_WINDOWEVENT_RESIZED:
-				GetWindowBySDLID(Event.window.windowID)->OnResized();
+			{
+				Window* EventWindow = GetWindowBySDLID(Event.window.windowID);
+
+				if (EventWindow != nullptr)
+				{
+					EventWindow->OnResized();
+				}
+			}
 				break;
 			default:
 				break;
 			}
 			break;
 		case SDL_TEXTINPUT:
-			GetWindowBySDLID(Event.window.windowID)->Input.AddTextInput(Event.text.text);
+		{
+			Window* EventWindow = GetWindowBySDLID(Event.window.windowID);
+			if (EventWindow)
+			{
+				EventWindow->Input.AddTextInput(Event.text.text);
+			}
+		}
 			break;
 		case SDL_MOUSEWHEEL:
 			MoveMouseWheel(Event.wheel.y);

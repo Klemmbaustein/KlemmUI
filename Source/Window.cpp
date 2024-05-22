@@ -421,7 +421,8 @@ void KlemmUI::Window::SetMaxSize(Vector2ui MaximumSize)
 std::vector<KlemmUI::Window*> KlemmUI::Window::GetActiveWindows()
 {
 	std::lock_guard Guard = std::lock_guard(WindowMutex);
-	return ActiveWindows;
+	auto WindowsCopy = ActiveWindows;
+	return WindowsCopy;
 }
 
 void KlemmUI::Window::SetWindowFullScreen(bool NewIsFullScreen)

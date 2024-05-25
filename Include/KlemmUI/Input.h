@@ -2,6 +2,7 @@
 #include "Vector2.h"
 #include <vector>
 #include <map>
+#include <atomic>
 
 /**
  * @file
@@ -570,6 +571,8 @@ namespace KlemmUI
 		Window* ParentWindow = nullptr;
 
 		void MoveTextIndex(int Amount, bool RespectShiftPress = true);
+
+		std::atomic<int> ScrollAmount = 0;
 
 	public:
 		InputManager(Window* ParentWindow);

@@ -164,7 +164,8 @@ void InputManager::Poll()
 	SDL_Event Event;
 	int MouseState = 0;
 	MouseState = SDL_GetGlobalMouseState(nullptr, nullptr);
-
+	MoveMouseWheel(ScrollAmount);
+	ScrollAmount = 0;
 	IsLMBClicked = false;
 	IsRMBClicked = false;
 
@@ -222,7 +223,7 @@ void InputManager::Poll()
 		}
 			break;
 		case SDL_MOUSEWHEEL:
-			MoveMouseWheel(Event.wheel.y);
+			FOR_ALL_WINDOWS(Input.ScrollAmount += Event.wheel.y);
 			break;
 		default:
 			break;

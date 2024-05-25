@@ -321,6 +321,11 @@ void KlemmUI::Window::UpdateDPI()
 
 void KlemmUI::Window::HandleCursor()
 {
+	if (!HasFocus())
+	{
+		return;
+	}
+
 	SDL_SetCursor(static_cast<SDL_Cursor*>(Cursors[(int)CurrentCursor]));
 	CurrentCursor = dynamic_cast<UIButton*>(UI.HoveredBox) ? Cursor::Hand : (dynamic_cast<UITextField*>(UI.HoveredBox) ? Cursor::Text : Cursor::Default);
 }

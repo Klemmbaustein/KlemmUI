@@ -10,13 +10,13 @@ UIDropdown::UIDropdown(Vector2f Position,
 	Vector3f Color,
 	Vector3f TextColor,
 	std::vector<Option> Options,
-	void(*PressedFunc)(int),
+	void(*OnClickedFunction)(int),
 	Font* Renderer)
 	:
 	UIButton(true,
 		Position,
 		Color,
-		PressedFunc, 0)
+		OnClickedFunction, 0)
 {
 	this->Renderer = Renderer;
 	this->Options = Options;
@@ -64,6 +64,17 @@ UIDropdown* UIDropdown::SetDropdownColor(Vector3f NewColor, Vector3f TextColor)
 	return this;
 }
 
+UIDropdown* KlemmUI::UIDropdown::SetTextSizeMode(UIBox::SizeMode NewMode)
+{
+	if (TextSizeMode != NewMode)
+	{
+		TextSizeMode = NewMode;
+		SelectedText->SetTextSizeMode(TextSizeMode);
+		GenerateOptions();
+	}
+	return this;
+}
+
 void UIDropdown::GenerateOptions()
 {
 	OptionsBox->DeleteChildren();
@@ -76,6 +87,7 @@ void UIDropdown::GenerateOptions()
 
 		UIText* NewText = new UIText(TextSize, DropdownTextColor, Options[i].Name, Renderer);
 		NewText->SetPadding(TextPadding);
+		NewText->SetTextSizeMode(TextSizeMode);
 		NewButton->AddChild(NewText);
 
 		OptionsBox->AddChild(NewButton);

@@ -115,6 +115,28 @@ UIBackground* UIBackground::SetUseTexture(bool UseTexture, unsigned int TextureI
 	return this;
 }
 
+UIBackground* KlemmUI::UIBackground::SetUseTexture(bool UseTexture, std::string TextureFile)
+{
+	if (TextureFile.empty())
+	{
+		UseTexture = false;
+	}
+
+	unsigned int NewTextureID = 0;
+	if (UseTexture)
+	{
+		NewTextureID = ParentWindow->UI.LoadReferenceTexture(TextureFile);
+	}
+	if (this->UseTexture != UseTexture || NewTextureID != this->TextureID)
+	{
+		this->UseTexture = UseTexture;
+		this->TextureID = NewTextureID;
+		RedrawElement();
+	}
+
+	return this;
+}
+
 UIBackground::UIBackground(bool Horizontal, Vector2f Position, Vector3f Color, Vector2f MinScale, Shader* UsedShader) : UIBox(Horizontal, Position)
 {
 	SetMinSize(MinScale);

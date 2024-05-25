@@ -98,6 +98,7 @@
     <ClCompile Include="Source\Timer.cpp" />
     <ClCompile Include="Source\Rendering\ShaderManager.cpp" />
     <ClCompile Include="Source\UI\UIManager.cpp" />
+    <ClCompile Include="Source\Markup\Markup.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Rendering\VertexBuffer.h">
@@ -170,6 +171,7 @@
     <ClInclude Include="Include\KlemmUI\Timer.h" />
     <ClInclude Include="Include\KlemmUI\Rendering\ShaderManager.h" />
     <ClInclude Include="Include\KlemmUI\UI\UIManager.h" />
+    <ClInclude Include="Include\KlemmUI\Markup\Markup.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="README.md" />
@@ -198,5 +200,6 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="CMakeLists.txt" />
+    <Text Include="Markup\MarkupLib\CMakeLists.txt" />
   </ItemGroup>
 </Project>

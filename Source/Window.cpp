@@ -321,6 +321,11 @@ void KlemmUI::Window::UpdateDPI()
 
 void KlemmUI::Window::HandleCursor()
 {
+	if (!HasFocus())
+	{
+		return;
+	}
+
 	SDL_SetCursor(static_cast<SDL_Cursor*>(Cursors[(int)CurrentCursor]));
 	CurrentCursor = dynamic_cast<UIButton*>(UI.HoveredBox) ? Cursor::Hand : (dynamic_cast<UITextField*>(UI.HoveredBox) ? Cursor::Text : Cursor::Default);
 }
@@ -418,8 +423,9 @@ void KlemmUI::Window::SetMaxSize(Vector2ui MaximumSize)
 	SDL_SetWindowMaximumSize(SDLWindow, MaximumSize.X, MaximumSize.Y);
 }
 
-const std::vector<KlemmUI::Window*>& KlemmUI::Window::GetActiveWindows()
+std::vector<KlemmUI::Window*> KlemmUI::Window::GetActiveWindows()
 {
+	std::lock_guard Guard = std::lock_guard(WindowMutex);
 	return ActiveWindows;
 }
 

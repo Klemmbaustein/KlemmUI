@@ -22,6 +22,8 @@ namespace KlemmUI
 		Vector3f DropdownColor = 1;
 		Vector3f DropdownTextColor = 0;
 	public:
+		UIBox::SizeMode TextSizeMode = UIBox::SizeMode::AspectRelative;
+		UIDropdown* SetTextSizeMode(UIBox::SizeMode NewMode);
 		size_t SelectedIndex = 0;
 		
 		/// A dropdown option.
@@ -71,13 +73,13 @@ namespace KlemmUI
 		 * @param Options
 		 * The dropdown options.
 		 * 
-		 * @param PressedFunc
+		 * @param OnClickedFunction
 		 * The function called when an option is selected. The index of the selected option will be given.
 		 * 
 		 * @param TextFont
 		 * The font of the dropdown text.
 		 */
-		UIDropdown(Vector2f Position, float Size, Vector3f Color, Vector3f TextColor, std::vector<Option> Options, void(*PressedFunc)(int), Font* TextFont);
+		UIDropdown(Vector2f Position, float Size, Vector3f Color, Vector3f TextColor, std::vector<Option> Options, void(*OnClickedFunction)(int), Font* TextFont);
 
 		/// Sets the size and padding of the dropdown text.
 		UIDropdown* SetTextSize(float Size, float Padding);

@@ -23,7 +23,7 @@ float UIText::GetWrapDistance() const
 	}
 	if (WrapSizeMode == SizeMode::PixelRelative)
 	{
-		Distance = UIBox::PixelSizeToScreenSize(Vector2f((float)WrapDistance, 0.0), ParentWindow).X;
+		Distance = UIBox::PixelSizeToScreenSize(Vector2f((float)Distance, 0.0), ParentWindow).X;
 	}
 	return Distance;
 }
@@ -32,7 +32,7 @@ UIText* UIText::SetFont(Font* NewFont)
 {
 	if (NewFont != Renderer)
 	{
-		NewFont = Renderer;
+		Renderer = NewFont;
 		InvalidateLayout();
 	}
 	return this;
@@ -57,6 +57,7 @@ UIText* UIText::SetColor(Vector3f NewColor)
 		{
 			i.Color = Color;
 		}
+		Update();
 		RedrawElement();
 	}
 	return this;

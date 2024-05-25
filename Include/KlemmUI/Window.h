@@ -7,7 +7,7 @@
 #include <atomic>
 #include "Rendering/ShaderManager.h"
 #include "UI/UIManager.h"
-
+#include "Markup/Markup.h"
 
 namespace KlemmUI
 {
@@ -68,7 +68,7 @@ namespace KlemmUI
 		* @brief
 		* Gets a list of all currently active windows.
 		*/
-		static const std::vector<Window*>& GetActiveWindows();
+		static std::vector<Window*> GetActiveWindows();
 
 		/**
 		 * @brief
@@ -113,8 +113,9 @@ namespace KlemmUI
 		InputManager Input = InputManager(this);
 		/// The shader manager of this window.
 		ShaderManager Shaders;
-		/// The ui manager of this window.
+		/// The UI manager of this window.
 		UIManager UI;
+		MarkupLanguageManager Markup;
 
 		/// Centered window position.
 		static const Vector2ui POSITION_CENTERED;
@@ -163,6 +164,7 @@ namespace KlemmUI
 		* @brief
 		* Updates the current window, re-draws the screen if necessary.
 		* 
+		* Usage example:
 		* ```
 		* while (MyWindow.UpdateWindow())
 		* {
@@ -171,7 +173,7 @@ namespace KlemmUI
 		* ```
 		* 
 		* @return
-		* Returns if the window should continue being shown.
+		* Returns true if the window should continue being shown, false if not.
 		*/
 		bool UpdateWindow();
 

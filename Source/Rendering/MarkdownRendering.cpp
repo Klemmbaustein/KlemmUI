@@ -21,7 +21,7 @@ struct MarkdownLine
 	size_t Depth = 0;
 	bool IsCodeBlock = false;
 	std::vector<MarkdownLine> Children;
-	bool Seperator = false;
+	bool Separator = false;
 	bool HasHeadingPadding = true;
 
 	void Add(UIBox* TargetParent, const Markdown::MarkdownStyling& Style, float Wrap, bool Small)
@@ -51,11 +51,11 @@ struct MarkdownLine
 
 		auto t = new UIText(TextSize, 1, Text, IsCodeBlock ? Style.Code.CodeText : Style.Text);
 		t->Wrap = true;
-		t->WrapDistance = Wrap;
+		t->WrapDistance = Wrap * 3;
 		t->SetPadding(0.005f + HeadingPadding, 0.005f, 0.005f, 0.005f);
 		TargetParent->AddChild(t);
 
-		if (Seperator)
+		if (Separator)
 		{
 			TargetParent->AddChild((new UIBackground(true, 0, 1, Vector2f(Style.Width, 0.005f)))
 				->SetPadding(0.02f, 0.02f, 0, 0));
@@ -146,7 +146,7 @@ void Markdown::RenderMarkdown(std::string Markdown, UIBox* TargetParent, Markdow
 				if (CurrentLine.find_first_not_of("=") == std::string::npos && PreviousLine)
 				{
 					PreviousLine->HeadingSize = 1;
-					PreviousLine->Seperator = true;
+					PreviousLine->Separator = true;
 					CurrentLine.clear();
 					continue;
 				}
@@ -164,12 +164,12 @@ void Markdown::RenderMarkdown(std::string Markdown, UIBox* TargetParent, Markdow
 						NewLine.Text = NewLine.Text.substr(1);
 					}
 
-					NewLine.Seperator = NewLine.HeadingSize == 1;
+					NewLine.Separator = NewLine.HeadingSize == 1;
 				}
 				if (NewLine.Text == "<hr>")
 				{
 					NewLine.Text.clear();
-					NewLine.Seperator = true;
+					NewLine.Separator = true;
 				}
 				Lines.push_back(NewLine);
 				PreviousLine = &Lines[Lines.size() - 1];
@@ -186,7 +186,7 @@ void Markdown::RenderMarkdown(std::string Markdown, UIBox* TargetParent, Markdow
 	for (size_t i = 0; i < Lines.size(); i++)
 	{
 		auto& ln = Lines[i];
-		size_t WrapLength = (size_t)(Style.Width * 90.0f * Style.TextSize * Window::GetActiveWindow()->GetAspectRatio());
+		size_t WrapLength = (size_t)(Style.Width * 120.0f * Style.TextSize * Window::GetActiveWindow()->GetAspectRatio());
 
 		if (ln.HeadingSize)
 		{
@@ -293,7 +293,7 @@ void Markdown::RenderMarkdown(std::string Markdown, UIBox* TargetParent, Markdow
 		bool LineSeperator = i.Text.find_first_not_of("-") == std::string::npos && !i.Text.empty();
 		if ((i.Text.empty() && !i.IsCodeBlock && !i.Children.size()) || LineSeperator)
 		{
-			if (i.Seperator || LineSeperator)
+			if (i.Separator || LineSeperator)
 			{
 				TargetParent->AddChild((new UIBackground(true, 0, 1, Vector2f(Style.Width, 0.005f)))
 					->SetPadding(0.02f, 0.02f, 0, 0));
@@ -318,7 +318,7 @@ void Markdown::RenderMarkdown(std::string Markdown, UIBox* TargetParent, Markdow
 						TextSegment(LineNumberString, Style.Code.Color * 0.5f),
 						TextSegment(ln.Text, Style.Code.Color) 
 					}, Style.Code.CodeText))
-					->SetWrapEnabled(true, Style.Width * 0.7f, UIBox::SizeMode::ScreenRelative)
+					->SetWrapEnabled(true, Style.Width, UIBox::SizeMode::ScreenRelative)
 					->SetPadding(0.005f));
 			}
 			Title->SetMinSize(Vector2f(Style.Width, 0));

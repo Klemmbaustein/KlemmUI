@@ -17,7 +17,7 @@ namespace KlemmUI
 		~ScrollObject();
 		void ScrollUp();
 		void ScrollDown();
-		float Speed = 8;
+		float Speed = 12;
 		bool Active = true;
 		float MaxScroll = 10;
 	};

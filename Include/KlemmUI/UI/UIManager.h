@@ -2,6 +2,7 @@
 #include <set>
 #include <map>
 #include <vector>
+#include <functional>
 #include "../Vector2.h"
 
 namespace KlemmUI
@@ -54,8 +55,12 @@ namespace KlemmUI
 
 		struct ButtonEvent
 		{
-			ButtonEvent(void(*Function)(),
-				void(*FunctionIndex)(int),
+			std::function<void()> Function;
+			std::function<void(int)> FunctionIndex;
+			UIBox* Btn = nullptr;
+			int Index = 0;
+			ButtonEvent(std::function<void()> Function,
+				std::function<void(int)> FunctionIndex,
 				UIBox* Btn,
 				int Index = 0)
 			{
@@ -64,10 +69,6 @@ namespace KlemmUI
 				this->Btn = Btn;
 				this->Index = Index;
 			}
-			void(*Function)() = nullptr;
-			void(*FunctionIndex)(int) = nullptr;
-			UIBox* Btn = nullptr;
-			int Index = 0;
 		};
 		std::vector<ButtonEvent> ButtonEvents;
 

@@ -2,6 +2,7 @@
 #include "UIBackground.h"
 #include "../Vector2.h"
 #include "../Vector3.h"
+#include <functional>
 
 namespace KlemmUI
 {
@@ -42,11 +43,11 @@ namespace KlemmUI
 		virtual void OnClicked();
 	public:
 
-		void(*OnClickedFunction)() = nullptr;
-		void(*OnClickedFunctionIndex)(int) = nullptr;
+		std::function<void()> OnClickedFunction = nullptr;
+		std::function<void(int)> OnClickedFunctionIndex = nullptr;
 		int ButtonIndex = 0;
 
-		void(*OnDragged)(int Index) = nullptr;
+		std::function<void(int)> OnDragged = nullptr;
 
 		bool GetIsSelected() const;
 		void SetNeedsToBeSelected(bool NeedsToBeSelected);
@@ -89,7 +90,7 @@ namespace KlemmUI
 		 * @param OnClickedFunction
 		 * This function will be called when the button has been pressed.
 		 */
-		UIButton(bool Horizontal, Vector2f Position, Vector3f Color, void(*OnClickedFunction)());
+		UIButton(bool Horizontal, Vector2f Position, Vector3f Color, std::function<void()> OnClickedFunction);
 
 		/**
 		 * @brief
@@ -110,7 +111,7 @@ namespace KlemmUI
 		 * @param ButtonIndex
 		 * An index for the button. Will be passed to OnClickedFunction.
 		 */
-		UIButton(bool Horizontal, Vector2f Position, Vector3f Color, void(*OnClickedFunction)(int), int ButtonIndex);
+		UIButton(bool Horizontal, Vector2f Position, Vector3f Color, std::function<void(int)> OnClickedFunction, int ButtonIndex);
 
 		~UIButton();
 

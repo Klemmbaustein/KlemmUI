@@ -179,7 +179,7 @@ Vector3f UIButton::GetColor()
 	return ButtonColor;
 }
 
-UIButton::UIButton(bool Horizontal, Vector2f Position, Vector3f Color, void(*OnClickedFunction)()) : UIBackground(Horizontal, Position, Color)
+UIButton::UIButton(bool Horizontal, Vector2f Position, Vector3f Color, std::function<void()> OnClickedFunction) : UIBackground(Horizontal, Position, Color)
 {
 	this->OnClickedFunction = OnClickedFunction;
 	this->ButtonColor = Color;
@@ -188,7 +188,7 @@ UIButton::UIButton(bool Horizontal, Vector2f Position, Vector3f Color, void(*OnC
 	HasMouseCollision = true;
 }
 
-UIButton::UIButton(bool Horizontal, Vector2f Position, Vector3f Color, void(*OnClickedFunction)(int), int ButtonIndex) : UIBackground(Horizontal, Position, Color)
+UIButton::UIButton(bool Horizontal, Vector2f Position, Vector3f Color, std::function<void(int)> OnClickedFunction, int ButtonIndex) : UIBackground(Horizontal, Position, Color)
 {
 	this->OnClickedFunctionIndex = OnClickedFunction;
 	this->ButtonColor = Color;

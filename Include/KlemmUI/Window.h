@@ -8,6 +8,7 @@
 #include "Rendering/ShaderManager.h"
 #include "UI/UIManager.h"
 #include "Markup/Markup.h"
+#include <functional>
 
 namespace KlemmUI
 {
@@ -201,8 +202,8 @@ namespace KlemmUI
 		* 
 		* For a borderless window, the window manager has to know which area is grabbable by the mouse cursor, eg. the mouse cursor.
 		*/
-		bool(*IsAreaGrabbableCallback)(KlemmUI::Window* Target) = nullptr;
-		void(*OnResizedCallback)(KlemmUI::Window* Target) = nullptr;
+		std::function<bool(KlemmUI::Window*)> IsAreaGrabbableCallback;
+		std::function<void(KlemmUI::Window*)> OnResizedCallback = nullptr;
 
 		/**
 		* @brief

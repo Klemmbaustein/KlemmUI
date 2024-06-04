@@ -3,6 +3,8 @@
 
 namespace KlemmUI::Texture
 {
+	uint8_t* LoadTextureBytes(std::string File, size_t& Width, size_t& Height, bool Flipped = false);
+	void FreeTextureBytes(uint8_t* Bytes);
 	unsigned int LoadTexture(std::string File);
 	unsigned int LoadTexture(uint8_t* Bytes, size_t Width, size_t Height);
 	struct TextureInfo

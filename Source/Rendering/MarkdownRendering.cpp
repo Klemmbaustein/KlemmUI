@@ -150,7 +150,7 @@ void Markdown::RenderMarkdown(std::string Markdown, UIBox* TargetParent, Markdow
 					CurrentLine.clear();
 					continue;
 				}
-				NewLine.HeadingSize = NewLine.Text.find_first_not_of("#");
+				NewLine.HeadingSize = (uint8_t)NewLine.Text.find_first_not_of("#");
 				if (NewLine.HeadingSize > 5)
 				{
 					NewLine.HeadingSize = 0;

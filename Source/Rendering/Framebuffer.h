@@ -11,6 +11,6 @@ public:
 	~Framebuffer();
 	void Bind();
 	void Unbind();
-	unsigned int GetID();
+	unsigned int GetID() const;
 	unsigned int GetTexture(unsigned int Index);
 };

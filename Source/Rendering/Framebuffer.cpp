@@ -10,7 +10,7 @@ Framebuffer::Framebuffer(Vector2ui Resolution)
 	// generate texture
 	glGenTextures(1, &Textures[0]);
 	glBindTexture(GL_TEXTURE_2D, Textures[0]);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, Resolution.X, Resolution.Y, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, (GLint)Resolution.X, (GLint)Resolution.Y, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glBindTexture(GL_TEXTURE_2D, 0);
@@ -27,7 +27,7 @@ void Framebuffer::SetResolution(Vector2ui Resolution)
 	// generate texture
 	glGenTextures(1, &Textures[0]);
 	glBindTexture(GL_TEXTURE_2D, Textures[0]);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, Resolution.X, Resolution.Y, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, (GLsizei)Resolution.X, (GLsizei)Resolution.Y, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glBindTexture(GL_TEXTURE_2D, 0);
@@ -53,7 +53,7 @@ void Framebuffer::Unbind()
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-unsigned int Framebuffer::GetID()
+unsigned int Framebuffer::GetID() const
 {
 	return ID;
 }

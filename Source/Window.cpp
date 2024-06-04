@@ -6,6 +6,7 @@
 #include <KlemmUI/Application.h>
 #include <KlemmUI/UI/UIButton.h>
 #include <KlemmUI/UI/UITextField.h>
+#include <KlemmUI/Rendering/Texture.h>
 #include <mutex>
 #include <cstring>
 
@@ -112,10 +113,10 @@ KlemmUI::Window::Window(std::string Name, WindowFlag Flags, Vector2ui WindowPos,
 	SDL_SetHint("SDL_BORDERLESS_RESIZABLE_STYLE", "1");
 	CurrentWindowFlags = Flags;
 	SDL_Window* SDLWindow = SDL_CreateWindow(Name.c_str(),
-		WindowPos.X,
-		WindowPos.Y,
-		WindowSize.X,
-		WindowSize.Y,
+		(int)WindowPos.X,
+		(int)WindowPos.Y,
+		(int)WindowSize.X,
+		(int)WindowSize.Y,
 		ToSDLWindowFlags(Flags) | SDL_WINDOW_OPENGL);
 
 	if ((Flags & WindowFlag::Borderless) == WindowFlag::Borderless)
@@ -213,6 +214,28 @@ void KlemmUI::Window::WaitFrame()
 	SDL_Delay((int)(TimeToWait * 1000.f));
 }
 
+void KlemmUI::Window::SetIconFile(std::string IconFilePath)
+{
+	SDL_WINDOW_PTR(SDLWindow);
+	
+	size_t Width, Height;
+	uint8_t* IconBytes = Texture::LoadTextureBytes(IconFilePath, Width, Height, true);
+
+	// Limitation of SDL2.
+	if (Width > 64 || Height > 64)
+	{
+		Application::Error::Error("Window icon too large. Maximum is 64x64 pixels.");
+		return;
+	}
+
+	SDL_Surface* s = SDL_CreateRGBSurfaceWithFormatFrom(IconBytes, 64, 64, 1, (int)Width * 4, SDL_PIXELFORMAT_RGBA8888);
+
+	SDL_SetWindowIcon(SDLWindow, s);
+
+	SDL_FreeSurface(s);
+	Texture::FreeTextureBytes(IconBytes);
+}
+
 void* KlemmUI::Window::GetSDLWindowPtr() const
 {
 	return SDLWindowPtr;
@@ -236,7 +259,7 @@ Vector2ui KlemmUI::Window::GetSize() const
 void KlemmUI::Window::SetPosition(Vector2ui Pos)
 {
 	SDL_WINDOW_PTR(SDLWindow);
-	SDL_SetWindowPosition(SDLWindow, Pos.X, Pos.Y);
+	SDL_SetWindowPosition(SDLWindow, (int)Pos.X, (int)Pos.Y);
 }
 
 void KlemmUI::Window::SetWindowFlags(WindowFlag NewFlags)
@@ -420,7 +443,7 @@ void KlemmUI::Window::SetMinSize(Vector2ui MinimumSize)
 void KlemmUI::Window::SetMaxSize(Vector2ui MaximumSize)
 {
 	SDL_WINDOW_PTR(SDLWindow);
-	SDL_SetWindowMaximumSize(SDLWindow, MaximumSize.X, MaximumSize.Y);
+	SDL_SetWindowMaximumSize(SDLWindow, (int)MaximumSize.X, (int)MaximumSize.Y);
 }
 
 std::vector<KlemmUI::Window*> KlemmUI::Window::GetActiveWindows()

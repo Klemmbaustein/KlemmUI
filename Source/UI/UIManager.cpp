@@ -53,8 +53,8 @@ void UIManager::InitUI()
 	glTexImage2D(GL_TEXTURE_2D,
 		0,
 		GL_RGBA16F,
-		Window::GetActiveWindow()->GetSize().X,
-		Window::GetActiveWindow()->GetSize().Y,
+		(GLsizei)Window::GetActiveWindow()->GetSize().X,
+		(GLsizei)Window::GetActiveWindow()->GetSize().Y,
 		0,
 		GL_RGBA,
 		GL_FLOAT,
@@ -119,7 +119,7 @@ bool UIManager::DrawElements()
 
 		Vector2ui WindowSize = Window::GetActiveWindow()->GetSize();
 
-		glViewport(0, 0, WindowSize.X, WindowSize.Y);
+		glViewport(0, 0, (GLint)WindowSize.X, (GLint)WindowSize.Y);
 		for (auto& i : RedrawBoxes)
 		{
 			i.Max += Vector2f(3) / Vector2f(WindowSize);
@@ -145,7 +145,7 @@ bool UIManager::DrawElements()
 			}
 		}
 		glDisable(GL_SCISSOR_TEST);
-		glScissor(0, 0, Window::GetActiveWindow()->GetSize().X, Window::GetActiveWindow()->GetSize().Y);
+		glScissor(0, 0, (GLsizei)Window::GetActiveWindow()->GetSize().X, (GLsizei)Window::GetActiveWindow()->GetSize().Y);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		RedrawBoxes.clear();
 		return true;
@@ -177,7 +177,7 @@ void KlemmUI::UIManager::TickElements()
 
 void UIManager::UpdateEvents()
 {
-	auto Events = ButtonEvents;
+	std::vector<ButtonEvent> Events = ButtonEvents;
 	ButtonEvents.clear();
 
 	for (auto& e : Events)

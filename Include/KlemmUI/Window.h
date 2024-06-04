@@ -196,6 +196,8 @@ namespace KlemmUI
 
 		void SetPosition(Vector2ui Pos);
 
+		void SetIconFile(std::string IconFilePath);
+
 		/**
 		* @brief
 		* Sets the grabbable callback.

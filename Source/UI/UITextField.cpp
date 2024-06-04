@@ -52,7 +52,7 @@ void UITextField::Tick()
 			ParentWindow->Input.PollForText = true;
 			ParentWindow->Input.Text = EnteredText;
 			IsPressed = false;
-			ParentWindow->Input.TextIndex = Nearest;
+			ParentWindow->Input.TextIndex = (int)Nearest;
 			RedrawElement();
 		}
 	}

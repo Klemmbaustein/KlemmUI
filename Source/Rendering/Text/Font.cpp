@@ -1,4 +1,3 @@
-#define _CRT_SECURE_NO_WARNINGS
 #include <KlemmUI/Rendering/Text/Font.h>
 #define STB_TRUETYPE_IMPLEMENTATION
 #include "../../Util/stb_truetype.hpp"

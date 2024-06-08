@@ -4,7 +4,7 @@
 
 namespace KlemmUI::ParseError
 {
-	void SetCode(std::vector<StringParse::Line>& Code);
+	void SetCode(std::vector<StringParse::Line>& Code, std::string FileName);
 	void SetLine(size_t Index);
 
 	void Error(const std::string& Message);

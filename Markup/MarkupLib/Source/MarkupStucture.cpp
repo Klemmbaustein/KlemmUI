@@ -125,6 +125,8 @@ static std::map<PropElementType, std::string> DefaultConstructors =
 static int UnnamedCounter = 0;
 void MarkupElement::WriteHeader(const std::string& Path, std::vector<MarkupElement>& MarkupElements)
 {
+	std::vector<KlemmUI::StringParse::Line> Lines = {};
+	ParseError::SetCode(Lines, File);
 	UnnamedCounter = 0;
 	std::filesystem::create_directories(Path);
 	std::string ElementPath = Path + "/" + Root.TypeName + ".hpp";

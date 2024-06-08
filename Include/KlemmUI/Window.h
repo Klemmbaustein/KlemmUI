@@ -116,6 +116,7 @@ namespace KlemmUI
 		ShaderManager Shaders;
 		/// The UI manager of this window.
 		UIManager UI;
+		/// The markup manager of this window.
 		MarkupLanguageManager Markup;
 
 		/// Centered window position.
@@ -159,6 +160,10 @@ namespace KlemmUI
 		 */
 		static Window* GetActiveWindow();
 
+		/**
+		 * @brief
+		 * Gets a pointer to the internal SDL window structure.
+		 */
 		void* GetSDLWindowPtr() const;
 
 		/**
@@ -194,17 +199,35 @@ namespace KlemmUI
 		*/
 		Vector2ui GetSize() const;
 
+		/**
+		 * @brief
+		 * Sets the position of the window.
+		 * 
+		 * @param Pos
+		 * The position relative to the desktop, in pixels.
+		 */
 		void SetPosition(Vector2ui Pos);
 
+		/**
+		 * @brief
+		 * Changes the icon used by the window to the given file.
+		 */
 		void SetIconFile(std::string IconFilePath);
 
 		/**
 		* @brief
-		* Sets the grabbable callback.
+		* The grabbable callback.
 		* 
-		* For a borderless window, the window manager has to know which area is grabbable by the mouse cursor, eg. the mouse cursor.
+		* For a borderless window, the window manager has to know which area is grabbable by the mouse cursor.
+		* This function should return true if the area currently hovered is grabbable and false if it's not.
 		*/
 		std::function<bool(KlemmUI::Window*)> IsAreaGrabbableCallback;
+		/**
+		 * @brief
+		 * The resized callback.
+		 * 
+		 * This function is called once the window has been resized.
+		 */
 		std::function<void(KlemmUI::Window*)> OnResizedCallback = nullptr;
 
 		/**
@@ -213,8 +236,19 @@ namespace KlemmUI
 		*/
 		void SetWindowFlags(WindowFlag NewFlags);
 		WindowFlag GetWindowFlags() const;
+
+		/**
+		 * @brief
+		 * @internal Makes the OpenGL context of this window active.
+		 */
 		void MakeContextCurrent();
 
+		/**
+		 * @brief
+		 * Cancels the close operation of this window.
+		 * 
+		 * If the window has previously received a close message (From the Window::Close() function or if the user closed the window), it will be discarded.
+		 */
 		void CancelClose();
 
 		/**
@@ -223,14 +257,23 @@ namespace KlemmUI
 		 */
 		Vector3f BorderColor = 1;
 
+		/**
+		 * @brief
+		 * System mouse cursor types.
+		 */
 		enum class Cursor
 		{
+			/// Default cursor.
 			Default,
+			/// "Hand" cursor, used when hovering a button.
 			Hand,
+			/// I-Beam cursor, used when hovering text.
 			Text,
+			/// Cursor end index. Not an actual cursor.
 			Cursor_End
 		};
-
+		
+		/// The active cursor for this window. 
 		Cursor CurrentCursor = Cursor::Default;
 
 		/**
@@ -238,9 +281,23 @@ namespace KlemmUI
 		 * Sets the window's title.
 		 */
 		void SetTitle(std::string NewTitle);
-
+		
+		/**
+		 * @brief
+		 * The multiplier value of the DPI.
+		 * 
+		 * The value returned by GetDPI() is multiplied with this. If the actual DPI scale is 1.5 and the DPI multiplier is 2, GetDPI() returns 3.
+		 */
 		float DPIMultiplier = 1;
 
+		/**
+		 * @brief
+		 * Gets the DPI scale of the window.
+		 * 
+		 * The DPI scale is 1 by default (if the display scale in Windows is 100%, for example).
+		 * If the screen DPI is larger, this value will increase as well.
+		 * (On Windows: 150% display scale -> 1.5 DPI scale, 200% display scale -> 2.0 DPI)
+		 */
 		float GetDPI() const;
 
 	private:

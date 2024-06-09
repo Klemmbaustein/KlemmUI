@@ -88,7 +88,7 @@ UIText* UIText::SetTextSizeMode(SizeMode NewMode)
 {
 	if (this->TextSizeMode != NewMode)
 	{
-		ParentWindow->UI.RedrawUI();
+		RedrawElement();
 		this->TextSizeMode = NewMode;
 	}
 	return this;

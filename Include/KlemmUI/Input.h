@@ -607,6 +607,10 @@ namespace KlemmUI
 		 * Adds a callback that will be run of the given key is pressed.
 		 */
 		void RegisterOnKeyDownCallback(Key PressedKey, void (*Callback)(Window*));
+		/**
+		 * @brief
+		 * Removes a callback registered with RegisterOnKeyDownCallback().
+		 */
 		void RemoveOnKeyDownCallback(Key PressedKey, void (*Callback)(Window*));
 
 		/// True if the left mouse button is pressed.

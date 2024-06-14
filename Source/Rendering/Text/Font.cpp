@@ -301,7 +301,7 @@ Vector2f Font::GetTextSize(std::vector<TextSegment> Text, float Scale, bool Wrap
 	float originalScale = Scale;
 	Scale *= 2.5f;
 	LengthBeforeWrap = LengthBeforeWrap * Window::GetActiveWindow()->GetAspectRatio() / Scale;
-	float x = 0.f, y = CharacterSize;
+	float x = 0.f, y = CharacterSize * 5;
 	float MaxX = 0.0f;
 	FontVertex* vData = fontVertexBufferData;
 	Uint32 numVertices = 0;
@@ -311,7 +311,7 @@ Vector2f Font::GetTextSize(std::vector<TextSegment> Text, float Scale, bool Wrap
 	{
 		size_t LastWordIndex = SIZE_MAX;
 		size_t LastWrapIndex = 0;
-		size_t LastWordNumVertices = 0;
+		Uint32 LastWordNumVertices = 0;
 		FontVertex* LastWordVDataPtr = nullptr;
 		std::wstring SegmentText = GetUnicodeString(seg.Text);
 		for (size_t i = 0; i < SegmentText.size(); i++)
@@ -321,9 +321,6 @@ Vector2f Font::GetTextSize(std::vector<TextSegment> Text, float Scale, bool Wrap
 			{
 				SegmentText[i] = ' ';
 			}
-			size_t LastWordIndex = SIZE_MAX;
-			size_t LastWrapIndex = 0;
-			Uint32 LastWordNumVertices = 0;
 
 			if (SegmentText[i] >= 32)
 			{
@@ -364,11 +361,11 @@ Vector2f Font::GetTextSize(std::vector<TextSegment> Text, float Scale, bool Wrap
 					numVertices = LastWordNumVertices;
 				}
 				x = 0;
-				y += CharacterSize;
+				y += CharacterSize * 5;
 			}
 		}
 	}
-	return Vector2f(MaxX / 450 / Window::GetActiveWindow()->GetAspectRatio() * Scale, y / 100 * Scale);
+	return Vector2f(MaxX / 450 / Window::GetActiveWindow()->GetAspectRatio() * Scale, y / 450 * Scale);
 }
 
 

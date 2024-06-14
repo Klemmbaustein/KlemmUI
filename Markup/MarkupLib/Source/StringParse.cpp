@@ -9,7 +9,8 @@ static std::unordered_set<char> Whitespace =
 {
 	' ',
 	'\t',
-	'\n'
+	'\n',
+	'\r',
 };
 
 static std::unordered_set<char> SpecialChars =

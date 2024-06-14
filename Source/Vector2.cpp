@@ -44,13 +44,13 @@ inline Vector2<T> Vector2<T>::operator/(Vector2<T> b)
 }
 
 template<typename T>
-float Vector2<T>::Length()
+float Vector2<T>::Length() const
 {
 	return (float)(X*X+Y*Y);
 }
 
 template<typename T>
-Vector2<T> Vector2<T>::Normalize()
+Vector2<T> Vector2<T>::Normalize() const
 {
 	T l = (T)Length();
 	if (l > 0.01)
@@ -61,7 +61,7 @@ Vector2<T> Vector2<T>::Normalize()
 }
 
 template<typename T>
-std::string Vector2<T>::ToString()
+std::string Vector2<T>::ToString() const
 {
 	return std::to_string(X) + " " + std::to_string(Y);
 }

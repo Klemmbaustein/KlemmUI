@@ -7,13 +7,15 @@ using namespace KlemmUI;
 namespace KlemmUI::ParseError
 {
 	std::vector<StringParse::Line>* LoadedCode = nullptr;
+	std::string ActiveFile;
 	size_t LineIndex = 0;
 	int ErrorCount = 0;
 }
 
-void ParseError::SetCode(std::vector<StringParse::Line>& Code)
+void ParseError::SetCode(std::vector<StringParse::Line>& Code, std::string FileName)
 {
 	LoadedCode = &Code;
+	ActiveFile = FileName;
 }
 
 void ParseError::SetLine(size_t Index)
@@ -24,7 +26,7 @@ void ParseError::SetLine(size_t Index)
 void ParseError::Error(const std::string& Message)
 {
 	auto& Line = LoadedCode->at(LineIndex);
-	std::cout << "Error parsing line " << Line.Index + 1 << ": " << Message << std::endl;
+	std::cerr << ActiveFile << ":" << Line.Index + 1 << ": Error: " << Message << std::endl;
 	size_t Length = 0;
 	std::string LineString;
 	for (auto& i : Line.Strings)
@@ -39,18 +41,18 @@ void ParseError::Error(const std::string& Message)
 			LineString.append(" ");
 		}
 	}
-	std::cout << LineString << std::endl;
+	std::cerr << LineString << std::endl;
 	for (size_t i = 0; i < LineString.size(); i++)
 	{
-		std::cout << '^';
+		std::cerr << '^';
 	}
-	std::cout << std::endl;
+	std::cerr << std::endl;
 	ErrorCount++;
 }
 
 void KlemmUI::ParseError::ErrorNoLine(const std::string& Message)
 {
-	std::cout << "Error: " << Message << std::endl;
+	std::cerr << ActiveFile << ": Error: " << Message << std::endl;
 	ErrorCount++;
 }
 

@@ -26,7 +26,7 @@ namespace KlemmUI
 		Vector3f TextFieldColor = Vector3f(1);
 		UIText* TextObject = nullptr;
 		bool IsEdited = false;
-		void(*OnClickedFunction)() = nullptr;
+		std::function<void()> OnClickedFunction = nullptr;
 		std::string EnteredText = "";
 		float TextSize = 0.5f;
 		void Tick() override;
@@ -41,6 +41,11 @@ namespace KlemmUI
 		bool GetIsEdited() const { return IsEdited; }
 		UITextField* SetText(std::string NewText);
 		UITextField* SetTextSize(float NewTextSize);
+
+		/**
+		 * @brief
+		 * Sets the font used by the text field to the given font.
+		 */
 		UITextField* SetFont(Font* NewFont);
 		UITextField* SetHintText(std::string NewHintText);
 		UITextField* SetColor(Vector3f NewColor);
@@ -54,7 +59,20 @@ namespace KlemmUI
 
 		KlemmUI::UITextField* SetTextSizeMode(UIBox::SizeMode Mode);
 
-		UITextField(Vector2f Position, Vector3f Color, Font* Renderer, void(*OnClickedFunction)());
+		/**
+		 * @brief
+		 * UITextField constructor.
+		 * 
+		 * @param Position
+		 * The position of the text field.
+		 * 
+		 * @param Color
+		 * The background color of the text field.
+		 * 
+		 * @param Renderer
+		 * The 
+		 */
+		UITextField(Vector2f Position, Vector3f Color, Font* Renderer, std::function<void()> OnClickedFunction);
 		~UITextField() override;
 		void Update() override;
 		void DrawBackground() override;

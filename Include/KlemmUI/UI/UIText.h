@@ -38,6 +38,13 @@ namespace KlemmUI
 		 * If the text is made of multiple TextSegments, all segments will have the given color assigned.
 		 */
 		UIText* SetColor(Vector3f NewColor);
+
+		/**
+		 * @brief
+		 * Sets the opacity of the text to the given value.
+		 * 
+		 * 0 Means completely translucent, 1 means completely visible.
+		 */
 		UIText* SetOpacity(float NewOpacity);
 
 		/**
@@ -116,9 +123,8 @@ namespace KlemmUI
 		 * @param Scale
 		 * The size of the text.
 		 * 
-		 * @param Color
+		 * @param Text
 		 * The segments of the text.
-		 * 
 		 * A text segment contains a color and a string.
 		 * 
 		 * @param Renderer

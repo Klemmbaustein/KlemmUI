@@ -219,7 +219,7 @@ KlemmUI::UITextField* KlemmUI::UITextField::SetTextSizeMode(UIBox::SizeMode Mode
 	return this;
 }
 
-UITextField::UITextField(Vector2f Position, Vector3f Color, Font* Renderer, void(*OnClickedFunction)())
+UITextField::UITextField(Vector2f Position, Vector3f Color, Font* Renderer, std::function<void()> OnClickedFunction)
 	: UIBackground(true, Position, Color)
 {
 	TextFieldColor = Color;

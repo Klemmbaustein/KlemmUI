@@ -18,7 +18,7 @@ std::vector<MarkupStructure::MarkupElement> MarkupParse::ParseFiles(std::vector<
 
 	for (auto& File : FileLines)
 	{
-		ParseError::SetCode(File.second);
+		ParseError::SetCode(File.second, File.first);
 
 		auto Elements = GetElementsInFile(File.second, File.first);
 
@@ -34,7 +34,7 @@ std::vector<MarkupStructure::MarkupElement> MarkupParse::ParseFiles(std::vector<
 	for (auto& Element : AllElements)
 	{
 		auto& Lines = FileLines[Element.File];
-		ParseError::SetCode(Lines);
+		ParseError::SetCode(Lines, Element.File);
 
 		StructureElements.push_back(ParseElement(Element, Lines));
 	}

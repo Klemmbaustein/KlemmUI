@@ -545,13 +545,13 @@ void UIBox::GetPaddingScreenSize(Vector2f& UpDown, Vector2f& LeftRight) const
 
 	if (PaddingSizeMode == SizeMode::PixelRelative)
 	{
-		UpDown = UpDown / (float)ParentWindow->GetSize().Y * 2;
+		UpDown = UpDown / (float)ParentWindow->GetSize().Y * ParentWindow->GetDPI() * 2;
 	}
 
 	LeftRight = GetLeftRightPadding(this);
 	if (PaddingSizeMode == SizeMode::PixelRelative)
 	{
-		LeftRight = LeftRight / (float)ParentWindow->GetSize().X * 2;
+		LeftRight = LeftRight / (float)ParentWindow->GetSize().X * ParentWindow->GetDPI() * 2;
 	}
 }
 

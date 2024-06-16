@@ -3,6 +3,7 @@
 #include <unordered_set>
 #include <iostream>
 #include <cstring>
+#include <sstream>
 using namespace KlemmUI;
 
 static std::unordered_set<char> Whitespace =
@@ -29,6 +30,64 @@ static std::unordered_set<char> SpecialChars =
 	'[',
 	']'
 };
+
+static std::string RemoveComments(std::string Code)
+{
+	std::stringstream StrStream = std::stringstream(Code);
+	std::string OutCode;
+
+	char last = 0;
+
+	bool MultiLineComment = false;
+	while (true)
+	{
+
+		if (StrStream.eof())
+		{
+			break;
+		}
+
+		char Buffer[8192];
+		StrStream.getline(Buffer, sizeof(Buffer));
+
+		for (char c : Buffer)
+		{
+			if (last == c && c == '/')
+			{
+				OutCode.pop_back();
+				break;
+			}
+
+			if (last == '/' && c == '*')
+			{
+				MultiLineComment = true;
+				OutCode.pop_back();
+				last = 0;
+			}
+
+			if (last == '*' && c == '/')
+			{
+				MultiLineComment = false;
+				continue;
+			}
+
+			if (c == 0)
+			{
+				OutCode.push_back('\n');
+				last = 0;
+				break;
+			}
+
+			last = c;
+
+			if (!MultiLineComment)
+			{
+				OutCode.push_back(c);
+			}
+		}
+	}
+	return OutCode;
+}
 
 std::string StringParse::Line::Previous()
 {
@@ -291,11 +350,42 @@ std::string KlemmUI::StringParse::ToCppCode(std::string Value)
 {
 	if (IsNumber(Value))
 	{
-		return Value;
+		return "float(" + Value + ")";
 	}
+	// (number, number, number) or maybe just (number)
 	if (IsVectorToken(Value))
 	{
-		return Value.substr(1, Value.size() - 2);
+		auto Values = StringParse::SeparateString(Value);
+
+		auto& Strings = Values[0].Strings;
+
+		// remove the first '('
+		Strings.erase(Strings.begin());
+		// remove the last ')'
+		Strings.pop_back();
+		
+		std::string OutString;
+
+		std::string Value;
+
+		for (auto& i : Strings)
+		{
+			if (i == ",")
+			{
+				OutString.append(", ");
+			}
+			else if (i != "-")
+			{
+				Value += i;
+				OutString.append("float(" + Value + ")");
+				Value.clear();
+			}
+			else
+			{
+				Value += i;
+			}
+		}
+		return OutString;
 	}
 	if (IsSizeValue(Value))
 	{
@@ -372,6 +462,7 @@ std::string KlemmUI::StringParse::Size::SizeModeToKUISizeMode(std::string Mode)
 
 std::vector<StringParse::Line> StringParse::SeparateString(std::string String)
 {
+	String = RemoveComments(String);
 	std::vector<Line> Lines;
 	Line CurrentLine;
 	CurrentLine.Index = 1;

@@ -26,7 +26,6 @@ namespace KlemmUI
 		Vector3f TextFieldColor = Vector3f(1);
 		UIText* TextObject = nullptr;
 		bool IsEdited = false;
-		std::function<void()> OnClickedFunction = nullptr;
 		std::string EnteredText = "";
 		float TextSize = 0.5f;
 		void Tick() override;
@@ -37,6 +36,7 @@ namespace KlemmUI
 		Vector2f TextHighlightPos;
 		Vector2f TextHighlightSize;
 	public:
+		std::function<void()> OnClickedFunction = nullptr;
 		UIBox* ParentOverride = nullptr;
 		bool GetIsEdited() const { return IsEdited; }
 		UITextField* SetText(std::string NewText);

@@ -534,7 +534,7 @@ void DrawableText::Draw(ScrollObject* CurrentScrollObject)
 			Vector3f(-CurrentScrollObject->Percentage, CurrentScrollObject->Position.Y, CurrentScrollObject->Position.Y - CurrentScrollObject->Scale.Y));
 	}
 	else
-		TextShader->SetVec3("u_offset", Vector3f(0, -1000, 1000));
+		TextShader->SetVec3("u_offset", Vector3f(0.0f, -1000.0f, 1000.0f));
 	glDrawArrays(GL_TRIANGLES, 0, NumVerts);
 }
 

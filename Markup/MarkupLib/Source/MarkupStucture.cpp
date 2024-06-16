@@ -247,37 +247,51 @@ static std::string WriteElementProperty(UIElement* Target, UIElement* Root, std:
 			Target->ElementName = "unnamed_" + std::to_string(UnnamedCounter++);
 		}
 	}
-	else if (i.VarType == UIElement::Variable::VariableType::String && !KlemmUI::StringParse::IsStringToken(p.Value))
+	else
 	{
-		KlemmUI::ParseError::ErrorNoLine("Expected a string for value '" + i.Name + "'");
-	}
-	else if (i.VarType == UIElement::Variable::VariableType::Size && !KlemmUI::StringParse::IsSizeValue(p.Value))
-	{
-		KlemmUI::ParseError::ErrorNoLine("Expected a size for value '" + i.Name + "'");
-	}
-	else if (i.VarType == UIElement::Variable::VariableType::SizeNumber && !KlemmUI::StringParse::Is1DSizeValue(p.Value))
-	{
-		KlemmUI::ParseError::ErrorNoLine("Expected a size for value '" + i.Name + "'");
-	}
-	else if (i.VarType == UIElement::Variable::VariableType::Align)
-	{
-		if (KlemmUI::StringParse::GetAlign(p.Value).empty())
+		switch (i.VarType)
 		{
-			KlemmUI::ParseError::ErrorNoLine("Expected a valid align value for '" + i.Name + "'");
+		case UIElement::Variable::VariableType::String:
+			if (!KlemmUI::StringParse::IsStringToken(p.Value))
+				KlemmUI::ParseError::ErrorNoLine("Expected a string for value '" + i.Name + "'");
+			break;
+
+		case UIElement::Variable::VariableType::Size:
+			if (!KlemmUI::StringParse::IsSizeValue(p.Value))
+				KlemmUI::ParseError::ErrorNoLine("Expected a size for value '" + i.Name + "'");
+			break;
+
+		case UIElement::Variable::VariableType::SizeNumber:
+			if (!KlemmUI::StringParse::Is1DSizeValue(p.Value))
+				KlemmUI::ParseError::ErrorNoLine("Expected a size for value '" + i.Name + "'");
+			break;
+
+		case UIElement::Variable::VariableType::Align:
+			if (KlemmUI::StringParse::GetAlign(p.Value).empty())
+				KlemmUI::ParseError::ErrorNoLine("Expected a valid align value for '" + i.Name + "'");
+			p.Value = KlemmUI::StringParse::GetAlign(p.Value);
+			break;
+
+		case UIElement::Variable::VariableType::BorderType:
+			if (KlemmUI::StringParse::GetBorderType(p.Value).empty())
+				KlemmUI::ParseError::ErrorNoLine("Expected a valid border type value for '" + i.Name + "'");
+			p.Value = KlemmUI::StringParse::GetBorderType(p.Value);
+			break;
+
+		case UIElement::Variable::VariableType::SizeMode:
+			p.Value = KlemmUI::StringParse::Size::SizeModeToKUISizeMode(p.Value);
+			break;
+
+		case UIElement::Variable::VariableType::Vector3:
+		case UIElement::Variable::VariableType::Vector2:
+			if (!KlemmUI::StringParse::IsVectorToken(p.Value) || KlemmUI::StringParse::IsNumber(p.Value))
+			{
+				p.Value = "(" + p.Value + ")";
+			}
+			break;
+		default:
+			break;
 		}
-		p.Value = KlemmUI::StringParse::GetAlign(p.Value);
-	}
-	else if (i.VarType == UIElement::Variable::VariableType::BorderType)
-	{
-		if (KlemmUI::StringParse::GetBorderType(p.Value).empty())
-		{
-			KlemmUI::ParseError::ErrorNoLine("Expected a valid border type value for '" + i.Name + "'");
-		}
-		p.Value = KlemmUI::StringParse::GetBorderType(p.Value);
-	}
-	else if (i.VarType == UIElement::Variable::VariableType::SizeMode)
-	{
-		p.Value = KlemmUI::StringParse::Size::SizeModeToKUISizeMode(p.Value);
 	}
 
 	if (i.CreateCodeFunction)

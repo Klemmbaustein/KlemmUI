@@ -24,7 +24,7 @@ static std::vector<PropertyElement> Properties
 		.Name = "size",
 		.SetFormat = {"SetTextSize({val})"},
 		.SetSizeFormat = "SetTextSizeMode({val})",
-		.VarType = UIElement::Variable::VariableType::Size,
+		.VarType = UIElement::Variable::VariableType::SizeNumber,
 	},
 	PropertyElement{
 		.Type = PropElementType::UIText,

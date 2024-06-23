@@ -5,7 +5,7 @@
 #include <map>
 using namespace KlemmUI;
 
-std::vector<MarkupStructure::MarkupElement> MarkupParse::ParseFiles(std::vector<FileEntry> Files)
+MarkupStructure::ParseResult MarkupParse::ParseFiles(std::vector<FileEntry> Files)
 {
 	std::map<std::string, std::vector<StringParse::Line>> FileLines;
 
@@ -16,17 +16,24 @@ std::vector<MarkupStructure::MarkupElement> MarkupParse::ParseFiles(std::vector<
 		FileLines.insert({ File.Name, StringParse::SeparateString(File.Content) });
 	}
 
+	std::vector<MarkupStructure::Constant> Consts;
+
 	for (auto& File : FileLines)
 	{
 		ParseError::SetCode(File.second, File.first);
 
-		auto Elements = GetElementsInFile(File.second, File.first);
+		auto FileContent = ReadFile(File.second, File.first);
 
-		AllElements.reserve(Elements.size() + AllElements.size());
+		AllElements.reserve(FileContent.Elements.size() + AllElements.size());
 
-		for (const ParsedElement& Element : Elements)
+		for (const ParsedElement& Element : FileContent.Elements)
 		{
 			AllElements.push_back(Element);
+		}
+
+		for (const MarkupStructure::Constant& Const : FileContent.Constants)
+		{
+			Consts.push_back(Const);
 		}
 	}
 
@@ -39,12 +46,15 @@ std::vector<MarkupStructure::MarkupElement> MarkupParse::ParseFiles(std::vector<
 		StructureElements.push_back(ParseElement(Element, Lines));
 	}
 
-	return StructureElements;
+	return MarkupStructure::ParseResult{
+		.Elements = StructureElements,
+		.Constants = Consts,
+	};
 }
 
-std::vector<MarkupParse::ParsedElement> MarkupParse::GetElementsInFile(std::vector<StringParse::Line>& Lines, std::string FileName)
+MarkupParse::FileResult MarkupParse::ReadFile(std::vector<StringParse::Line>& Lines, std::string FileName)
 {
-	std::vector<ParsedElement> Elements;
+	FileResult Out;
 	ParsedElement* Current = nullptr;
 	size_t Depth = 0;
 	for (size_t i = 0; i < Lines.size(); i++)
@@ -64,27 +74,43 @@ std::vector<MarkupParse::ParsedElement> MarkupParse::GetElementsInFile(std::vect
 				continue;
 			}
 
-			Elements.push_back(ParsedElement{
+			Out.Elements.push_back(ParsedElement{
 				.Name = Name,
 				.File = FileName,
 				.Start = i,
 				.StartLine = ln.Index,
 				});
-			Current = &Elements[Elements.size() - 1];
+			Current = &Out.Elements[Out.Elements.size() - 1];
 			if (ln.Get() != "{")
 			{
 				ParseError::Error("Expected a '{' after 'element " + Current->Name + "'");
 				Current = nullptr;
-				Elements.pop_back();
+				Out.Elements.pop_back();
 				continue;
 			}
 			Depth++;
+		}
+		else if (Content == "const")
+		{
+			ln.Get(); // const
+			std::string Name = ln.Get();
+
+			if (ln.Get() != "=")
+			{
+				ParseError::Error(ln.Previous().empty() ? "Expected a '=' after a constant definition." : "Unexpected '" + ln.Previous() + "' after a constant definition. Expected '='");
+				continue;
+			}
+
+			Out.Constants.push_back(MarkupStructure::Constant{
+				.Name = Name,
+				.Value = ln.GetUntil(""),
+				});
 		}
 		else if (ln.Contains("{"))
 		{
 			Depth++;
 		}
-		if (ln.Contains("}"))
+		else if (ln.Contains("}"))
 		{
 			if (Depth == 0)
 			{
@@ -93,6 +119,10 @@ std::vector<MarkupParse::ParsedElement> MarkupParse::GetElementsInFile(std::vect
 			}
 			Depth--;
 		}
+		else if (Depth == 0)
+		{
+			ParseError::Error("Unexpected '" + ln.Get() + "'");
+		}
 	}
 
 	if (Depth != 0)
@@ -100,7 +130,7 @@ std::vector<MarkupParse::ParsedElement> MarkupParse::GetElementsInFile(std::vect
 		ParseError::Error("Expected a closing '}'");
 	}
 
-	return Elements;
+	return Out;
 }
 
 MarkupStructure::MarkupElement KlemmUI::MarkupParse::ParseElement(ParsedElement& Elem, std::vector<StringParse::Line>& Lines)

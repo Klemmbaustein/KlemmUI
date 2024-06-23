@@ -9,7 +9,8 @@ namespace KlemmUI::MarkupParse
 		std::string Content;
 		std::string Name;
 	};
-	std::vector<MarkupStructure::MarkupElement> ParseFiles(std::vector<FileEntry> Files);
+
+	MarkupStructure::ParseResult ParseFiles(std::vector<FileEntry> Files);
 
 	struct ParsedElement
 	{
@@ -21,8 +22,13 @@ namespace KlemmUI::MarkupParse
 		MarkupStructure::MarkupElement StructureElement;
 	};
 
-	std::vector<ParsedElement> GetElementsInFile(std::vector<StringParse::Line>& Lines, std::string FileName);
+	struct FileResult
+	{
+		std::vector<ParsedElement> Elements;
+		std::vector<MarkupStructure::Constant> Constants;
+	};
 
+	FileResult ReadFile(std::vector<StringParse::Line>& Lines, std::string FileName);
 	MarkupStructure::MarkupElement ParseElement(ParsedElement& Elem, std::vector<StringParse::Line>& Lines);
 
 	void ParseScope(MarkupStructure::UIElement& Elem, std::vector<StringParse::Line> Lines, size_t Start, bool IsRoot);

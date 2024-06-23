@@ -123,7 +123,7 @@ static std::map<PropElementType, std::string> DefaultConstructors =
 };
 
 static int UnnamedCounter = 0;
-void MarkupElement::WriteHeader(const std::string& Path, std::vector<MarkupElement>& MarkupElements)
+void MarkupElement::WriteHeader(const std::string& Path, ParseResult& MarkupElements)
 {
 	std::vector<KlemmUI::StringParse::Line> Lines = {};
 	ParseError::SetCode(Lines, File);
@@ -192,7 +192,7 @@ void MarkupElement::WriteHeader(const std::string& Path, std::vector<MarkupEleme
 	}
 }
 
-std::string MarkupElement::MakeConstructor(std::vector<MarkupElement>& MarkupElements)
+std::string MarkupElement::MakeConstructor(ParseResult& MarkupElements)
 {
 	std::stringstream OutStream;
 
@@ -225,9 +225,28 @@ static PropElementType GetTypeFromString(std::string TypeName)
 	return PropElementType::Unknown;
 }
 
-static std::string WriteElementProperty(UIElement* Target, UIElement* Root, std::string ElementName, Property p, const PropertyElement& i)
+Constant* ParseResult::GetConstant(std::string Name)
+{
+	for (Constant& i : Constants)
+	{
+		if (i.Name == Name)
+		{
+			return &i;
+		}
+	}
+	return nullptr;
+}
+
+static std::string WriteElementProperty(UIElement* Target, UIElement* Root, std::string ElementName, Property p, const PropertyElement& i, ParseResult& MarkupElements)
 {
 	auto Variable = Root->Variables.find(p.Value);
+
+	Constant* ValueConstant = MarkupElements.GetConstant(p.Value);
+
+	if (ValueConstant)
+	{
+		p.Value = ValueConstant->Value;
+	}
 
 	if (Variable != Root->Variables.end())
 	{
@@ -328,7 +347,7 @@ static std::string WriteElementProperty(UIElement* Target, UIElement* Root, std:
 	return Value;
 }
 
-std::string UIElement::MakeCode(std::string Parent, UIElement* Root, size_t& Depth, std::vector<MarkupElement>& MarkupElements)
+std::string UIElement::MakeCode(std::string Parent, UIElement* Root, size_t& Depth, ParseResult& MarkupElements)
 {
 	bool HasName = !ElementName.empty();
 	std::stringstream OutStream;
@@ -363,7 +382,7 @@ std::string UIElement::MakeCode(std::string Parent, UIElement* Root, size_t& Dep
 		{
 			if (i.Name == Prop.Name)
 			{
-				OutStream << WriteElementProperty(this, Root, ElemName, i, Prop);
+				OutStream << WriteElementProperty(this, Root, ElemName, i, Prop, MarkupElements);
 				i.Name.clear();
 				Found = true;
 				break;
@@ -374,11 +393,11 @@ std::string UIElement::MakeCode(std::string Parent, UIElement* Root, size_t& Dep
 			OutStream << WriteElementProperty(this, Root, ElemName, Property{
 				.Name = Prop.Name,
 				.Value = Prop.Default
-				}, Prop);
+				}, Prop, MarkupElements);
 		}
 	}
 
-	for (auto& elem : MarkupElements)
+	for (auto& elem : MarkupElements.Elements)
 	{
 		if (elem.Root.TypeName != TypeName)
 		{

@@ -68,7 +68,7 @@ int main(int argc, const char** argv)
 		return 1;
 	}
 
-	for (auto& i : ParsedFiles)
+	for (auto& i : ParsedFiles.Elements)
 	{
 		i.WriteHeader(OutPath, ParsedFiles);
 	}

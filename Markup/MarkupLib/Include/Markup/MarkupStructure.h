@@ -7,6 +7,7 @@
 namespace KlemmUI::MarkupStructure
 {
 	struct MarkupElement;
+	struct ParseResult;
 
 	struct Property
 	{
@@ -71,7 +72,13 @@ namespace KlemmUI::MarkupStructure
 		std::set<std::string> GetElementDependencies() const;
 		std::set<std::string> GetNamedElements() const;
 
-		std::string MakeCode(std::string Parent, UIElement* Root, size_t& Depth, std::vector<MarkupElement>& MarkupElements);
+		std::string MakeCode(std::string Parent, UIElement* Root, size_t& Depth, ParseResult& MarkupElements);
+	};
+
+	struct Constant
+	{
+		std::string Name;
+		std::string Value;
 	};
 
 	struct MarkupElement
@@ -79,8 +86,16 @@ namespace KlemmUI::MarkupStructure
 		UIElement Root;
 		std::string File;
 
-		void WriteHeader(const std::string& Path, std::vector<MarkupElement>& MarkupElements);
+		void WriteHeader(const std::string& Path, ParseResult& MarkupElements);
 	private:
-		std::string MakeConstructor(std::vector<MarkupElement>& MarkupElements);
+		std::string MakeConstructor(ParseResult& MarkupElements);
+	};
+
+	struct ParseResult
+	{
+		std::vector<MarkupElement> Elements;
+		std::vector<Constant> Constants;
+
+		Constant* GetConstant(std::string Name);
 	};
 }

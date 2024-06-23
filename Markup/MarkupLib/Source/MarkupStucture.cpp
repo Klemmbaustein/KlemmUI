@@ -150,6 +150,13 @@ void MarkupElement::WriteHeader(const std::string& Path, ParseResult& MarkupElem
 		Out << "\t" << TypeName << " " << i.first;
 		if (!i.second.Value.empty())
 		{
+			Constant* ValueConstant = MarkupElements.GetConstant(i.second.Value);
+
+			if (ValueConstant)
+			{
+				i.second.Value = ValueConstant->Value;
+			}
+
 			std::string Value = StringParse::ToCppCode(i.second.Value);
 
 			Out << " = " << TypeName << "(" << Value << ")";
@@ -409,6 +416,14 @@ std::string UIElement::MakeCode(std::string Parent, UIElement* Root, size_t& Dep
 			{
 				continue;
 			}
+
+			Constant* ValueConstant = MarkupElements.GetConstant(prop.Value);
+
+			if (ValueConstant)
+			{
+				prop.Value = ValueConstant->Value;
+			}
+
 			OutStream << "\t" << ElementName << "->Set" << prop.Name << "(" << prop.Value << ");" << std::endl;
 			prop.Name.clear();
 		}

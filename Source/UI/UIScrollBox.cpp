@@ -166,7 +166,7 @@ void UIScrollBox::SetMaxScroll(float NewMaxScroll)
 	Update();
 }
 
-float UIScrollBox::GetMaxScroll()
+float UIScrollBox::GetMaxScroll() const
 {
 	return MaxScroll;
 }
@@ -212,8 +212,7 @@ void UIScrollBox::UpdateTickState()
 
 UIScrollBox::UIScrollBox(bool Horizontal, Vector2f Position, bool DisplayScrollBar) : UIBox(Horizontal, Position)
 {
-	this->MaxScroll = MaxScroll;
-	this->HasMouseCollision = true;
+	HasMouseCollision = true;
 	SetDisplayScrollBar(DisplayScrollBar);
 	Update();
 }

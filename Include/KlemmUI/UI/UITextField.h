@@ -48,7 +48,7 @@ namespace KlemmUI
 		 */
 		UITextField* SetFont(Font* NewFont);
 		UITextField* SetHintText(std::string NewHintText);
-		UITextField* SetColor(Vector3f NewColor);
+		UITextField* SetColor(Vector3f NewColor) override;
 		Vector3f GetColor() const;
 		UITextField* SetTextColor(Vector3f NewColor);
 		Vector3f GetTextColor();

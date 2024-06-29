@@ -56,7 +56,6 @@ UIBox* UIBox::SetSizeMode(SizeMode NewMode)
 UIBox::UIBox(bool Horizontal, Vector2f Position)
 {
 	this->Position = Position;
-	this->Size = Size;
 	this->ChildrenHorizontal = Horizontal;
 	ParentWindow = Window::GetActiveWindow();
 	ParentWindow->UI.UIElements.push_back(this);
@@ -627,8 +626,7 @@ UIBox* UIBox::AddChild(UIBox* NewChild)
 	}
 	else
 	{
-		Application::Error::Error("Attached an UIObject twice");
-		throw 0;
+		Application::Error::Error("Attached an UIObject twice", true);
 	}
 	return this;
 }

@@ -14,7 +14,7 @@
 
 using namespace KlemmUI;
 
-std::wstring GetUnicodeString(std::string utf8)
+static std::wstring GetUnicodeString(std::string utf8)
 {
 	std::vector<unsigned long> unicode;
 	unicode.reserve(utf8.size());
@@ -181,7 +181,7 @@ Font::Font(std::string Filename)
 	stbtt_InitFont(&finf, ttfBuffer, stbtt_GetFontOffsetForIndex(ttfBuffer, 0));
 
 
-	uint8_t* GlypthBitmap = new uint8_t[FONT_BITMAP_WIDTH * FONT_BITMAP_WIDTH](0);
+	uint8_t* GlypthBitmap = new uint8_t[FONT_BITMAP_WIDTH * FONT_BITMAP_WIDTH]();
 	int Offset = 0;
 	int xcoord = 0;
 	int ycoord = 0;
@@ -498,10 +498,6 @@ Font::~Font()
 	}
 }
 
-void OnWindowResized()
-{
-}
-
 DrawableText::DrawableText(unsigned int VAO, unsigned int VBO, unsigned int NumVerts, unsigned int Texture,
 	Vector2f Position, float Scale, Vector3f Color, float opacity)
 {
@@ -515,7 +511,7 @@ DrawableText::DrawableText(unsigned int VAO, unsigned int VBO, unsigned int NumV
 	this->Color = Color;
 }
 
-void DrawableText::Draw(ScrollObject* CurrentScrollObject)
+void DrawableText::Draw(ScrollObject* CurrentScrollObject) const
 {
 	Shader* TextShader = Font::GetTextShader();
 	glBindVertexArray(VAO);

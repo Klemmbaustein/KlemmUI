@@ -153,7 +153,7 @@ std::string UIText::GetText() const
 	return TextSegment::CombineToString(RenderedText);
 }
 
-UIText::UIText(float Scale, Vector3f Color, std::string Text, Font* NewFont) : UIBox(true, Position)
+UIText::UIText(float Scale, Vector3f Color, std::string Text, Font* NewFont) : UIBox(true, 0)
 {
 	this->TextSize = Scale * 2;
 	this->Color = Color;
@@ -161,10 +161,9 @@ UIText::UIText(float Scale, Vector3f Color, std::string Text, Font* NewFont) : U
 	RenderedText = { TextSegment(Text, Color) };
 }
 
-UIText::UIText(float Scale, std::vector<TextSegment> Text, Font* NewFont) : UIBox(true, Position)
+UIText::UIText(float Scale, std::vector<TextSegment> Text, Font* NewFont) : UIBox(true, 0)
 {
 	this->TextSize = Scale * 2;
-	this->Color = Color;
 	this->Renderer = NewFont;
 	RenderedText = Text;
 }

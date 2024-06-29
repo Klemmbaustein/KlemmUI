@@ -42,7 +42,7 @@ namespace KlemmUI
 		float GetScrollSpeed() const;
 
 		void SetMaxScroll(float NewMaxScroll);
-		float GetMaxScroll();
+		float GetMaxScroll() const;
 		void Update() override;
 		void UpdateTickState() override;
 		void Tick() override;

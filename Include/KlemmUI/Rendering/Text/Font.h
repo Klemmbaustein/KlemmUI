@@ -29,7 +29,7 @@ namespace KlemmUI
 		DrawableText(unsigned int VAO, unsigned int VBO, unsigned int NumVerts, unsigned int Texture, Vector2f Position, float Scale, Vector3f Color, float opacity);
 	public:
 		float Opacity = 1.f;
-		void Draw(ScrollObject* CurrentScrollObject);
+		void Draw(ScrollObject* CurrentScrollObject) const;
 		~DrawableText();
 	};
 

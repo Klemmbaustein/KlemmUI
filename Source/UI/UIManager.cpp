@@ -45,7 +45,6 @@ void UIManager::ForceUpdateUI()
 
 void UIManager::InitUI()
 {
-	Window* CurrentWindow = Window::GetActiveWindow();
 	glGenFramebuffers(1, &UIBuffer);
 	// create floating point color buffer
 	glGenTextures(1, &UITexture);

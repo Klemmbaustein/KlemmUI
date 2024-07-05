@@ -3,7 +3,19 @@
 #include <map>
 using namespace KlemmUI;
 
-static std::map<std::string, Font*> Fonts;
+void MarkupLanguageManager::SetGetStringFunction(std::function<std::string(std::string)> NewFunction)
+{
+	GetStringFunction = NewFunction;
+}
+
+std::string MarkupLanguageManager::GetString(std::string From)
+{
+	if (!GetStringFunction)
+	{
+		return "";
+	}
+	return GetStringFunction(From);
+}
 
 void MarkupLanguageManager::AddFont(std::string FontName, Font* FontPointer)
 {

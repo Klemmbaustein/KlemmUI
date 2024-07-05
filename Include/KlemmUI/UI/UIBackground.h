@@ -21,6 +21,7 @@ namespace KlemmUI
 		bool UseTexture = false;
 		unsigned int TextureID = 0;
 	protected:
+		bool OwnsTexture = false;
 		Shader* BackgroundShader;
 		virtual void DrawBackground();
 		Vector3f Color;
@@ -66,7 +67,7 @@ namespace KlemmUI
 		 * @brief
 		 * Returns the color of the UIBackground.
 		 */
-		virtual Vector3f GetColor();
+		virtual Vector3f GetColor() const;
 
 		/**
 		 * @brief

@@ -119,7 +119,7 @@ void UIScrollBox::Tick()
 				0.0025f,
 				0.0025f);
 		}
-		if ((ScrollBarBackground->GetIsPressed() && !IsDraggingScrollBox) || IsDragging && ScrollClass.MaxScroll)
+		if (((ScrollBarBackground->GetIsPressed() && !IsDraggingScrollBox) || IsDragging) && ScrollClass.MaxScroll)
 		{
 			if (!IsDragging && ScrollBar->IsBeingHovered())
 			{

@@ -129,13 +129,6 @@ UIText* UIText::SetText(std::vector<TextSegment> NewText)
 	if (NewText != RenderedText)
 	{
 		RenderedText = NewText;
-		if (Wrap)
-		{
-			if (!Renderer) 
-				return this;
-
-			Vector2 s = Renderer->GetTextSize(RenderedText, GetRenderedSize(), Wrap, GetWrapDistance());
-		}
 		InvalidateLayout();
 		RedrawElement();
 	}

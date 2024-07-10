@@ -182,8 +182,8 @@ void UIBackground::Draw()
 	glBindTexture(GL_TEXTURE_2D, TextureID);
 	BoxVertexBuffer->Bind();
 	ScrollTick(BackgroundShader);
-	glUniform4f(glGetUniformLocation(BackgroundShader->GetShaderID(), "u_color"), Color.X, Color.Y, Color.Z, 1.f);
-	glUniform4f(glGetUniformLocation(BackgroundShader->GetShaderID(), "u_borderColor"), BorderColor.X, BorderColor.Y, BorderColor.Z, 1.f);
+	glUniform4f(glGetUniformLocation(BackgroundShader->GetShaderID(), "u_color"), Color.X, Color.Y, Color.Z, 1.0f);
+	glUniform4f(glGetUniformLocation(BackgroundShader->GetShaderID(), "u_borderColor"), BorderColor.X, BorderColor.Y, BorderColor.Z, 1.0f);
 	glUniform4f(glGetUniformLocation(BackgroundShader->GetShaderID(), "u_transform"), OffsetPosition.X, OffsetPosition.Y, Size.X, Size.Y);
 	BackgroundShader->SetFloat("u_opacity", Opacity);
 	BackgroundShader->SetInt("u_borderType", (int)BoxBorder);

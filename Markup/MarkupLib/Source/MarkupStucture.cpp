@@ -424,7 +424,8 @@ std::string UIElement::MakeCode(std::string Parent, UIElement* Root, size_t& Dep
 				prop.Value = ValueConstant->Value;
 			}
 
-			OutStream << "\t" << ElementName << "->Set" << prop.Name << "(" << KlemmUI::StringParse::ToCppCode(prop.Value) << ");" << std::endl;
+			std::cout << ElemName << ": " << prop.Name << std::endl;
+			OutStream << "\t" << ElemName << "->Set" << prop.Name << "(" << KlemmUI::StringParse::ToCppCode(prop.Value) << ");" << std::endl;
 			prop.Name.clear();
 		}
 	}

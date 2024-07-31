@@ -614,16 +614,16 @@ namespace KlemmUI
 		void RemoveOnKeyDownCallback(Key PressedKey, void (*Callback)(Window*));
 
 		/// True if the left mouse button is pressed.
-		bool IsLMBDown;
+		bool IsLMBDown = false;
 		/// True if the right mouse button is pressed.
-		bool IsRMBDown;
+		bool IsRMBDown = false;
 
 		/// True if the left mouse has been pressed on the last update.
-		bool IsLMBClicked;
+		bool IsLMBClicked = false;
 		/// True if the right mouse has been pressed on the last update.
-		bool IsRMBClicked;
+		bool IsRMBClicked = false;
 
-		bool CursorVisible;
+		bool CursorVisible = false;
 		/**
 		 * @brief
 		 * The position of the moue cursor relative to the window.
@@ -632,10 +632,10 @@ namespace KlemmUI
 		 */
 		Vector2f MousePosition = 100;
 
-		bool PollForText;
+		bool PollForText = false;
 		std::string Text;
-		int TextIndex;
-		int TextSelectionStart;
+		int TextIndex = 0;
+		int TextSelectionStart = 0;
 
 		/// Gets the string selected for text input.
 		std::string GetSelectedTextString() const;

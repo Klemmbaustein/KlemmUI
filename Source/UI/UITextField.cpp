@@ -9,10 +9,8 @@
 #include <KlemmUI/Rendering/Shader.h>
 #include <KlemmUI/Window.h>
 #include <cmath>
-#include <iostream>
 
 using namespace KlemmUI;
-
 
 void UITextField::Tick()
 {

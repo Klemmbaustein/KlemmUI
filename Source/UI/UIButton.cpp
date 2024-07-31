@@ -174,7 +174,7 @@ UIButton* UIButton::SetPressedColor(Vector3f NewColor)
 	return this;
 }
 
-Vector3f UIButton::GetColor()
+Vector3f UIButton::GetColor() const
 {
 	return ButtonColor;
 }

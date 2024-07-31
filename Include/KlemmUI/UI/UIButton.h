@@ -72,7 +72,7 @@ namespace KlemmUI
 		 * Sets the button's pressed color.
 		 */
 		UIButton* SetPressedColor(Vector3f NewColor);
-		virtual Vector3f GetColor() override;
+		virtual Vector3f GetColor() const override;
 
 		/**
 		 * @brief

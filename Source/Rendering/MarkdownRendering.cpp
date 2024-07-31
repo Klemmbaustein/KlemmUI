@@ -80,7 +80,6 @@ void Markdown::RenderMarkdown(std::string Markdown, UIBox* TargetParent, Markdow
 	std::vector<MarkdownLine> Lines;
 	std::string CurrentLine;
 
-	size_t LastDepth = 0;
 	MarkdownLine* PreviousLine = nullptr;
 
 	bool InCodeBlock = false;
@@ -205,7 +204,6 @@ void Markdown::RenderMarkdown(std::string Markdown, UIBox* TargetParent, Markdow
 		size_t it = 0;
 		size_t LastSpace = 0;
 		bool InCodeSegment = false;
-		char Last = 0;
 		for (char c : ln.Text)
 		{
 			if (c == '`')
@@ -240,7 +238,6 @@ void Markdown::RenderMarkdown(std::string Markdown, UIBox* TargetParent, Markdow
 				Lines.insert(Lines.begin() + i + 1, Next);
 				break;
 			}
-			Last = c;
 		}
 	}
 	for (size_t i = 0; i < Lines.size(); i++)

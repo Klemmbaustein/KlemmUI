@@ -99,13 +99,19 @@ UIBackground* UIBackground::SetColor(Vector3f NewColor)
 	return this;
 }
 
-Vector3f UIBackground::GetColor()
+Vector3f UIBackground::GetColor() const
 {
 	return Color;
 }
 
 UIBackground* UIBackground::SetUseTexture(bool UseTexture, unsigned int TextureID)
 {
+	if (OwnsTexture)
+	{
+		ParentWindow->UI.UnloadReferenceTexture(TextureID);
+		OwnsTexture = false;
+	}
+
 	if (this->UseTexture != UseTexture || TextureID != this->TextureID)
 	{
 		this->UseTexture = UseTexture;
@@ -117,6 +123,12 @@ UIBackground* UIBackground::SetUseTexture(bool UseTexture, unsigned int TextureI
 
 UIBackground* KlemmUI::UIBackground::SetUseTexture(bool UseTexture, std::string TextureFile)
 {
+	if (OwnsTexture)
+	{
+		ParentWindow->UI.UnloadReferenceTexture(TextureID);
+		OwnsTexture = false;
+	}
+
 	if (TextureFile.empty())
 	{
 		UseTexture = false;
@@ -126,6 +138,7 @@ UIBackground* KlemmUI::UIBackground::SetUseTexture(bool UseTexture, std::string 
 	if (UseTexture)
 	{
 		NewTextureID = ParentWindow->UI.LoadReferenceTexture(TextureFile);
+		OwnsTexture = true;
 	}
 	if (this->UseTexture != UseTexture || NewTextureID != this->TextureID)
 	{
@@ -155,6 +168,11 @@ UIBackground::UIBackground(bool Horizontal, Vector2f Position, Vector3f Color, V
 UIBackground::~UIBackground()
 {
 	delete BoxVertexBuffer;
+	if (OwnsTexture)
+	{
+		ParentWindow->UI.UnloadReferenceTexture(TextureID);
+		OwnsTexture = false;
+	}
 }
 
 void UIBackground::Draw()
@@ -164,8 +182,8 @@ void UIBackground::Draw()
 	glBindTexture(GL_TEXTURE_2D, TextureID);
 	BoxVertexBuffer->Bind();
 	ScrollTick(BackgroundShader);
-	glUniform4f(glGetUniformLocation(BackgroundShader->GetShaderID(), "u_color"), Color.X, Color.Y, Color.Z, 1.f);
-	glUniform4f(glGetUniformLocation(BackgroundShader->GetShaderID(), "u_borderColor"), BorderColor.X, BorderColor.Y, BorderColor.Z, 1.f);
+	glUniform4f(glGetUniformLocation(BackgroundShader->GetShaderID(), "u_color"), Color.X, Color.Y, Color.Z, 1.0f);
+	glUniform4f(glGetUniformLocation(BackgroundShader->GetShaderID(), "u_borderColor"), BorderColor.X, BorderColor.Y, BorderColor.Z, 1.0f);
 	glUniform4f(glGetUniformLocation(BackgroundShader->GetShaderID(), "u_transform"), OffsetPosition.X, OffsetPosition.Y, Size.X, Size.Y);
 	BackgroundShader->SetFloat("u_opacity", Opacity);
 	BackgroundShader->SetInt("u_borderType", (int)BoxBorder);

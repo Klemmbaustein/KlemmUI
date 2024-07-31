@@ -14,7 +14,7 @@
 
 using namespace KlemmUI;
 
-static std::wstring GetUnicodeString(std::string utf8)
+std::wstring GetUnicodeString(std::string utf8)
 {
 	std::vector<unsigned long> unicode;
 	unicode.reserve(utf8.size());
@@ -23,7 +23,6 @@ static std::wstring GetUnicodeString(std::string utf8)
 	{
 		unsigned long uni;
 		size_t todo;
-		bool error = false;
 		unsigned char ch = utf8[i++];
 		if (ch <= 0x7F)
 		{
@@ -104,11 +103,9 @@ size_t Font::GetCharacterIndexADistance(std::vector<TextSegment> Text, float Dis
 	std::wstring TextString = GetUnicodeString(TextSegment::CombineToString(Text));
 	TextString.append(L" ");
 	float MaxHeight = 0.0f;
-	float x = 0.f, y = 0.f;
+	float x = 0.f;
 	size_t i = 0;
 	size_t CharIndex = 0;
-	float PrevDepth = 0;
-	float PrevMaxDepth = 0;
 	for (auto& c : TextString)
 	{
 		bool IsTab = false;
@@ -135,8 +132,6 @@ size_t Font::GetCharacterIndexADistance(std::vector<TextSegment> Text, float Dis
 			} while (++CharIndex % TabSize && IsTab);
 			MaxHeight = std::max(g.Size.Y + g.Offset.Y, MaxHeight);
 			float ldst = x / 450 / Window::GetActiveWindow()->GetAspectRatio() * Scale;
-			PrevMaxDepth = x;
-			PrevDepth = x;
 			if (ldst > Dist)
 			{
 				if (ldst > Dist + (g.TotalSize.X / 800 / Window::GetActiveWindow()->GetAspectRatio() * Scale))
@@ -146,8 +141,6 @@ size_t Font::GetCharacterIndexADistance(std::vector<TextSegment> Text, float Dis
 
 				return std::min(i + 1, TextSegment::CombineToString(Text).size());
 			}
-			PrevMaxDepth = g.Offset.Y + g.Size.X, 0;
-			PrevDepth = g.Offset.Y;
 		}
 		i++;
 	}
@@ -182,7 +175,6 @@ Font::Font(std::string Filename)
 
 
 	uint8_t* GlypthBitmap = new uint8_t[FONT_BITMAP_WIDTH * FONT_BITMAP_WIDTH]();
-	int Offset = 0;
 	int xcoord = 0;
 	int ycoord = 0;
 	int maxH = 0;
@@ -298,14 +290,12 @@ Font::Font(std::string Filename)
 
 Vector2f Font::GetTextSize(std::vector<TextSegment> Text, float Scale, bool Wrapped, float LengthBeforeWrap)
 {
-	float originalScale = Scale;
 	Scale *= 2.5f;
 	LengthBeforeWrap = LengthBeforeWrap * Window::GetActiveWindow()->GetAspectRatio() / Scale;
 	float x = 0.f, y = CharacterSize * 5;
 	float MaxX = 0.0f;
 	FontVertex* vData = fontVertexBufferData;
 	Uint32 numVertices = 0;
-	size_t Wraps = 0;
 	size_t CharIndex = 0;
 	for (auto& seg : Text)
 	{
@@ -350,9 +340,8 @@ Vector2f Font::GetTextSize(std::vector<TextSegment> Text, float Scale, bool Wrap
 				numVertices += 6;
 				MaxX = std::max(MaxX, x);
 			}
-			if (x / 225 > LengthBeforeWrap && Wrapped || SegmentText[i] == (int)'\n')
+			if ((x / 225 > LengthBeforeWrap && Wrapped) || SegmentText[i] == (int)'\n')
 			{
-				Wraps++;
 				if (LastWordIndex != SIZE_MAX && LastWordIndex != LastWrapIndex)
 				{
 					i = LastWordIndex;
@@ -488,7 +477,6 @@ DrawableText* Font::MakeText(std::vector<TextSegment> Text, Vector2f Pos, float 
 
 Font::~Font()
 {
-	unsigned int i = 0;
 	glDeleteTextures(1, &fontTexture);
 	glDeleteBuffers(1, &fontVertexBufferId);
 	glDeleteBuffers(1, &fontVao);
@@ -496,6 +484,10 @@ Font::~Font()
 	{
 		delete[] fontVertexBufferData;
 	}
+}
+
+void OnWindowResized()
+{
 }
 
 DrawableText::DrawableText(unsigned int VAO, unsigned int VBO, unsigned int NumVerts, unsigned int Texture,

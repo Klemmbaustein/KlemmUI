@@ -79,7 +79,7 @@ namespace KlemmUI
 		 * @param TextFont
 		 * The font of the dropdown text.
 		 */
-		UIDropdown(Vector2f Position, float Size, Vector3f Color, Vector3f TextColor, std::vector<Option> Options, void(*OnClickedFunction)(int), Font* TextFont);
+		UIDropdown(Vector2f Position, float Size, Vector3f Color, Vector3f TextColor, std::vector<Option> Options, std::function<void(int OptionIndex)> OnClickedFunction, Font* TextFont);
 
 		/// Sets the size and padding of the dropdown text.
 		UIDropdown* SetTextSize(float Size, float Padding);

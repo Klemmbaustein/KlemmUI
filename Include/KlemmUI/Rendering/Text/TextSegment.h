@@ -32,7 +32,7 @@ namespace KlemmUI
 		}
 		bool operator==(const TextSegment& b) const
 		{
-			return Text == b.Text && Color.X == b.Color.X && Color.Y == b.Color.Y && Color.Z && b.Color.Z;
+			return (Text == b.Text) && (Color.X == b.Color.X) && (Color.Y == b.Color.Y) && (Color.Z == b.Color.Z);
 		}
 	};
 

@@ -27,7 +27,6 @@ void ParseError::Error(const std::string& Message)
 {
 	auto& Line = LoadedCode->at(LineIndex);
 	std::cerr << ActiveFile << ":" << Line.Index + 1 << ": Error: " << Message << std::endl;
-	size_t Length = 0;
 	std::string LineString;
 	for (auto& i : Line.Strings)
 	{

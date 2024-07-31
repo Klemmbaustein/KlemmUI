@@ -277,6 +277,12 @@ bool KlemmUI::StringParse::IsStringToken(std::string Element)
 	{
 		return false;
 	}
+
+	if (Element.size() > 2 && Element[0] == '$')
+	{
+		return IsStringToken(Element.substr(1));
+	}
+
 	return Element[0] == '"' && Element[Element.size() - 1] == '"';
 }
 
@@ -393,6 +399,10 @@ std::string KlemmUI::StringParse::ToCppCode(std::string Value)
 	}
 	if (IsStringToken(Value))
 	{
+		if (Value[0] == '$')
+		{
+			return "KlemmUI::MarkupLanguageManager::GetActive()->GetString(" + Value.substr(1) + ")";
+		}
 		return Value;
 	}
 

@@ -8,7 +8,3 @@
 [submodule "Dependencies/glew-cmake"]
 	path = Dependencies/glew-cmake
 	url = https://github.com/perlmint/glew-cmake.git
-[submodule "Dependencies/SDL"]
-	path = Dependencies/SDL
-	url = https://github.com/libsdl-org/SDL.git
-	branch = SDL2

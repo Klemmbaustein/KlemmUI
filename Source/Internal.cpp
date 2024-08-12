@@ -1,38 +1,30 @@
 #include "Internal.h"
-#include <SDL.h>
 #include <GL/glew.h>
 #include <KlemmUI/Rendering/Shader.h>
 #include <KlemmUI/Application.h>
+#include "Window/SystemWM.h"
 #include <KlemmUI/UI/UIBox.h>
 
 #include <mutex>
-#include <iostream>
 
 void KlemmUI::Internal::InitSDL()
 {
-	SDL_Init(SDL_INIT_EVENTS | SDL_INIT_VIDEO);
 }
 
 bool IsGLEWStarted = false;
+std::mutex KlemmUI::Internal::WindowCreationMutex;
 
-KlemmUI::Internal::GLContext KlemmUI::Internal::InitGLContext(Window* From)
+void KlemmUI::Internal::InitGLContext(Window* From)
 {
-	SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
-	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
-	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
-	SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
-	SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE, 32);
-	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-
-	SDL_Window* SDLWindow = static_cast<SDL_Window*>(From->GetSDLWindowPtr());
-
-	SDL_GLContext OpenGLContext = SDL_GL_CreateContext(SDLWindow);
-
-	SDL_GL_MakeCurrent(SDLWindow, OpenGLContext);
+	From->MakeContextCurrent();
 
 	if (!IsGLEWStarted)
 	{
+#if _WIN32
+		GLenum GLEWStatus = glewInit();
+#else
 		GLenum GLEWStatus = glewContextInit();
+#endif
 		if (GLEWStatus != GLEW_OK)
 		{
 			Application::Error::Error((const char*)glewGetErrorString(GLEWStatus), true);
@@ -40,19 +32,18 @@ KlemmUI::Internal::GLContext KlemmUI::Internal::InitGLContext(Window* From)
 		IsGLEWStarted = true;
 	}
 
-
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-
-	std::string Name = SDL_GetWindowTitle(SDLWindow);
 	From->Shaders.LoadShader("postprocess.vert", "postprocess.frag", "WindowShader");
 
-	return (GLContext)OpenGLContext;
+	return;
 }
 
 void KlemmUI::Internal::DrawWindow(Window* Target)
 {
+	SystemWM::SysWindow* SysWindow = static_cast<SystemWM::SysWindow*>(Target->GetSysWindow());
+
 	Shader* WindowShader = Target->Shaders.GetShader("WindowShader");
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	WindowShader->Bind();
@@ -67,6 +58,62 @@ void KlemmUI::Internal::DrawWindow(Window* Target)
 	glDrawArrays(GL_TRIANGLES, 0, 3);
 	WindowShader->Unbind();
 
-	SDL_GL_SetSwapInterval(0);
-	SDL_GL_SwapWindow(static_cast<SDL_Window*>(Target->GetSDLWindowPtr()));
+	SystemWM::SwapWindow(SysWindow);
+}
+
+std::u32string KlemmUI::Internal::GetUnicodeString(std::string utf8)
+{
+	std::u32string unicode;
+	unicode.reserve(utf8.size());
+	size_t i = 0;
+	while (i < utf8.size())
+	{
+		unsigned long uni;
+		size_t todo;
+		unsigned char ch = utf8[i++];
+		if (ch <= 0x7F)
+		{
+			uni = ch;
+			todo = 0;
+		}
+		else if (ch <= 0xBF)
+		{
+			return std::u32string(utf8.begin(), utf8.end());
+		}
+		else if (ch <= 0xDF)
+		{
+			uni = ch & 0x1F;
+			todo = 1;
+		}
+		else if (ch <= 0xEF)
+		{
+			uni = ch & 0x0F;
+			todo = 2;
+		}
+		else if (ch <= 0xF7)
+		{
+			uni = ch & 0x07;
+			todo = 3;
+		}
+		else
+		{
+			return std::u32string(utf8.begin(), utf8.end());
+		}
+		for (size_t j = 0; j < todo; ++j)
+		{
+			if (i == utf8.size())
+				return std::u32string(utf8.begin(), utf8.end());
+			unsigned char ch = utf8[i++];
+			if (ch < 0x80 || ch > 0xBF)
+				return std::u32string(utf8.begin(), utf8.end());
+			uni <<= 6;
+			uni += ch & 0x3F;
+		}
+		if (uni >= 0xD800 && uni <= 0xDFFF)
+			return std::u32string(utf8.begin(), utf8.end());
+		if (uni > 0x10FFFF)
+			return std::u32string(utf8.begin(), utf8.end());
+		unicode.push_back(uni);
+	}
+	return unicode;
 }

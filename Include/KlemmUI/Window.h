@@ -26,7 +26,7 @@ namespace KlemmUI
 	*/
 	class Window
 	{
-		void* SDLWindowPtr = nullptr;
+		void* SysWindowPtr = nullptr;
 
 		Vector2ui WindowSize;
 
@@ -40,10 +40,12 @@ namespace KlemmUI
 		std::atomic<bool> ShouldClose = false;
 		std::atomic<bool> ShouldUpdateSize = false;
 		static std::vector<Window*> ActiveWindows;
+		Vector2ui MinSize;
+		Vector2ui MaxSize;
 
-		void* GLContext = nullptr;
 	public:
-		
+		void RedrawInternal();
+
 		/**
 		 * @brief
 		 * Sets this window as the active window.
@@ -132,17 +134,19 @@ namespace KlemmUI
 		enum class WindowFlag
 		{
 			///No window flags.
-			None           = 0b00000,
+			None           = 0b000000,
 			/// Borderless window.
-			Borderless     = 0b00001,
+			Borderless     = 0b000001,
 			/// The window is resizable.
-			Resizable      = 0b00010,
+			Resizable      = 0b000010,
 			/// The window should appear on top of all other windows.
-			AlwaysOnTop    = 0b00100,
+			AlwaysOnTop    = 0b000100,
 			/// The window should start maximized.
-			FullScreen     = 0b01000,
-			/// The window is a tooltip.
-			Tooltip    = 0b10000,
+			FullScreen     = 0b001000,
+			/// The window is a popup. A popup window will only have a close button.
+			Popup          = 0b010000,
+			/// The window accepts drag and drop files.
+			AcceptFiles    = 0b100000,
 		};
 
 		/**
@@ -164,7 +168,7 @@ namespace KlemmUI
 		 * @brief
 		 * Gets a pointer to the internal SDL window structure.
 		 */
-		void* GetSDLWindowPtr() const;
+		void* GetSysWindow() const;
 
 		/**
 		* @brief
@@ -221,14 +225,14 @@ namespace KlemmUI
 		* For a borderless window, the window manager has to know which area is grabbable by the mouse cursor.
 		* This function should return true if the area currently hovered is grabbable and false if it's not.
 		*/
-		std::function<bool(KlemmUI::Window*)> IsAreaGrabbableCallback;
+		std::function<bool(Window*)> IsAreaGrabbableCallback;
 		/**
 		 * @brief
 		 * The resized callback.
 		 * 
 		 * This function is called once the window has been resized.
 		 */
-		std::function<void(KlemmUI::Window*)> OnResizedCallback = nullptr;
+		std::function<void(Window*)> OnResizedCallback = nullptr;
 
 		/**
 		* @brief

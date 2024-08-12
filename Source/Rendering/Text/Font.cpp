@@ -2,7 +2,7 @@
 #define STB_TRUETYPE_IMPLEMENTATION
 #include "../../Util/stb_truetype.hpp"
 #include <KlemmUI/Rendering/Shader.h>
-#include <SDL.h>
+#include <cstdint>
 #include <vector>
 #include <KlemmUI/Application.h>
 #include <KlemmUI/Rendering/ScrollObject.h>
@@ -10,81 +10,10 @@
 #include <GL/glew.h>
 #include <KlemmUI/Window.h>
 #include <filesystem>
-#include <iostream>
+#include "../../Internal.h"
 
 using namespace KlemmUI;
 
-std::wstring GetUnicodeString(std::string utf8)
-{
-	std::vector<unsigned long> unicode;
-	unicode.reserve(utf8.size());
-	size_t i = 0;
-	while (i < utf8.size())
-	{
-		unsigned long uni;
-		size_t todo;
-		unsigned char ch = utf8[i++];
-		if (ch <= 0x7F)
-		{
-			uni = ch;
-			todo = 0;
-		}
-		else if (ch <= 0xBF)
-		{
-			return std::wstring(utf8.begin(), utf8.end());
-		}
-		else if (ch <= 0xDF)
-		{
-			uni = ch & 0x1F;
-			todo = 1;
-		}
-		else if (ch <= 0xEF)
-		{
-			uni = ch & 0x0F;
-			todo = 2;
-		}
-		else if (ch <= 0xF7)
-		{
-			uni = ch & 0x07;
-			todo = 3;
-		}
-		else
-		{
-			return std::wstring(utf8.begin(), utf8.end());
-		}
-		for (size_t j = 0; j < todo; ++j)
-		{
-			if (i == utf8.size())
-				return std::wstring(utf8.begin(), utf8.end());
-			unsigned char ch = utf8[i++];
-			if (ch < 0x80 || ch > 0xBF)
-				return std::wstring(utf8.begin(), utf8.end());
-			uni <<= 6;
-			uni += ch & 0x3F;
-		}
-		if (uni >= 0xD800 && uni <= 0xDFFF)
-			return std::wstring(utf8.begin(), utf8.end());
-		if (uni > 0x10FFFF)
-			return std::wstring(utf8.begin(), utf8.end());
-		unicode.push_back(uni);
-	}
-	std::wstring utf16;
-	for (size_t i = 0; i < unicode.size(); ++i)
-	{
-		unsigned long uni = unicode[i];
-		if (uni <= 0xFFFF)
-		{
-			utf16 += (wchar_t)uni;
-		}
-		else
-		{
-			uni -= 0x10000;
-			utf16 += (wchar_t)((uni >> 10) + 0xD800);
-			utf16 += (wchar_t)((uni & 0x3FF) + 0xDC00);
-		}
-	}
-	return utf16;
-}
 
 constexpr int FONT_BITMAP_WIDTH = 3000;
 constexpr int FONT_BITMAP_PADDING = 32;
@@ -100,8 +29,8 @@ Shader* Font::GetTextShader()
 size_t Font::GetCharacterIndexADistance(std::vector<TextSegment> Text, float Dist, float Scale)
 {
 	Scale *= 2.5f;
-	std::wstring TextString = GetUnicodeString(TextSegment::CombineToString(Text));
-	TextString.append(L" ");
+	std::u32string TextString = Internal::GetUnicodeString(TextSegment::CombineToString(Text));
+	TextString.append({ (uint32_t)' ' });
 	float MaxHeight = 0.0f;
 	float x = 0.f;
 	size_t i = 0;
@@ -157,7 +86,7 @@ Font::Font(std::string Filename)
 
 	Window::GetActiveWindow()->Shaders.LoadShader("text.vert", "text.frag", TextShaderName);
 
-	Uint8* ttfBuffer = (Uint8*)malloc(1 << 20);
+	uint8_t* ttfBuffer = (uint8_t*)malloc(1 << 20);
 	if (ttfBuffer == nullptr)
 	{
 		Application::Error::Error("Failed to allocate space for font bitmap");
@@ -275,7 +204,7 @@ Font::Font(std::string Filename)
 	fontVertexBufferCapacity = 35;
 	fontVertexBufferData = new FontVertex[fontVertexBufferCapacity * 6];
 
-	glBufferData(GL_ARRAY_BUFFER, sizeof(FontVertex) * 6 * fontVertexBufferCapacity, 0, GL_DYNAMIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(FontVertex) * 6 * fontVertexBufferCapacity, 0, GL_STATIC_DRAW);
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(FontVertex), 0);
 	glEnableVertexAttribArray(1);
@@ -295,15 +224,15 @@ Vector2f Font::GetTextSize(std::vector<TextSegment> Text, float Scale, bool Wrap
 	float x = 0.f, y = CharacterSize * 5;
 	float MaxX = 0.0f;
 	FontVertex* vData = fontVertexBufferData;
-	Uint32 numVertices = 0;
+	uint32_t numVertices = 0;
 	size_t CharIndex = 0;
 	for (auto& seg : Text)
 	{
 		size_t LastWordIndex = SIZE_MAX;
 		size_t LastWrapIndex = 0;
-		Uint32 LastWordNumVertices = 0;
+		uint32_t LastWordNumVertices = 0;
 		FontVertex* LastWordVDataPtr = nullptr;
-		std::wstring SegmentText = GetUnicodeString(seg.Text);
+		std::u32string SegmentText = Internal::GetUnicodeString(seg.Text);
 		for (size_t i = 0; i < SegmentText.size(); i++)
 		{
 			bool IsTab = SegmentText[i] == '\t';
@@ -386,7 +315,7 @@ DrawableText* Font::MakeText(std::vector<TextSegment> Text, Vector2f Pos, float 
 	glGenBuffers(1, &newVBO);
 	glBindBuffer(GL_ARRAY_BUFFER, newVBO);
 
-	glBufferData(GL_ARRAY_BUFFER, sizeof(FontVertex) * 6 * fontVertexBufferCapacity, 0, GL_DYNAMIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(FontVertex) * 6 * fontVertexBufferCapacity, 0, GL_STATIC_DRAW);
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(FontVertex), 0);
 	glEnableVertexAttribArray(1);
@@ -405,21 +334,21 @@ DrawableText* Font::MakeText(std::vector<TextSegment> Text, Vector2f Pos, float 
 	if (fontVertexBufferCapacity < len)
 	{
 		fontVertexBufferCapacity = len;
-		glBufferData(GL_ARRAY_BUFFER, sizeof(FontVertex) * 6 * fontVertexBufferCapacity, 0, GL_DYNAMIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(FontVertex) * 6 * fontVertexBufferCapacity, 0, GL_STATIC_DRAW);
 		delete[] fontVertexBufferData;
 		fontVertexBufferData = new FontVertex[fontVertexBufferCapacity * 6];
 	}
 	float MaxHeight = 0.0f;
 	float x = 0.f, y = 0.f;
 	FontVertex* vData = fontVertexBufferData;
-	Uint32 numVertices = 0;
+	uint32_t numVertices = 0;
 	for (auto& seg : Text)
 	{
 		size_t LastWordIndex = SIZE_MAX;
 		size_t LastWrapIndex = 0;
-		Uint32 LastWordNumVertices = 0;
+		uint32_t LastWordNumVertices = 0;
 		FontVertex* LastWordVDataPtr = nullptr;
-		std::wstring UTFString = GetUnicodeString(seg.Text);
+		std::u32string UTFString = Internal::GetUnicodeString(seg.Text);
 
 		for (size_t i = 0; i < UTFString.size(); i++)
 		{

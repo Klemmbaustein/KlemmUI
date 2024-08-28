@@ -77,7 +77,7 @@ namespace KlemmUI
 		 * @brief
 		 * Either maximizes or restores the window.
 		 */
-		void SetWindowFullScreen(bool NewIsFullScreen);
+		void SetMaximized(bool NewIsFullScreen);
 
 		/// Returns if the window is maximized.
 		bool GetWindowFullScreen();
@@ -202,6 +202,8 @@ namespace KlemmUI
 		* Gets the window size in pixels.
 		*/
 		Vector2ui GetSize() const;
+
+		void SetSize(Vector2ui NewSize);
 
 		/**
 		 * @brief

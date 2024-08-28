@@ -6,7 +6,11 @@
 #include <cstring>
 #include <filesystem>
 
-using namespace KlemmUI::MarkupStructure;
+void PrintUsage()
+{
+	std::cout << "Usage:" << std::endl;
+	std::cout << "KlemmUIHT -i ./in/path1 -i ./in/path/2 -o ./out/path" << std::endl;
+}
 
 int main(int argc, const char** argv)
 {
@@ -39,6 +43,20 @@ int main(int argc, const char** argv)
 	}
 
 	std::vector<KlemmUI::MarkupParse::FileEntry> Entries;
+
+	if (InPaths.empty())
+	{
+		std::cout << "No in path defined" << std::endl;
+		PrintUsage();
+		return 3;
+	}
+	if (OutPath.empty())
+	{
+		std::cout << "No out path defined" << std::endl;
+		PrintUsage();
+		return 3;
+	}
+
 	try
 	{
 		for (const std::string& InPath : InPaths)
@@ -54,9 +72,9 @@ int main(int argc, const char** argv)
 			}
 		}
 	}
-	catch (std::exception& e)
+	catch (std::filesystem::filesystem_error& e)
 	{
-		std::cout << e.what() << std::endl;
+		std::cout << "fs error: " << e.what() << std::endl;
 		return 2;
 	}
 

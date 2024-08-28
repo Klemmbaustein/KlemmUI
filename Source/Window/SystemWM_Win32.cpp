@@ -10,12 +10,16 @@
 #include <GL/wglew.h>
 #include <dwmapi.h>
 #include <iostream>
+#include <array>
 
 #undef IsMaximized
 
 #pragma comment(lib, "Dwmapi.lib")
+#pragma comment(linker, "\"/manifestdependency:type='win32' \
+name='Microsoft.Windows.Common-Controls' version='6.0.0.0' \
+processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 
-bool IsMaximized(HWND hWnd)
+static bool IsMaximized(HWND hWnd)
 {
 	WINDOWPLACEMENT placement;
 	ZeroMemory(&placement, sizeof(placement));
@@ -24,6 +28,21 @@ bool IsMaximized(HWND hWnd)
 	}
 
 	return placement.showCmd == SW_MAXIMIZE;
+}
+
+static std::array<Vector2ui, 2> AdjustWindowSize(Vector2ui Pos, Vector2ui InSize, DWORD Style, DWORD ExStyle)
+{
+	RECT SizeRect = RECT
+	{
+		.left = LONG(Pos.X),
+		.top = LONG(Pos.Y),
+		.right = LONG(Pos.X + InSize.X),
+		.bottom = LONG(Pos.Y + InSize.Y),
+	};
+
+	AdjustWindowRectEx(&SizeRect, Style, false, ExStyle);
+
+	return { Vector2ui(SizeRect.left, SizeRect.top), Vector2ui(SizeRect.right - SizeRect.left, SizeRect.bottom - SizeRect.top) };
 }
 
 namespace KlemmUI::SystemWM::Borderless
@@ -92,7 +111,8 @@ namespace KlemmUI::SystemWM::Borderless
 			return HTNOWHERE;
 		}
 
-		const auto drag = Window->Parent->IsAreaGrabbableCallback && Window->Parent->IsAreaGrabbableCallback(Window->Parent) ? HTCAPTION : HTCLIENT;
+		const auto drag = Window->Parent->IsAreaGrabbableCallback
+			&& Window->Parent->IsAreaGrabbableCallback(Window->Parent) ? HTCAPTION : HTCLIENT;
 
 		enum region_mask
 		{
@@ -132,13 +152,13 @@ static HCURSOR WindowCursors[3] =
 	LoadCursor(NULL, IDC_IBEAM),
 };
 
-static int ActiveCursor = -1;
 
 static LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	using namespace KlemmUI;
 
-	// some vk codes do not have a #define, but why?
+	// Map for mapping Windows virtual key codes to the keycode values of the library.
+	// Some vk codes do not have a #define, but why?
 	static std::map<int, KlemmUI::Key> Keys =
 	{
 		{VK_ESCAPE, Key::ESCAPE},
@@ -202,6 +222,7 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
 	SystemWM::SysWindow* SysWindow = reinterpret_cast<SystemWM::SysWindow*>(
 		::GetWindowLongPtr(hWnd, GWLP_USERDATA));
 
+	// Do not do anything if this window doesn't have a Window class associated with it.
 	if (!SysWindow && uMsg != WM_NCCREATE)
 	{
 		return DefWindowProc(hWnd, uMsg, wParam, lParam);
@@ -214,7 +235,6 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
 		const auto caller = reinterpret_cast<SystemWM::SysWindow*>(
 			reinterpret_cast<CREATESTRUCT*>(lParam)->lpCreateParams);
 
-		// Change the user data of the window for subsequent messages.
 		::SetWindowLongPtr(hWnd, GWLP_USERDATA,
 			reinterpret_cast<LONG_PTR>(caller));
 
@@ -227,12 +247,13 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
 
 	case WM_SETCURSOR:
 	{
-		static bool LoadedCursor = false;
-		if (LOWORD(lParam) == 1 && !LoadedCursor)
+		// If the cursor is in the client area, intercept the cursor signal and replace the cursor with the cursor set by the window.
+		// If we don't do this, this will break the cursor changing when hovering the resizable corners of the window.
+		if (LOWORD(lParam) == HTCLIENT)
 		{
+			SetCursor(WindowCursors[int(SysWindow->ActiveCursor)]);
 			return 0;
 		}
-		LoadedCursor = true;
 		break;
 	}
 
@@ -240,6 +261,9 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
 	{
 		if (wParam == TRUE && SysWindow->Borderless)
 		{
+			// Windows does borderless windows weirdly.
+			// This causes the edges of a full screen borderless window to be outside of the actual screen.
+			// This code adjusts the size of a borderless window to match the size of the sceren when it is put into full screen.
 			NCCALCSIZE_PARAMS& Parameters = *reinterpret_cast<NCCALCSIZE_PARAMS*>(lParam);
 			SystemWM::Borderless::AdjustFullScreen(hWnd, Parameters.rgrc[0]);
 			return 0;
@@ -264,10 +288,12 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
 			SysWindow->TextInput.push_back((char)(((wParam >> 6) & 0x1F) | 0xC0));
 			SysWindow->TextInput.push_back((char)(((wParam >> 0) & 0x3F) | 0x80));
 		}
+		// More than 2 byte unicode is not supported right now.
 		break;
 	}
 	case WM_NCHITTEST:
 	{
+		// Borderless windows need to define their own hit test for defining the resizable areas and things such as the title bar.
 		if (SysWindow->Borderless)
 		{
 			return SystemWM::Borderless::HitTest(POINT{
@@ -280,7 +306,7 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
 
 	case WM_MOUSEWHEEL:
 	{
-		int Amount = int16_t(HIWORD(wParam)) / WHEEL_DELTA;
+		const int Amount = int16_t(HIWORD(wParam)) / WHEEL_DELTA;
 		SysWindow->Parent->Input.MoveMouseWheel(Amount);
 		break;
 	}
@@ -289,6 +315,19 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
 	case WM_QUIT:
 	{
 		SysWindow->Parent->Close();
+		return 0;
+	}
+
+	case WM_GETMINMAXINFO:
+	{
+		// The min and max size of a window is checked by windows using the WM_GETMINMAXINFO message.
+		// This returns the min and max size of this window.
+		LPMINMAXINFO MinMaxInfo = (LPMINMAXINFO)lParam;
+		MinMaxInfo->ptMaxPosition;
+		MinMaxInfo->ptMinTrackSize.x = SysWindow->MinSize.X;
+		MinMaxInfo->ptMinTrackSize.y = SysWindow->MinSize.Y;
+		MinMaxInfo->ptMaxTrackSize.x = SysWindow->MaxSize.X;
+		MinMaxInfo->ptMaxTrackSize.y = SysWindow->MaxSize.Y;
 		return 0;
 	}
 
@@ -302,9 +341,10 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
 		}
 		break;
 	}
+
 	case WM_KEYDOWN:
 	{
-		auto k = Keys.find(int(wParam));
+		const std::map<int, Key>::iterator k = Keys.find(int(wParam));
 		if (k != Keys.end())
 		{
 			SysWindow->Parent->Input.SetKeyDown(k->second, true);
@@ -314,7 +354,7 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
 
 	case WM_KEYUP:
 	{
-		auto k = Keys.find(int(wParam));
+		const std::map<int, Key>::iterator k = Keys.find(int(wParam));
 		if (k != Keys.end())
 		{
 			SysWindow->Parent->Input.SetKeyDown(k->second, false);
@@ -322,16 +362,30 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
 		return 0;
 	}
 
+	case WM_PAINT:
+	{
+		std::cout << "- [kui-win32]: WM_PAINT at size " << SysWindow->Size.ToString() << std::endl;
+		SysWindow->Parent->OnResized();
+		SysWindow->Parent->RedrawInternal();
+		break;
+	}
+
 	case WM_SIZE:
 	{
 		SysWindow->Size = Vector2ui(LOWORD(lParam), HIWORD(lParam));
-		SysWindow->Parent->OnResized();
-		SysWindow->Parent->RedrawInternal();
-		return 0;
+		break;
 	}
+
 	}
 
 	return DefWindowProc(hWnd, uMsg, wParam, lParam);
+}
+
+static const CHAR KUI_WINDOW_CLASS_NAME[] = TEXT("KlemmUIWindow");
+
+static HICON GetAppIcon(HMODULE Instance)
+{
+	return LoadIcon(Instance, "APPICON");
 }
 
 KlemmUI::SystemWM::SysWindow* KlemmUI::SystemWM::NewWindow(Window* Parent, Vector2ui Size, Vector2ui Pos, std::string Title, bool Borderless, bool Resizable, bool Popup)
@@ -344,22 +398,21 @@ KlemmUI::SystemWM::SysWindow* KlemmUI::SystemWM::NewWindow(Window* Parent, Vecto
 	OutWindow->Borderless = Borderless;
 	OutWindow->Resizable = Resizable;
 
-	HINSTANCE Instance = GetModuleHandle(NULL);
+	const HMODULE Instance = GetModuleHandle(NULL);
 	static bool WindowClassExists = false;
 
-	WNDCLASS NewWindowClass;
 	if (!WindowClassExists)
 	{
-		NewWindowClass =
+		WNDCLASS NewWindowClass =
 		{
 			.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC,
 			.lpfnWndProc = &WndProc,
 			.hInstance = Instance,
-			.hIcon = LoadIcon(NULL, IDI_APPLICATION),
+			.hIcon = GetAppIcon(Instance),
 			.hCursor = WindowCursors[0],
 			.hbrBackground = NULL,
 			.lpszMenuName = NULL,
-			.lpszClassName = TEXT("KlemmUIWindow"),
+			.lpszClassName = KUI_WINDOW_CLASS_NAME,
 		};
 		WindowClassExists = true;
 
@@ -389,15 +442,17 @@ KlemmUI::SystemWM::SysWindow* KlemmUI::SystemWM::NewWindow(Window* Parent, Vecto
 		Style |= WS_MINIMIZEBOX;
 	}
 
+	std::array<Vector2ui, 2> WindowSizes = AdjustWindowSize(Pos, Size, Style, ExStyle);
+
 	OutWindow->WindowHandle = CreateWindowEx(
 		ExStyle,
-		TEXT("KlemmUIWindow"),
+		KUI_WINDOW_CLASS_NAME,
 		TEXT(Title.c_str()),
 		Style,
-		Pos.X,
-		Pos.Y,
-		Size.X,
-		Size.Y,
+		WindowSizes[0].X,
+		WindowSizes[0].Y,
+		WindowSizes[1].X,
+		WindowSizes[1].Y,
 		NULL,
 		NULL,
 		Instance,
@@ -558,9 +613,9 @@ uint32_t KlemmUI::SystemWM::GetDesiredRefreshRate(SysWindow* From)
 
 void KlemmUI::SystemWM::SetWindowCursor(SysWindow* Target, Window::Cursor NewCursor)
 {
-	if (ActiveCursor != int(NewCursor))
+	if (Target->ActiveCursor != int(NewCursor))
 	{
-		ActiveCursor = int(NewCursor);
+		Target->ActiveCursor = int(NewCursor);
 		SetCursor(WindowCursors[int(NewCursor)]);
 	}
 }
@@ -626,8 +681,107 @@ bool KlemmUI::SystemWM::IsRMBDown()
 	return GetKeyState(VK_RBUTTON) & 0x8000;
 }
 
+void KlemmUI::SystemWM::SysWindow::SetSize(Vector2ui NewSize) const
+{
+	RECT WindowRect = {};
+	GetWindowRect(WindowHandle, &WindowRect);
+
+	RECT NewSizeRect = RECT
+	{
+		.left = LONG(WindowRect.left),
+		.top = LONG(WindowRect.top),
+		.right = LONG(WindowRect.left + NewSize.X),
+		.bottom = LONG(WindowRect.top + NewSize.Y),
+	};
+
+	AdjustWindowRectEx(&NewSizeRect, GetWindowLong(WindowHandle, GWL_STYLE), false, GetWindowLong(WindowHandle, GWL_EXSTYLE));
+
+	MoveWindow(WindowHandle, WindowRect.left, WindowRect.top, NewSizeRect.right - NewSizeRect.left, NewSizeRect.bottom - NewSizeRect.top, true);
+}
+
+void KlemmUI::SystemWM::SetWindowSize(SysWindow* Target, Vector2ui Size)
+{
+	Target->SetSize(Size);
+}
+
+void KlemmUI::SystemWM::SetWindowPosition(SysWindow* Target, Vector2ui NewPosition)
+{
+	NewPosition = AdjustWindowSize(NewPosition, 0, GetWindowLong(Target->WindowHandle, GWL_STYLE), GetWindowLong(Target->WindowHandle, GWL_EXSTYLE))[0];
+	RECT WindowRect = {};
+	GetWindowRect(Target->WindowHandle, &WindowRect);
+	MoveWindow(Target->WindowHandle, NewPosition.X, NewPosition.Y, WindowRect.right - WindowRect.left, WindowRect.bottom - WindowRect.top, true);
+}
+
+void KlemmUI::SystemWM::SetTitle(SysWindow* Target, std::string Text)
+{
+	SetWindowText(Target->WindowHandle, Text.c_str());
+}
+
+bool KlemmUI::SystemWM::IsWindowFullScreen(SysWindow* Target)
+{
+	return IsMaximized(Target->WindowHandle);
+}
+
+void KlemmUI::SystemWM::SetWindowMinSize(SysWindow* Target, Vector2ui MinSize)
+{
+	Target->MinSize = AdjustWindowSize(0, MinSize, GetWindowLong(Target->WindowHandle, GWL_STYLE), GetWindowLong(Target->WindowHandle, GWL_EXSTYLE))[1];
+}
+
+void KlemmUI::SystemWM::SetWindowMaxSize(SysWindow* Target, Vector2ui MaxSize)
+{
+	Target->MaxSize = AdjustWindowSize(0, MaxSize, GetWindowLong(Target->WindowHandle, GWL_STYLE), GetWindowLong(Target->WindowHandle, GWL_EXSTYLE))[1];
+}
+
+void KlemmUI::SystemWM::RestoreWindow(SysWindow* Target)
+{
+	::ShowWindow(Target->WindowHandle, SW_RESTORE);
+}
+
+void KlemmUI::SystemWM::MinimizeWindow(SysWindow* Target)
+{
+	::ShowWindow(Target->WindowHandle, SW_MINIMIZE);
+}
+
+void KlemmUI::SystemWM::MaximizeWindow(SysWindow* Target)
+{
+	::ShowWindow(Target->WindowHandle, SW_MAXIMIZE);
+}
+
+void KlemmUI::SystemWM::HideWindow(SysWindow* Target)
+{
+	::ShowWindow(Target->WindowHandle, SW_HIDE);
+}
+
+#undef MessageBox
+
+void KlemmUI::SystemWM::MessageBox(std::string Text, std::string Title, int Type)
+{
+	UINT MessageBoxType = 0;
+
+	switch (Type)
+	{
+	case 0:
+		MessageBoxType = 0;
+		break;
+	case 1:
+		MessageBoxType = MB_ICONWARNING;
+		break;
+	case 2:
+		MessageBoxType = MB_ICONERROR;
+		break;
+	default:
+		break;
+	}
+
+	::MessageBoxA(NULL, Text.c_str(), Title.c_str(), MessageBoxType);
+}
+
 void KlemmUI::SystemWM::SysWindow::MakeContextActive() const
 {
+	if (wglGetCurrentContext() == GLContext)
+	{
+		return;
+	}
 	if (!wglMakeCurrent(DeviceContext, GLContext))
 	{
 		Application::Error::Error("Failed to make context current.", true);

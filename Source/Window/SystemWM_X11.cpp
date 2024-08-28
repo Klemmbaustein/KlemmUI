@@ -85,7 +85,8 @@ void KlemmUI::SystemWM::X11Window::Create(Window* Parent, Vector2ui Size, Vector
 
 void KlemmUI::SystemWM::X11Window::MakeContextCurrent() const
 {
-	glXMakeCurrent(XDisplay, XWindow, GLContext);
+	if (glXGetCurrentContext() != GLContext)
+		glXMakeCurrent(XDisplay, XWindow, GLContext);
 }
 
 void KlemmUI::SystemWM::X11Window::UpdateWindow()

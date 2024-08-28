@@ -320,8 +320,8 @@ void Markdown::RenderMarkdown(std::string Markdown, UIBox* TargetParent, Markdow
 			}
 			Title->SetMinSize(Vector2f(Style.Width, 0));
 			TargetParent->AddChild(CodeBackground
-				->SetPadding(0.02f, 0.02f, 0, 0)
-				->SetBorder(UIBox::BorderType::Rounded, Style.Code.Rounding));
+				->SetCorner(Style.Code.Rounding, UIBox::SizeMode::AspectRelative)
+				->SetPadding(0.02f, 0.02f, 0, 0));
 			continue;
 		}
 		if (i.Children.size())
@@ -338,7 +338,7 @@ void Markdown::RenderMarkdown(std::string Markdown, UIBox* TargetParent, Markdow
 				if (c.IsCodeBlock)
 				{
 					Target = (new UIBackground(false, 0, Style.Code.BackgroundColor))
-						->SetBorder(UIBox::BorderType::Rounded, Style.Code.Rounding)
+						->SetBorder(Style.Code.Rounding, UIBox::SizeMode::AspectRelative)
 						->SetPadding(0);
 					Sidebox->AddChild(Target);
 				}

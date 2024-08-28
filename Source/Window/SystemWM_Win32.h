@@ -17,8 +17,13 @@ namespace KlemmUI::SystemWM
 		bool Borderless = false;
 		bool Resizable = false;
 		bool Popup = false;
+		int ActiveCursor = -1;
 
 		Vector2ui Size;
+		Vector2ui MinSize = 1;
+		Vector2ui MaxSize = INT32_MAX;
+
+		void SetSize(Vector2ui NewSize) const;
 
 		std::string TextInput;
 

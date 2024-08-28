@@ -248,8 +248,9 @@ void UITextField::DrawBackground()
 
 	if (IsEdited)
 	{
-		glUniform4f(glGetUniformLocation(BackgroundShader->GetShaderID(), "u_color"), 0, 0.25f, 1, 1);
-		BackgroundShader->SetInt("u_borderType", (int)UIBox::BorderType::None);
+		BackgroundShader->SetVec3("u_color", Vector3f(0.25f, 1, 1));
+		BackgroundShader->SetInt("u_drawCorner", 0);
+		BackgroundShader->SetInt("u_drawBorder", 0);
 		BackgroundShader->SetFloat("u_opacity", 0.5f);
 		glUniform4f(glGetUniformLocation(BackgroundShader->GetShaderID(), "u_transform"), TextHighlightPos.X, TextHighlightPos.Y, TextHighlightSize.X, TextHighlightSize.Y);
 		BoxVertexBuffer->Draw();
@@ -257,8 +258,9 @@ void UITextField::DrawBackground()
 
 	if (ShowIBeam)
 	{
-		glUniform4f(glGetUniformLocation(BackgroundShader->GetShaderID(), "u_color"), TextColor.X, TextColor.Y, TextColor.Z, 1);
-		BackgroundShader->SetInt("u_borderType", (int)UIBox::BorderType::None);
+		BackgroundShader->SetVec3("u_color", TextColor);
+		BackgroundShader->SetInt("u_drawCorner", 0);
+		BackgroundShader->SetInt("u_drawBorder", 0);
 		BackgroundShader->SetFloat("u_opacity", 1);
 		glUniform4f(glGetUniformLocation(BackgroundShader->GetShaderID(), "u_transform"), IBeamPosition.X, IBeamPosition.Y, IBeamScale.X, IBeamScale.Y);
 		BoxVertexBuffer->Draw();

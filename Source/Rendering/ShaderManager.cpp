@@ -1,5 +1,6 @@
 #include <KlemmUI/Rendering/ShaderManager.h>
 #include <KlemmUI/Application.h>
+#include <KlemmUI/Resource.h>
 using namespace KlemmUI;
 
 KlemmUI::ShaderManager::~ShaderManager()
@@ -17,7 +18,7 @@ Shader* KlemmUI::ShaderManager::LoadShader(std::string VertexName, std::string F
 
 	if (LoadedShader == Shaders.end())
 	{
-		Shader* NewShader = new Shader(Application::GetShaderPath() + "/" + VertexName, Application::GetShaderPath() + "/" + FragmentName);
+		Shader* NewShader = new Shader(Resource::GetStringFile(VertexName), Resource::GetStringFile(FragmentName));
 		Shaders.insert(std::pair(Name, NewShader));
 		return NewShader;
 	}

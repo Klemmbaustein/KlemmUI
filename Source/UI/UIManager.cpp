@@ -2,8 +2,9 @@
 #include <GL/glew.h>
 #include <KlemmUI/Window.h>
 #include <KlemmUI/UI/UIBox.h>
-#include <KlemmUI/Rendering/Texture.h>
+#include <KlemmUI/Image.h>
 #include <iostream>
+#include <KlemmUI/Resource.h>
 #include <algorithm>
 using namespace KlemmUI;
 
@@ -19,7 +20,7 @@ UIManager::~UIManager()
 
 	for (auto& i : ReferencedTextures)
 	{
-		Texture::UnloadTexture(i.first);
+		Image::UnloadImage(i.first);
 	}
 	ReferencedTextures.clear();
 }
@@ -201,12 +202,12 @@ unsigned int KlemmUI::UIManager::LoadReferenceTexture(std::string FilePath)
 		}
 	}
 
-	if (!TexturePath.empty())
+	if (!TexturePath.empty() && !Resource::ResourceExists(FilePath))
 	{
 		FilePath = TexturePath + "/" + FilePath;
 	}
 
-	unsigned int NewTexture = Texture::LoadTexture(FilePath);
+	unsigned int NewTexture = Image::LoadImage(FilePath);
 	ReferencedTextures.insert(std::pair(NewTexture, ReferenceTexture{
 		.Name = FilePath,
 		.RefCount = 1,
@@ -227,7 +228,7 @@ void KlemmUI::UIManager::UnloadReferenceTexture(unsigned int TextureID)
 	Texture->second.RefCount--;
 	if (Texture->second.RefCount == 0)
 	{
-		Texture::UnloadTexture(Texture->first);
+		Image::UnloadImage(Texture->first);
 		ReferencedTextures.erase(Texture);
 	}
 }

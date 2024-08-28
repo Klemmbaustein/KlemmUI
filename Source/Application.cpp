@@ -1,41 +1,27 @@
 #include <KlemmUI/Application.h>
-#include "Internal.h"
+#include "Window/SystemWM.h"
 
-namespace KlemmUI::Application
-{
-	static std::string ShaderPath;
-
-	static void(*ErrorCallback)(std::string Message) = [](std::string Message) {
+static std::function<void(std::string Message, bool IsFatal)> ErrorCallback = 
+	[](std::string Message, bool)
+	{
 		puts(Message.c_str());
-		};
-}
+	};
 
-std::string KlemmUI::Application::GetShaderPath()
+void KlemmUI::Application::MessageBox(std::string Text, std::string Title, MessageBoxType Type)
 {
-	return ShaderPath;
-}
-
-void KlemmUI::Application::SetShaderPath(std::string NewShaderPath)
-{
-	ShaderPath = NewShaderPath;
-}
-
-void KlemmUI::Application::Initialize(std::string ShaderPath)
-{
-	SetShaderPath(ShaderPath);
-	Internal::InitSDL();
+	SystemWM::MessageBox(Text, Title, int(Type));
 }
 
 void KlemmUI::Application::Error::Error(std::string Message, bool Fatal)
 {
-	ErrorCallback(Message);
+	ErrorCallback(Message, Fatal);
 	if (Fatal)
 	{
 		abort();
 	}
 }
 
-void KlemmUI::Application::Error::SetErrorCallback(void(*Callback)(std::string Message))
+void KlemmUI::Application::Error::SetErrorCallback(std::function<void(std::string Message, bool IsFatal)> Callback)
 {
 	ErrorCallback = Callback;
 }

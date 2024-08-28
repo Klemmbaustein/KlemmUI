@@ -21,13 +21,6 @@ namespace KlemmUI
 	class UIBox
 	{
 	public:
-
-		/**
-		 * @brief
-		 * Controls the visibility of the UIBox.
-		 */
-		bool IsVisible = true;
-
 		/**
 		 * @brief
 		 * Children align for UIBox.
@@ -42,19 +35,6 @@ namespace KlemmUI
 			Reverse
 		};
 
-		/**
-		 * @brief
-		 * Describes the border of a UIBox.
-		 */
-		enum class BorderType
-		{
-			/// No border.
-			None = 0,
-			/// Rounded border.
-			Rounded = 1,
-			/// Darkened edge around the box.
-			DarkenedEdge = 2
-		};
 		/**
 		 * @brief
 		 * Describes the way size should be calculated for a UIBox.
@@ -92,8 +72,6 @@ namespace KlemmUI
 
 		UIBox* SetSizeMode(SizeMode NewMode);
 
-		BorderType BoxBorder = BorderType::None;
-		float BorderRadius = 0;
 		Align HorizontalBoxAlign = Align::Default;
 		Align VerticalBoxAlign = Align::Reverse;
 
@@ -256,7 +234,6 @@ namespace KlemmUI
 
 		bool GetTryFill() const;
 		virtual void OnChildClicked(int Index);
-		UIBox* SetBorder(BorderType Type, float Size);
 
 		/**
 		 * @brief
@@ -345,6 +322,12 @@ namespace KlemmUI
 		 * KlemmUI::UIButton has this enabled by default.
 		 */
 		bool HasMouseCollision = false;
+
+		/**
+		 * @brief
+		 * Controls the visibility of the UIBox.
+		 */
+		bool IsVisible = true;
 		ScrollObject* CurrentScrollObject = nullptr;
 
 		void GetPadding(Vector2f& UpDown, Vector2f& LeftRight) const;

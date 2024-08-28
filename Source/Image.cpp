@@ -1,17 +1,22 @@
-#include <KlemmUI/Rendering/Texture.h>
+#include <KlemmUI/Image.h>
 #include <GL/glew.h>
 #define STB_IMAGE_IMPLEMENTATION
-#include "../Util/stb_image.hpp"
+#include "Util/stb_image.hpp"
+#include <KlemmUI/Resource.h>
 #include <iostream>
 using namespace KlemmUI;
 
-uint8_t* Texture::LoadTextureBytes(std::string File, size_t& Width, size_t& Height, bool Flipped)
+uint8_t* Image::LoadImageBytes(std::string File, size_t& Width, size_t& Height, bool Flipped)
 {
 	int TextureWidth = 0;
 	int TextureHeight = 0;
 	int BitsPerPixel = 0;
 	stbi_set_flip_vertically_on_load(!Flipped);
-	auto TextureBuffer = stbi_load(File.c_str(), &TextureWidth, &TextureHeight, &BitsPerPixel, 4);
+	
+	Resource::BinaryData TextureBytes = Resource::GetBinaryFile(File);
+	auto TextureBuffer = stbi_load_from_memory(TextureBytes.Data, TextureBytes.FileSize, &TextureWidth, &TextureHeight, &BitsPerPixel, 4);
+
+	Resource::FreeBinaryFile(TextureBytes);
 
 	if (TextureWidth == 0)
 	{
@@ -27,17 +32,17 @@ uint8_t* Texture::LoadTextureBytes(std::string File, size_t& Width, size_t& Heig
 	return TextureBuffer;
 }
 
-void Texture::FreeTextureBytes(uint8_t* Bytes)
+void Image::FreeImageBytes(uint8_t* Bytes)
 {
 	free(Bytes);
 }
 
-unsigned int Texture::LoadTexture(std::string File)
+unsigned int Image::LoadImage(std::string File)
 {
-	return LoadTextureWithInfo(File).ID;
+	return LoadImageWithInfo(File).ID;
 }
 
-unsigned int KlemmUI::Texture::LoadTexture(uint8_t* Bytes, size_t Width, size_t Height)
+unsigned int KlemmUI::Image::LoadImage(uint8_t* Bytes, size_t Width, size_t Height)
 {
 	GLuint TextureID;
 	glGenTextures(1, &TextureID);
@@ -55,16 +60,16 @@ unsigned int KlemmUI::Texture::LoadTexture(uint8_t* Bytes, size_t Width, size_t 
 	return TextureID;
 }
 
-Texture::TextureInfo Texture::LoadTextureWithInfo(std::string File)
+Image::ImageInfo Image::LoadImageWithInfo(std::string File)
 {
-	TextureInfo Ret = {};
-	uint8_t* Bytes = LoadTextureBytes(File, Ret.Width, Ret.Height);
-	Ret.ID = LoadTexture(Bytes, Ret.Width, Ret.Height);
-	FreeTextureBytes(Bytes);
+	ImageInfo Ret = {};
+	uint8_t* Bytes = LoadImageBytes(File, Ret.Width, Ret.Height);
+	Ret.ID = LoadImage(Bytes, Ret.Width, Ret.Height);
+	FreeImageBytes(Bytes);
 	return Ret;
 }
 
-void Texture::UnloadTexture(unsigned int ID)
+void Image::UnloadImage(unsigned int ID)
 {
 	glDeleteTextures(1, &ID);
 }

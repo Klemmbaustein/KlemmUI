@@ -24,10 +24,10 @@ void UIBackground::MakeGLBuffers()
 		delete BoxVertexBuffer;
 	BoxVertexBuffer = new VertexBuffer(
 		{
-			Vertex(Vector2f(0, 0), Vector2f(0, 0)),
-			Vertex(Vector2f(0, 1), Vector2f(0, 1)),
-			Vertex(Vector2f(1, 0), Vector2f(1, 0)),
-			Vertex(Vector2f(1, 1), Vector2f(1, 1))
+			Vertex(Vector2f(0, 0), Vector2f(0, 0), 0),
+			Vertex(Vector2f(0, 1), Vector2f(0, 1.01f), 1),
+			Vertex(Vector2f(1, 0), Vector2f(1.001f, 0), 2),
+			Vertex(Vector2f(1, 1), Vector2f(1.001f, 1.01f), 3)
 		},
 		{
 			0u, 1u, 2u,
@@ -45,10 +45,10 @@ float KlemmUI::UIBackground::GetBorderSize(float InSize, UIBox::SizeMode Mode)
 	{
 	case KlemmUI::UIBox::SizeMode::ScreenRelative:
 	case KlemmUI::UIBox::SizeMode::AspectRelative:
-		return InSize / 20.0f;
+		return InSize;
 		break;
 	case KlemmUI::UIBox::SizeMode::PixelRelative:
-		return (InSize / (float)Window::GetActiveWindow()->GetSize().Y) * 4.01f;
+		return (InSize / (float)Window::GetActiveWindow()->GetSize().Y * Window::GetActiveWindow()->GetDPI()) * 4.0f;
 	default:
 		return 0.0f;
 	}
@@ -59,16 +59,6 @@ UIBackground* UIBackground::SetOpacity(float NewOpacity)
 	if (NewOpacity != Opacity)
 	{
 		Opacity = NewOpacity;
-		RedrawElement();
-	}
-	return this;
-}
-
-UIBackground* KlemmUI::UIBackground::SetBorderSizeMode(SizeMode NewBorderSize)
-{
-	if (NewBorderSize != BorderSizeMode)
-	{
-		BorderSizeMode = NewBorderSize;
 		RedrawElement();
 	}
 	return this;
@@ -121,6 +111,28 @@ UIBackground* UIBackground::SetUseTexture(bool UseTexture, unsigned int TextureI
 	return this;
 }
 
+UIBackground* UIBackground::SetBorder(float Size, UIBox::SizeMode BorderSize)
+{
+	if (BorderSize != BorderSizeMode || Size != BorderRadius)
+	{
+		BorderSizeMode = BorderSize;
+		BorderRadius = Size;
+		RedrawElement();
+	}
+	return this;
+}
+
+UIBackground* UIBackground::SetCorner(float Size, UIBox::SizeMode BorderSize)
+{
+	if (BorderSize != CornerSizeMode || Size != CornerRadius)
+	{
+		CornerSizeMode = BorderSize;
+		CornerRadius = Size;
+		RedrawElement();
+	}
+	return this;
+}
+
 UIBackground* KlemmUI::UIBackground::SetUseTexture(bool UseTexture, std::string TextureFile)
 {
 	if (OwnsTexture)
@@ -156,7 +168,7 @@ UIBackground::UIBackground(bool Horizontal, Vector2f Position, Vector3f Color, V
 	this->Color = Color;
 	if (!UsedShader)
 	{
-		this->BackgroundShader = Window::GetActiveWindow()->Shaders.LoadShader("uishader.vert", "uishader.frag", "UI Shader");
+		this->BackgroundShader = Window::GetActiveWindow()->Shaders.LoadShader("res:shaders/uishader.vert", "res:shaders/uishader.frag", "UI Shader");
 	}
 	else
 	{
@@ -177,23 +189,37 @@ UIBackground::~UIBackground()
 
 void UIBackground::Draw()
 {
+	if (!BoxVertexBuffer)
+	{
+		return;
+	}
 	BackgroundShader->Bind();
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, TextureID);
 	BoxVertexBuffer->Bind();
 	ScrollTick(BackgroundShader);
-	glUniform4f(glGetUniformLocation(BackgroundShader->GetShaderID(), "u_color"), Color.X, Color.Y, Color.Z, 1.0f);
-	glUniform4f(glGetUniformLocation(BackgroundShader->GetShaderID(), "u_borderColor"), BorderColor.X, BorderColor.Y, BorderColor.Z, 1.0f);
-	glUniform4f(glGetUniformLocation(BackgroundShader->GetShaderID(), "u_transform"), OffsetPosition.X, OffsetPosition.Y, Size.X, Size.Y);
+	BackgroundShader->SetVec3("u_color", Color);
+	BackgroundShader->SetVec3("u_borderColor", BorderColor);
+
+	Vector2ui WindowSize = ParentWindow->GetSize() / 2;
+
+	Vector2f Pos = Vector2f(Vector2i(OffsetPosition * WindowSize)) / WindowSize;
+	Vector2f Res = Vector2f(Vector2i(Size * WindowSize)) / WindowSize;
+
+	glUniform4f(glGetUniformLocation(BackgroundShader->GetShaderID(), "u_transform"), Pos.X, Pos.Y, Res.X, Res.Y);
 	BackgroundShader->SetFloat("u_opacity", Opacity);
-	BackgroundShader->SetInt("u_borderType", (int)BoxBorder);
+	BackgroundShader->SetInt("u_drawBorder", BorderRadius != 0);
+	BackgroundShader->SetInt("u_drawCorner", CornerRadius != 0);
 	BackgroundShader->SetFloat("u_borderScale", GetBorderSize(BorderRadius, BorderSizeMode));
-	BackgroundShader->SetFloat("u_aspectratio", Window::GetActiveWindow()->GetAspectRatio());
+	BackgroundShader->SetFloat("u_cornerScale", GetBorderSize(CornerRadius, CornerSizeMode));
+	BackgroundShader->SetInt("u_cornerFlags", int(CornerFlags));
+	BackgroundShader->SetInt("u_borderFlags", int(BorderFlags));
+	BackgroundShader->SetFloat("u_aspectRatio", Window::GetActiveWindow()->GetAspectRatio());
 	BackgroundShader->SetVec2("u_screenRes", Vector2f(
 		(float)Window::GetActiveWindow()->GetSize().X,
 		(float)Window::GetActiveWindow()->GetSize().Y));
 
-	BackgroundShader->SetInt("u_usetexture", (int)UseTexture);
+	BackgroundShader->SetInt("u_useTexture", (int)UseTexture);
 	BoxVertexBuffer->Draw();
 	DrawBackground();
 	BoxVertexBuffer->Unbind();

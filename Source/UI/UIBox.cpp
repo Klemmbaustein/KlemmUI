@@ -130,17 +130,6 @@ void UIBox::OnChildClicked(int Index)
 {
 }
 
-UIBox* UIBox::SetBorder(BorderType Type, float Size)
-{
-	if (BoxBorder != Type || Size != BorderRadius)
-	{
-		BoxBorder = Type;
-		BorderRadius = Size;
-		GetAbsoluteParent()->InvalidateLayout();
-	}
-	return this;
-}
-
 void UIBox::MoveToFront()
 {
 	for (size_t i = 0; i < ParentWindow->UI.UIElements.size(); i++)

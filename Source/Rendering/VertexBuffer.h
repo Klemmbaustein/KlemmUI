@@ -8,6 +8,7 @@ namespace KlemmUI
 	{
 		Vector2f Position;
 		Vector2f TexCoord;
+		float CornerIndex = 0;
 	};
 
 	struct VertexBuffer

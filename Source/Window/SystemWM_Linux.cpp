@@ -1,6 +1,7 @@
 #if __linux__
 #include "SystemWM.h"
 #include "SystemWM_Linux.h"
+#include <iostream>
 
 KlemmUI::SystemWM::SysWindow* KlemmUI::SystemWM::NewWindow(Window* Parent, Vector2ui Size, Vector2ui Pos, std::string Title, bool Borderless, bool Resizable, bool Popup)
 {
@@ -87,5 +88,98 @@ bool KlemmUI::SystemWM::IsRMBDown()
 	return false;
 }
 
+
+void KlemmUI::SystemWM::SetWindowSize(SysWindow* Target, Vector2ui Size)
+{
+}
+
+void KlemmUI::SystemWM::SetWindowPosition(SysWindow* Target, Vector2ui NewPosition)
+{
+}
+
+void KlemmUI::SystemWM::SetTitle(SysWindow* Target, std::string Text)
+{
+}
+
+bool KlemmUI::SystemWM::IsWindowFullScreen(SysWindow* Target)
+{
+	return false;
+}
+
+void KlemmUI::SystemWM::SetWindowMinSize(SysWindow* Target, Vector2ui MinSize)
+{
+}
+
+void KlemmUI::SystemWM::SetWindowMaxSize(SysWindow* Target, Vector2ui MaxSize)
+{
+}
+
+void KlemmUI::SystemWM::RestoreWindow(SysWindow* Target)
+{
+}
+
+void KlemmUI::SystemWM::MinimizeWindow(SysWindow* Target)
+{
+}
+
+void KlemmUI::SystemWM::MaximizeWindow(SysWindow* Target)
+{
+}
+
+static bool CommandExists(std::string Command)
+{
+	return system(("command -v " + Command + " > /dev/null").c_str()) == 0;
+}
+
+void KlemmUI::SystemWM::MessageBox(std::string Text, std::string Title, int Type)
+{
+	if (CommandExists("kdialog"))
+	{
+		std::string ErrorType;
+		switch (Type)
+		{
+		case 0:
+			ErrorType = "msgbox";
+			break;
+		case 1:
+			ErrorType = "sorry";
+			break;
+		case 2:
+			ErrorType = "error";
+			break;
+		default:
+			break;
+		}
+
+		system(("/usr/bin/env kdialog --title " + Title + " --" + ErrorType + " \"" + Text + "\"").c_str());
+		return;
+	}
+
+	if (CommandExists("zenity"))
+	{
+		std::string ErrorType;
+		switch (Type)
+		{
+		case 0:
+			ErrorType = "info";
+			break;
+		case 1:
+			ErrorType = "warming";
+			break;
+		case 2:
+			ErrorType = "error";
+			break;
+		default:
+			break;
+		}
+
+		system(("/usr/bin/env zenity --title " + Title + " --" + ErrorType + " --text \"" + Text + "\"").c_str());
+		return;
+	}
+
+	// If kdialog and zenity don't exist, there's no good way of creating a message box.
+	// Making GUI apps for Linux is great!
+	std::cout << Title << ": " << Text << std::endl;
+}
 
 #endif

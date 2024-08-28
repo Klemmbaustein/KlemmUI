@@ -7,10 +7,6 @@
 
 #include <mutex>
 
-void KlemmUI::Internal::InitSDL()
-{
-}
-
 bool IsGLEWStarted = false;
 std::mutex KlemmUI::Internal::WindowCreationMutex;
 
@@ -35,7 +31,7 @@ void KlemmUI::Internal::InitGLContext(Window* From)
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	From->Shaders.LoadShader("postprocess.vert", "postprocess.frag", "WindowShader");
+	From->Shaders.LoadShader("res:shaders/postprocess.vert", "res:shaders/postprocess.frag", "WindowShader");
 
 	return;
 }

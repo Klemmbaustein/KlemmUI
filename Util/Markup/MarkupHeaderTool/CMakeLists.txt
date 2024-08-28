@@ -15,7 +15,6 @@ add_subdirectory("../MarkupLib" MarkupLib)
 
 add_executable(
 	KlemmUIHT
-	WIN32
 	${SRCS}
 )
 

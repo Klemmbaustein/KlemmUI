@@ -6,7 +6,7 @@
 #include <KlemmUI/Application.h>
 #include <KlemmUI/UI/UIButton.h>
 #include <KlemmUI/UI/UITextField.h>
-#include <KlemmUI/Rendering/Texture.h>
+#include <KlemmUI/Image.h>
 #include <mutex>
 #include <cstring>
 #include <iostream>
@@ -161,7 +161,7 @@ void KlemmUI::Window::SetIconFile(std::string IconFilePath)
 	SDL_WINDOW_PTR(GLWindow);
 	
 	size_t Width, Height;
-	uint8_t* IconBytes = Texture::LoadTextureBytes(IconFilePath, Width, Height, true);
+	uint8_t* IconBytes = Image::LoadImageBytes(IconFilePath, Width, Height, true);
 
 	// Limitation of SDL2.
 	if (Width > 64 || Height > 64)
@@ -175,7 +175,7 @@ void KlemmUI::Window::SetIconFile(std::string IconFilePath)
 	SDL_SetWindowIcon(GLWindow, s);
 
 	SDL_FreeSurface(s);
-	Texture::FreeTextureBytes(IconBytes);
+	Image::FreeImageBytes(IconBytes);
 #endif
 }
 
@@ -200,9 +200,16 @@ Vector2ui KlemmUI::Window::GetSize() const
 	return WindowSize;
 }
 
+void KlemmUI::Window::SetSize(Vector2ui NewSize)
+{
+	SDL_WINDOW_PTR(SysWindow);
+	SystemWM::SetWindowSize(SysWindow, NewSize);
+}
+
 void KlemmUI::Window::SetPosition(Vector2ui Pos)
 {
-	//SDL_WINDOW_PTR(GLWindow);
+	SDL_WINDOW_PTR(SysWindow);
+	SystemWM::SetWindowPosition(SysWindow, Pos);
 }
 
 void KlemmUI::Window::SetWindowFlags(WindowFlag NewFlags)
@@ -246,8 +253,8 @@ void KlemmUI::Window::CancelClose()
 
 void KlemmUI::Window::SetTitle(std::string NewTitle)
 {
-//	SDL_WINDOW_PTR(SDLWindow);
-
+	SDL_WINDOW_PTR(SysWindow);
+	SystemWM::SetTitle(SysWindow, NewTitle);
 }
 
 float KlemmUI::Window::GetDPI() const
@@ -361,13 +368,15 @@ void KlemmUI::Window::OnResized()
 
 void KlemmUI::Window::SetMinSize(Vector2ui MinimumSize)
 {
-//	SDL_WINDOW_PTR(GLWindow);
+	SDL_WINDOW_PTR(SysWindow);
+	SystemWM::SetWindowMinSize(SysWindow, MinimumSize);
 	MinSize = MinimumSize;
 }
 
 void KlemmUI::Window::SetMaxSize(Vector2ui MaximumSize)
 {
-//	SDL_WINDOW_PTR(GLWindow);
+	SDL_WINDOW_PTR(SysWindow);
+	SystemWM::SetWindowMaxSize(SysWindow, MaximumSize);
 	MaxSize = MaximumSize;
 }
 
@@ -377,23 +386,24 @@ std::vector<KlemmUI::Window*> KlemmUI::Window::GetActiveWindows()
 	return ActiveWindows;
 }
 
-void KlemmUI::Window::SetWindowFullScreen(bool NewIsFullScreen)
+void KlemmUI::Window::SetMaximized(bool NewIsFullScreen)
 {
-//	SDL_WINDOW_PTR(GLWindow);
+	SDL_WINDOW_PTR(SysWindow);
 
 	if (NewIsFullScreen)
 	{
+		SystemWM::MaximizeWindow(SysWindow);
 	}
 	else
 	{
+		SystemWM::RestoreWindow(SysWindow);
 	}
 }
 
 bool KlemmUI::Window::GetWindowFullScreen()
 {
-//	SDL_WINDOW_PTR(GLWindow);
-
-	return false;
+	SDL_WINDOW_PTR(SysWindow);
+	return SystemWM::IsWindowFullScreen(SysWindow);
 }
 
 bool KlemmUI::Window::GetMinimized()
@@ -404,13 +414,15 @@ bool KlemmUI::Window::GetMinimized()
 
 void KlemmUI::Window::SetMinimized(bool NewIsMinimized)
 {
-//	SDL_WINDOW_PTR(SDLWindow);
+	SDL_WINDOW_PTR(SysWindow);
 
 	if (NewIsMinimized)
 	{
+		SystemWM::MinimizeWindow(SysWindow);
 	}
 	else
 	{
+		SystemWM::RestoreWindow(SysWindow);
 	}
 }
 

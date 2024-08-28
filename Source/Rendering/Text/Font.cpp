@@ -7,6 +7,7 @@
 #include <KlemmUI/Application.h>
 #include <KlemmUI/Rendering/ScrollObject.h>
 #include <KlemmUI/StringReplace.h>
+#include <KlemmUI/Resource.h>
 #include <GL/glew.h>
 #include <KlemmUI/Window.h>
 #include <filesystem>
@@ -77,30 +78,20 @@ size_t Font::GetCharacterIndexADistance(std::vector<TextSegment> Text, float Dis
 	return std::min(i, TextSegment::CombineToString(Text).size());
 }
 
-Font::Font(std::string Filename)
+Font::Font(std::string FileName)
 {
-	if (!std::filesystem::exists(Filename))
-	{
-		Application::Error::Error("Failed to load font: " + Filename, true);
-	}
+	Window::GetActiveWindow()->Shaders.LoadShader("res:shaders/text.vert", "res:shaders/text.frag", TextShaderName);
 
-	Window::GetActiveWindow()->Shaders.LoadShader("text.vert", "text.frag", TextShaderName);
-
-	uint8_t* ttfBuffer = (uint8_t*)malloc(1 << 20);
-	if (ttfBuffer == nullptr)
+	if (!Resource::FileExists(FileName))
 	{
-		Application::Error::Error("Failed to allocate space for font bitmap");
+		Application::Error::Error("Failed to find resource: " + FileName);
 		return;
 	}
 
-	size_t ret = fread(ttfBuffer, 1, 1 << 20, fopen(Filename.c_str(), "rb"));
-	if (!ret || !ttfBuffer)
-	{
-		Application::Error::Error("Failed to load font: " + Filename);
-		return;
-	}
+	Resource::BinaryData TextData = Resource::GetBinaryFile(FileName);
+
 	stbtt_fontinfo finf;
-	stbtt_InitFont(&finf, ttfBuffer, stbtt_GetFontOffsetForIndex(ttfBuffer, 0));
+	stbtt_InitFont(&finf, TextData.Data, stbtt_GetFontOffsetForIndex(TextData.Data, 0));
 
 
 	uint8_t* GlypthBitmap = new uint8_t[FONT_BITMAP_WIDTH * FONT_BITMAP_WIDTH]();
@@ -167,6 +158,11 @@ Font::Font(std::string Filename)
 			continue;
 		}
 
+		if (ycoord + h > 3000)
+		{
+			break;
+		}
+
 		for (int ith = 0; ith < h; ith++)
 		{
 			for (int itw = 0; itw < w; itw++)
@@ -213,7 +209,8 @@ Font::Font(std::string Filename)
 	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(FontVertex), (const void*)offsetof(FontVertex, color));
 	glBindVertexArray(0);
 
-	free(ttfBuffer);
+	Resource::FreeBinaryFile(TextData);
+
 	delete[] GlypthBitmap;
 }
 

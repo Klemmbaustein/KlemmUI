@@ -3,17 +3,30 @@
 #include "SystemWM_Linux.h"
 #include <iostream>
 
-KlemmUI::SystemWM::SysWindow* KlemmUI::SystemWM::NewWindow(Window* Parent, Vector2ui Size, Vector2ui Pos, std::string Title, bool Borderless, bool Resizable, bool Popup)
+static bool CheckFlag(KlemmUI::Window::WindowFlag Flag, KlemmUI::Window::WindowFlag Value)
+{
+	return (Flag & Value) == Value;
+}
+
+KlemmUI::SystemWM::SysWindow* KlemmUI::SystemWM::NewWindow(Window* Parent, Vector2ui Size, Vector2ui Pos, std::string Title, Window::WindowFlag Flags)
 {
 	SysWindow* OutWindow = new SysWindow();
 	OutWindow->X11 = X11Window();
 	OutWindow->X11.Parent = Parent;
-	OutWindow->X11.Create(Parent, Size, Pos, Title, Borderless, Resizable, Popup);
+	OutWindow->X11.Create(
+		Parent,
+		Size, Pos,
+		Title,
+		CheckFlag(Flags, Window::WindowFlag::Borderless),
+		CheckFlag(Flags, Window::WindowFlag::Resizable),
+		CheckFlag(Flags, Window::WindowFlag::Popup)
+	);
 	return OutWindow;
 }
 
 void KlemmUI::SystemWM::DestroyWindow(SysWindow* Target)
 {
+	Target->X11.Destroy();
 }
 
 void KlemmUI::SystemWM::SwapWindow(SysWindow* Target)
@@ -133,47 +146,23 @@ static bool CommandExists(std::string Command)
 
 void KlemmUI::SystemWM::MessageBox(std::string Text, std::string Title, int Type)
 {
+	if (Type < 0 || Type > 2)
+	{
+		return;
+	}
 	if (CommandExists("kdialog"))
 	{
-		std::string ErrorType;
-		switch (Type)
-		{
-		case 0:
-			ErrorType = "msgbox";
-			break;
-		case 1:
-			ErrorType = "sorry";
-			break;
-		case 2:
-			ErrorType = "error";
-			break;
-		default:
-			break;
-		}
+		std::array<const char*, 3> Types = { "msgbox", "sorry", "error" };
 
-		system(("/usr/bin/env kdialog --title " + Title + " --" + ErrorType + " \"" + Text + "\"").c_str());
+		system(("/usr/bin/env kdialog --title " + Title + " --" + Types[Type] + " \"" + Text + "\"").c_str());
 		return;
 	}
 
 	if (CommandExists("zenity"))
 	{
-		std::string ErrorType;
-		switch (Type)
-		{
-		case 0:
-			ErrorType = "info";
-			break;
-		case 1:
-			ErrorType = "warming";
-			break;
-		case 2:
-			ErrorType = "error";
-			break;
-		default:
-			break;
-		}
+		std::array<const char*, 3> Types = { "info", "warning", "error" };
 
-		system(("/usr/bin/env zenity --title " + Title + " --" + ErrorType + " --text \"" + Text + "\"").c_str());
+		system(("/usr/bin/env zenity --title " + Title + " --" + Types[Type] + " --text \"" + Text + "\"").c_str());
 		return;
 	}
 

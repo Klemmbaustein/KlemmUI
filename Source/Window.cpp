@@ -38,21 +38,21 @@ std::mutex WindowMutex;
 
 KlemmUI::Window::Window(std::string Name, WindowFlag Flags, Vector2ui WindowPos, Vector2ui WindowSize)
 {
+	if (WindowSize == SIZE_DEFAULT)
+	{
+		WindowSize = Vector2f(SystemWM::GetScreenSize()) * 0.6f;
+	}
+
 	if (WindowPos == POSITION_CENTERED)
 	{
 		WindowPos = SystemWM::GetScreenSize() / 2 - WindowSize / 2;
 	}
 
-	const bool IsDefaultSize = WindowSize == SIZE_DEFAULT;
-
 	SysWindowPtr = SystemWM::NewWindow(this,
 		WindowSize,
 		WindowPos,
 		Name,
-		(Flags & WindowFlag::Borderless) == WindowFlag::Borderless,
-		(Flags & WindowFlag::Resizable) == WindowFlag::Resizable,
-		(Flags & WindowFlag::Popup) == WindowFlag::Popup
-	);
+		Flags);
 	CurrentWindowFlags = Flags;
 
 	std::lock_guard Guard = std::lock_guard(Internal::WindowCreationMutex);
@@ -159,7 +159,7 @@ void KlemmUI::Window::SetIconFile(std::string IconFilePath)
 {
 #if 0
 	SDL_WINDOW_PTR(GLWindow);
-	
+
 	size_t Width, Height;
 	uint8_t* IconBytes = Image::LoadImageBytes(IconFilePath, Width, Height, true);
 
@@ -408,7 +408,7 @@ bool KlemmUI::Window::GetWindowFullScreen()
 
 bool KlemmUI::Window::GetMinimized()
 {
-//	SDL_WINDOW_PTR(SDLWindow);
+	//	SDL_WINDOW_PTR(SDLWindow);
 	return false;
 }
 

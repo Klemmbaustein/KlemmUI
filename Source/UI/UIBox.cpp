@@ -207,7 +207,6 @@ UIBox* UIBox::SetPosition(Vector2f NewPosition)
 	{
 		Position = NewPosition;
 		InvalidateLayout();
-		ParentWindow->UI.RedrawUI();
 	}
 	return this;
 }
@@ -545,11 +544,12 @@ void UIBox::GetPaddingScreenSize(Vector2f& UpDown, Vector2f& LeftRight) const
 
 void UIBox::RedrawElement(bool Force)
 {
-	if (!IsVisibleInHierarchy() && !Force)
+	if ((!IsVisibleInHierarchy() || Redrawn) && !Force)
 	{
 		return;
 	}
 
+	Redrawn = true;
 	ParentWindow->UI.RedrawArea(UIManager::RedrawBox{
 		.Min = GetPosition(),
 		.Max = GetPosition() + GetUsedSize(),
@@ -660,6 +660,7 @@ void UIBox::DrawThisAndChildren(const UIManager::RedrawBox& Box)
 			c->DrawThisAndChildren(Box);
 		}
 	}
+	Redrawn = false;
 }
 
 void UIBox::DeleteChildren()

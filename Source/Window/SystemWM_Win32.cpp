@@ -23,7 +23,8 @@ static bool IsMaximized(HWND hWnd)
 {
 	WINDOWPLACEMENT placement;
 	ZeroMemory(&placement, sizeof(placement));
-	if (!::GetWindowPlacement(hWnd, &placement)) {
+	if (!::GetWindowPlacement(hWnd, &placement))
+	{
 		return false;
 	}
 
@@ -58,7 +59,8 @@ namespace KlemmUI::SystemWM::Borderless
 
 	void SetShadow(HWND handle, bool enabled)
 	{
-		if (IsCompositionEnabled()) {
+		if (IsCompositionEnabled())
+		{
 			static const MARGINS shadow_state[2]{ { 0,0,0,0 },{ 1,1,1,1 } };
 			::DwmExtendFrameIntoClientArea(handle, &shadow_state[enabled]);
 		}
@@ -94,8 +96,6 @@ namespace KlemmUI::SystemWM::Borderless
 
 	LRESULT HitTest(POINT cursor, KlemmUI::SystemWM::SysWindow* Window)
 	{
-		bool borderless_resize = true;
-		bool borderless_drag = true;
 		// identify borders and corners to allow resizing the window.
 		// Note: On Windows 10, windows behave differently and
 		// allow resizing outside the visible window frame.
@@ -111,19 +111,24 @@ namespace KlemmUI::SystemWM::Borderless
 			return HTNOWHERE;
 		}
 
-		const auto drag = Window->Parent->IsAreaGrabbableCallback
+		const LRESULT drag = Window->Parent->IsAreaGrabbableCallback
 			&& Window->Parent->IsAreaGrabbableCallback(Window->Parent) ? HTCAPTION : HTCLIENT;
+
+		if (!Window->Resizable)
+		{
+			return drag;
+		}
 
 		enum region_mask
 		{
 			client = 0b0000,
-			left   = 0b0001,
-			right  = 0b0010,
-			top    = 0b0100,
+			left = 0b0001,
+			right = 0b0010,
+			top = 0b0100,
 			bottom = 0b1000,
 		};
 
-		const auto result =
+		const int result =
 			left * (cursor.x < (window.left + border.x)) |
 			right * (cursor.x >= (window.right - border.x)) |
 			top * (cursor.y < (window.top + border.y)) |
@@ -131,14 +136,14 @@ namespace KlemmUI::SystemWM::Borderless
 
 		switch (result)
 		{
-		case left: return borderless_resize ? HTLEFT : drag;
-		case right: return borderless_resize ? HTRIGHT : drag;
-		case top: return borderless_resize ? HTTOP : drag;
-		case bottom: return borderless_resize ? HTBOTTOM : drag;
-		case top | left: return borderless_resize ? HTTOPLEFT : drag;
-		case top | right: return borderless_resize ? HTTOPRIGHT : drag;
-		case bottom | left: return borderless_resize ? HTBOTTOMLEFT : drag;
-		case bottom | right: return borderless_resize ? HTBOTTOMRIGHT : drag;
+		case left: return HTLEFT;
+		case right: return HTRIGHT;
+		case top: return HTTOP;
+		case bottom: return HTBOTTOM;
+		case top | left: return HTTOPLEFT;
+		case top | right: return HTTOPRIGHT;
+		case bottom | left: return HTBOTTOMLEFT;
+		case bottom | right: return HTBOTTOMRIGHT;
 		case client: return drag;
 		default: return HTNOWHERE;
 		}
@@ -288,7 +293,7 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
 			SysWindow->TextInput.push_back((char)(((wParam >> 6) & 0x1F) | 0xC0));
 			SysWindow->TextInput.push_back((char)(((wParam >> 0) & 0x3F) | 0x80));
 		}
-		// More than 2 byte unicode is not supported right now.
+		// More than 2 byte utf-8 is not supported right now.
 		break;
 	}
 	case WM_NCHITTEST:
@@ -299,7 +304,7 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
 			return SystemWM::Borderless::HitTest(POINT{
 				GET_X_LPARAM(lParam),
 				GET_Y_LPARAM(lParam)
-			}, SysWindow);
+				}, SysWindow);
 		}
 		break;
 	}
@@ -364,7 +369,6 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
 
 	case WM_PAINT:
 	{
-		std::cout << "- [kui-win32]: WM_PAINT at size " << SysWindow->Size.ToString() << std::endl;
 		SysWindow->Parent->OnResized();
 		SysWindow->Parent->RedrawInternal();
 		break;
@@ -388,15 +392,20 @@ static HICON GetAppIcon(HMODULE Instance)
 	return LoadIcon(Instance, "APPICON");
 }
 
-KlemmUI::SystemWM::SysWindow* KlemmUI::SystemWM::NewWindow(Window* Parent, Vector2ui Size, Vector2ui Pos, std::string Title, bool Borderless, bool Resizable, bool Popup)
+static bool CheckFlag(KlemmUI::Window::WindowFlag Flag, KlemmUI::Window::WindowFlag Value)
+{
+	return (Flag & Value) == Value;
+}
+
+KlemmUI::SystemWM::SysWindow* KlemmUI::SystemWM::NewWindow(Window* Parent, Vector2ui Size, Vector2ui Pos, std::string Title, Window::WindowFlag Flags)
 {
 	SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
 
 	SysWindow* OutWindow = new SysWindow();
 	OutWindow->Parent = Parent;
 	OutWindow->Size = Size;
-	OutWindow->Borderless = Borderless;
-	OutWindow->Resizable = Resizable;
+	OutWindow->Borderless = CheckFlag(Flags, Window::WindowFlag::Borderless);
+	OutWindow->Resizable = CheckFlag(Flags, Window::WindowFlag::Resizable);
 
 	const HMODULE Instance = GetModuleHandle(NULL);
 	static bool WindowClassExists = false;
@@ -429,7 +438,12 @@ KlemmUI::SystemWM::SysWindow* KlemmUI::SystemWM::NewWindow(Window* Parent, Vecto
 	ExStyle = WS_EX_APPWINDOW;
 	Style = WS_POPUP | WS_CAPTION | WS_SYSMENU;
 
-	if (Resizable)
+	if (CheckFlag(Flags, Window::WindowFlag::AlwaysOnTop))
+	{
+		ExStyle |= WS_EX_TOPMOST;
+	}
+
+	if (OutWindow->Resizable)
 	{
 		// Maximize button. Only a resizable window should have this.
 		Style |= WS_MAXIMIZEBOX;
@@ -437,7 +451,7 @@ KlemmUI::SystemWM::SysWindow* KlemmUI::SystemWM::NewWindow(Window* Parent, Vecto
 		Style |= WS_THICKFRAME;
 	}
 
-	if (!Popup)
+	if (!CheckFlag(Flags, Window::WindowFlag::Popup))
 	{
 		Style |= WS_MINIMIZEBOX;
 	}
@@ -470,9 +484,7 @@ KlemmUI::SystemWM::SysWindow* KlemmUI::SystemWM::NewWindow(Window* Parent, Vecto
 	{
 		sizeof(PIXELFORMATDESCRIPTOR),
 		1,
-		PFD_DRAW_TO_WINDOW |
-		PFD_SUPPORT_OPENGL |
-		PFD_DOUBLEBUFFER,
+		PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER,
 		PFD_TYPE_RGBA,
 		32,
 		0, 0, 0, 0, 0, 0,
@@ -515,7 +527,7 @@ KlemmUI::SystemWM::SysWindow* KlemmUI::SystemWM::NewWindow(Window* Parent, Vecto
 		return nullptr;
 	}
 
-	if (Borderless)
+	if (OutWindow->Borderless)
 	{
 		Borderless::SetShadow(OutWindow->WindowHandle, true);
 		SetWindowPos(OutWindow->WindowHandle, NULL, Pos.X, Pos.Y, 0, 0, SWP_FRAMECHANGED | SWP_NOMOVE | SWP_NOSIZE);
@@ -569,12 +581,9 @@ bool KlemmUI::SystemWM::WindowHasFocus(SysWindow* Target)
 Vector2ui KlemmUI::SystemWM::GetCursorPosition(SysWindow* Target)
 {
 	POINT p;
-	if (GetCursorPos(&p))
+	if (GetCursorPos(&p) && ScreenToClient(Target->WindowHandle, &p))
 	{
-		if (ScreenToClient(Target->WindowHandle, &p))
-		{
-			return Vector2ui(p.x, p.y);
-		}
+		return Vector2ui(p.x, p.y);
 	}
 	return 0;
 }
@@ -745,6 +754,18 @@ void KlemmUI::SystemWM::MinimizeWindow(SysWindow* Target)
 void KlemmUI::SystemWM::MaximizeWindow(SysWindow* Target)
 {
 	::ShowWindow(Target->WindowHandle, SW_MAXIMIZE);
+}
+
+bool KlemmUI::SystemWM::IsWindowMinimized(SysWindow* Target)
+{
+	WINDOWPLACEMENT placement;
+	ZeroMemory(&placement, sizeof(placement));
+	if (!::GetWindowPlacement(Target->WindowHandle, &placement))
+	{
+		return false;
+	}
+
+	return placement.showCmd == SW_MINIMIZE;
 }
 
 void KlemmUI::SystemWM::HideWindow(SysWindow* Target)

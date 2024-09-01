@@ -21,8 +21,8 @@ namespace KlemmUI
 	protected:
 		bool OwnsTexture = false;
 		bool UseTexture = false;
-		uint8_t CornerFlags = 0b1010;
-		uint8_t BorderFlags = 0b0111;
+		uint8_t CornerFlags = 0b1111;
+		uint8_t BorderFlags = 0b1111;
 		Shader* BackgroundShader = nullptr;
 		virtual void DrawBackground();
 		Vector3f Color;
@@ -88,7 +88,10 @@ namespace KlemmUI
 		UIBackground* SetUseTexture(bool UseTexture, std::string TextureFile);
 
 		UIBackground* SetBorder(float Size, UIBox::SizeMode BorderSize);
+		UIBackground* SetBorderEdges(bool Top, bool Down, bool Left, bool Right);
+
 		UIBackground* SetCorner(float Size, UIBox::SizeMode BorderSize);
+		UIBackground* SetCorners(bool TopLeft, bool TopRight, bool BottomLeft, bool BottomRight);
 
 		/**
 		 * @brief

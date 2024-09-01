@@ -6,14 +6,14 @@
 #include <cstring>
 #include <GL/gl.h>
 
-std::string GetEnv(const std::string& var) {
+std::string GetEnv(const std::string& var)
+{
 	const char* val = std::getenv(var.c_str());
-	if (val == nullptr) { // invalid to assign nullptr to std::string
+
+	if (val == nullptr)
 		return "";
-	}
-	else {
-		return val;
-	}
+
+	return val;
 }
 
 void KlemmUI::SystemWM::X11Window::Create(Window* Parent, Vector2ui Size, Vector2ui Pos, std::string Title, bool Borderless, bool Resizable, bool Popup)
@@ -81,6 +81,10 @@ void KlemmUI::SystemWM::X11Window::Create(Window* Parent, Vector2ui Size, Vector
 	GLContext = glXCreateContext(XDisplay, visual, NULL, GL_TRUE);
 
 	MakeContextCurrent();
+}
+
+void KlemmUI::SystemWM::X11Window::Destroy()
+{
 }
 
 void KlemmUI::SystemWM::X11Window::MakeContextCurrent() const

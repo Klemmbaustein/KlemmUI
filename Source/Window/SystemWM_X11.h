@@ -12,6 +12,7 @@ namespace KlemmUI::SystemWM
 		::KlemmUI::Window* Parent;
 
 		void Create(Window* Parent, Vector2ui Size, Vector2ui Pos, std::string Title, bool Borderless, bool Resizable, bool Popup);
+		void Destroy();
 
 		void MakeContextCurrent() const;
 

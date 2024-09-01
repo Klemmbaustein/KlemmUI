@@ -374,6 +374,7 @@ protected:
 		SizeMode BoxSizeMode = SizeMode::ScreenRelative;
 		bool ShouldBeTicked = true;
 		bool TryFill = false;
+		bool Redrawn = false;
 		virtual void Update();
 		virtual void Draw();
 		virtual void Tick();

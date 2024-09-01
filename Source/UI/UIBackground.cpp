@@ -25,9 +25,9 @@ void UIBackground::MakeGLBuffers()
 	BoxVertexBuffer = new VertexBuffer(
 		{
 			Vertex(Vector2f(0, 0), Vector2f(0, 0), 0),
-			Vertex(Vector2f(0, 1), Vector2f(0, 1.01f), 1),
-			Vertex(Vector2f(1, 0), Vector2f(1.001f, 0), 2),
-			Vertex(Vector2f(1, 1), Vector2f(1.001f, 1.01f), 3)
+			Vertex(Vector2f(0, 1), Vector2f(0, 1.0001f), 1),
+			Vertex(Vector2f(1, 0), Vector2f(1.0001f, 0), 2),
+			Vertex(Vector2f(1, 1), Vector2f(1.0001f, 1.0001f), 3)
 		},
 		{
 			0u, 1u, 2u,
@@ -37,6 +37,28 @@ void UIBackground::MakeGLBuffers()
 
 void UIBackground::DrawBackground()
 {
+}
+
+UIBackground* UIBackground::SetBorderEdges(bool Top, bool Down, bool Left, bool Right)
+{
+	int NewFlags = uint8_t(Right) | uint8_t(Left) << 1 | uint8_t(Top) << 2 | uint8_t(Down) << 3;
+	if (NewFlags != BorderFlags)
+	{
+		BorderFlags = NewFlags;
+		RedrawElement();
+	}
+	return this;
+}
+
+UIBackground* UIBackground::SetCorners(bool TopLeft, bool TopRight, bool BottomLeft, bool BottomRight)
+{
+	int NewFlags = uint8_t(BottomLeft) | uint8_t(TopLeft) << 1 | uint8_t(BottomRight) << 2 | uint8_t(TopRight) << 3;
+	if (NewFlags != CornerFlags)
+	{
+		CornerFlags = NewFlags;
+		RedrawElement();
+	}
+	return this;
 }
 
 float KlemmUI::UIBackground::GetBorderSize(float InSize, UIBox::SizeMode Mode)

@@ -111,9 +111,10 @@ KlemmUI::Resource::BinaryData KlemmUI::Resource::GetBinaryFile(const std::string
 	{
 		return GetBinaryResource(ConvertResourcePath(Path));
 	}
-	if (std::filesystem::exists(Path) && !std::filesystem::is_directory(Path))
+	std::string FilePath = ConvertFilePath(Path);
+	if (std::filesystem::exists(FilePath) && !std::filesystem::is_directory(FilePath))
 	{
-		std::ifstream File = std::ifstream(ConvertFilePath(Path), std::ios::binary);
+		std::ifstream File = std::ifstream(FilePath, std::ios::binary);
 
 		File.seekg(0, std::ios::end);
 		size_t Size = File.tellg();
@@ -146,7 +147,9 @@ bool KlemmUI::Resource::FileExists(const std::string& Path)
 	{
 		return true;
 	}
-	return std::filesystem::exists(Path) && !std::filesystem::is_directory(Path);
+	std::string FilePath = ConvertFilePath(Path);
+	bool Exists = std::filesystem::exists(FilePath) && !std::filesystem::is_directory(FilePath);
+	return Exists;
 }
 
 #else

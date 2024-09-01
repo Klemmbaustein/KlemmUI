@@ -5,7 +5,7 @@ namespace KlemmUI::SystemWM
 {
 	class SysWindow;
 
-	SysWindow* NewWindow(Window* Parent, Vector2ui Size, Vector2ui Pos, std::string Title, bool Borderless, bool Resizable, bool Popup);
+	SysWindow* NewWindow(Window* Parent, Vector2ui Size, Vector2ui Pos, std::string Title, Window::WindowFlag Flags);
 	void DestroyWindow(SysWindow* Target);
 
 	void SwapWindow(SysWindow* Target);
@@ -40,6 +40,7 @@ namespace KlemmUI::SystemWM
 	bool IsLMBDown();
 	bool IsRMBDown();
 	bool IsWindowFullScreen(SysWindow* Target);
+	bool IsWindowMinimized(SysWindow* Target);
 
 	void MaximizeWindow(SysWindow* Target);
 	void MinimizeWindow(SysWindow* Target);

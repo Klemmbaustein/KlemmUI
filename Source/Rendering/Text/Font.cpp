@@ -84,7 +84,7 @@ Font::Font(std::string FileName)
 
 	if (!Resource::FileExists(FileName))
 	{
-		Application::Error::Error("Failed to find resource: " + FileName);
+		Application::Error::Error("Failed to find font resource: " + FileName);
 		return;
 	}
 
@@ -245,9 +245,9 @@ Vector2f Font::GetTextSize(std::vector<TextSegment> Text, float Scale, bool Wrap
 				{
 					continue;
 				}
-				if (GlyphIndex > FONT_MAX_UNICODE_CHARS)
+				if (GlyphIndex > LoadedGlyphs.size())
 				{
-					GlyphIndex = FONT_MAX_UNICODE_CHARS - 31;
+					GlyphIndex = LoadedGlyphs.size() - 1;
 				}
 				Glyph g = LoadedGlyphs[GlyphIndex];
 				do

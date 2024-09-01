@@ -47,7 +47,7 @@ macro(klemmui_markup ProjectName MarkupDir OutDir)
 	target_include_directories(${ProjectName} PRIVATE ${OutDir})
 endmacro()
 
-function(klemmui_resources ProjectName ResourceDir)
+macro(klemmui_resources ProjectName ResourceDir)
 	add_custom_target(
 		${ProjectName}_WriteResources
 		COMMENT "Running build command."
@@ -58,7 +58,7 @@ function(klemmui_resources ProjectName ResourceDir)
 	add_custom_command(
 		TARGET ${ProjectName}_WriteResources
 		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-		COMMAND $<TARGET_FILE:KlemmUIRC>  -i ${CMAKE_CURRENT_LIST_DIR}/${ResourceDir} -o ${RESOURCE_OUT_FILE} -n ${ProjectName}
+		COMMAND $<TARGET_FILE:KlemmUIRC>  -i "${CMAKE_CURRENT_LIST_DIR}/${ResourceDir}" -o "${RESOURCE_OUT_FILE}" -n ${ProjectName}
 	)
 
 	if(NOT EXISTS ${RESOURCE_OUT_FILE})
@@ -77,7 +77,7 @@ function(klemmui_resources ProjectName ResourceDir)
 		target_compile_definitions(KlemmUI PUBLIC KLEMMUI_RESOURCE_NAME=${ProjectName})
 	endif()
 	message(STATUS "Adding resource dir - ${CMAKE_CURRENT_LIST_DIR}/${ResourceDir} -> ${RESOURCE_OUT_FILE}")
-endfunction()
+endmacro()
 
 klemmui_resources(KlemmUI "Resources/")
 

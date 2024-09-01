@@ -15,7 +15,9 @@ enum class PropElementType
 	Backgrounds_Begin,
 	UIBackground,
 	UIButton,
+	UITextField,
 	Backgrounds_End,
+	UIScrollBox,
 	UIText,
 	Unknown,
 };
@@ -100,15 +102,11 @@ std::map<UIElement::Variable::VariableType, UIElement::Variable::VariableTypeDes
 },
 {
 	VariableType::Callback,
-	VariableTypeDescription("Callback", ""),
-},
-{
-	VariableType::BorderType,
-	VariableTypeDescription("Border type", "KlemmUI::UIBox::BorderType"),
+	VariableTypeDescription("Callback", "std::function<void()>"),
 },
 {
 	VariableType::CallbackIndex,
-	VariableTypeDescription("Callback with index", ""),
+	VariableTypeDescription("Callback with index", "std::function<void(int)>"),
 },
 };
 
@@ -120,6 +118,8 @@ static std::map<PropElementType, std::string> DefaultConstructors =
 	{PropElementType::UIText, "1, 1, \"\", nullptr"},
 	{PropElementType::UIButton, "true, 0, 1, nullptr"},
 	{PropElementType::UIBackground, "true, 0, 1"},
+	{PropElementType::UITextField, "0, 1, nullptr, nullptr"},
+	{PropElementType::UIScrollBox, "true, 0, true"},
 };
 
 static int UnnamedCounter = 0;
@@ -229,6 +229,14 @@ static PropElementType GetTypeFromString(std::string TypeName)
 	{
 		return PropElementType::UIButton;
 	}
+	if (TypeName == "UITextField")
+	{
+		return PropElementType::UITextField;
+	}
+	if (TypeName == "UIScrollBox")
+	{
+		return PropElementType::UIScrollBox;
+	}
 	return PropElementType::Unknown;
 }
 
@@ -296,12 +304,6 @@ static std::string WriteElementProperty(UIElement* Target, UIElement* Root, std:
 			if (KlemmUI::StringParse::GetAlign(p.Value).empty())
 				KlemmUI::ParseError::ErrorNoLine("Expected a valid align value for '" + i.Name + "'");
 			p.Value = KlemmUI::StringParse::GetAlign(p.Value);
-			break;
-
-		case UIElement::Variable::VariableType::BorderType:
-			if (KlemmUI::StringParse::GetBorderType(p.Value).empty())
-				KlemmUI::ParseError::ErrorNoLine("Expected a valid border type value for '" + i.Name + "'");
-			p.Value = KlemmUI::StringParse::GetBorderType(p.Value);
 			break;
 
 		case UIElement::Variable::VariableType::SizeMode:

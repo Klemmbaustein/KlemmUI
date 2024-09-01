@@ -89,9 +89,11 @@ namespace KlemmUI
 
 		UIBackground* SetBorder(float Size, UIBox::SizeMode BorderSize);
 		UIBackground* SetBorderEdges(bool Top, bool Down, bool Left, bool Right);
+		UIBackground* SetBorderVisible(int Index, bool Value);
 
 		UIBackground* SetCorner(float Size, UIBox::SizeMode BorderSize);
 		UIBackground* SetCorners(bool TopLeft, bool TopRight, bool BottomLeft, bool BottomRight);
+		UIBackground* SetCornerVisible(int Index, bool Value);
 
 		/**
 		 * @brief

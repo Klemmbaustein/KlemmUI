@@ -137,6 +137,8 @@ UIText* UIText::SetText(std::vector<TextSegment> NewText)
 
 size_t UIText::GetNearestLetterAtLocation(Vector2f Location) const
 {
+	if (Renderer == nullptr)
+		return 0;
 	size_t Depth = Renderer->GetCharacterIndexADistance(RenderedText, Location.X - OffsetPosition.X, GetRenderedSize());
 	return Depth;
 }

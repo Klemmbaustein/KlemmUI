@@ -1,6 +1,52 @@
 
 static std::vector<PropertyElement> Properties
 {
+#pragma region UITextField
+	PropertyElement{
+		.Type = PropElementType::UITextField,
+		.Name = "font",
+		.SetFormat = {"SetFont(KlemmUI::MarkupLanguageManager::GetActive()->GetFont({val}))"},
+		.VarType = UIElement::Variable::VariableType::String,
+		.AlwaysSet = true,
+		.Default = "\"\""
+	},
+	PropertyElement{
+		.Type = PropElementType::UITextField,
+		.Name = "textColor",
+		.SetFormat = {"SetTextColor({val})"},
+		.VarType = UIElement::Variable::VariableType::Vector3,
+	},
+	PropertyElement{
+		.Type = PropElementType::UITextField,
+		.Name = "color",
+		.SetFormat = {"SetColor({val})"},
+		.VarType = UIElement::Variable::VariableType::Vector3,
+	},
+	PropertyElement{
+		.Type = PropElementType::UITextField,
+		.Name = "textSize",
+		.SetFormat = {"SetTextSize({val})"},
+		.SetSizeFormat = "SetTextSizeMode({val})",
+		.VarType = UIElement::Variable::VariableType::SizeNumber,
+	},
+	PropertyElement{
+		.Type = PropElementType::UITextField,
+		.Name = "hintText",
+		.SetFormat = {"SetHintText({val})"},
+		.VarType = UIElement::Variable::VariableType::String,
+	},
+#pragma endregion
+
+#pragma region UIScrollBox
+	PropertyElement{
+		.Type = PropElementType::UIScrollBox,
+		.Name = "displayScrollBar",
+		.SetFormat = {"SetDisplayScrollBar({val}))"},
+		.VarType = UIElement::Variable::VariableType::Bool,
+	},
+#pragma endregion
+
+#pragma region UIText
 	PropertyElement{
 		.Type = PropElementType::UIText,
 		.Name = "text",
@@ -41,8 +87,9 @@ static std::vector<PropertyElement> Properties
 		.SetSizeFormat = "WrapSizeMode = {val}",
 		.VarType = UIElement::Variable::VariableType::SizeNumber,
 	},
+#pragma endregion
 
-
+#pragma region UIButton
 	PropertyElement{
 		.Type = PropElementType::UIButton,
 		.Name = "color",
@@ -67,8 +114,9 @@ static std::vector<PropertyElement> Properties
 		.SetFormat = {"SetPressedColor(Vector3f({val}))"},
 		.VarType = UIElement::Variable::VariableType::Vector3,
 	},
+#pragma endregion
 
-
+#pragma region UIBackground
 	PropertyElement{
 		.Type = PropElementType::UIBackground,
 		.Name = "color",
@@ -89,16 +137,17 @@ static std::vector<PropertyElement> Properties
 	},
 	PropertyElement{
 		.Type = PropElementType::UIBackground,
-		.Name = "borderType",
-		.SetFormat = {"BoxBorder = {val}"},
-		.VarType = UIElement::Variable::VariableType::BorderType,
+		.Name = "corners",
+		.SetFormat = {"CornerRadius = {val}"},
+		.SetSizeFormat = "CornerSizeMode = {val}",
+		.VarType = UIElement::Variable::VariableType::SizeNumber,
 	},
 	PropertyElement{
 		.Type = PropElementType::UIBackground,
-		.Name = "borderSize",
+		.Name = "border",
 		.SetFormat = {"BorderRadius = {val}"},
 		.SetSizeFormat = "BorderSizeMode = {val}",
-		.VarType = UIElement::Variable::VariableType::Size,
+		.VarType = UIElement::Variable::VariableType::SizeNumber,
 	},
 	PropertyElement{
 		.Type = PropElementType::UIBackground,
@@ -106,16 +155,57 @@ static std::vector<PropertyElement> Properties
 		.SetFormat = {"BorderColor = Vector3f({val})"},
 		.VarType = UIElement::Variable::VariableType::Vector3,
 	},
-
-
 	PropertyElement{
-		.Type = PropElementType::UIButton,
-		.Name = "onClicked",
-		.SetFormat = {"OnClickedFunction = {val}"},
-		.VarType = UIElement::Variable::VariableType::Callback,
+		.Type = PropElementType::UIBackground,
+		.Name = "topLeftCorner",
+		.SetFormat = {"SetCornerVisible(1, {val})"},
+		.VarType = UIElement::Variable::VariableType::Bool,
 	},
+	PropertyElement{
+		.Type = PropElementType::UIBackground,
+		.Name = "topRightCorner",
+		.SetFormat = {"SetCornerVisible(3, {val})"},
+		.VarType = UIElement::Variable::VariableType::Bool,
+	},
+	PropertyElement{
+		.Type = PropElementType::UIBackground,
+		.Name = "bottomLeftCorner",
+		.SetFormat = {"SetCornerVisible(0, {val})"},
+		.VarType = UIElement::Variable::VariableType::Bool,
+	},
+	PropertyElement{
+		.Type = PropElementType::UIBackground,
+		.Name = "bottomRightCorner",
+		.SetFormat = {"SetCornerVisible(2, {val})"},
+		.VarType = UIElement::Variable::VariableType::Bool,
+	},
+	PropertyElement{
+		.Type = PropElementType::UIBackground,
+		.Name = "topBorder",
+		.SetFormat = {"SetBorderVisible(2, {val})"},
+		.VarType = UIElement::Variable::VariableType::Bool,
+	},
+	PropertyElement{
+		.Type = PropElementType::UIBackground,
+		.Name = "bottomBorder",
+		.SetFormat = {"SetCornerVisible(3, {val})"},
+		.VarType = UIElement::Variable::VariableType::Bool,
+	},
+	PropertyElement{
+		.Type = PropElementType::UIBackground,
+		.Name = "leftBorder",
+		.SetFormat = {"SetCornerVisible(1, {val})"},
+		.VarType = UIElement::Variable::VariableType::Bool,
+	},
+	PropertyElement{
+		.Type = PropElementType::UIBackground,
+		.Name = "rightBorder",
+		.SetFormat = {"SetCornerVisible(0, {val})"},
+		.VarType = UIElement::Variable::VariableType::Bool,
+	},
+#pragma endregion
 
-
+#pragma region UIBox
 	PropertyElement{
 		.Type = PropElementType::UIBox,
 		.Name = "minSize",
@@ -237,4 +327,5 @@ static std::vector<PropertyElement> Properties
 		},
 		.VarType = UIElement::Variable::VariableType::Bool,
 	},
+#pragma endregion
 };

@@ -69,6 +69,11 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
+	if (!std::filesystem::exists(InPath))
+	{
+		std::filesystem::create_directories(InPath);
+	}
+
 	if (OutPath.empty())
 	{
 		std::cerr << "No out path defined" << std::endl;

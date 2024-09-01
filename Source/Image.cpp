@@ -14,7 +14,7 @@ uint8_t* Image::LoadImageBytes(std::string File, size_t& Width, size_t& Height, 
 	stbi_set_flip_vertically_on_load(!Flipped);
 	
 	Resource::BinaryData TextureBytes = Resource::GetBinaryFile(File);
-	auto TextureBuffer = stbi_load_from_memory(TextureBytes.Data, TextureBytes.FileSize, &TextureWidth, &TextureHeight, &BitsPerPixel, 4);
+	auto TextureBuffer = stbi_load_from_memory(TextureBytes.Data, int(TextureBytes.FileSize), &TextureWidth, &TextureHeight, &BitsPerPixel, 4);
 
 	Resource::FreeBinaryFile(TextureBytes);
 

@@ -70,7 +70,10 @@ namespace KlemmUI
 		 * The background color of the text field.
 		 * 
 		 * @param Renderer
-		 * The 
+		 * The font used in the text field.
+		 * 
+		 * @param OnClickedFunction
+		 * Function called when a new text has been entered.
 		 */
 		UITextField(Vector2f Position, Vector3f Color, Font* Renderer, std::function<void()> OnClickedFunction);
 		~UITextField() override;

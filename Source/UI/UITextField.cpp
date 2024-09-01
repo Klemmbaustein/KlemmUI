@@ -201,16 +201,6 @@ std::string UITextField::GetText()
 	return EnteredText;
 }
 
-bool UITextField::GetIsHovered() const
-{
-	return IsHovered;
-}
-
-bool UITextField::GetIsPressed() const
-{
-	return IsPressed;
-}
-
 KlemmUI::UITextField* KlemmUI::UITextField::SetTextSizeMode(UIBox::SizeMode Mode)
 {
 	TextObject->SetTextSizeMode(Mode);

@@ -6,6 +6,9 @@
 #include <cstring>
 #include <GL/gl.h>
 
+Display* KlemmUI::SystemWM::X11Window::XDisplay = nullptr;
+::Window KlemmUI::SystemWM::X11Window::XRootWindow;
+
 std::string GetEnv(const std::string& var)
 {
 	const char* val = std::getenv(var.c_str());
@@ -20,16 +23,17 @@ void KlemmUI::SystemWM::X11Window::Create(Window* Parent, Vector2ui Size, Vector
 {
 	std::cout << "- [kui-X11]: $DISPLAY = '" << GetEnv("DISPLAY") << "'" << std::endl;
 
-	XDisplay = XOpenDisplay(NULL);
+	if (XDisplay == nullptr)
+		XDisplay = XOpenDisplay(NULL);
 
 	if (!XDisplay)
 	{
-		Application::Error::Error("Failed to open display", true);
+		Application::Error::Error("Failed to open x11 display", true);
 		return;
 	}
 
-	::Window root = DefaultRootWindow(XDisplay);
-	if (None == root)
+	XRootWindow = DefaultRootWindow(XDisplay);
+	if (!XRootWindow)
 	{
 		Application::Error::Error("No root window found", true);
 		XCloseDisplay(XDisplay);
@@ -60,8 +64,8 @@ void KlemmUI::SystemWM::X11Window::Create(Window* Parent, Vector2ui Size, Vector
 	attrib.background_pixel = WhitePixel(XDisplay, ScreenID);
 	attrib.override_redirect = True;
 	attrib.colormap = XCreateColormap(XDisplay, RootWindow(XDisplay, ScreenID), visual->visual, AllocNone);
-	attrib.event_mask = ExposureMask | FocusChangeMask | KeyPressMask | KeyReleaseMask | PointerMotionMask | ButtonPressMask;
-	XWindow = XCreateWindow(XDisplay, root, Pos.X, Pos.Y, Size.X, Size.Y, 0, visual->depth, InputOutput, visual->visual, CWBackPixel | CWColormap | CWBorderPixel | CWEventMask, &attrib);
+	attrib.event_mask = ExposureMask | FocusChangeMask | KeyPressMask | KeyReleaseMask | PointerMotionMask;
+	XWindow = XCreateWindow(XDisplay, XRootWindow, Pos.X, Pos.Y, Size.X, Size.Y, 0, visual->depth, InputOutput, visual->visual, CWBackPixel | CWColormap | CWBorderPixel | CWEventMask, &attrib);
 
 	if (None == XWindow)
 	{
@@ -115,14 +119,14 @@ void KlemmUI::SystemWM::X11Window::UpdateWindow()
 			}
 			break;
 		}
+		case FocusIn:
+			HasFocus = true;
+			break;
+		case FocusOut:
+			HasFocus = false;
+			break;
 		case DestroyNotify:
 			Parent->Close();
-			break;
-		case KeyPress:
-			std::cout << "kp: " << ev.xkey.keycode << std::endl;
-			break;
-		case ButtonPress:
-			std::cout << "bp: " << ev.xbutton.button << std::endl;
 			break;
 		default:
 			std::cout << "unhandled event: " << ev.type << std::endl;
@@ -134,6 +138,29 @@ void KlemmUI::SystemWM::X11Window::UpdateWindow()
 void KlemmUI::SystemWM::X11Window::Swap() const
 {
 	glXSwapBuffers(XDisplay, XWindow);
+}
+
+bool KlemmUI::SystemWM::X11Window::IsLMBDown()
+{
+    return QueryPointer(nullptr) & Button1Mask;
+}
+
+int KlemmUI::SystemWM::X11Window::QueryPointer(Vector2ui *MousePos)
+{
+	::Window OutRoot;
+	::Window OutChild;
+	int RootX, RootY, WinX, WinY;
+	unsigned int Mask;
+	XQueryPointer(XDisplay, XRootWindow, &OutRoot, &OutChild,
+		&RootX, &RootY, &WinX, &WinY, &Mask);
+	
+	if (MousePos)
+	{
+		MousePos->X = RootX;
+		MousePos->Y = RootY;
+	}
+
+    return Mask;
 }
 
 #endif

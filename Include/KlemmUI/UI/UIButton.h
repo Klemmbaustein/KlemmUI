@@ -40,10 +40,10 @@ namespace KlemmUI
 
 		Shader* UsedShader = nullptr;
 		void Tick() override;
-		virtual void OnClicked();
+		virtual void OnButtonClicked();
 	public:
 
-		std::function<void()> OnClickedFunction = nullptr;
+		std::function<void()> OnClicked = nullptr;
 		std::function<void(int)> OnClickedFunctionIndex = nullptr;
 		int ButtonIndex = 0;
 
@@ -87,10 +87,10 @@ namespace KlemmUI
 		 * @param Color
 		 * The color of the UIButton. The hovered and pressed colors will be derived from this.
 		 * 
-		 * @param OnClickedFunction
+		 * @param OnClicked
 		 * This function will be called when the button has been pressed.
 		 */
-		UIButton(bool Horizontal, Vector2f Position, Vector3f Color, std::function<void()> OnClickedFunction);
+		UIButton(bool Horizontal, Vector2f Position, Vector3f Color, std::function<void()> OnClicked);
 
 		/**
 		 * @brief
@@ -105,13 +105,13 @@ namespace KlemmUI
 		 * @param Color
 		 * The color of the UIButton. The hovered and pressed colors will be derived from this.
 		 *
-		 * @param OnClickedFunction
+		 * @param OnClicked
 		 * This function will be called when the button has been pressed.
 		 * 
 		 * @param ButtonIndex
-		 * An index for the button. Will be passed to OnClickedFunction.
+		 * An index for the button. Will be passed to OnClicked.
 		 */
-		UIButton(bool Horizontal, Vector2f Position, Vector3f Color, std::function<void(int)> OnClickedFunction, int ButtonIndex);
+		UIButton(bool Horizontal, Vector2f Position, Vector3f Color, std::function<void(int)> OnClicked, int ButtonIndex);
 
 		~UIButton();
 

@@ -2,6 +2,7 @@
 #include "SystemWM.h"
 #include "SystemWM_Linux.h"
 #include <iostream>
+#include <fcntl.h>
 
 static bool CheckFlag(KlemmUI::Window::WindowFlag Flag, KlemmUI::Window::WindowFlag Value)
 {
@@ -21,6 +22,7 @@ KlemmUI::SystemWM::SysWindow* KlemmUI::SystemWM::NewWindow(Window* Parent, Vecto
 		CheckFlag(Flags, Window::WindowFlag::Resizable),
 		CheckFlag(Flags, Window::WindowFlag::Popup)
 	);
+
 	return OutWindow;
 }
 
@@ -36,6 +38,7 @@ void KlemmUI::SystemWM::SwapWindow(SysWindow* Target)
 
 void KlemmUI::SystemWM::ActivateContext(SysWindow* Target)
 {
+	Target->X11.MakeContextCurrent();
 }
 
 Vector2ui KlemmUI::SystemWM::GetWindowSize(SysWindow* Target)
@@ -50,7 +53,7 @@ void KlemmUI::SystemWM::UpdateWindow(SysWindow* Target)
 
 bool KlemmUI::SystemWM::WindowHasFocus(SysWindow* Target)
 {
-	return true;
+	return Target->X11.HasFocus;
 }
 
 Vector2ui KlemmUI::SystemWM::GetCursorPosition(SysWindow* Target)
@@ -93,14 +96,13 @@ std::string KlemmUI::SystemWM::GetClipboardText()
 
 bool KlemmUI::SystemWM::IsLMBDown()
 {
-	return false;
+	return X11Window::IsLMBDown();
 }
 
 bool KlemmUI::SystemWM::IsRMBDown()
 {
 	return false;
 }
-
 
 void KlemmUI::SystemWM::SetWindowSize(SysWindow* Target, Vector2ui Size)
 {

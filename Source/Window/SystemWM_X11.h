@@ -19,12 +19,19 @@ namespace KlemmUI::SystemWM
 		void UpdateWindow();
 
 		void Swap() const;
-		Display* XDisplay = nullptr;
+		static Display* XDisplay;
+		static ::Window XRootWindow;
 		::Window XWindow;
 		GLXContext GLContext;
 
+		static bool IsLMBDown();
+
 		Vector2ui CursorPosition;
 		Vector2ui WindowSize;
+
+		bool HasFocus = false;
+	private:
+		static int QueryPointer(Vector2ui* MousePos);
 	};
 }
 

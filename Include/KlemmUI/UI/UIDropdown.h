@@ -87,7 +87,7 @@ namespace KlemmUI
 		UIDropdown* SetDropdownColor(Vector3f NewColor, Vector3f TextColor);
 
 		void Tick() override;
-		void OnClicked() override;
+		void OnButtonClicked() override;
 		void OnChildClicked(int Index) override;
 	};
 }

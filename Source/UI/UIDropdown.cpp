@@ -103,7 +103,7 @@ UIDropdown* UIDropdown::SelectOption(size_t Index, bool CallEvent)
 	if (CallEvent)
 	{
 		ButtonIndex = (int)Index;
-		UIButton::OnClicked();
+		UIButton::OnButtonClicked();
 	}
 	GenerateOptions();
 	return this;
@@ -122,7 +122,7 @@ void UIDropdown::Tick()
 	OptionsBox->SetPosition(OffsetPosition + Vector2(0, -1));
 }
 
-void UIDropdown::OnClicked()
+void UIDropdown::OnButtonClicked()
 {
 	OptionsBox->IsVisible = !OptionsBox->IsVisible;
 }

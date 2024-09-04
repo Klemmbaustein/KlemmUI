@@ -68,7 +68,7 @@ void UIButton::Tick()
 		{
 			if (!NeedsToBeSelected || IsSelected)
 			{
-				OnClicked();
+				OnButtonClicked();
 				IsPressed = false;
 				IsSelected = false;
 				RedrawElement();
@@ -102,9 +102,9 @@ void UIButton::Tick()
 
 }
 
-void UIButton::OnClicked()
+void UIButton::OnButtonClicked()
 {
-	if (OnClickedFunction) ParentWindow->UI.ButtonEvents.push_back(UIManager::ButtonEvent(OnClickedFunction, nullptr, nullptr, 0));
+	if (OnClicked) ParentWindow->UI.ButtonEvents.push_back(UIManager::ButtonEvent(OnClicked, nullptr, nullptr, 0));
 	if (OnClickedFunctionIndex) ParentWindow->UI.ButtonEvents.push_back(UIManager::ButtonEvent(nullptr, OnClickedFunctionIndex, nullptr, ButtonIndex));
 	if (ParentOverride)
 	{
@@ -181,7 +181,7 @@ Vector3f UIButton::GetColor() const
 
 UIButton::UIButton(bool Horizontal, Vector2f Position, Vector3f Color, std::function<void()> OnClickedFunction) : UIBackground(Horizontal, Position, Color)
 {
-	this->OnClickedFunction = OnClickedFunction;
+	this->OnClicked = OnClickedFunction;
 	this->ButtonColor = Color;
 	this->HoveredColor = Color * 0.75;
 	this->PressedColor = Color * 0.5;

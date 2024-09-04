@@ -70,7 +70,7 @@ float KlemmUI::UIBackground::GetBorderSize(float InSize, UIBox::SizeMode Mode)
 		return InSize;
 		break;
 	case KlemmUI::UIBox::SizeMode::PixelRelative:
-		return (InSize / (float)Window::GetActiveWindow()->GetSize().Y * Window::GetActiveWindow()->GetDPI()) * 4.0f;
+		return (std::floor(InSize * Window::GetActiveWindow()->GetDPI()) / (float)Window::GetActiveWindow()->GetSize().Y * 4.0f);
 	default:
 		return 0.0f;
 	}

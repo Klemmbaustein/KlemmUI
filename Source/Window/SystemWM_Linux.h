@@ -5,7 +5,6 @@
 
 namespace KlemmUI::SystemWM
 {
-
 	class SysWindow
 	{
 	public:
@@ -13,7 +12,6 @@ namespace KlemmUI::SystemWM
 		{
 			X11Window X11 = {};
 		};
-
 	};
 }
 #endif

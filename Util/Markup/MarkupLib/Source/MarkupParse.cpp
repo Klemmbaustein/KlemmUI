@@ -46,9 +46,11 @@ MarkupStructure::ParseResult MarkupParse::ParseFiles(std::vector<FileEntry> File
 		StructureElements.push_back(ParseElement(Element, Lines));
 	}
 
-	return MarkupStructure::ParseResult{
+	return MarkupStructure::ParseResult
+	{
 		.Elements = StructureElements,
 		.Constants = Consts,
+		.FileLines = FileLines,
 	};
 }
 
@@ -60,17 +62,28 @@ MarkupParse::FileResult MarkupParse::ReadFile(std::vector<StringParse::Line>& Li
 	for (size_t i = 0; i < Lines.size(); i++)
 	{
 		StringParse::Line& ln = Lines[i];
+		ln.ResetPos();
 		ParseError::SetLine(i);
 
-		std::string Content = ln.Peek();
+		StringParse::StringToken Content = ln.Peek();
 
 		if (Content == "element" && Depth == 0)
 		{
 			ln.Get(); // element
-			std::string Name = ln.Get();
+			StringParse::StringToken Name = ln.Get();
 			if (MarkupStructure::UIElement::IsDefaultElement(Name))
 			{
-				ParseError::Error("Invalid name: '" + Name + "'. A default element with this name already exists.");
+				ParseError::Error("Invalid name: '" + Name.Text + "'. A default element with this name already exists.", Name);
+				if (ln.Contains("{"))
+					Depth++;
+				continue;
+			}
+
+			if (!Name.IsName())
+			{
+				ParseError::Error("Invalid name for element: '" + Name.Text + "'", Name);
+				if (ln.Contains("{"))
+					Depth++;
 				continue;
 			}
 
@@ -79,11 +92,12 @@ MarkupParse::FileResult MarkupParse::ReadFile(std::vector<StringParse::Line>& Li
 				.File = FileName,
 				.Start = i,
 				.StartLine = ln.Index,
+				.DefinitionToken = Name
 				});
 			Current = &Out.Elements[Out.Elements.size() - 1];
 			if (ln.Get() != "{")
 			{
-				ParseError::Error("Expected a '{' after 'element " + Current->Name + "'");
+				ParseError::Error("Expected a '{' after 'element " + Current->Name + "', got '" + ln.Previous().Text + "'", ln.Previous());
 				Current = nullptr;
 				Out.Elements.pop_back();
 				continue;
@@ -97,7 +111,7 @@ MarkupParse::FileResult MarkupParse::ReadFile(std::vector<StringParse::Line>& Li
 
 			if (ln.Get() != "=")
 			{
-				ParseError::Error(ln.Previous().empty() ? "Expected a '=' after a constant definition." : "Unexpected '" + ln.Previous() + "' after a constant definition. Expected '='");
+				ParseError::Error(ln.Peek().Empty() ? "Expected a '=' after a const value." : "Unexpected '" + ln.Peek().Text + "' after a const value. Expected '='", ln.Peek());
 				continue;
 			}
 
@@ -106,7 +120,7 @@ MarkupParse::FileResult MarkupParse::ReadFile(std::vector<StringParse::Line>& Li
 				.Value = ln.GetUntil(""),
 				});
 		}
-		else if (ln.Contains("{"))
+		else if (ln.Contains("{") && Depth != 0)
 		{
 			Depth++;
 		}
@@ -114,20 +128,20 @@ MarkupParse::FileResult MarkupParse::ReadFile(std::vector<StringParse::Line>& Li
 		{
 			if (Depth == 0)
 			{
-				ParseError::Error("Unexpected '}'");
+				ParseError::Error("Unexpected '}'", Content);
 				continue;
 			}
 			Depth--;
 		}
 		else if (Depth == 0)
 		{
-			ParseError::Error("Unexpected '" + ln.Get() + "'");
+			ParseError::Error("Unexpected '" + ln.Peek().Text + "'", ln.Peek());
 		}
 	}
 
 	if (Depth != 0)
 	{
-		ParseError::Error("Expected a closing '}'");
+		ParseError::Error("Expected a closing '}'", StringParse::StringToken("", 0, 10000));
 	}
 
 	return Out;
@@ -137,30 +151,41 @@ MarkupStructure::MarkupElement KlemmUI::MarkupParse::ParseElement(ParsedElement&
 {
 	MarkupStructure::MarkupElement Element;
 	MarkupStructure::UIElement Root;
-	Root.TypeName = Elem.Name;
+	Root.TypeName = Elem.DefinitionToken;
 	Root.Type = MarkupStructure::UIElement::ElementType::UserDefined;
-	ParseScope(Root, Lines, Elem.Start, true);
+	
+	Lines.at(Elem.Start).StringPos = 0;
+	auto StartToken = Lines.at(Elem.Start).Peek();
+
+	auto EndToken = ParseScope(Root, Lines, Elem.Start, true);
+
+	Root.StartChar = StartToken.BeginChar;
+	Root.StartLine = StartToken.Line;
+	Root.EndChar = EndToken.EndChar;
+	Root.EndLine = EndToken.Line;
+
 	Element.Root = Root;
+	Element.FromToken = Elem.DefinitionToken;
 	Element.File = Elem.File;
 	return Element;
 }
 
-void KlemmUI::MarkupParse::ParseScope(MarkupStructure::UIElement& Elem, std::vector<StringParse::Line> Lines, size_t Start, bool IsRoot)
+StringParse::StringToken KlemmUI::MarkupParse::ParseScope(MarkupStructure::UIElement& Elem, std::vector<StringParse::Line> Lines, size_t Start, bool IsRoot)
 {
 	size_t Depth = 0;
 	for (size_t i = Start + 1; i < Lines.size(); i++)
 	{
 		StringParse::Line& ln = Lines[i];
-		ln.StringPos = 0;
 		ParseError::SetLine(i);
+		ln.ResetPos();
 
-		std::string Begin = ln.Get();
+		StringParse::StringToken Begin = ln.Get();
 
 		if (Begin == "}")
 		{
 			if (Depth == 0)
 			{
-				return;
+				return Begin;
 			}
 			Depth--;
 			continue;
@@ -174,19 +199,18 @@ void KlemmUI::MarkupParse::ParseScope(MarkupStructure::UIElement& Elem, std::vec
 			continue;
 		}
 
-
 		if (Begin == "{")
 		{
-			ParseError::Error("Unexpected '{'");
+			ParseError::Error("Unexpected '{'", Begin);
 		}
 		else if (Begin == "var")
 		{
 			if (!IsRoot)
 			{
-				ParseError::Error("Cannot declare variable here.");
+				ParseError::Error("Cannot declare variable here.", Begin);
 			}
 			std::string VariableName = ln.Get();
-			std::string Value;
+			StringParse::StringToken Value;
 
 			if (ln.Get() == "=")
 			{
@@ -197,12 +221,21 @@ void KlemmUI::MarkupParse::ParseScope(MarkupStructure::UIElement& Elem, std::vec
 		else if (Begin == "child")
 		{
 			MarkupStructure::UIElement New;
-			std::string Type = ln.Get();
+			StringParse::StringToken Type = ln.Get();
 
 			New.TypeName = Type;
-			New.Type = MarkupStructure::UIElement::IsDefaultElement(New.TypeName) ? MarkupStructure::UIElement::ElementType::Default : MarkupStructure::UIElement::ElementType::UserDefined;
-			std::string Next = ln.Get();
-			ParseScope(New, Lines, i, false);
+			New.Type = MarkupStructure::UIElement::IsDefaultElement(New.TypeName)
+				? MarkupStructure::UIElement::ElementType::Default
+				: MarkupStructure::UIElement::ElementType::UserDefined;
+
+			StringParse::StringToken Next = ln.Get();
+			auto EndToken = ParseScope(New, Lines, i, false);
+
+			New.StartChar = Next.BeginChar;
+			New.StartLine = Next.Line;
+
+			New.EndChar = EndToken.EndChar;
+			New.EndLine = EndToken.Line;
 
 			// No element name.
 			if (Next == "{")
@@ -211,7 +244,7 @@ void KlemmUI::MarkupParse::ParseScope(MarkupStructure::UIElement& Elem, std::vec
 			}
 			else
 			{
-				New.ElementName = Next;
+				New.ElementName = Next.Text;
 				Elem.Children.push_back(New);
 				if (ln.Empty())
 				{
@@ -219,7 +252,7 @@ void KlemmUI::MarkupParse::ParseScope(MarkupStructure::UIElement& Elem, std::vec
 				}
 				else if (ln.Get() != "{")
 				{
-					ParseError::Error("Unexpected '" + ln.Previous() + "'");
+					ParseError::Error("Unexpected '" + ln.Previous().Text + "'", ln.Previous());
 				}
 			}
 		}
@@ -229,12 +262,14 @@ void KlemmUI::MarkupParse::ParseScope(MarkupStructure::UIElement& Elem, std::vec
 				.Name = Begin,
 			};
 
-			if (ln.Get() != "=")
+			if (ln.Peek() != "=")
 			{
-				ParseError::Error("Expected '=' after '" + ln.Previous() + "'");
+				ParseError::Error("Expected '=' after '" + ln.Previous().Text + "', got '" + ln.Peek().Text + "'", ln.Peek());
 				continue;
 			}
-			p.Value = ln.GetUntil("");
+			ln.Get();
+
+			p.Value = ln.GetUntil("").Text;
 
 			Elem.ElementProperties.push_back(p);
 		}
@@ -243,4 +278,5 @@ void KlemmUI::MarkupParse::ParseScope(MarkupStructure::UIElement& Elem, std::vec
 			Depth++;
 		}
 	}
+	return StringParse::StringToken();
 }

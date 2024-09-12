@@ -3,6 +3,7 @@
 #include <vector>
 #include <set>
 #include <map>
+#include "StringParse.h"
 
 namespace KlemmUI::MarkupStructure
 {
@@ -11,8 +12,21 @@ namespace KlemmUI::MarkupStructure
 
 	struct Property
 	{
-		std::string Name;
+		StringParse::StringToken Name;
 		std::string Value;
+	};
+
+	enum class PropElementType
+	{
+		UIBox,
+		Backgrounds_Begin,
+		UIBackground,
+		UIButton,
+		UITextField,
+		Backgrounds_End,
+		UIScrollBox,
+		UIText,
+		Unknown,
 	};
 
 	struct UIElement
@@ -27,12 +41,13 @@ namespace KlemmUI::MarkupStructure
 			UserDefined,
 		};
 		/// Name of the element's type (UIBox, UIButton, MyElement...)
-		std::string TypeName;
+		StringParse::StringToken TypeName;
 		std::string ElementName;
 		ElementType Type = ElementType::Default;
 
 		std::vector<UIElement> Children;
 		std::vector<Property> ElementProperties;
+		size_t StartChar = 0, StartLine = 0, EndChar = 0, EndLine = 0;
 
 		struct Variable
 		{
@@ -80,10 +95,30 @@ namespace KlemmUI::MarkupStructure
 		std::string Value;
 	};
 
+	PropElementType GetTypeFromString(std::string TypeName);
+	std::string GetStringFromType(PropElementType Type);
+	bool IsSubclassOf(PropElementType Class, PropElementType Parent);
+
+	struct PropertyElement
+	{
+		PropElementType Type;
+		std::string Name;
+		std::string Description;
+		std::vector<std::string> SetFormat;
+		// If the VarType is Size, then a second function needs to be specified that sets the size mode.
+		std::string SetSizeFormat;
+		std::string (*CreateCodeFunction)(std::string InValue) = nullptr;
+		UIElement::Variable::VariableType VarType;
+		bool AlwaysSet = false;
+		std::string Default;
+	};
+	extern std::vector<PropertyElement> Properties;
+
 	struct MarkupElement
 	{
 		UIElement Root;
 		std::string File;
+		StringParse::StringToken FromToken;
 
 		void WriteHeader(const std::string& Path, ParseResult& MarkupElements);
 	private:
@@ -94,6 +129,7 @@ namespace KlemmUI::MarkupStructure
 	{
 		std::vector<MarkupElement> Elements;
 		std::vector<Constant> Constants;
+		std::map<std::string, std::vector<StringParse::Line>> FileLines;
 
 		Constant* GetConstant(std::string Name);
 	};

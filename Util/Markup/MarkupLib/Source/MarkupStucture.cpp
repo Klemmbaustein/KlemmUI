@@ -9,20 +9,7 @@
 #include <Markup/ParseError.h>
 using namespace KlemmUI::MarkupStructure;
 
-enum class PropElementType
-{
-	UIBox,
-	Backgrounds_Begin,
-	UIBackground,
-	UIButton,
-	UITextField,
-	Backgrounds_End,
-	UIScrollBox,
-	UIText,
-	Unknown,
-};
-
-static bool IsSubclassOf(PropElementType Class, PropElementType Parent)
+bool KlemmUI::MarkupStructure::IsSubclassOf(PropElementType Class, PropElementType Parent)
 {
 	if (Parent == PropElementType::UIBox)
 	{
@@ -41,18 +28,6 @@ static bool IsSubclassOf(PropElementType Class, PropElementType Parent)
 	return Class == Parent;
 }
 
-struct PropertyElement
-{
-	PropElementType Type;
-	std::string Name;
-	std::vector<std::string> SetFormat;
-	// If the VarType is Size, then a second function needs to be specified that sets the size mode.
-	std::string SetSizeFormat;
-	std::string (*CreateCodeFunction)(std::string InValue) = nullptr;
-	UIElement::Variable::VariableType VarType;
-	bool AlwaysSet = false;
-	std::string Default;
-};
 
 std::map<UIElement::Variable::VariableType, UIElement::Variable::VariableTypeDescription> UIElement::Variable::Descriptions =
 {
@@ -70,11 +45,11 @@ std::map<UIElement::Variable::VariableType, UIElement::Variable::VariableTypeDes
 },
 {
 	VariableType::Size,
-	VariableTypeDescription("Size", "Vector2f"),
+	VariableTypeDescription("SizeVector", "Vector2f"),
 },
 {
 	VariableType::SizeNumber,
-	VariableTypeDescription("1d Size", "float"),
+	VariableTypeDescription("SizeValue", "float"),
 },
 {
 	VariableType::SizeMode,
@@ -129,7 +104,7 @@ void MarkupElement::WriteHeader(const std::string& Path, ParseResult& MarkupElem
 	ParseError::SetCode(Lines, File);
 	UnnamedCounter = 0;
 	std::filesystem::create_directories(Path);
-	std::string ElementPath = Path + "/" + Root.TypeName + ".hpp";
+	std::string ElementPath = Path + "/" + Root.TypeName.Text + ".hpp";
 	std::stringstream Out;
 	Out << "#pragma once" << std::endl;
 
@@ -140,7 +115,7 @@ void MarkupElement::WriteHeader(const std::string& Path, ParseResult& MarkupElem
 		Out << "#include \"" << i << "\"" << std::endl;
 	}
 
-	Out << "class " << Root.TypeName << " : public KlemmUI::UIBox\n{\n";
+	Out << "class " << Root.TypeName.Text << " : public KlemmUI::UIBox\n{\n";
 
 	std::string Constructor = MakeConstructor(MarkupElements);
 	
@@ -203,7 +178,7 @@ std::string MarkupElement::MakeConstructor(ParseResult& MarkupElements)
 {
 	std::stringstream OutStream;
 
-	OutStream << "\t" << Root.TypeName << "() : UIBox(true)\n\t{\n";
+	OutStream << "\t" << Root.TypeName.Text << "() : UIBox(true)\n\t{\n";
 	size_t Depth = 0;
 	OutStream << Root.MakeCode("", &Root, Depth, MarkupElements);
 	OutStream << "\n\t}" << std::endl;
@@ -211,7 +186,7 @@ std::string MarkupElement::MakeConstructor(ParseResult& MarkupElements)
 	return OutStream.str();
 }
 
-static PropElementType GetTypeFromString(std::string TypeName)
+PropElementType KlemmUI::MarkupStructure::GetTypeFromString(std::string TypeName)
 {
 	if (TypeName == "UIBox")
 	{
@@ -238,6 +213,35 @@ static PropElementType GetTypeFromString(std::string TypeName)
 		return PropElementType::UIScrollBox;
 	}
 	return PropElementType::Unknown;
+}
+
+std::string KlemmUI::MarkupStructure::GetStringFromType(PropElementType Type)
+{
+	if (Type == PropElementType::UIBox)
+	{
+		return "UIBox";
+	}
+	if (Type == PropElementType::UIText)
+	{
+		return "UIText";
+	}
+	if (Type == PropElementType::UIBackground)
+	{
+		return "UIBackground";
+	}
+	if (Type == PropElementType::UIButton)
+	{
+		return "UIButton";
+	}
+	if (Type == PropElementType::UITextField)
+	{
+		return "UITextField";
+	}
+	if (Type == PropElementType::UIScrollBox)
+	{
+		return "UIScrollBox";
+	}
+	return "Unknown";
 }
 
 Constant* ParseResult::GetConstant(std::string Name)
@@ -392,7 +396,7 @@ std::string UIElement::MakeCode(std::string Parent, UIElement* Root, size_t& Dep
 			if (i.Name == Prop.Name)
 			{
 				OutStream << WriteElementProperty(this, Root, ElemName, i, Prop, MarkupElements);
-				i.Name.clear();
+				i.Name.Text.clear();
 				Found = true;
 				break;
 			}
@@ -400,7 +404,7 @@ std::string UIElement::MakeCode(std::string Parent, UIElement* Root, size_t& Dep
 		if (!Found && Prop.AlwaysSet)
 		{
 			OutStream << WriteElementProperty(this, Root, ElemName, Property{
-				.Name = Prop.Name,
+				.Name = StringParse::StringToken(Prop.Name, 0, 0),
 				.Value = Prop.Default
 				}, Prop, MarkupElements);
 		}
@@ -426,18 +430,18 @@ std::string UIElement::MakeCode(std::string Parent, UIElement* Root, size_t& Dep
 				prop.Value = ValueConstant->Value;
 			}
 
-			OutStream << "\t" << ElemName << "->Set" << prop.Name << "(" << KlemmUI::StringParse::ToCppCode(prop.Value) << ");" << std::endl;
-			prop.Name.clear();
+			OutStream << "\t" << ElemName << "->Set" << prop.Name.Text << "(" << KlemmUI::StringParse::ToCppCode(prop.Value) << ");" << std::endl;
+			prop.Name.Text.clear();
 		}
 	}
 
 	for (auto& i : PropertyCopy)
 	{
-		if (i.Name.empty())
+		if (i.Name.Text.empty())
 		{
 			continue;
 		}
-		ParseError::ErrorNoLine("Unknown property: " + i.Name);
+		ParseError::ErrorNoLine("Unknown property: " + i.Name.Text);
 	}
 
 	if (!Parent.empty())
@@ -491,11 +495,11 @@ std::set<std::string> UIElement::GetElementDependencies() const
 	{
 		if (i.Type == ElementType::Default)
 		{
-			Deps.insert("KlemmUI/UI/" + i.TypeName + ".h");
+			Deps.insert("KlemmUI/UI/" + i.TypeName.Text + ".h");
 		}
 		else
 		{
-			Deps.insert(i.TypeName + ".hpp");
+			Deps.insert(i.TypeName.Text + ".hpp");
 		}
 		auto ElemDeps = i.GetElementDependencies();
 
@@ -516,7 +520,7 @@ std::set<std::string> KlemmUI::MarkupStructure::UIElement::GetNamedElements() co
 	{
 		if (!i.ElementName.empty())
 		{
-			std::string Out = i.TypeName + "* " + i.ElementName;
+			std::string Out = i.TypeName.Text + "* " + i.ElementName;
 			if (IsDefaultElement(i.TypeName))
 			{
 				Out = "KlemmUI::" + Out;

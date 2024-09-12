@@ -19,6 +19,7 @@ namespace KlemmUI::MarkupParse
 		size_t Start;
 		size_t StartLine;
 		size_t End;
+		StringParse::StringToken DefinitionToken;
 		MarkupStructure::MarkupElement StructureElement;
 	};
 
@@ -31,5 +32,6 @@ namespace KlemmUI::MarkupParse
 	FileResult ReadFile(std::vector<StringParse::Line>& Lines, std::string FileName);
 	MarkupStructure::MarkupElement ParseElement(ParsedElement& Elem, std::vector<StringParse::Line>& Lines);
 
-	void ParseScope(MarkupStructure::UIElement& Elem, std::vector<StringParse::Line> Lines, size_t Start, bool IsRoot);
+	// Returns the last token that belongs to the element.
+	StringParse::StringToken ParseScope(MarkupStructure::UIElement& Elem, std::vector<StringParse::Line> Lines, size_t Start, bool IsRoot);
 }

@@ -23,12 +23,19 @@ void ParseError::SetLine(size_t Index)
 	LineIndex = Index;
 }
 
-void ParseError::Error(const std::string& Message)
+void ParseError::Error(const std::string& Message, const StringParse::StringToken& From)
 {
-	auto& Line = LoadedCode->at(LineIndex);
-	std::cerr << ActiveFile << ":" << Line.Index + 1 << ": Error: " << Message << std::endl;
+	ErrorCallback(Message, From.Line, From.BeginChar, From.EndChar);
+	ErrorCount++;
+}
+
+static void PrintError(std::string Message, size_t Line, size_t Begin, size_t End)
+{
+	using namespace KlemmUI::ParseError;
+	auto& LineContent = LoadedCode->at(LineIndex);
+	std::cerr << ActiveFile << ":" << Line + 1 << ": Error: " << Message << std::endl;
 	std::string LineString;
-	for (auto& i : Line.Strings)
+	for (auto& i : LineContent.Strings)
 	{
 		if (i == "," || i == "(" || i == ")")
 		{
@@ -46,8 +53,9 @@ void ParseError::Error(const std::string& Message)
 		std::cerr << '^';
 	}
 	std::cerr << std::endl;
-	ErrorCount++;
 }
+
+std::function<void(std::string Message, size_t Line, size_t Begin, size_t End)> KlemmUI::ParseError::ErrorCallback = &PrintError;
 
 void KlemmUI::ParseError::ErrorNoLine(const std::string& Message)
 {

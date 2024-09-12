@@ -6,16 +6,14 @@
 #include <sstream>
 using namespace KlemmUI;
 
-static std::unordered_set<char> Whitespace =
-{
+static std::unordered_set<char> Whitespace = {
 	' ',
 	'\t',
 	'\n',
 	'\r',
 };
 
-static std::unordered_set<char> SpecialChars =
-{
+static std::unordered_set<char> SpecialChars = {
 	'<',
 	'>',
 	'(',
@@ -89,44 +87,44 @@ static std::string RemoveComments(std::string Code)
 	return OutCode;
 }
 
-std::string StringParse::Line::Previous()
+StringParse::StringToken StringParse::Line::Previous()
 {
 	if (StringPos <= Strings.size() && StringPos > 0)
 	{
 		return Strings[StringPos - 1];
 	}
-	return "";
+	return GetLast();
 }
 
-std::string StringParse::Line::Get()
+StringParse::StringToken StringParse::Line::Get()
 {
 	if (StringPos < Strings.size())
 	{
 		return Strings[StringPos++];
 	}
-	return "";
+	return GetLast();
 }
 
-std::string StringParse::Line::Peek()
+StringParse::StringToken StringParse::Line::Peek()
 {
 	if (StringPos < Strings.size())
 	{
 		return Strings[StringPos];
 	}
-	return "";
+	return GetLast();
 }
 
-std::string StringParse::Line::GetUntil(std::string str)
+StringParse::StringToken StringParse::Line::GetUntil(std::string str)
 {
-	std::string Condition;
+	StringToken Condition;
 	while (!Empty())
 	{
-		std::string Next = Get();
-		if (Next == str)
+		StringToken Next = Get();
+		if (Next.Text == str)
 		{
 			break;
 		}
-		Condition.append(Next);
+		Condition = StringToken(Next, Condition.Empty() ? Next.BeginChar : Condition.BeginChar, Next.EndChar, Next.Line);
 	}
 	return Condition;
 }
@@ -149,7 +147,7 @@ StringParse::Line StringParse::Line::GetLineUntil(std::string str, bool RespectB
 	Line Condition;
 	while (!Empty())
 	{
-		std::string Next = Get();
+		StringToken Next = Get();
 		if (Next == "(")
 		{
 			Depth++;
@@ -180,7 +178,7 @@ StringParse::Line StringParse::Line::GetInBraces(bool SquareBraces)
 	bool Success = false;
 	while (!Empty())
 	{
-		std::string Next = Get();
+		StringToken Next = Get();
 
 		if (Next == "(" || (SquareBraces && Next == "["))
 		{
@@ -202,11 +200,11 @@ StringParse::Line StringParse::Line::GetInBraces(bool SquareBraces)
 	{
 		if (SquareBraces)
 		{
-			ParseError::Error("Expected a matching ']'");
+			ParseError::Error("Expected a matching ']'", Peek());
 		}
 		else
 		{
-			ParseError::Error("Expected a matching ')'");
+			ParseError::Error("Expected a matching ')'", Peek());
 		}
 	}
 	return Condition;
@@ -215,11 +213,11 @@ StringParse::Line StringParse::Line::GetInBraces(bool SquareBraces)
 std::vector<StringParse::Line> StringParse::Line::GetLinesInBraces()
 {
 	uint8_t Depth = 1;
-	std::vector<Line> Conditions = { };
+	std::vector<Line> Conditions = {};
 	bool Success = false;
 	while (!Empty())
 	{
-		std::string Next = Get();
+		StringToken Next = Get();
 
 		if (Next == "(")
 		{
@@ -250,9 +248,19 @@ std::vector<StringParse::Line> StringParse::Line::GetLinesInBraces()
 	}
 	if (!Success)
 	{
-		ParseError::Error("Expected a matching ')'");
+		ParseError::Error("Expected a matching ')'", Peek());
 	}
 	return Conditions;
+}
+
+StringParse::StringToken StringParse::Line::GetLast()
+{
+	if (Strings.size())
+	{
+		const StringToken& Last = Strings[Strings.size() - 1];
+		return StringToken("", Last.EndChar + 1, Last.EndChar + 1, Last.Line);
+	}
+	return StringToken("", 0, 0, 0);
 }
 
 bool StringParse::Line::Empty() const
@@ -260,18 +268,21 @@ bool StringParse::Line::Empty() const
 	return Strings.size() <= StringPos;
 }
 
-static void ParseWord(std::string& CurrentWord, StringParse::Line& CurrentLine)
+static void ParseWord(StringParse::StringToken& CurrentWord, StringParse::Line& CurrentLine)
 {
 	using namespace StringParse;
 
-	if (!CurrentWord.empty())
+	if (!CurrentWord.Empty())
 	{
+		if (CurrentWord.Line == SIZE_MAX)
+			CurrentWord.Line = CurrentLine.Index;
 		CurrentLine.Strings.push_back(CurrentWord);
 	}
-	CurrentWord.clear();
+	CurrentWord = StringToken();
+	CurrentWord.Line = CurrentLine.Index;
 }
 
-bool KlemmUI::StringParse::IsStringToken(std::string Element)
+bool StringParse::IsStringToken(std::string Element)
 {
 	if (Element.size() < 2)
 	{
@@ -347,9 +358,8 @@ std::string KlemmUI::StringParse::GetBorderType(std::string Element)
 bool KlemmUI::StringParse::IsNumber(std::string Element)
 {
 	char* p;
-	return(strspn(Element.c_str(), "-.0123456789") == Element.size());
+	return (strspn(Element.c_str(), "-.0123456789") == Element.size());
 	return !(*p);
-
 }
 
 std::string KlemmUI::StringParse::ToCppCode(std::string Value)
@@ -358,7 +368,7 @@ std::string KlemmUI::StringParse::ToCppCode(std::string Value)
 	{
 		return "float(" + Value + ")";
 	}
-	// (number, number, number) or maybe just (number)
+	// (number, number, number) or just (number)
 	if (IsVectorToken(Value))
 	{
 		auto Values = StringParse::SeparateString(Value);
@@ -369,7 +379,7 @@ std::string KlemmUI::StringParse::ToCppCode(std::string Value)
 		Strings.erase(Strings.begin());
 		// remove the last ')'
 		Strings.pop_back();
-		
+
 		std::string OutString;
 
 		std::string Value;
@@ -407,6 +417,51 @@ std::string KlemmUI::StringParse::ToCppCode(std::string Value)
 	}
 
 	return Value;
+}
+
+KlemmUI::StringParse::StringToken::StringToken(std::string Text, size_t BeginChar, size_t EndChar, size_t Line)
+{
+	this->Text = Text;
+	this->BeginChar = BeginChar;
+	this->EndChar = EndChar + 1;
+	this->Line = Line;
+}
+
+KlemmUI::StringParse::StringToken::StringToken(std::string Text, size_t BeginChar, size_t Line)
+	: StringToken(Text, BeginChar, BeginChar + Text.size() - 1, Line)
+{
+}
+
+void KlemmUI::StringParse::StringToken::Add(char c, size_t NewLast)
+{
+	if (Text.empty() && NewLast != SIZE_MAX)
+	{
+		BeginChar = NewLast;
+	}
+	Text.push_back(c);
+	if (NewLast == SIZE_MAX)
+	{
+		EndChar++;
+	}
+	else
+	{
+		EndChar = NewLast + 1;
+	}
+}
+
+bool KlemmUI::StringParse::StringToken::IsName() const
+{
+	if (Text.empty() || !std::isalpha(Text[Text.size() - 1]))
+		return false;
+
+	for (char c : Text)
+	{
+		if (!std::isalnum(c))
+		{
+			return false;
+		}
+	}
+	return true;
 }
 
 KlemmUI::StringParse::Size::Size(std::string SizeString, bool Is1D)
@@ -475,10 +530,10 @@ std::vector<StringParse::Line> StringParse::SeparateString(std::string String)
 	String = RemoveComments(String);
 	std::vector<Line> Lines;
 	Line CurrentLine;
-	CurrentLine.Index = 1;
-	std::string CurrentWord;
+	CurrentLine.Index = 0;
+	StringParse::StringToken CurrentWord;
 	size_t LineIndex = 0;
-	size_t LineBeginIndex = SIZE_MAX;
+	size_t LineCharacter = 0;
 
 	bool InQuotes = false;
 
@@ -487,13 +542,19 @@ std::vector<StringParse::Line> StringParse::SeparateString(std::string String)
 		if (c == '\n')
 		{
 			LineIndex++;
+			LineCharacter = 0;
 		}
+		else
+		{
+			LineCharacter++;
+		}
+		CurrentLine.Index = LineIndex;
 
 		if (c == '"')
 		{
 			if (InQuotes)
 			{
-				CurrentWord.push_back(c);
+				CurrentWord.Add(c, LineCharacter - 1);
 				ParseWord(CurrentWord, CurrentLine);
 				InQuotes = false;
 			}
@@ -501,14 +562,14 @@ std::vector<StringParse::Line> StringParse::SeparateString(std::string String)
 			{
 				ParseWord(CurrentWord, CurrentLine);
 				InQuotes = true;
-				CurrentWord.push_back(c);
+				CurrentWord.Add(c, LineCharacter - 1);
 			}
 			continue;
 		}
 
 		if (InQuotes)
 		{
-			CurrentWord.push_back(c);
+			CurrentWord.Add(c, LineCharacter - 1);
 			continue;
 		}
 
@@ -517,13 +578,11 @@ std::vector<StringParse::Line> StringParse::SeparateString(std::string String)
 			if (c == '{')
 			{
 				ParseWord(CurrentWord, CurrentLine);
-				CurrentWord = { c };
+				CurrentWord = StringToken({ c }, LineCharacter - 1, LineIndex);
 				ParseWord(CurrentWord, CurrentLine);
 			}
 
-			CurrentLine.Index = LineBeginIndex;
-			LineBeginIndex = SIZE_MAX;
-			if (!CurrentWord.empty())
+			if (!CurrentWord.Empty())
 			{
 				CurrentLine.Strings.push_back(CurrentWord);
 			}
@@ -533,12 +592,12 @@ std::vector<StringParse::Line> StringParse::SeparateString(std::string String)
 			}
 
 			CurrentLine = Line();
-			CurrentWord.clear();
+			CurrentWord = StringToken();
+			CurrentWord.Line = LineIndex;
 			if (c == '}')
 			{
 				Line l;
-				l.Index = LineIndex;
-				l.Strings = { { c } };
+				l.Strings = { StringToken({ c }, LineCharacter - 1, LineIndex) };
 				Lines.push_back(l);
 			}
 		}
@@ -549,16 +608,12 @@ std::vector<StringParse::Line> StringParse::SeparateString(std::string String)
 		else if (SpecialChars.contains(c))
 		{
 			ParseWord(CurrentWord, CurrentLine);
-			CurrentWord = { c };
+			CurrentWord = StringToken({ c }, LineCharacter - 1, LineIndex);
 			ParseWord(CurrentWord, CurrentLine);
-			if (LineBeginIndex == SIZE_MAX)
-				LineBeginIndex = LineIndex;
 		}
 		else
 		{
-			if (LineBeginIndex == SIZE_MAX)
-				LineBeginIndex = LineIndex;
-			CurrentWord.push_back(c);
+			CurrentWord.Add(c, LineCharacter - 1);
 		}
 	}
 	ParseWord(CurrentWord, CurrentLine);
@@ -568,4 +623,22 @@ std::vector<StringParse::Line> StringParse::SeparateString(std::string String)
 		Lines.push_back(CurrentLine);
 	}
 	return Lines;
+}
+
+std::optional<StringParse::StringToken> StringParse::GetTokenAt(std::vector<Line> Lines, size_t Character, size_t Line)
+{
+	for (auto& i : Lines)
+	{
+		i.ResetPos();
+
+		while (!i.Empty())
+		{
+			StringParse::StringToken Token = i.Get();
+			if (Token.Line == Line && Token.BeginChar <= Character && Token.EndChar >= Character)
+			{
+				return Token;
+			}
+		}
+	}
+	return {};
 }

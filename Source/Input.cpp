@@ -1,6 +1,5 @@
 #include <KlemmUI/Input.h>
 #include <KlemmUI/Window.h>
-#include <iostream>
 #include <KlemmUI/Rendering/ScrollObject.h>
 #include "Window/SystemWM.h"
 using namespace KlemmUI;

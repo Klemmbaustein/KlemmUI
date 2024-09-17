@@ -8,6 +8,8 @@ namespace KlemmUI::SystemWM
 	class SysWindow
 	{
 	public:
+		SysWindow() {}
+		~SysWindow() {}
 		union
 		{
 			X11Window X11 = {};

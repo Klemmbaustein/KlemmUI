@@ -21,7 +21,7 @@ namespace KlemmUI::SystemWM
 	void UpdateWindow(SysWindow* Target);
 	bool WindowHasFocus(SysWindow* Target);
 
-	Vector2ui GetCursorPosition(SysWindow* Target);
+	Vector2i GetCursorPosition(SysWindow* Target);
 	Vector2ui GetScreenSize();
 
 	std::string GetTextInput(SysWindow* Target);

@@ -31,6 +31,7 @@ std::string PathToName(std::string Path)
 {
 	ReplaceChar(Path, '/', "_slash_");
 	ReplaceChar(Path, '.', "_dot_");
+	ReplaceChar(Path, '-', "_dash_");
 	return Path;
 }
 

@@ -312,7 +312,6 @@ namespace KlemmUI
 		void UpdateDPI();
 		void HandleCursor();
 		void* Cursors[(int)Cursor::Cursor_End];
-		int ToSDLWindowFlags(WindowFlag Flags);
 		WindowFlag CurrentWindowFlags;
 	};
 

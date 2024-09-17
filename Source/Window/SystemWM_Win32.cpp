@@ -162,6 +162,7 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
 {
 	using namespace KlemmUI;
 
+#undef DELETE
 	// Map for mapping Windows virtual key codes to the keycode values of the library.
 	// Some vk codes do not have a #define, but why?
 	static std::map<int, KlemmUI::Key> Keys =
@@ -170,6 +171,7 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
 		{VK_BACK, Key::BACKSPACE},
 		{VK_TAB, Key::TAB},
 		{VK_SPACE, Key::SPACE},
+		{VK_DELETE, Key::DELETE},
 		{VK_OEM_PLUS, Key::PLUS},
 		{VK_OEM_COMMA, Key::COMMA},
 		{VK_OEM_PERIOD, Key::PERIOD},
@@ -545,6 +547,7 @@ void KlemmUI::SystemWM::DestroyWindow(SysWindow* Target)
 {
 	wglDeleteContext(Target->GLContext);
 	DestroyWindow(Target->WindowHandle);
+	delete Target;
 }
 
 void KlemmUI::SystemWM::SwapWindow(SysWindow* Target)
@@ -578,12 +581,12 @@ bool KlemmUI::SystemWM::WindowHasFocus(SysWindow* Target)
 	return GetFocus() == Target->WindowHandle;
 }
 
-Vector2ui KlemmUI::SystemWM::GetCursorPosition(SysWindow* Target)
+Vector2i KlemmUI::SystemWM::GetCursorPosition(SysWindow* Target)
 {
 	POINT p;
 	if (GetCursorPos(&p) && ScreenToClient(Target->WindowHandle, &p))
 	{
-		return Vector2ui(p.x, p.y);
+		return Vector2i(p.x, p.y);
 	}
 	return 0;
 }
@@ -777,24 +780,9 @@ void KlemmUI::SystemWM::HideWindow(SysWindow* Target)
 
 void KlemmUI::SystemWM::MessageBox(std::string Text, std::string Title, int Type)
 {
-	UINT MessageBoxType = 0;
+	std::array<UINT, 3> Types = { 0, MB_ICONWARNING, MB_ICONERROR };
 
-	switch (Type)
-	{
-	case 0:
-		MessageBoxType = 0;
-		break;
-	case 1:
-		MessageBoxType = MB_ICONWARNING;
-		break;
-	case 2:
-		MessageBoxType = MB_ICONERROR;
-		break;
-	default:
-		break;
-	}
-
-	::MessageBoxA(NULL, Text.c_str(), Title.c_str(), MessageBoxType);
+	::MessageBoxA(NULL, Text.c_str(), Title.c_str(), Types[Type]);
 }
 
 void KlemmUI::SystemWM::SysWindow::MakeContextActive() const

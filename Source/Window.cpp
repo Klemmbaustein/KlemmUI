@@ -9,7 +9,7 @@
 #include <KlemmUI/Image.h>
 #include <mutex>
 #include <cstring>
-#include <iostream>
+#include <chrono>
 #include <thread>
 
 #define SDL_WINDOW_PTR(x) SystemWM::SysWindow* x = static_cast<SystemWM::SysWindow*>(this->SysWindowPtr)
@@ -70,6 +70,7 @@ KlemmUI::Window::~Window()
 	std::lock_guard Guard = std::lock_guard(Internal::WindowCreationMutex);
 
 	SDL_WINDOW_PTR(SysWindow);
+	SystemWM::DestroyWindow(SysWindow);
 
 	for (size_t i = 0; i < ActiveWindows.size(); i++)
 	{
@@ -90,7 +91,6 @@ KlemmUI::Window::~Window()
 		HasMainWindow = false;
 	}
 
-	SystemWM::DestroyWindow(SysWindow);
 }
 
 KlemmUI::Window* KlemmUI::Window::GetActiveWindow()
@@ -121,7 +121,7 @@ void KlemmUI::Window::WaitFrame()
 	{
 		float DesiredDelta = 1.0f / (float)FPS;
 		float TimeToWait = std::max(DesiredDelta - WindowDeltaTimer.Get(), 0.0f);
-		std::this_thread::sleep_for(std::chrono::milliseconds((int)(TimeToWait * 1000.f)));
+		std::this_thread::sleep_for(std::chrono::milliseconds(int(TimeToWait * 1000.f)));
 	}
 #if __linux__
 	RedrawnWindow = false;
@@ -294,36 +294,6 @@ void KlemmUI::Window::HandleCursor()
 	CurrentCursor = dynamic_cast<UIButton*>(UI.HoveredBox) ? Cursor::Hand : (dynamic_cast<UITextField*>(UI.HoveredBox) ? Cursor::Text : Cursor::Default);
 }
 
-int KlemmUI::Window::ToSDLWindowFlags(WindowFlag Flags)
-{
-#if 0
-	int SDLFlags = 0;
-
-	if ((Flags & WindowFlag::Borderless) == WindowFlag::Borderless)
-	{
-		SDLFlags |= SDL_WINDOW_BORDERLESS;
-	}
-	if ((Flags & WindowFlag::AlwaysOnTop) == WindowFlag::AlwaysOnTop)
-	{
-		SDLFlags |= SDL_WINDOW_ALWAYS_ON_TOP;
-	}
-	if ((Flags & WindowFlag::FullScreen) == WindowFlag::FullScreen)
-	{
-		SDLFlags |= SDL_WINDOW_MAXIMIZED;
-	}
-	if ((Flags & WindowFlag::Resizable) == WindowFlag::Resizable)
-	{
-		SDLFlags |= SDL_WINDOW_RESIZABLE;
-	}
-	if ((Flags & WindowFlag::Popup) == WindowFlag::Popup)
-	{
-		SDLFlags |= SDL_WINDOW_TOOLTIP | SDL_WINDOW_SKIP_TASKBAR;
-	}
-	return SDLFlags;
-#endif
-	return 0;
-}
-
 bool KlemmUI::Window::UpdateWindow()
 {
 	SDL_WINDOW_PTR(SysWindow);
@@ -336,7 +306,6 @@ bool KlemmUI::Window::UpdateWindow()
 
 	SetWindowActive();
 	RedrawInternal();
-	SystemWM::UpdateWindow(SysWindow);
 	UI.UpdateEvents();
 	HandleCursor();
 	UpdateDPI();
@@ -346,6 +315,7 @@ bool KlemmUI::Window::UpdateWindow()
 		WaitFrame();
 	}
 	Input.UpdateCursorPosition();
+	SystemWM::UpdateWindow(SysWindow);
 	Input.Poll();
 
 	FrameDelta = WindowDeltaTimer.Get();
@@ -408,8 +378,8 @@ bool KlemmUI::Window::GetWindowFullScreen()
 
 bool KlemmUI::Window::GetMinimized()
 {
-	//	SDL_WINDOW_PTR(SDLWindow);
-	return false;
+	SDL_WINDOW_PTR(SysWindow);
+	return SystemWM::IsWindowMinimized(SysWindow);
 }
 
 void KlemmUI::Window::SetMinimized(bool NewIsMinimized)

@@ -2,7 +2,6 @@
 #include "SystemWM.h"
 #include "SystemWM_Linux.h"
 #include <iostream>
-#include <fcntl.h>
 
 static bool CheckFlag(KlemmUI::Window::WindowFlag Flag, KlemmUI::Window::WindowFlag Value)
 {
@@ -29,6 +28,7 @@ KlemmUI::SystemWM::SysWindow* KlemmUI::SystemWM::NewWindow(Window* Parent, Vecto
 void KlemmUI::SystemWM::DestroyWindow(SysWindow* Target)
 {
 	Target->X11.Destroy();
+	delete Target;
 }
 
 void KlemmUI::SystemWM::SwapWindow(SysWindow* Target)
@@ -56,28 +56,31 @@ bool KlemmUI::SystemWM::WindowHasFocus(SysWindow* Target)
 	return Target->X11.HasFocus;
 }
 
-Vector2ui KlemmUI::SystemWM::GetCursorPosition(SysWindow* Target)
+Vector2i KlemmUI::SystemWM::GetCursorPosition(SysWindow* Target)
 {
 	return Target->X11.CursorPosition;
 }
 
 Vector2ui KlemmUI::SystemWM::GetScreenSize()
 {
-	return Vector2ui(1920, 1080);
+	return X11Window::GetMainScreenResolution();
 }
 
 std::string KlemmUI::SystemWM::GetTextInput(SysWindow* Target)
 {
-	return "";
+	std::string NewText = Target->X11.TextInput;
+	Target->X11.TextInput.clear();
+	return NewText;
 }
 
 uint32_t KlemmUI::SystemWM::GetDesiredRefreshRate(SysWindow* From)
 {
-	return 60;
+	return From->X11.GetMonitorRefreshRate();
 }
 
 void KlemmUI::SystemWM::SetWindowCursor(SysWindow* Target, Window::Cursor NewCursor)
 {
+	Target->X11.SetCursor(NewCursor);
 }
 
 float KlemmUI::SystemWM::GetDPIScale(SysWindow* Target)
@@ -101,44 +104,56 @@ bool KlemmUI::SystemWM::IsLMBDown()
 
 bool KlemmUI::SystemWM::IsRMBDown()
 {
-	return false;
+	return X11Window::IsRMBDown();
 }
 
 void KlemmUI::SystemWM::SetWindowSize(SysWindow* Target, Vector2ui Size)
 {
+	Target->X11.SetSize(Size);
 }
 
 void KlemmUI::SystemWM::SetWindowPosition(SysWindow* Target, Vector2ui NewPosition)
 {
+	Target->X11.SetPosition(NewPosition);
 }
 
 void KlemmUI::SystemWM::SetTitle(SysWindow* Target, std::string Text)
 {
+	Target->X11.SetTitle(Text.c_str());
 }
 
 bool KlemmUI::SystemWM::IsWindowFullScreen(SysWindow* Target)
 {
 	return false;
 }
+bool KlemmUI::SystemWM::IsWindowMinimized(SysWindow* Target)
+{
+	return false;
+}
 
 void KlemmUI::SystemWM::SetWindowMinSize(SysWindow* Target, Vector2ui MinSize)
 {
+	Target->X11.SetMinSize(MinSize);
 }
 
 void KlemmUI::SystemWM::SetWindowMaxSize(SysWindow* Target, Vector2ui MaxSize)
 {
+	Target->X11.SetMaxSize(MaxSize);
 }
 
 void KlemmUI::SystemWM::RestoreWindow(SysWindow* Target)
 {
+	Target->X11.Restore();
 }
 
 void KlemmUI::SystemWM::MinimizeWindow(SysWindow* Target)
 {
+	Target->X11.Minimize();
 }
 
 void KlemmUI::SystemWM::MaximizeWindow(SysWindow* Target)
 {
+	Target->X11.Maximize();
 }
 
 static bool CommandExists(std::string Command)
@@ -169,6 +184,7 @@ void KlemmUI::SystemWM::MessageBox(std::string Text, std::string Title, int Type
 	}
 
 	// If kdialog and zenity don't exist, there's no good way of creating a message box.
+	// TODO: Maybe create a KlemmUI window containing the message?
 	// Making GUI apps for Linux is great!
 	std::cout << Title << ": " << Text << std::endl;
 }

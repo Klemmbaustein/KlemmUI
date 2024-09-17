@@ -22,6 +22,28 @@ add_library(
 	${SRCS}
 )
 
+if(NOT DEFINED WIN32)
+	option(KLEMMUI_USE_XRANDR "Use the Xrandr X11 extension if available" ON)
+	option(KLEMMUI_USE_XCURSOR "Use the XCursor X11 extension if available" ON)
+
+	message(STATUS "Checking for X11 extensions")
+	
+	find_library(KLEMMUI_XRANDR_LIB Xrandr)
+	find_library(KLEMMUI_XCURSOR_LIB Xcursor)
+
+	if(KLEMMUI_USE_XRANDR AND KLEMMUI_XRANDR_LIB)
+		target_compile_definitions(KlemmUI PRIVATE KLEMMUI_USE_XRANDR)
+		target_link_libraries(KlemmUI PUBLIC ${KLEMMUI_XRANDR_LIB})
+		message(STATUS "Using Xrandr X11 extension")
+	endif()
+	if(KLEMMUI_USE_XCURSOR AND KLEMMUI_XCURSOR_LIB)
+		target_compile_definitions(KlemmUI PRIVATE KLEMMUI_USE_XCURSOR)
+		target_link_libraries(KlemmUI PUBLIC ${KLEMMUI_XCURSOR_LIB})
+		message(STATUS "Using XCursor X11 extension")
+	endif()
+
+endif()
+
 add_subdirectory("Util/Markup/")
 add_subdirectory("Util/Resource/")
 
@@ -53,7 +75,7 @@ macro(klemmui_resources ProjectName ResourceDir)
 		COMMENT "Running build command."
 	)
 
-	set(RESOURCE_OUT_FILE ${CMAKE_BINARY_DIR}/res/${ProjectName}_res.c)
+	set(RESOURCE_OUT_FILE ${CMAKE_CURRENT_BINARY_DIR}/res/${ProjectName}_res.c)
 
 	add_custom_command(
 		TARGET ${ProjectName}_WriteResources
@@ -62,7 +84,7 @@ macro(klemmui_resources ProjectName ResourceDir)
 	)
 
 	if(NOT EXISTS ${RESOURCE_OUT_FILE})
-		file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/res)
+		file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/res)
 		file(TOUCH ${RESOURCE_OUT_FILE})
 	endif()
 

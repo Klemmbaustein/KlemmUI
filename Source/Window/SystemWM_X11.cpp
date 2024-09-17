@@ -1,26 +1,23 @@
 #if __linux__
 #include "SystemWM.h"
+#include "SystemWM_Linux.h"
 #include "SystemWM_X11.h"
 #include <KlemmUI/Application.h>
-#include <iostream>
 #include <cstring>
 #include <GL/gl.h>
 #include <X11/cursorfont.h>
+#include <X11/Xutil.h>
+#include <iostream>
 
 #ifdef KLEMMUI_USE_XRANDR
 #include <X11/extensions/Xrandr.h>
 #define HAS_XRANDR 1
 #endif
 
-#ifdef KLEMMUI_USE_XCURSOR
-#include <X11/Xcursor/Xcursor.h>
-#define HAS_XCURSOR 1
-#endif
-
 thread_local Display* KlemmUI::SystemWM::X11Window::XDisplay = nullptr;
 thread_local ::Window KlemmUI::SystemWM::X11Window::XRootWindow;
 
-std::string GetEnv(const std::string& var)
+static std::string GetEnv(const std::string& var)
 {
 	const char* val = std::getenv(var.c_str());
 
@@ -33,23 +30,23 @@ std::string GetEnv(const std::string& var)
 static void CheckForDisplay()
 {
 	using namespace KlemmUI::SystemWM;
+	using namespace KlemmUI::Application::Error;
 
 	if (X11Window::XDisplay == nullptr)
 	{
-		std::cout << "- [kui-X11]: Opening X11 display: '" << GetEnv("DISPLAY") << "'" << std::endl;
 		X11Window::XDisplay = XOpenDisplay(NULL);
 	}
 
 	if (!X11Window::XDisplay)
 	{
-		KlemmUI::Application::Error::Error("Failed to open x11 display", true);
+		Error("Failed to open x11 display", true);
 		return;
 	}
 
 	X11Window::XRootWindow = DefaultRootWindow(X11Window::XDisplay);
 	if (!X11Window::XRootWindow)
 	{
-		KlemmUI::Application::Error::Error("No root window found", true);
+		Error("No root window found", true);
 		XCloseDisplay(X11Window::XDisplay);
 		return;
 	}
@@ -70,7 +67,9 @@ static unsigned int GetX11CursorFont(KlemmUI::Window::Cursor CursorType)
 	return 0;
 }
 
-static Atom WmDeleteWindow;
+thread_local static Atom WmDeleteWindow;
+thread_local static Atom NetWmStateMaximizedHorz;
+thread_local static Atom NetWmStateMaximizedVert;
 
 void KlemmUI::SystemWM::X11Window::Create(Window* Parent, Vector2ui Size, Vector2ui Pos, std::string Title, bool Borderless, bool Resizable, bool Popup)
 {
@@ -102,7 +101,11 @@ void KlemmUI::SystemWM::X11Window::Create(Window* Parent, Vector2ui Size, Vector
 	WindowAttributes.event_mask = ExposureMask | FocusChangeMask | KeyPressMask | PointerMotionMask | KeyReleaseMask | SubstructureNotifyMask | ButtonPressMask;
 	XWindow = XCreateWindow(XDisplay, XRootWindow, Pos.X, Pos.Y, Size.X, Size.Y, 0, GlxVisual->depth, InputOutput, GlxVisual->visual, CWColormap | CWBorderPixel | CWEventMask, &WindowAttributes);
 	XStoreName(XDisplay, XWindow, Title.c_str());
+
 	WmDeleteWindow = XInternAtom(XDisplay, "WM_DELETE_WINDOW", false);
+	NetWmStateMaximizedHorz = XInternAtom(XDisplay, "_NET_WM_STATE_MAXIMIZED_HORZ", false);
+	NetWmStateMaximizedVert = XInternAtom(XDisplay, "_NET_WM_STATE_MAXIMIZED_VERT", false);
+
 	XSetWMProtocols(XDisplay, XWindow, &WmDeleteWindow, 1);
 
 	if (None == XWindow)
@@ -113,6 +116,7 @@ void KlemmUI::SystemWM::X11Window::Create(Window* Parent, Vector2ui Size, Vector
 	}
 	InputMethod = XOpenIM(XDisplay, NULL, NULL, NULL);
 	Input = XCreateIC(InputMethod, XNInputStyle, XIMStatusNothing | XIMPreeditNothing, XNClientWindow, XWindow, NULL);
+
 
 	XMapWindow(XDisplay, XWindow);
 
@@ -145,81 +149,59 @@ void KlemmUI::SystemWM::X11Window::MakeContextCurrent() const
 		glXMakeCurrent(XDisplay, XWindow, GLContext);
 }
 
+// Based on: https://stackoverflow.com/questions/27378318/c-get-string-from-clipboard-on-linux/44992938#44992938
+std::string GetSelection(Display* display, Window window, const char* bufname, const char* fmtname)
+{
+	char* result;
+	unsigned long ressize, restail;
+	int resbits;
+	Atom bufid = XInternAtom(display, bufname, False),
+		fmtid = XInternAtom(display, fmtname, False),
+		propid = XInternAtom(display, "XSEL_DATA", False),
+		incrid = XInternAtom(display, "INCR", False);
+	XEvent event;
+
+	XConvertSelection(display, bufid, fmtid, propid, window, CurrentTime);
+	do
+	{
+		XNextEvent(display, &event);
+	} while (event.type != SelectionNotify || event.xselection.selection != bufid);
+
+	std::string Result;
+	if (event.xselection.property)
+	{
+		XGetWindowProperty(display, window, propid, 0, LONG_MAX / 4, True, AnyPropertyType,
+			&fmtid, &resbits, &ressize, &restail, (unsigned char**)&result);
+		if (fmtid != incrid)
+			Result = std::string(result, ressize);
+		XFree(result);
+
+		if (fmtid == incrid)
+			do
+			{
+				do
+				{
+					XNextEvent(display, &event);
+				} while (event.type != PropertyNotify || event.xproperty.atom != propid || event.xproperty.state != PropertyNewValue);
+
+				XGetWindowProperty(display, window, propid, 0, LONG_MAX / 4, True, AnyPropertyType,
+					&fmtid, &resbits, &ressize, &restail, (unsigned char**)&result);
+				Result =  std::string(result, ressize);
+				XFree(result);
+			} while (ressize > 0);
+
+		return Result;
+	}
+	return "";
+}
+
 void KlemmUI::SystemWM::X11Window::UpdateWindow()
 {
 	while (XPending(XDisplay))
 	{
 		XEvent ev;
 		XNextEvent(XDisplay, &ev);
-
-		switch (ev.type)
-		{
-		case MotionNotify:
-			CursorPosition = Vector2i(ev.xmotion.x, ev.xmotion.y);
-			continue;
-		case ButtonPress:
-			CursorPosition = Vector2i(ev.xbutton.x, ev.xbutton.y);
-			continue;
-		case Expose:
-		{
-			Vector2ui NewSize = Vector2ui(ev.xexpose.width, ev.xexpose.height);
-			if (WindowSize != NewSize)
-			{
-				WindowSize = NewSize;
-				Parent->OnResized();
-			}
-			continue;
-		}
-		case FocusIn:
-			HasFocus = true;
-			continue;
-		case FocusOut:
-			HasFocus = false;
-			continue;
-		case DestroyNotify:
-			Parent->Close();
-			continue;
-		case KeyPress:
-		{
-			KeySym Symbol = XLookupKeysym(&ev.xkey, 0);
-			HandleKeyPress(Symbol, true);
-			int UtfSize = 0;
-			char UtfBuffer[32];
-			Status StringLookupStatus = 0;
-			UtfSize = Xutf8LookupString(Input, (XKeyPressedEvent*)&ev, UtfBuffer, sizeof(UtfBuffer) - 1, &Symbol, &StringLookupStatus);
-
-			if (StringLookupStatus == XBufferOverflow)
-				continue;
-			UtfBuffer[UtfSize] = 0;
-			if (Symbol == XK_BackSpace)
-				continue;
-			if (Symbol == XK_Delete)
-				continue;
-
-			if (UtfSize)
-			{
-				TextInput.append(UtfBuffer);
-			}
-
-			continue;
-		}
-		case KeyRelease:
-		{
-			KeySym Symbol = XLookupKeysym(&ev.xkey, 0);
-			HandleKeyPress(Symbol, false);
-			continue;
-		}
-		default:
-			break;
-		}
-		if ((Atom)ev.xclient.data.l[0] == WmDeleteWindow)
-		{
-			if (ev.xclient.window == XWindow)
-			{
-				Parent->Close();
-			}
-			break;
-		}
+		HandleEvent(ev);
 	}
 }
 
@@ -282,8 +264,6 @@ void KlemmUI::SystemWM::X11Window::Maximize()
 {
 	XEvent xev;
 	Atom wm_state = XInternAtom(XDisplay, "_NET_WM_STATE", False);
-	Atom max_horz = XInternAtom(XDisplay, "_NET_WM_STATE_MAXIMIZED_HORZ", False);
-	Atom max_vert = XInternAtom(XDisplay, "_NET_WM_STATE_MAXIMIZED_VERT", False);
 
 	memset(&xev, 0, sizeof(xev));
 	xev.type = ClientMessage;
@@ -291,8 +271,8 @@ void KlemmUI::SystemWM::X11Window::Maximize()
 	xev.xclient.message_type = wm_state;
 	xev.xclient.format = 32;
 	xev.xclient.data.l[0] = 1;
-	xev.xclient.data.l[1] = max_horz;
-	xev.xclient.data.l[2] = max_vert;
+	xev.xclient.data.l[1] = NetWmStateMaximizedHorz;
+	xev.xclient.data.l[2] = NetWmStateMaximizedVert;
 
 	XSendEvent(XDisplay, DefaultRootWindow(XDisplay), False, SubstructureNotifyMask, &xev);
 }
@@ -306,8 +286,6 @@ void KlemmUI::SystemWM::X11Window::Restore()
 {
 	XEvent xev;
 	Atom wm_state = XInternAtom(XDisplay, "_NET_WM_STATE", False);
-	Atom max_horz = XInternAtom(XDisplay, "_NET_WM_STATE_MAXIMIZED_HORZ", False);
-	Atom max_vert = XInternAtom(XDisplay, "_NET_WM_STATE_MAXIMIZED_VERT", False);
 
 	memset(&xev, 0, sizeof(xev));
 	xev.type = ClientMessage;
@@ -315,8 +293,8 @@ void KlemmUI::SystemWM::X11Window::Restore()
 	xev.xclient.message_type = wm_state;
 	xev.xclient.format = 32;
 	xev.xclient.data.l[0] = 0;
-	xev.xclient.data.l[1] = max_horz;
-	xev.xclient.data.l[2] = max_vert;
+	xev.xclient.data.l[1] = NetWmStateMaximizedHorz;
+	xev.xclient.data.l[2] = NetWmStateMaximizedVert;
 
 	XSendEvent(XDisplay, DefaultRootWindow(XDisplay), False, SubstructureNotifyMask, &xev);
 
@@ -332,6 +310,41 @@ void KlemmUI::SystemWM::X11Window::Restore()
 	XSendEvent(XDisplay, RootWindow(XDisplay, XDefaultScreen(XDisplay)), False,
 		SubstructureRedirectMask | SubstructureNotifyMask, (XEvent*)&ev);
 	XFlush(XDisplay);
+}
+
+bool KlemmUI::SystemWM::X11Window::IsMaximized()
+{
+	Atom ActualReturnType;
+	int ActualReturnFormat;
+	unsigned long BytesAfter;
+	unsigned char* Returned;
+	unsigned long ItemCount;
+	int Result = XGetWindowProperty(XDisplay, XWindow, XInternAtom(XDisplay, "_NET_WM_STATE", False), 0, 1024, False, AnyPropertyType,
+		&ActualReturnType, &ActualReturnFormat, &ItemCount, &BytesAfter, &Returned);
+
+	if (Result != Success)
+	{
+		return false;
+	}
+	Atom* Atoms = (Atom*)Returned;
+
+	for (int i = 0; i < ItemCount; i++)
+	{
+		if (Atoms[i] == NetWmStateMaximizedHorz)
+		{
+			XFree(Returned);
+			return true;
+		}
+	}
+
+	XFree(Returned);
+	return false;
+}
+
+// I found no good way of doing this...
+bool KlemmUI::SystemWM::X11Window::IsMinimized()
+{
+	return false;
 }
 
 Vector2ui KlemmUI::SystemWM::X11Window::GetPosition()
@@ -356,6 +369,17 @@ void KlemmUI::SystemWM::X11Window::SetPosition(Vector2ui NewPosition)
 void KlemmUI::SystemWM::X11Window::SetSize(Vector2ui NewSize)
 {
 	XResizeWindow(XDisplay, XWindow, NewSize.X, NewSize.Y);
+}
+
+std::string KlemmUI::SystemWM::X11Window::GetClipboard()
+{
+	Window* Current = Window::GetActiveWindow();
+	if (!Current)
+		return "";
+
+	SysWindow* CurrentWindow = static_cast<SysWindow*>(Current->GetSysWindow());
+
+	return GetSelection(XDisplay, CurrentWindow->X11.XWindow, "CLIPBOARD", "STRING");
 }
 
 Vector2ui KlemmUI::SystemWM::X11Window::GetMainScreenResolution()
@@ -388,6 +412,79 @@ uint32_t KlemmUI::SystemWM::X11Window::GetMonitorRefreshRate() const
 #else
 	return 60;
 #endif
+}
+
+void KlemmUI::SystemWM::X11Window::HandleEvent(XEvent ev)
+{
+	switch (ev.type)
+	{
+	case MotionNotify:
+		CursorPosition = Vector2i(ev.xmotion.x, ev.xmotion.y);
+		return;
+	case ButtonPress:
+		CursorPosition = Vector2i(ev.xbutton.x, ev.xbutton.y);
+		return;
+	case Expose:
+	{
+		Vector2ui NewSize = Vector2ui(ev.xexpose.width, ev.xexpose.height);
+		if (WindowSize != NewSize)
+		{
+			WindowSize = NewSize;
+			Parent->OnResized();
+		}
+		return;
+	}
+	case FocusIn:
+		HasFocus = true;
+		return;
+	case FocusOut:
+		HasFocus = false;
+		return;
+	case DestroyNotify:
+		Parent->Close();
+		return;
+	case KeyPress:
+	{
+		KeySym Symbol = XLookupKeysym(&ev.xkey, 0);
+		HandleKeyPress(Symbol, true);
+		int UtfSize = 0;
+		char UtfBuffer[32];
+		Status StringLookupStatus = 0;
+		UtfSize = Xutf8LookupString(Input, (XKeyPressedEvent*)&ev, UtfBuffer, sizeof(UtfBuffer) - 1, &Symbol, &StringLookupStatus);
+
+		if (StringLookupStatus == XBufferOverflow)
+			return;
+		UtfBuffer[UtfSize] = 0;
+		if (Symbol == XK_BackSpace)
+			return;
+		if (Symbol == XK_Delete)
+			return;
+
+		if (UtfSize)
+		{
+			TextInput.append(UtfBuffer);
+		}
+
+		return;
+	}
+	case KeyRelease:
+	{
+		KeySym Symbol = XLookupKeysym(&ev.xkey, 0);
+		HandleKeyPress(Symbol, false);
+		return;
+	}
+	default:
+		break;
+	}
+	if ((Atom)ev.xclient.data.l[0] == WmDeleteWindow)
+	{
+		if (ev.xclient.window == XWindow)
+		{
+			Parent->Close();
+		}
+		return;
+	}
+	std::cout << "Unknown event: " << ev.type << std::endl;
 }
 
 void KlemmUI::SystemWM::X11Window::HandleKeyPress(KeySym Symbol, bool NewValue)

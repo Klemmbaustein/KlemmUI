@@ -1,4 +1,5 @@
 #if __linux__
+#pragma once
 #include "SystemWM.h"
 #include "X11/Xlib.h"
 #include <GL/glx.h>
@@ -41,12 +42,17 @@ namespace KlemmUI::SystemWM
 		void Minimize();
 		void Restore();
 
+		bool IsMaximized();
+		bool IsMinimized();
+
 		Vector2ui GetPosition();
 		Vector2ui GetSize();
 
 		void SetPosition(Vector2ui NewPosition);
 		void SetSize(Vector2ui NewSize);
 		
+		static std::string GetClipboard();
+
 		static Vector2ui GetMainScreenResolution();
 		uint32_t GetMonitorRefreshRate() const;
 
@@ -56,6 +62,7 @@ namespace KlemmUI::SystemWM
 
 		bool HasFocus = false;
 	private:
+		void HandleEvent(XEvent ev);
 		void HandleKeyPress(KeySym Symbol, bool NewValue);
 		static int QueryPointer(Vector2ui* MousePos);
 	};

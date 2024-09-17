@@ -94,7 +94,7 @@ void KlemmUI::SystemWM::SetClipboardText(std::string NewText)
 
 std::string KlemmUI::SystemWM::GetClipboardText()
 {
-	return "";
+	return X11Window::GetClipboard();
 }
 
 bool KlemmUI::SystemWM::IsLMBDown()
@@ -124,11 +124,11 @@ void KlemmUI::SystemWM::SetTitle(SysWindow* Target, std::string Text)
 
 bool KlemmUI::SystemWM::IsWindowFullScreen(SysWindow* Target)
 {
-	return false;
+	return Target->X11.IsMaximized();
 }
 bool KlemmUI::SystemWM::IsWindowMinimized(SysWindow* Target)
 {
-	return false;
+	return Target->X11.IsMinimized();
 }
 
 void KlemmUI::SystemWM::SetWindowMinSize(SysWindow* Target, Vector2ui MinSize)

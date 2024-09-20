@@ -22,6 +22,8 @@ add_library(
 	${SRCS}
 )
 
+option(KLEMMUI_INCLUDE_EXAMPLES "Include example programs" ON)
+
 if(NOT DEFINED WIN32)
 	option(KLEMMUI_USE_XRANDR "Use the Xrandr X11 extension if available" ON)
 
@@ -52,7 +54,7 @@ macro(klemmui_markup ProjectName MarkupDir OutDir)
 
 	add_custom_command(
 		TARGET ${ProjectName}_WriteHeaders
-		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+		WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 		COMMAND $<TARGET_FILE:KlemmUIHT>  -i ${MarkupDir} -o ${OutDir}
 	)
 
@@ -72,8 +74,8 @@ macro(klemmui_resources ProjectName ResourceDir)
 
 	add_custom_command(
 		TARGET ${ProjectName}_WriteResources
-		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-		COMMAND $<TARGET_FILE:KlemmUIRC>  -i "${CMAKE_CURRENT_LIST_DIR}/${ResourceDir}" -o "${RESOURCE_OUT_FILE}" -n ${ProjectName}
+		WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+		COMMAND $<TARGET_FILE:KlemmUIRC>  -i "${ResourceDir}" -o "${RESOURCE_OUT_FILE}" -n ${ProjectName}
 	)
 
 	if(NOT EXISTS ${RESOURCE_OUT_FILE})
@@ -91,9 +93,12 @@ macro(klemmui_resources ProjectName ResourceDir)
 		target_compile_definitions(KlemmUI PUBLIC KLEMMUI_USE_RESOURCES)
 		target_compile_definitions(KlemmUI PUBLIC KLEMMUI_RESOURCE_NAME=${ProjectName})
 	endif()
-	message(STATUS "Adding resource dir - ${CMAKE_CURRENT_LIST_DIR}/${ResourceDir} -> ${RESOURCE_OUT_FILE}")
+	message(STATUS "Adding resource dir - ${ResourceDir} -> ${RESOURCE_OUT_FILE}")
 endmacro()
 
 klemmui_resources(KlemmUI "Resources/")
 
-add_subdirectory("Examples/HelloWorld" EXCLUDE_FROM_ALL)
+if(KLEMMUI_INCLUDE_EXAMPLES)
+	add_subdirectory("Examples/HelloWorld" EXCLUDE_FROM_ALL)
+	add_subdirectory("Examples/Translation" EXCLUDE_FROM_ALL)
+endif()

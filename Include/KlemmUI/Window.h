@@ -39,6 +39,7 @@ namespace KlemmUI
 
 		std::atomic<bool> ShouldClose = false;
 		std::atomic<bool> ShouldUpdateSize = false;
+		bool IsMainWindow = false;
 		static std::vector<Window*> ActiveWindows;
 		Vector2ui MinSize;
 		Vector2ui MaxSize;
@@ -307,7 +308,6 @@ namespace KlemmUI
 		float GetDPI() const;
 
 	private:
-		bool IsMainWindow = false;
 		float DPI = 1;
 		void UpdateDPI();
 		void HandleCursor();

@@ -119,7 +119,11 @@ void KlemmUI::Window::WaitFrame()
 	if (!RedrawnWindow)
 #endif
 	{
+#if __linux__
+		float DesiredDelta = 0.5f / (float)FPS;
+#else
 		float DesiredDelta = 1.0f / (float)FPS;
+#endif
 		float TimeToWait = std::max(DesiredDelta - WindowDeltaTimer.Get(), 0.0f);
 		std::this_thread::sleep_for(std::chrono::milliseconds(int(TimeToWait * 1000.f)));
 	}

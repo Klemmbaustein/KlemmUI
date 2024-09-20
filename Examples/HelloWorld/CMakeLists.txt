@@ -6,6 +6,7 @@ else()
 	add_executable(HelloWorld "main.cpp")
 endif()
 
-klemmui_resources(HelloWorld "res/")
+klemmui_resources(HelloWorld "../res/")
+klemmui_markup(HelloWorld "ui/" "elements/")
 
 target_link_libraries(HelloWorld PUBLIC KlemmUI)

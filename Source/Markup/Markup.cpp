@@ -42,3 +42,11 @@ MarkupLanguageManager* KlemmUI::MarkupLanguageManager::GetActive()
 {
 	return &Window::GetActiveWindow()->Markup;
 }
+
+void KlemmUI::MarkupLanguageManager::OnTranslationChanged()
+{
+	for (const auto& Callback : TranslationChangedCallbacks)
+	{
+		Callback();
+	}
+}

@@ -84,7 +84,7 @@ namespace KlemmUI::SystemWM::Borderless
 
 		MONITORINFO monitor_info{};
 		monitor_info.cbSize = sizeof(monitor_info);
-		if (!::GetMonitorInfo(monitor, &monitor_info))
+		if (!GetMonitorInfo(monitor, &monitor_info))
 		{
 			return;
 		}

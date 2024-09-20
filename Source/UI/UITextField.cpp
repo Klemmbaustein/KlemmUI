@@ -89,7 +89,9 @@ void UITextField::Tick()
 			RedrawElement();
 		}
 	}
-	std::string RenderedText = EnteredText;
+	TextObject->SetColor(EnteredText.empty() && !IsEdited ? Vector3f::Lerp(TextColor, Color, 0.25f) : TextColor);
+	TextObject->SetText(EnteredText.empty() && !IsEdited ? HintText : EnteredText);
+
 	TextTimer += ParentWindow->GetDeltaTime();
 	Vector2f EditedTextPos = IsEdited ? TextObject->GetLetterLocation(ParentWindow->Input.TextIndex) : 0;
 
@@ -125,8 +127,6 @@ void UITextField::Tick()
 		float MinX = std::min(EditedTextPos.X, TextHighlightPos.X);
 		TextHighlightPos.X = MinX;
 	}
-	TextObject->SetColor(EnteredText.empty() && !IsEdited ? Vector3f::Lerp(TextColor, Color, 0.25f) : TextColor);
-	TextObject->SetText(EnteredText.empty() && !IsEdited ? HintText : (IsEdited ? RenderedText : EnteredText));
 }
 
 UITextField* UITextField::SetText(std::string NewText)

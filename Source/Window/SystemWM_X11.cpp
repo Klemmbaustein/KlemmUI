@@ -312,6 +312,12 @@ void KlemmUI::SystemWM::X11Window::Restore()
 	XFlush(XDisplay);
 }
 
+float KlemmUI::SystemWM::X11Window::GetDPIScale()
+{
+	// TODO: Implement.
+	return 1.0;
+}
+
 bool KlemmUI::SystemWM::X11Window::IsMaximized()
 {
 	Atom ActualReturnType;
@@ -426,7 +432,7 @@ void KlemmUI::SystemWM::X11Window::HandleEvent(XEvent ev)
 		return;
 	case Expose:
 	{
-		Vector2ui NewSize = Vector2ui(ev.xexpose.width, ev.xexpose.height);
+		Vector2ui NewSize = GetSize();
 		if (WindowSize != NewSize)
 		{
 			WindowSize = NewSize;

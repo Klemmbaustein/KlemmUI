@@ -42,6 +42,8 @@ namespace KlemmUI::SystemWM
 		void Minimize();
 		void Restore();
 
+		float GetDPIScale();
+
 		bool IsMaximized();
 		bool IsMinimized();
 

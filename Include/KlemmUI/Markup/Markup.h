@@ -83,6 +83,10 @@ namespace KlemmUI
 		std::map<std::string, Font*> Fonts;
 		std::function<std::string(std::string)> GetStringFunction;
 	public:
+		std::vector<std::function<void()>> TranslationChangedCallbacks;
+
+		void OnTranslationChanged();
+
 		void AddFont(std::string FontName, Font* FontPointer);
 		void SetDefaultFont(Font* FontPointer);
 		Font* GetFont(std::string FontName);

@@ -85,7 +85,7 @@ void KlemmUI::SystemWM::SetWindowCursor(SysWindow* Target, Window::Cursor NewCur
 
 float KlemmUI::SystemWM::GetDPIScale(SysWindow* Target)
 {
-	return 1;
+	return Target->X11.GetDPIScale();
 }
 
 void KlemmUI::SystemWM::SetClipboardText(std::string NewText)

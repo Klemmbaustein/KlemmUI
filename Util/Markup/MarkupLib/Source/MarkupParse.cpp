@@ -3,17 +3,17 @@
 #include <iostream>
 #include <filesystem>
 #include <map>
-using namespace KlemmUI;
+using namespace kui;
 
 MarkupStructure::ParseResult MarkupParse::ParseFiles(std::vector<FileEntry> Files)
 {
-	std::map<std::string, std::vector<StringParse::Line>> FileLines;
+	std::map<std::string, std::vector<stringParse::Line>> FileLines;
 
 	std::vector<ParsedElement> AllElements;
 
 	for (const FileEntry& File : Files)
 	{
-		FileLines.insert({ File.Name, StringParse::SeparateString(File.Content) });
+		FileLines.insert({ File.Name, stringParse::SeparateString(File.Content) });
 	}
 
 	std::vector<MarkupStructure::Constant> Consts;
@@ -52,14 +52,14 @@ MarkupStructure::ParseResult MarkupParse::ParseFiles(std::vector<FileEntry> File
 	};
 }
 
-MarkupParse::FileResult MarkupParse::ReadFile(std::vector<StringParse::Line>& Lines, std::string FileName)
+MarkupParse::FileResult MarkupParse::ReadFile(std::vector<stringParse::Line>& Lines, std::string FileName)
 {
 	FileResult Out;
 	ParsedElement* Current = nullptr;
 	size_t Depth = 0;
 	for (size_t i = 0; i < Lines.size(); i++)
 	{
-		StringParse::Line& ln = Lines[i];
+		stringParse::Line& ln = Lines[i];
 		ParseError::SetLine(i);
 
 		std::string Content = ln.Peek();
@@ -133,7 +133,7 @@ MarkupParse::FileResult MarkupParse::ReadFile(std::vector<StringParse::Line>& Li
 	return Out;
 }
 
-MarkupStructure::MarkupElement KlemmUI::MarkupParse::ParseElement(ParsedElement& Elem, std::vector<StringParse::Line>& Lines)
+MarkupStructure::MarkupElement kui::MarkupParse::ParseElement(ParsedElement& Elem, std::vector<stringParse::Line>& Lines)
 {
 	MarkupStructure::MarkupElement Element;
 	MarkupStructure::UIElement Root;
@@ -145,12 +145,12 @@ MarkupStructure::MarkupElement KlemmUI::MarkupParse::ParseElement(ParsedElement&
 	return Element;
 }
 
-void KlemmUI::MarkupParse::ParseScope(MarkupStructure::UIElement& Elem, std::vector<StringParse::Line> Lines, size_t Start, bool IsRoot)
+void kui::MarkupParse::ParseScope(MarkupStructure::UIElement& Elem, std::vector<stringParse::Line> Lines, size_t Start, bool IsRoot)
 {
 	size_t Depth = 0;
 	for (size_t i = Start + 1; i < Lines.size(); i++)
 	{
-		StringParse::Line& ln = Lines[i];
+		stringParse::Line& ln = Lines[i];
 		ln.StringPos = 0;
 		ParseError::SetLine(i);
 

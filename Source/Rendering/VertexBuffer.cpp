@@ -1,7 +1,7 @@
 #include "VertexBuffer.h"
 #include <GL/glew.h>
 #include <iostream>
-using namespace KlemmUI;
+using namespace kui;
 
 VertexBuffer::VertexBuffer(std::vector<Vertex> Vertices, std::vector<unsigned int> Indices)
 {

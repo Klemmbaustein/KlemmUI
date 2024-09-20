@@ -7,7 +7,7 @@
 #include <sstream>
 #include <map>
 #include <Markup/ParseError.h>
-using namespace KlemmUI::MarkupStructure;
+using namespace kui::MarkupStructure;
 
 enum class PropElementType
 {
@@ -58,7 +58,7 @@ std::map<UIElement::Variable::VariableType, UIElement::Variable::VariableTypeDes
 {
 {
 	VariableType::None,
-	VariableTypeDescription("No type", "KlemmUI::AnyContainer"),
+	VariableTypeDescription("No type", "kui::AnyContainer"),
 },
 {
 	VariableType::Number,
@@ -70,7 +70,7 @@ std::map<UIElement::Variable::VariableType, UIElement::Variable::VariableTypeDes
 },
 {
 	VariableType::Size,
-	VariableTypeDescription("Size", "Vector2f"),
+	VariableTypeDescription("Size", "Vec2f"),
 },
 {
 	VariableType::SizeNumber,
@@ -78,19 +78,19 @@ std::map<UIElement::Variable::VariableType, UIElement::Variable::VariableTypeDes
 },
 {
 	VariableType::SizeMode,
-	VariableTypeDescription("SizeMode", "KlemmUI::UIBox::SizeMode"),
+	VariableTypeDescription("SizeMode", "kui::UIBox::SizeMode"),
 },
 {
 	VariableType::Align,
-	VariableTypeDescription("Align", "KlemmUI::UIBox::Align"),
+	VariableTypeDescription("Align", "kui::UIBox::Align"),
 },
 {
 	VariableType::Vector3,
-	VariableTypeDescription("Vector3", "Vector3f"),
+	VariableTypeDescription("Vector3", "Vec3f"),
 },
 {
-	VariableType::Vector2,
-	VariableTypeDescription("Vector2", "Vector2f"),
+	VariableType::Vec2,
+	VariableTypeDescription("Vec2", "Vec2f"),
 },
 {
 	VariableType::Bool,
@@ -125,7 +125,7 @@ static std::map<PropElementType, std::string> DefaultConstructors =
 static int UnnamedCounter = 0;
 void MarkupElement::WriteHeader(const std::string& Path, ParseResult& MarkupElements)
 {
-	std::vector<KlemmUI::StringParse::Line> Lines = {};
+	std::vector<kui::stringParse::Line> Lines = {};
 	ParseError::SetCode(Lines, File);
 	UnnamedCounter = 0;
 	std::filesystem::create_directories(Path);
@@ -140,7 +140,7 @@ void MarkupElement::WriteHeader(const std::string& Path, ParseResult& MarkupElem
 		Out << "#include \"" << i << "\"" << std::endl;
 	}
 
-	Out << "class " << Root.TypeName << " : public KlemmUI::UIBox\n{\n";
+	Out << "class " << Root.TypeName << " : public kui::UIBox\n{\n";
 
 	std::string Constructor = MakeConstructor(MarkupElements);
 	
@@ -157,7 +157,7 @@ void MarkupElement::WriteHeader(const std::string& Path, ParseResult& MarkupElem
 				i.second.Value = ValueConstant->Value;
 			}
 
-			std::string Value = StringParse::ToCppCode(i.second.Value);
+			std::string Value = stringParse::ToCppCode(i.second.Value);
 
 			Out << " = " << TypeName << "(" << Value << ")";
 		}
@@ -273,7 +273,7 @@ static std::string WriteElementProperty(UIElement* Target, UIElement* Root, std:
 			}
 			else
 			{
-				KlemmUI::ParseError::ErrorNoLine("Variable '" + Variable->first + "' does not have the correct type for the value of '" + i.Name + "'");
+				kui::ParseError::ErrorNoLine("Variable '" + Variable->first + "' does not have the correct type for the value of '" + i.Name + "'");
 			}
 		}
 		if (Target->ElementName.empty())
@@ -286,33 +286,33 @@ static std::string WriteElementProperty(UIElement* Target, UIElement* Root, std:
 		switch (i.VarType)
 		{
 		case UIElement::Variable::VariableType::String:
-			if (!KlemmUI::StringParse::IsStringToken(p.Value))
-				KlemmUI::ParseError::ErrorNoLine("Expected a string for value '" + i.Name + "'");
+			if (!kui::stringParse::IsStringToken(p.Value))
+				kui::ParseError::ErrorNoLine("Expected a string for value '" + i.Name + "'");
 			break;
 
 		case UIElement::Variable::VariableType::Size:
-			if (!KlemmUI::StringParse::IsSizeValue(p.Value))
-				KlemmUI::ParseError::ErrorNoLine("Expected a size for value '" + i.Name + "'");
+			if (!kui::stringParse::IsSizeValue(p.Value))
+				kui::ParseError::ErrorNoLine("Expected a size for value '" + i.Name + "'");
 			break;
 
 		case UIElement::Variable::VariableType::SizeNumber:
-			if (!KlemmUI::StringParse::Is1DSizeValue(p.Value))
-				KlemmUI::ParseError::ErrorNoLine("Expected a size for value '" + i.Name + "'");
+			if (!kui::stringParse::Is1DSizeValue(p.Value))
+				kui::ParseError::ErrorNoLine("Expected a size for value '" + i.Name + "'");
 			break;
 
 		case UIElement::Variable::VariableType::Align:
-			if (KlemmUI::StringParse::GetAlign(p.Value).empty())
-				KlemmUI::ParseError::ErrorNoLine("Expected a valid align value for '" + i.Name + "'");
-			p.Value = KlemmUI::StringParse::GetAlign(p.Value);
+			if (kui::stringParse::GetAlign(p.Value).empty())
+				kui::ParseError::ErrorNoLine("Expected a valid align value for '" + i.Name + "'");
+			p.Value = kui::stringParse::GetAlign(p.Value);
 			break;
 
 		case UIElement::Variable::VariableType::SizeMode:
-			p.Value = KlemmUI::StringParse::Size::SizeModeToKUISizeMode(p.Value);
+			p.Value = kui::stringParse::Size::SizeModeToKUISizeMode(p.Value);
 			break;
 
 		case UIElement::Variable::VariableType::Vector3:
-		case UIElement::Variable::VariableType::Vector2:
-			if (!KlemmUI::StringParse::IsVectorToken(p.Value) || KlemmUI::StringParse::IsNumber(p.Value))
+		case UIElement::Variable::VariableType::Vec2:
+			if (!kui::stringParse::IsVectorToken(p.Value) || kui::stringParse::IsNumber(p.Value))
 			{
 				p.Value = "(" + p.Value + ")";
 			}
@@ -331,7 +331,7 @@ static std::string WriteElementProperty(UIElement* Target, UIElement* Root, std:
 
 	for (auto& FormatString : i.SetFormat)
 	{
-		std::string Format = "->" + Format::FormatString(FormatString, { Format::FormatArg("val", KlemmUI::StringParse::ToCppCode(p.Value)) });
+		std::string Format = "->" + Format::FormatString(FormatString, { Format::FormatArg("val", kui::stringParse::ToCppCode(p.Value)) });
 
 		Value += "\t" + ElementName + Format + ";\n";
 		if (Variable != Root->Variables.end())
@@ -342,12 +342,12 @@ static std::string WriteElementProperty(UIElement* Target, UIElement* Root, std:
 
 	if (i.VarType == UIElement::Variable::VariableType::Size || i.VarType == UIElement::Variable::VariableType::SizeNumber)
 	{
-		auto val = KlemmUI::StringParse::Size(p.Value);
+		auto val = kui::stringParse::Size(p.Value);
 
 		if (!val.SizeMode.empty())
 		{
 			std::string Format = ElementName + "->" + Format::FormatString(i.SetSizeFormat, {
-				Format::FormatArg("val", KlemmUI::StringParse::Size::SizeModeToKUISizeMode(val.SizeMode))
+				Format::FormatArg("val", kui::stringParse::Size::SizeModeToKUISizeMode(val.SizeMode))
 				});
 			Value += "\t" + Format + ";\n";
 		}
@@ -371,7 +371,7 @@ std::string UIElement::MakeCode(std::string Parent, UIElement* Root, size_t& Dep
 		std::string ClassName = TypeName;
 		if (Type == ElementType::Default)
 		{
-			ClassName = "KlemmUI::" + ClassName;
+			ClassName = "kui::" + ClassName;
 		}
 		OutStream << ElemName << " = new " << ClassName << "(" << DefaultConstructors[GetTypeFromString(TypeName)] << ");\n";
 	}
@@ -426,7 +426,7 @@ std::string UIElement::MakeCode(std::string Parent, UIElement* Root, size_t& Dep
 				prop.Value = ValueConstant->Value;
 			}
 
-			OutStream << "\t" << ElemName << "->Set" << prop.Name << "(" << KlemmUI::StringParse::ToCppCode(prop.Value) << ");" << std::endl;
+			OutStream << "\t" << ElemName << "->Set" << prop.Name << "(" << kui::stringParse::ToCppCode(prop.Value) << ");" << std::endl;
 			prop.Name.clear();
 		}
 	}
@@ -464,12 +464,12 @@ std::string UIElement::MakeCode(std::string Parent, UIElement* Root, size_t& Dep
 	return OutStream.str();
 }
 
-bool KlemmUI::MarkupStructure::UIElement::IsDefaultElement(const std::string& Name)
+bool kui::MarkupStructure::UIElement::IsDefaultElement(const std::string& Name)
 {
 	return GetTypeFromString(Name) != PropElementType::Unknown;
 }
 
-std::string KlemmUI::MarkupStructure::UIElement::WriteVariableSetter(std::pair<std::string, Variable> Var)
+std::string kui::MarkupStructure::UIElement::WriteVariableSetter(std::pair<std::string, Variable> Var)
 {
 	std::stringstream Out;
 
@@ -491,7 +491,7 @@ std::set<std::string> UIElement::GetElementDependencies() const
 	{
 		if (i.Type == ElementType::Default)
 		{
-			Deps.insert("KlemmUI/UI/" + i.TypeName + ".h");
+			Deps.insert("kui/UI/" + i.TypeName + ".h");
 		}
 		else
 		{
@@ -504,12 +504,12 @@ std::set<std::string> UIElement::GetElementDependencies() const
 			Deps.insert(elem);
 		}
 	}
-	Deps.insert("KlemmUI/UI/UIBox.h");
-	Deps.insert("KlemmUI/Markup/Markup.h");
+	Deps.insert("kui/UI/UIBox.h");
+	Deps.insert("kui/Markup/Markup.h");
 	return Deps;
 }
 
-std::set<std::string> KlemmUI::MarkupStructure::UIElement::GetNamedElements() const
+std::set<std::string> kui::MarkupStructure::UIElement::GetNamedElements() const
 {
 	std::set<std::string> Deps;
 	for (auto& i : Children)
@@ -519,7 +519,7 @@ std::set<std::string> KlemmUI::MarkupStructure::UIElement::GetNamedElements() co
 			std::string Out = i.TypeName + "* " + i.ElementName;
 			if (IsDefaultElement(i.TypeName))
 			{
-				Out = "KlemmUI::" + Out;
+				Out = "kui::" + Out;
 			}
 			Deps.insert(Out);
 		}

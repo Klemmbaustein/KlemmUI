@@ -4,7 +4,7 @@
 #include <set>
 #include <map>
 
-namespace KlemmUI::MarkupStructure
+namespace kui::MarkupStructure
 {
 	struct MarkupElement;
 	struct ParseResult;
@@ -49,7 +49,7 @@ namespace KlemmUI::MarkupStructure
 				SizeMode,
 				Align,
 				Vector3,
-				Vector2,
+				Vec2,
 				Bool,
 				Orientation,
 				Callback,

@@ -1,10 +1,10 @@
-#include <KlemmUI/Input.h>
-#include <KlemmUI/Window.h>
-#include <KlemmUI/Rendering/ScrollObject.h>
-#include "Window/SystemWM.h"
-using namespace KlemmUI;
+#include <kui/Input.h>
+#include <kui/Window.h>
+#include <kui/Rendering/ScrollObject.h>
+#include "SystemWM/SystemWM.h"
+using namespace kui;
 
-Window* KlemmUI::InputManager::GetWindowByPtr(void* Ptr)
+Window* kui::InputManager::GetWindowByPtr(void* Ptr)
 {
 	std::vector<Window*> ActiveWindows = Window::GetActiveWindows();
 	for (Window* i : ActiveWindows)
@@ -17,7 +17,7 @@ Window* KlemmUI::InputManager::GetWindowByPtr(void* Ptr)
 	return nullptr;
 }
 
-void KlemmUI::InputManager::MoveTextIndex(int Amount, bool RespectShiftPress)
+void kui::InputManager::MoveTextIndex(int Amount, bool RespectShiftPress)
 {
 	TextIndex = std::max(std::min(TextIndex + Amount, (int)Text.size()), 0);
 	if ((!IsKeyDown(Key::LSHIFT) && !IsKeyDown(Key::RSHIFT)) || !RespectShiftPress)
@@ -26,7 +26,7 @@ void KlemmUI::InputManager::MoveTextIndex(int Amount, bool RespectShiftPress)
 	}
 }
 
-KlemmUI::InputManager::InputManager(Window* Parent)
+kui::InputManager::InputManager(Window* Parent)
 {
 	ParentWindow = Parent;
 	
@@ -127,7 +127,7 @@ KlemmUI::InputManager::InputManager(Window* Parent)
 
 }
 
-void KlemmUI::InputManager::UpdateCursorPosition()
+void kui::InputManager::UpdateCursorPosition()
 {
 	SystemWM::SysWindow* SysWindow = static_cast<SystemWM::SysWindow*>(ParentWindow->GetSysWindow());
 
@@ -137,10 +137,10 @@ void KlemmUI::InputManager::UpdateCursorPosition()
 		return;
 	}
 
-	Vector2ui Size = ParentWindow->GetSize();
-	Vector2ui Pos = SystemWM::GetCursorPosition(SysWindow);
+	Vec2ui Size = ParentWindow->GetSize();
+	Vec2ui Pos = SystemWM::GetCursorPosition(SysWindow);
 
-	ParentWindow->Input.MousePosition = Vector2(((float)Pos.X / (float)Size.X - 0.5f) * 2.0f, 1.0f - ((float)Pos.Y / (float)Size.Y * 2.0f));
+	ParentWindow->Input.MousePosition = Vec2(((float)Pos.X / (float)Size.X - 0.5f) * 2.0f, 1.0f - ((float)Pos.Y / (float)Size.Y * 2.0f));
 }
 
 void InputManager::Poll()
@@ -169,7 +169,7 @@ void InputManager::Poll()
 	AddTextInput(SystemWM::GetTextInput(SysWindow));
 }
 
-void KlemmUI::InputManager::MoveMouseWheel(int Amount)
+void kui::InputManager::MoveMouseWheel(int Amount)
 {
 	while (Amount)
 	{
@@ -188,7 +188,7 @@ void KlemmUI::InputManager::MoveMouseWheel(int Amount)
 
 }
 
-void KlemmUI::InputManager::AddTextInput(std::string Str)
+void kui::InputManager::AddTextInput(std::string Str)
 {
 	if (Str.empty())
 	{
@@ -206,7 +206,7 @@ void KlemmUI::InputManager::AddTextInput(std::string Str)
 	}
 }
 
-void KlemmUI::InputManager::DeleteTextSelection()
+void kui::InputManager::DeleteTextSelection()
 {
 	int Difference = std::abs(TextSelectionStart - TextIndex);
 	Text.erase(std::min(TextIndex, TextSelectionStart), Difference);
@@ -245,7 +245,7 @@ void InputManager::SetKeyDown(Key PressedKey, bool KeyDown)
 	}
 }
 
-Vector2ui KlemmUI::InputManager::GetMouseScreenPosition()
+Vec2ui kui::InputManager::GetMouseScreenPosition()
 {
 	return 0;
 }
@@ -262,7 +262,7 @@ void InputManager::RegisterOnKeyDownCallback(Key PressedKey, void(*Callback)(Win
 	}
 }
 
-void KlemmUI::InputManager::RemoveOnKeyDownCallback(Key PressedKey, void(*Callback)(Window*))
+void kui::InputManager::RemoveOnKeyDownCallback(Key PressedKey, void(*Callback)(Window*))
 {
 	if (ButtonPressedCallbacks.contains(PressedKey))
 	{
@@ -279,13 +279,13 @@ void KlemmUI::InputManager::RemoveOnKeyDownCallback(Key PressedKey, void(*Callba
 	}
 }
 
-std::string KlemmUI::InputManager::GetSelectedTextString() const
+std::string kui::InputManager::GetSelectedTextString() const
 {
 	int Start = std::min(TextIndex, TextSelectionStart), End = std::max(TextIndex, TextSelectionStart);
 	return Text.substr(Start, End - Start);
 }
 
-void KlemmUI::InputManager::SetTextIndex(int NewIndex, bool ClearSelection)
+void kui::InputManager::SetTextIndex(int NewIndex, bool ClearSelection)
 {
 	TextIndex = NewIndex;
 	if (ClearSelection)

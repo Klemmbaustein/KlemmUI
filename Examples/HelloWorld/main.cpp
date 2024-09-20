@@ -1,20 +1,18 @@
-#include <KlemmUI/Window.h>
-#include <KlemmUI/Application.h>
+#include <kui/KlemmUI.h>
 #include "elements/HelloWorld.hpp"
-using namespace KlemmUI;
-
+using namespace kui;
 
 int main()
 {
-	Application::Error::SetErrorCallback([](std::string Message, bool Fatal)
+	app::error::SetErrorCallback([](std::string Message, bool Fatal)
 		{
-			KlemmUI::Application::MessageBox(Message, "Error", Application::MessageBoxType::Error);
+			app::MessageBox(Message, "Error", app::MessageBoxType::Error);
 		});
 
-	Window MainWindow = Window("Hello, World!", Window::WindowFlag::Resizable, Window::POSITION_CENTERED, Vector2ui(800, 600));
+	Window MainWindow = Window("Hello, World!", Window::WindowFlag::Resizable, Window::POSITION_CENTERED, Window::SIZE_DEFAULT);
 
-	Font* Fnt = new Font("res:Roboto-Regular.ttf");
-	MainWindow.Markup.SetDefaultFont(Fnt);
+	Font* RobotoFont = new Font("res:Roboto-Regular.ttf");
+	MainWindow.Markup.SetDefaultFont(RobotoFont);
 
 	HelloWorld* HelloWorldElement = new HelloWorld();
 
@@ -22,7 +20,7 @@ int main()
 	{
 	}
 	
-	delete Fnt;
+	delete RobotoFont;
 }
 
 int WinMain()

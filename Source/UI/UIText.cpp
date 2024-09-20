@@ -1,8 +1,8 @@
-#include <KlemmUI/UI/UIText.h>
-#include <KlemmUI/Application.h>
-#include <KlemmUI/Window.h>
+#include <kui/UI/UIText.h>
+#include <kui/App.h>
+#include <kui/Window.h>
 
-using namespace KlemmUI;
+using namespace kui;
 
 float UIText::GetRenderedSize() const
 {
@@ -23,7 +23,7 @@ float UIText::GetWrapDistance() const
 	}
 	if (WrapSizeMode == SizeMode::PixelRelative)
 	{
-		Distance = UIBox::PixelSizeToScreenSize(Vector2f((float)Distance, 0.0), ParentWindow).X;
+		Distance = UIBox::PixelSizeToScreenSize(Vec2f((float)Distance, 0.0), ParentWindow).X;
 	}
 	return Distance;
 }
@@ -43,12 +43,12 @@ void UIText::Tick()
 	SetMinSize(GetUsedSize());
 }
 
-Vector3f UIText::GetColor() const
+Vec3f UIText::GetColor() const
 {
 	return Color;
 }
 
-UIText* UIText::SetColor(Vector3f NewColor)
+UIText* UIText::SetColor(Vec3f NewColor)
 {
 	if (Color != NewColor)
 	{
@@ -99,7 +99,7 @@ float UIText::GetTextSize() const
 	return TextSize / 2;
 }
 
-Vector2f UIText::GetTextSizeAtScale(float Scale, SizeMode ScaleType, Font* Renderer)
+Vec2f UIText::GetTextSizeAtScale(float Scale, SizeMode ScaleType, Font* Renderer)
 {
 	float RenderedSize = Scale;
 	if (ScaleType == SizeMode::PixelRelative)
@@ -135,7 +135,7 @@ UIText* UIText::SetText(std::vector<TextSegment> NewText)
 	return this;
 }
 
-size_t UIText::GetNearestLetterAtLocation(Vector2f Location) const
+size_t UIText::GetNearestLetterAtLocation(Vec2f Location) const
 {
 	if (Renderer == nullptr)
 		return 0;
@@ -148,7 +148,7 @@ std::string UIText::GetText() const
 	return TextSegment::CombineToString(RenderedText);
 }
 
-UIText::UIText(float Scale, Vector3f Color, std::string Text, Font* NewFont) : UIBox(true, 0)
+UIText::UIText(float Scale, Vec3f Color, std::string Text, Font* NewFont) : UIBox(true, 0)
 {
 	this->TextSize = Scale * 2;
 	this->Color = Color;
@@ -168,11 +168,11 @@ UIText::~UIText()
 	if (Text) delete Text;
 }
 
-Vector2f UIText::GetLetterLocation(size_t Index) const
+Vec2f UIText::GetLetterLocation(size_t Index) const
 {
 	if (!Renderer) return 0;
 	std::string Text = TextSegment::CombineToString(RenderedText);
-	return Vector2f(Renderer->GetTextSize({ TextSegment(Text.substr(0, Index), 1) }, GetRenderedSize(), false, 999).X, 0) + OffsetPosition;
+	return Vec2f(Renderer->GetTextSize({ TextSegment(Text.substr(0, Index), 1) }, GetRenderedSize(), false, 999).X, 0) + OffsetPosition;
 }
 
 UIText* UIText::SetWrapEnabled(bool WrapEnabled, float WrapDistance, SizeMode WrapSizeMode)
@@ -205,12 +205,12 @@ void UIText::Update()
 	}
 	if (Wrap)
 	{
-		Text = Renderer->MakeText(RenderedText, OffsetPosition + Vector2f(0, Size.Y - GetRenderedSize() / 40),
+		Text = Renderer->MakeText(RenderedText, OffsetPosition + Vec2f(0, Size.Y - GetRenderedSize() / 40),
 			GetRenderedSize(), Color, Opacity, GetWrapDistance());
 	}
 	else
 	{
-		Text = Renderer->MakeText(RenderedText, OffsetPosition + Vector2f(0, Size.Y - GetRenderedSize() / 40),
+		Text = Renderer->MakeText(RenderedText, OffsetPosition + Vec2f(0, Size.Y - GetRenderedSize() / 40),
 			GetRenderedSize(), Color, Opacity, 999);
 	}
 }
@@ -219,16 +219,16 @@ void UIText::OnAttached()
 {
 }
 
-Vector2f UIText::GetUsedSize()
+Vec2f UIText::GetUsedSize()
 {
 	if (!Renderer)
 		return 0;
 
-	Vector2f Size = Renderer->GetTextSize(RenderedText, GetRenderedSize(), Wrap, GetWrapDistance());
+	Vec2f Size = Renderer->GetTextSize(RenderedText, GetRenderedSize(), Wrap, GetWrapDistance());
 
 	if (TextWidthOverride != 0)
 	{
-		return Vector2f(TextWidthOverride, Size.Y);
+		return Vec2f(TextWidthOverride, Size.Y);
 	}
 	return Size;
 }

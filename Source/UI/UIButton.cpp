@@ -1,12 +1,12 @@
-#include <KlemmUI/UI/UIButton.h>
+#include <kui/UI/UIButton.h>
 #include <GL/glew.h>
-#include <KlemmUI/Rendering/Shader.h>
+#include <kui/Rendering/Shader.h>
 #include "../Rendering/VertexBuffer.h"
-#include <KlemmUI/Application.h>
-#include <KlemmUI/Window.h>
-#include <KlemmUI/Rendering/ScrollObject.h>
+#include <kui/App.h>
+#include <kui/Window.h>
+#include <kui/Rendering/ScrollObject.h>
 
-using namespace KlemmUI;
+using namespace kui;
 
 void UIButton::Tick()
 {
@@ -132,7 +132,7 @@ bool UIButton::GetIsPressed() const
 	return IsPressed;
 }
 
-UIBackground* UIButton::SetColor(Vector3f NewColor)
+UIBackground* UIButton::SetColor(Vec3f NewColor)
 {
 	if (NewColor != ButtonColor)
 	{
@@ -146,7 +146,7 @@ UIBackground* UIButton::SetColor(Vector3f NewColor)
 	return this;
 }
 
-UIButton* UIButton::SetHoveredColor(Vector3f NewColor)
+UIButton* UIButton::SetHoveredColor(Vec3f NewColor)
 {
 	if (NewColor != HoveredColor)
 	{
@@ -160,7 +160,7 @@ UIButton* UIButton::SetHoveredColor(Vector3f NewColor)
 	return this;
 }
 
-UIButton* UIButton::SetPressedColor(Vector3f NewColor)
+UIButton* UIButton::SetPressedColor(Vec3f NewColor)
 {
 	if (NewColor != PressedColor)
 	{
@@ -174,12 +174,12 @@ UIButton* UIButton::SetPressedColor(Vector3f NewColor)
 	return this;
 }
 
-Vector3f UIButton::GetColor() const
+Vec3f UIButton::GetColor() const
 {
 	return ButtonColor;
 }
 
-UIButton::UIButton(bool Horizontal, Vector2f Position, Vector3f Color, std::function<void()> OnClickedFunction) : UIBackground(Horizontal, Position, Color)
+UIButton::UIButton(bool Horizontal, Vec2f Position, Vec3f Color, std::function<void()> OnClickedFunction) : UIBackground(Horizontal, Position, Color)
 {
 	this->OnClicked = OnClickedFunction;
 	this->ButtonColor = Color;
@@ -188,7 +188,7 @@ UIButton::UIButton(bool Horizontal, Vector2f Position, Vector3f Color, std::func
 	HasMouseCollision = true;
 }
 
-UIButton::UIButton(bool Horizontal, Vector2f Position, Vector3f Color, std::function<void(int)> OnClickedFunction, int ButtonIndex) : UIBackground(Horizontal, Position, Color)
+UIButton::UIButton(bool Horizontal, Vec2f Position, Vec3f Color, std::function<void(int)> OnClickedFunction, int ButtonIndex) : UIBackground(Horizontal, Position, Color)
 {
 	this->OnClickedFunctionIndex = OnClickedFunction;
 	this->ButtonColor = Color;

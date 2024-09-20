@@ -2,17 +2,17 @@
 #include <iostream>
 #include <vector>
 #include "Markup/StringParse.h"
-using namespace KlemmUI;
+using namespace kui;
 
-namespace KlemmUI::ParseError
+namespace kui::ParseError
 {
-	std::vector<StringParse::Line>* LoadedCode = nullptr;
+	std::vector<stringParse::Line>* LoadedCode = nullptr;
 	std::string ActiveFile;
 	size_t LineIndex = 0;
 	int ErrorCount = 0;
 }
 
-void ParseError::SetCode(std::vector<StringParse::Line>& Code, std::string FileName)
+void ParseError::SetCode(std::vector<stringParse::Line>& Code, std::string FileName)
 {
 	LoadedCode = &Code;
 	ActiveFile = FileName;
@@ -49,7 +49,7 @@ void ParseError::Error(const std::string& Message)
 	ErrorCount++;
 }
 
-void KlemmUI::ParseError::ErrorNoLine(const std::string& Message)
+void kui::ParseError::ErrorNoLine(const std::string& Message)
 {
 	std::cerr << ActiveFile << ": Error: " << Message << std::endl;
 	ErrorCount++;

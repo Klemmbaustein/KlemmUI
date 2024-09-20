@@ -2,7 +2,7 @@
 #include "MarkupStructure.h"
 #include "StringParse.h"
 
-namespace KlemmUI::MarkupParse
+namespace kui::MarkupParse
 {
 	struct FileEntry
 	{
@@ -28,8 +28,8 @@ namespace KlemmUI::MarkupParse
 		std::vector<MarkupStructure::Constant> Constants;
 	};
 
-	FileResult ReadFile(std::vector<StringParse::Line>& Lines, std::string FileName);
-	MarkupStructure::MarkupElement ParseElement(ParsedElement& Elem, std::vector<StringParse::Line>& Lines);
+	FileResult ReadFile(std::vector<stringParse::Line>& Lines, std::string FileName);
+	MarkupStructure::MarkupElement ParseElement(ParsedElement& Elem, std::vector<stringParse::Line>& Lines);
 
-	void ParseScope(MarkupStructure::UIElement& Elem, std::vector<StringParse::Line> Lines, size_t Start, bool IsRoot);
+	void ParseScope(MarkupStructure::UIElement& Elem, std::vector<stringParse::Line> Lines, size_t Start, bool IsRoot);
 }

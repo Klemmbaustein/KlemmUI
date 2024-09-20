@@ -1,9 +1,9 @@
-#include <KlemmUI/UI/UIScrollBox.h>
-#include "../MathHelpers.h"
-#include <KlemmUI/UI/UIBox.h>
-#include <KlemmUI/Window.h>
+#include <kui/UI/UIScrollBox.h>
+#include "../Internal/MathHelpers.h"
+#include <kui/UI/UIBox.h>
+#include <kui/Window.h>
 
-using namespace KlemmUI;
+using namespace kui;
 
 std::set<ScrollObject*> ScrollObject::AllScrollObjects;
 
@@ -12,10 +12,10 @@ std::set<ScrollObject*> ScrollObject::GetAllScrollObjects()
 	return AllScrollObjects;
 }
 
-ScrollObject::ScrollObject(Vector2f Position, Vector2f Scale, float MaxScroll)
+ScrollObject::ScrollObject(Vec2f Position, Vec2f Scale, float MaxScroll)
 {
 	this->Position = Position;
-	this->Scale = Vector2f() - Scale;
+	this->Scale = Vec2f() - Scale;
 	AllScrollObjects.insert(this);
 	this->MaxScroll = MaxScroll;
 }
@@ -31,7 +31,7 @@ void ScrollObject::ScrollUp()
 	{
 		return;
 	}
-	if (Math::IsPointIn2DBox(Position - Scale, Position, Window::GetActiveWindow()->Input.MousePosition))
+	if (internal::math::IsPointIn2DBox(Position - Scale, Position, Window::GetActiveWindow()->Input.MousePosition))
 	{
 		Percentage += Speed / 100.f;
 	}
@@ -51,7 +51,7 @@ void ScrollObject::ScrollDown()
 	{
 		return;
 	}
-	if (Math::IsPointIn2DBox(Position - Scale, Position, Window::GetActiveWindow()->Input.MousePosition))
+	if (internal::math::IsPointIn2DBox(Position - Scale, Position, Window::GetActiveWindow()->Input.MousePosition))
 	{
 		Percentage -= Speed / 100.f;
 	}

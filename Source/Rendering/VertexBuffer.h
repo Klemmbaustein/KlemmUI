@@ -1,13 +1,13 @@
 #pragma once
 #include <vector>
-#include <KlemmUI/Vector2.h>
+#include <kui/Vec2.h>
 
-namespace KlemmUI
+namespace kui
 {
 	struct Vertex
 	{
-		Vector2f Position;
-		Vector2f TexCoord;
+		Vec2f Position;
+		Vec2f TexCoord;
 		float CornerIndex = 0;
 	};
 

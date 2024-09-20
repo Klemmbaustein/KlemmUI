@@ -1,9 +1,9 @@
-#include <KlemmUI/Resource.h>
+#include <kui/Resource.h>
 #include <iostream>
 #include <fstream>
 #include <filesystem>
 #include <cstring>
-#include <KlemmUI/Application.h>
+#include <kui/App.h>
 
 const char* const RESOURCE_PREFIX = "res:";
 const char* const FILE_PREFIX = "file:";
@@ -50,7 +50,7 @@ extern "C"
 	const char* const KLEMMUI_RESOURCE_FUNCTION(GetResourceBytes)(size_t ResourceIndex);
 }
 
-KlemmUI::Resource::BinaryData KlemmUI::Resource::GetBinaryResource(const std::string& Path)
+kui::Resource::BinaryData kui::Resource::GetBinaryResource(const std::string& Path)
 {
 	size_t ResourceIndex = RESOURCE_FUNCTION(GetResourceIndex)(Path.c_str());
 	return BinaryData{
@@ -60,7 +60,7 @@ KlemmUI::Resource::BinaryData KlemmUI::Resource::GetBinaryResource(const std::st
 	};
 }
 
-std::string KlemmUI::Resource::GetStringResource(const std::string& Path)
+std::string kui::Resource::GetStringResource(const std::string& Path)
 {
 	size_t KlemmUIResourceIndex = KLEMMUI_RESOURCE_FUNCTION(GetResourceIndex)(Path.c_str());
 	if (KlemmUIResourceIndex != SIZE_MAX)
@@ -79,7 +79,7 @@ std::string KlemmUI::Resource::GetStringResource(const std::string& Path)
 }
 
 
-bool KlemmUI::Resource::ResourceExists(const std::string& Path)
+bool kui::Resource::ResourceExists(const std::string& Path)
 {
 	size_t KlemmUIResourceIndex = KLEMMUI_RESOURCE_FUNCTION(GetResourceIndex)(Path.c_str());
 	if (KlemmUIResourceIndex != SIZE_MAX)
@@ -88,7 +88,7 @@ bool KlemmUI::Resource::ResourceExists(const std::string& Path)
 	return RESOURCE_FUNCTION(GetResourceIndex)(Path.c_str()) != SIZE_MAX;
 }
 
-std::string KlemmUI::Resource::GetStringFile(const std::string& Path)
+std::string kui::Resource::GetStringFile(const std::string& Path)
 {
 	if (!IsFilePath(Path) && (ResourceExists(ConvertResourcePath(Path)) || IsResourcePath(Path)))
 	{
@@ -101,11 +101,11 @@ std::string KlemmUI::Resource::GetStringFile(const std::string& Path)
 		instr << in.rdbuf();
 		return instr.str();
 	}
-	Application::Error::Error("Failed to find file: " + Path);
+	app::error::Error("Failed to find file: " + Path);
 	return std::string();
 }
 
-KlemmUI::Resource::BinaryData KlemmUI::Resource::GetBinaryFile(const std::string& Path)
+kui::Resource::BinaryData kui::Resource::GetBinaryFile(const std::string& Path)
 {
 	if (!IsFilePath(Path) && (ResourceExists(ConvertResourcePath(Path)) || IsResourcePath(Path)))
 	{
@@ -131,17 +131,17 @@ KlemmUI::Resource::BinaryData KlemmUI::Resource::GetBinaryFile(const std::string
 			};
 	}
 
-	Application::Error::Error("Failed to find file: " + Path);
+	app::error::Error("Failed to find file: " + Path);
 	return BinaryData();
 }
 
-void KlemmUI::Resource::FreeBinaryFile(BinaryData Data)
+void kui::Resource::FreeBinaryFile(BinaryData Data)
 {
 	if (Data.ResourceType == SIZE_MAX)
 		delete[] Data.Data;
 }
 
-bool KlemmUI::Resource::FileExists(const std::string& Path)
+bool kui::Resource::FileExists(const std::string& Path)
 {
 	if (ResourceExists(ConvertResourcePath(Path)) && !IsFilePath(Path))
 	{

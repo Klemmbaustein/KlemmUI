@@ -1,20 +1,20 @@
-#include <KlemmUI/Timer.h>
+#include <kui/Timer.h>
 
-KlemmUI::Timer::Timer()
+kui::Timer::Timer()
 {
 	Reset();
 }
 
 #if _WIN32
 #include <Windows.h>
-void KlemmUI::Timer::Reset()
+void kui::Timer::Reset()
 {
 	LARGE_INTEGER time;
 	QueryPerformanceCounter(&time);
 	Time = *(uint64_t*)&time;
 }
 
-float KlemmUI::Timer::Get() const
+float kui::Timer::Get() const
 {
 	LARGE_INTEGER time;
 	QueryPerformanceFrequency(&time);
@@ -29,7 +29,7 @@ float KlemmUI::Timer::Get() const
 #include <time.h>
 #include <iostream>
 
-void KlemmUI::Timer::Reset()
+void kui::Timer::Reset()
 {
 	timespec TimeValue;
 	clock_gettime(CLOCK_MONOTONIC_RAW, &TimeValue);
@@ -38,7 +38,7 @@ void KlemmUI::Timer::Reset()
 	Time += TimeValue.tv_nsec;
 }
 
-float KlemmUI::Timer::Get() const
+float kui::Timer::Get() const
 {
 	timespec TimeValue;
 	clock_gettime(CLOCK_MONOTONIC_RAW, &TimeValue);

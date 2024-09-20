@@ -1,10 +1,10 @@
-#include <KlemmUI/Rendering/Shader.h>
+#include <kui/Rendering/Shader.h>
 #include <GL/glew.h>
 #include <fstream>
 #include <sstream>
-#include <KlemmUI/Application.h>
+#include <kui/App.h>
 
-using namespace KlemmUI;
+using namespace kui;
 
 void Shader::CheckCompileErrors(unsigned int ShaderID, std::string Type)
 {
@@ -16,7 +16,7 @@ void Shader::CheckCompileErrors(unsigned int ShaderID, std::string Type)
 		if (!success)
 		{
 			glGetShaderInfoLog(ShaderID, 1024, NULL, infoLog);
-			Application::Error::Error("Shader compilation error of type: "
+			app::error::Error("Shader compilation error of type: "
 				+ Type 
 				+ "\n"
 				+ std::string(infoLog)
@@ -29,7 +29,7 @@ void Shader::CheckCompileErrors(unsigned int ShaderID, std::string Type)
 		if (!success)
 		{
 			glGetProgramInfoLog(ShaderID, 1024, NULL, infoLog);
-			Application::Error::Error("Shader linking error of type: "
+			app::error::Error("Shader linking error of type: "
 				+ Type 
 				+ "\n"
 				+ std::string(infoLog)
@@ -115,12 +115,12 @@ void Shader::SetFloat(const std::string& Name, float Value)
 	glUniform1f(glGetUniformLocation(ShaderID, Name.c_str()), Value);
 }
 
-void Shader::SetVec2(const std::string& Name, Vector2f Value)
+void Shader::SetVec2(const std::string& Name, Vec2f Value)
 {
 	glUniform2f(glGetUniformLocation(ShaderID, Name.c_str()), Value.X, Value.Y);
 }
 
-void Shader::SetVec3(const std::string& Name, Vector3f Value)
+void Shader::SetVec3(const std::string& Name, Vec3f Value)
 {
 	glUniform3f(glGetUniformLocation(ShaderID, Name.c_str()), Value.X, Value.Y, Value.Z);
 }

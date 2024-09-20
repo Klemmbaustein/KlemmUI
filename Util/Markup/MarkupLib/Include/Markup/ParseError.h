@@ -2,9 +2,9 @@
 #include <vector>
 #include "StringParse.h"
 
-namespace KlemmUI::ParseError
+namespace kui::ParseError
 {
-	void SetCode(std::vector<StringParse::Line>& Code, std::string FileName);
+	void SetCode(std::vector<stringParse::Line>& Code, std::string FileName);
 	void SetLine(size_t Index);
 
 	void Error(const std::string& Message);

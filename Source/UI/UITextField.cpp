@@ -1,22 +1,21 @@
-#include <KlemmUI/UI/UITextField.h>
-#include <KlemmUI/UI/UIText.h>
-#include <KlemmUI/Input.h>
+#include <kui/UI/UITextField.h>
+#include <kui/UI/UIText.h>
+#include <kui/Input.h>
 #include "../Rendering/VertexBuffer.h"
-#include "../MathHelpers.h"
 #include <GL/glew.h>
-#include <KlemmUI/Application.h>
-#include <KlemmUI/Rendering/ScrollObject.h>
-#include <KlemmUI/Rendering/Shader.h>
-#include <KlemmUI/Window.h>
+#include <kui/App.h>
+#include <kui/Rendering/ScrollObject.h>
+#include <kui/Rendering/Shader.h>
+#include <kui/Window.h>
 #include <cmath>
 
-using namespace KlemmUI;
+using namespace kui;
 
 void UITextField::Tick()
 {
 	TextObject->WrapDistance = std::max(std::max(Size.X * 1.3f, GetMinSize().X), 0.1f) * 2;
 
-	Vector2f Offset;
+	Vec2f Offset;
 	if (CurrentScrollObject != nullptr)
 	{
 		Offset.Y = CurrentScrollObject->Percentage;
@@ -89,11 +88,11 @@ void UITextField::Tick()
 			RedrawElement();
 		}
 	}
-	TextObject->SetColor(EnteredText.empty() && !IsEdited ? Vector3f::Lerp(TextColor, Color, 0.25f) : TextColor);
+	TextObject->SetColor(EnteredText.empty() && !IsEdited ? Vec3f::Lerp(TextColor, Color, 0.25f) : TextColor);
 	TextObject->SetText(EnteredText.empty() && !IsEdited ? HintText : EnteredText);
 
 	TextTimer += ParentWindow->GetDeltaTime();
-	Vector2f EditedTextPos = IsEdited ? TextObject->GetLetterLocation(ParentWindow->Input.TextIndex) : 0;
+	Vec2f EditedTextPos = IsEdited ? TextObject->GetLetterLocation(ParentWindow->Input.TextIndex) : 0;
 
 	if (fmod(TextTimer, 1) < 0.5f && IsEdited)
 	{
@@ -101,7 +100,7 @@ void UITextField::Tick()
 		{
 			TextTimer = 0;
 			IBeamPosition = EditedTextPos;
-			IBeamScale = Vector2f(2.0f / ParentWindow->GetSize().X, TextObject->GetUsedSize().Y);
+			IBeamScale = Vec2f(2.0f / ParentWindow->GetSize().X, TextObject->GetUsedSize().Y);
 			RedrawElement();
 		}
 		if (!ShowIBeam)
@@ -122,7 +121,7 @@ void UITextField::Tick()
 	if (IsEdited)
 	{
 		TextHighlightPos = TextObject->GetLetterLocation(ParentWindow->Input.TextSelectionStart);
-		TextHighlightSize = Vector2f(std::abs(EditedTextPos.X - TextHighlightPos.X), TextObject->GetUsedSize().Y);
+		TextHighlightSize = Vec2f(std::abs(EditedTextPos.X - TextHighlightPos.X), TextObject->GetUsedSize().Y);
 
 		float MinX = std::min(EditedTextPos.X, TextHighlightPos.X);
 		TextHighlightPos.X = MinX;
@@ -165,7 +164,7 @@ UITextField* UITextField::SetHintText(std::string NewHintText)
 	return this;
 }
 
-UITextField* UITextField::SetColor(Vector3f NewColor)
+UITextField* UITextField::SetColor(Vec3f NewColor)
 {
 	if (NewColor != Color)
 	{
@@ -175,18 +174,18 @@ UITextField* UITextField::SetColor(Vector3f NewColor)
 	return this;
 }
 
-Vector3f UITextField::GetColor() const
+Vec3f UITextField::GetColor() const
 {
 	return Color;
 }
 
-UITextField* UITextField::SetTextColor(Vector3f NewColor)
+UITextField* UITextField::SetTextColor(Vec3f NewColor)
 {
 	TextColor = NewColor;
 	return this;
 }
 
-Vector3f UITextField::GetTextColor()
+Vec3f UITextField::GetTextColor()
 {
 	return TextObject->GetColor();
 }
@@ -201,17 +200,17 @@ std::string UITextField::GetText()
 	return EnteredText;
 }
 
-KlemmUI::UITextField* KlemmUI::UITextField::SetTextSizeMode(UIBox::SizeMode Mode)
+kui::UITextField* kui::UITextField::SetTextSizeMode(UIBox::SizeMode Mode)
 {
 	TextObject->SetTextSizeMode(Mode);
 	return this;
 }
 
-UITextField::UITextField(Vector2f Position, Vector3f Color, Font* Renderer, std::function<void()> OnClickedFunction)
+UITextField::UITextField(Vec2f Position, Vec3f Color, Font* Renderer, std::function<void()> OnClickedFunction)
 	: UIBackground(true, Position, Color)
 {
 	TextFieldColor = Color;
-	TextObject = new UIText(0, Vector3f(1), HintText, Renderer);
+	TextObject = new UIText(0, Vec3f(1), HintText, Renderer);
 	TextObject->SetTextSize(0.5f);
 	TextObject->SetPadding(0.005f);
 	TextObject->Wrap = true;
@@ -238,7 +237,7 @@ void UITextField::DrawBackground()
 
 	if (IsEdited)
 	{
-		BackgroundShader->SetVec3("u_color", Vector3f(0.25f, 1, 1));
+		BackgroundShader->SetVec3("u_color", Vec3f(0.25f, 1, 1));
 		BackgroundShader->SetInt("u_drawCorner", 0);
 		BackgroundShader->SetInt("u_drawBorder", 0);
 		BackgroundShader->SetFloat("u_opacity", 0.5f);

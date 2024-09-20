@@ -1,5 +1,5 @@
-#include "KlemmUI/StringReplace.h"
-using namespace KlemmUI;
+#include "kui/StringReplace.h"
+using namespace kui;
 
 void StrReplace::ReplaceChar(std::string& Target, char A, std::string b)
 {

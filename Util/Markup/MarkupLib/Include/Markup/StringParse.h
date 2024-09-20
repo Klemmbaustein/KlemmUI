@@ -3,7 +3,7 @@
 #include <string>
 #include <cstdint>
 
-namespace KlemmUI::StringParse
+namespace kui::stringParse
 {
 	struct Line
 	{

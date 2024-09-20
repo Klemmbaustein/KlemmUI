@@ -1,12 +1,12 @@
-#include <KlemmUI/Window.h>
+#include <kui/Window.h>
 
-#include "Internal.h"
-#include "Window/SystemWM.h"
-#include <KlemmUI/UI/UIBox.h>
-#include <KlemmUI/Application.h>
-#include <KlemmUI/UI/UIButton.h>
-#include <KlemmUI/UI/UITextField.h>
-#include <KlemmUI/Image.h>
+#include "Internal/Internal.h"
+#include "SystemWM/SystemWM.h"
+#include <kui/UI/UIBox.h>
+#include <kui/App.h>
+#include <kui/UI/UIButton.h>
+#include <kui/UI/UITextField.h>
+#include <kui/Image.h>
 #include <mutex>
 #include <cstring>
 #include <chrono>
@@ -14,7 +14,7 @@
 
 #define SDL_WINDOW_PTR(x) SystemWM::SysWindow* x = static_cast<SystemWM::SysWindow*>(this->SysWindowPtr)
 
-static thread_local KlemmUI::Window* ActiveWindow = nullptr;
+static thread_local kui::Window* ActiveWindow = nullptr;
 static thread_local bool HasMainWindow = false;
 #if __linux__
 // VSync is enabled with OpenGL by default, and you have to load OpenGL-Implementation-specific
@@ -24,11 +24,11 @@ static thread_local bool HasMainWindow = false;
 static thread_local bool RedrawnWindow = false;
 #endif
 
-const Vector2ui KlemmUI::Window::POSITION_CENTERED = Vector2ui(UINT64_MAX, UINT64_MAX);
-const Vector2ui KlemmUI::Window::SIZE_DEFAULT = Vector2ui(UINT64_MAX, UINT64_MAX);
-std::vector<KlemmUI::Window*> KlemmUI::Window::ActiveWindows;
+const Vec2ui kui::Window::POSITION_CENTERED = Vec2ui(UINT64_MAX, UINT64_MAX);
+const Vec2ui kui::Window::SIZE_DEFAULT = Vec2ui(UINT64_MAX, UINT64_MAX);
+std::vector<kui::Window*> kui::Window::ActiveWindows;
 
-void KlemmUI::Window::UpdateSize()
+void kui::Window::UpdateSize()
 {
 	SDL_WINDOW_PTR(SysWindow);
 	WindowSize = SystemWM::GetWindowSize(SysWindow);
@@ -36,11 +36,11 @@ void KlemmUI::Window::UpdateSize()
 
 std::mutex WindowMutex;
 
-KlemmUI::Window::Window(std::string Name, WindowFlag Flags, Vector2ui WindowPos, Vector2ui WindowSize)
+kui::Window::Window(std::string Name, WindowFlag Flags, Vec2ui WindowPos, Vec2ui WindowSize)
 {
 	if (WindowSize == SIZE_DEFAULT)
 	{
-		WindowSize = Vector2f(SystemWM::GetScreenSize()) * 0.6f;
+		WindowSize = Vec2f(SystemWM::GetScreenSize()) * 0.6f;
 	}
 
 	if (WindowPos == POSITION_CENTERED)
@@ -55,19 +55,19 @@ KlemmUI::Window::Window(std::string Name, WindowFlag Flags, Vector2ui WindowPos,
 		Flags);
 	CurrentWindowFlags = Flags;
 
-	std::lock_guard Guard = std::lock_guard(Internal::WindowCreationMutex);
+	std::lock_guard Guard = std::lock_guard(internal::WindowCreationMutex);
 
 	UpdateSize();
 	SetWindowActive();
-	Internal::InitGLContext(this);
+	internal::InitGLContext(this);
 	UI.InitUI();
 
 	ActiveWindows.push_back(this);
 }
 
-KlemmUI::Window::~Window()
+kui::Window::~Window()
 {
-	std::lock_guard Guard = std::lock_guard(Internal::WindowCreationMutex);
+	std::lock_guard Guard = std::lock_guard(internal::WindowCreationMutex);
 
 	SDL_WINDOW_PTR(SysWindow);
 	SystemWM::DestroyWindow(SysWindow);
@@ -93,12 +93,12 @@ KlemmUI::Window::~Window()
 
 }
 
-KlemmUI::Window* KlemmUI::Window::GetActiveWindow()
+kui::Window* kui::Window::GetActiveWindow()
 {
 	return ActiveWindow;
 }
 
-void KlemmUI::Window::WaitFrame()
+void kui::Window::WaitFrame()
 {
 	SDL_WINDOW_PTR(SysWindow);
 
@@ -132,7 +132,7 @@ void KlemmUI::Window::WaitFrame()
 #endif
 }
 
-void KlemmUI::Window::RedrawInternal()
+void kui::Window::RedrawInternal()
 {
 	if (!SysWindowPtr)
 	{
@@ -155,22 +155,22 @@ void KlemmUI::Window::RedrawInternal()
 #if __linux__
 		RedrawnWindow = true;
 #endif
-		Internal::DrawWindow(this);
+		internal::DrawWindow(this);
 	}
 }
 
-void KlemmUI::Window::SetIconFile(std::string IconFilePath)
+void kui::Window::SetIconFile(std::string IconFilePath)
 {
 #if 0
 	SDL_WINDOW_PTR(GLWindow);
 
 	size_t Width, Height;
-	uint8_t* IconBytes = Image::LoadImageBytes(IconFilePath, Width, Height, true);
+	uint8_t* IconBytes = image::LoadImageBytes(IconFilePath, Width, Height, true);
 
 	// Limitation of SDL2.
 	if (Width > 64 || Height > 64)
 	{
-		Application::Error::Error("Window icon too large. Maximum is 64x64 pixels.");
+		app::error::Error("Window icon too large. Maximum is 64x64 pixels.");
 		return;
 	}
 
@@ -179,44 +179,44 @@ void KlemmUI::Window::SetIconFile(std::string IconFilePath)
 	SDL_SetWindowIcon(GLWindow, s);
 
 	SDL_FreeSurface(s);
-	Image::FreeImageBytes(IconBytes);
+	image::FreeImageBytes(IconBytes);
 #endif
 }
 
-void* KlemmUI::Window::GetSysWindow() const
+void* kui::Window::GetSysWindow() const
 {
 	return SysWindowPtr;
 }
 
-float KlemmUI::Window::GetAspectRatio() const
+float kui::Window::GetAspectRatio() const
 {
 	return (float)WindowSize.X / (float)WindowSize.Y;
 }
 
-bool KlemmUI::Window::HasFocus()
+bool kui::Window::HasFocus()
 {
 	SDL_WINDOW_PTR(SysWindow);
 	return SystemWM::WindowHasFocus(SysWindow);
 }
 
-Vector2ui KlemmUI::Window::GetSize() const
+Vec2ui kui::Window::GetSize() const
 {
 	return WindowSize;
 }
 
-void KlemmUI::Window::SetSize(Vector2ui NewSize)
+void kui::Window::SetSize(Vec2ui NewSize)
 {
 	SDL_WINDOW_PTR(SysWindow);
 	SystemWM::SetWindowSize(SysWindow, NewSize);
 }
 
-void KlemmUI::Window::SetPosition(Vector2ui Pos)
+void kui::Window::SetPosition(Vec2ui Pos)
 {
 	SDL_WINDOW_PTR(SysWindow);
 	SystemWM::SetWindowPosition(SysWindow, Pos);
 }
 
-void KlemmUI::Window::SetWindowFlags(WindowFlag NewFlags)
+void kui::Window::SetWindowFlags(WindowFlag NewFlags)
 {
 	/*
 	SDL_WINDOW_PTR(GLWindow);
@@ -238,35 +238,35 @@ void KlemmUI::Window::SetWindowFlags(WindowFlag NewFlags)
 	*/
 }
 
-KlemmUI::Window::WindowFlag KlemmUI::Window::GetWindowFlags() const
+kui::Window::WindowFlag kui::Window::GetWindowFlags() const
 {
 	return CurrentWindowFlags;
 }
 
-void KlemmUI::Window::MakeContextCurrent()
+void kui::Window::MakeContextCurrent()
 {
 	SDL_WINDOW_PTR(SysWindow);
 
 	SystemWM::ActivateContext(SysWindow);
 }
 
-void KlemmUI::Window::CancelClose()
+void kui::Window::CancelClose()
 {
 	ShouldClose = false;
 }
 
-void KlemmUI::Window::SetTitle(std::string NewTitle)
+void kui::Window::SetTitle(std::string NewTitle)
 {
 	SDL_WINDOW_PTR(SysWindow);
 	SystemWM::SetTitle(SysWindow, NewTitle);
 }
 
-float KlemmUI::Window::GetDPI() const
+float kui::Window::GetDPI() const
 {
 	return DPI;
 }
 
-void KlemmUI::Window::UpdateDPI()
+void kui::Window::UpdateDPI()
 {
 	SDL_WINDOW_PTR(SysWindow);
 
@@ -286,7 +286,7 @@ void KlemmUI::Window::UpdateDPI()
 	DPI = hdpi;
 }
 
-void KlemmUI::Window::HandleCursor()
+void kui::Window::HandleCursor()
 {
 	if (!HasFocus())
 	{
@@ -298,7 +298,7 @@ void KlemmUI::Window::HandleCursor()
 	CurrentCursor = dynamic_cast<UIButton*>(UI.HoveredBox) ? Cursor::Hand : (dynamic_cast<UITextField*>(UI.HoveredBox) ? Cursor::Text : Cursor::Default);
 }
 
-bool KlemmUI::Window::UpdateWindow()
+bool kui::Window::UpdateWindow()
 {
 	SDL_WINDOW_PTR(SysWindow);
 
@@ -329,38 +329,38 @@ bool KlemmUI::Window::UpdateWindow()
 	return !ShouldClose;
 }
 
-void KlemmUI::Window::SetWindowActive()
+void kui::Window::SetWindowActive()
 {
 	ActiveWindow = this;
 	MakeContextCurrent();
 }
 
-void KlemmUI::Window::OnResized()
+void kui::Window::OnResized()
 {
 	ShouldUpdateSize = true;
 }
 
-void KlemmUI::Window::SetMinSize(Vector2ui MinimumSize)
+void kui::Window::SetMinSize(Vec2ui MinimumSize)
 {
 	SDL_WINDOW_PTR(SysWindow);
 	SystemWM::SetWindowMinSize(SysWindow, MinimumSize);
 	MinSize = MinimumSize;
 }
 
-void KlemmUI::Window::SetMaxSize(Vector2ui MaximumSize)
+void kui::Window::SetMaxSize(Vec2ui MaximumSize)
 {
 	SDL_WINDOW_PTR(SysWindow);
 	SystemWM::SetWindowMaxSize(SysWindow, MaximumSize);
 	MaxSize = MaximumSize;
 }
 
-std::vector<KlemmUI::Window*> KlemmUI::Window::GetActiveWindows()
+std::vector<kui::Window*> kui::Window::GetActiveWindows()
 {
 	std::lock_guard Guard = std::lock_guard(WindowMutex);
 	return ActiveWindows;
 }
 
-void KlemmUI::Window::SetMaximized(bool NewIsFullScreen)
+void kui::Window::SetMaximized(bool NewIsFullScreen)
 {
 	SDL_WINDOW_PTR(SysWindow);
 
@@ -374,19 +374,19 @@ void KlemmUI::Window::SetMaximized(bool NewIsFullScreen)
 	}
 }
 
-bool KlemmUI::Window::GetWindowFullScreen()
+bool kui::Window::GetWindowFullScreen()
 {
 	SDL_WINDOW_PTR(SysWindow);
 	return SystemWM::IsWindowFullScreen(SysWindow);
 }
 
-bool KlemmUI::Window::GetMinimized()
+bool kui::Window::GetMinimized()
 {
 	SDL_WINDOW_PTR(SysWindow);
 	return SystemWM::IsWindowMinimized(SysWindow);
 }
 
-void KlemmUI::Window::SetMinimized(bool NewIsMinimized)
+void kui::Window::SetMinimized(bool NewIsMinimized)
 {
 	SDL_WINDOW_PTR(SysWindow);
 
@@ -400,22 +400,22 @@ void KlemmUI::Window::SetMinimized(bool NewIsMinimized)
 	}
 }
 
-void KlemmUI::Window::Close()
+void kui::Window::Close()
 {
 	ShouldClose = true;
 }
 
-float KlemmUI::Window::GetDeltaTime() const
+float kui::Window::GetDeltaTime() const
 {
 	return FrameDelta;
 }
 
-KlemmUI::Window::WindowFlag KlemmUI::operator|(Window::WindowFlag a, Window::WindowFlag b)
+kui::Window::WindowFlag kui::operator|(Window::WindowFlag a, Window::WindowFlag b)
 {
 	return Window::WindowFlag((int)a | (int)b);
 }
 
-KlemmUI::Window::WindowFlag KlemmUI::operator&(Window::WindowFlag a, Window::WindowFlag b)
+kui::Window::WindowFlag kui::operator&(Window::WindowFlag a, Window::WindowFlag b)
 {
 	return Window::WindowFlag((int)a & (int)b);
 }

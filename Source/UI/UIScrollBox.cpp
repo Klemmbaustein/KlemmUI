@@ -1,11 +1,11 @@
-#include <KlemmUI/UI/UIScrollBox.h>
-#include <KlemmUI/UI/UIButton.h>
-#include <KlemmUI/UI/UIBackground.h>
-#include <KlemmUI/Window.h>
+#include <kui/UI/UIScrollBox.h>
+#include <kui/UI/UIButton.h>
+#include <kui/UI/UIBackground.h>
+#include <kui/Window.h>
 #include <cmath>
-#include <KlemmUI/Application.h>
+#include <kui/App.h>
 
-using namespace KlemmUI;
+using namespace kui;
 
 bool UIScrollBox::IsDraggingScrollBox = false;
 
@@ -14,8 +14,8 @@ float UIScrollBox::GetDesiredChildrenSize()
 	float DesiredSize = 0;
 	for (UIBox* i : Children)
 	{
-		Vector2f UpDown;
-		Vector2f LeftRight;
+		Vec2f UpDown;
+		Vec2f LeftRight;
 		i->GetPaddingScreenSize(UpDown, LeftRight);
 		DesiredSize += UpDown.X + UpDown.Y + std::max(i->GetUsedSize().Y, 0.0f);
 	}
@@ -58,8 +58,8 @@ UIScrollBox* UIScrollBox::SetDisplayScrollBar(bool NewDisplay)
 			ScrollBarBackground->SetBorder(1.0f, UIBox::SizeMode::PixelRelative);
 			ScrollBarBackground->SetBorderColor(0.1f);
 			ScrollBarBackground->SetVerticalAlign(UIBox::Align::Reverse);
-			ScrollBarBackground->SetPosition(OffsetPosition + Vector2f(Size.X - ScrollBarBackground->GetUsedSize().X, 0));
-			ScrollBar = new UIBackground(true, 0, 0.75, Vector2f(0.01f, 0.1f));
+			ScrollBarBackground->SetPosition(OffsetPosition + Vec2f(Size.X - ScrollBarBackground->GetUsedSize().X, 0));
+			ScrollBar = new UIBackground(true, 0, 0.75, Vec2f(0.01f, 0.1f));
 			ScrollBarBackground->AddChild(ScrollBar);
 			ScrollBar->SetCorner(15, UIBox::SizeMode::PixelRelative);
 			ScrollBar->SetPadding(0);
@@ -98,20 +98,20 @@ void UIScrollBox::Tick()
 	}
 	if (ScrollBar && VisibleInHierarchy)
 	{
-		ScrollBarBackground->SetMinSize(Vector2f(0, GetUsedSize().Y));
-		ScrollBarBackground->SetPosition(OffsetPosition + Vector2f(Size.X - ScrollBarBackground->GetUsedSize().X, 0));
+		ScrollBarBackground->SetMinSize(Vec2f(0, GetUsedSize().Y));
+		ScrollBarBackground->SetPosition(OffsetPosition + Vec2f(Size.X - ScrollBarBackground->GetUsedSize().X, 0));
 
 		float ScrollPercentage = ScrollClass.Percentage / ScrollClass.MaxScroll;
 
 		if (DesiredMaxScroll <= Size.Y)
 		{
-			ScrollBar->SetMinSize(Vector2f(0.0075f, Size.Y - 0.005f));
+			ScrollBar->SetMinSize(Vec2f(0.0075f, Size.Y - 0.005f));
 			ScrollBar->SetPadding(0.0025f);
 			ScrollPercentage = 0;
 		}
 		else
 		{
-			ScrollBar->SetMinSize(Vector2f(0.0075f, Size.Y / (DesiredMaxScroll / Size.Y)));
+			ScrollBar->SetMinSize(Vec2f(0.0075f, Size.Y / (DesiredMaxScroll / Size.Y)));
 
 			ScrollBar->SetPadding(std::max((ScrollPercentage * Size.Y) - (ScrollPercentage * ScrollBar->GetUsedSize().Y) - 0.005f, 0.0025f),
 				0.0025f,
@@ -209,7 +209,7 @@ void UIScrollBox::UpdateTickState()
 }
 
 
-UIScrollBox::UIScrollBox(bool Horizontal, Vector2f Position, bool DisplayScrollBar) : UIBox(Horizontal, Position)
+UIScrollBox::UIScrollBox(bool Horizontal, Vec2f Position, bool DisplayScrollBar) : UIBox(Horizontal, Position)
 {
 	HasMouseCollision = true;
 	SetDisplayScrollBar(DisplayScrollBar);

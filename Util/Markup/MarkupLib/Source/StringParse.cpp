@@ -4,7 +4,7 @@
 #include <iostream>
 #include <cstring>
 #include <sstream>
-using namespace KlemmUI;
+using namespace kui;
 
 static std::unordered_set<char> Whitespace =
 {
@@ -89,7 +89,7 @@ static std::string RemoveComments(std::string Code)
 	return OutCode;
 }
 
-std::string StringParse::Line::Previous()
+std::string stringParse::Line::Previous()
 {
 	if (StringPos <= Strings.size() && StringPos > 0)
 	{
@@ -98,7 +98,7 @@ std::string StringParse::Line::Previous()
 	return "";
 }
 
-std::string StringParse::Line::Get()
+std::string stringParse::Line::Get()
 {
 	if (StringPos < Strings.size())
 	{
@@ -107,7 +107,7 @@ std::string StringParse::Line::Get()
 	return "";
 }
 
-std::string StringParse::Line::Peek()
+std::string stringParse::Line::Peek()
 {
 	if (StringPos < Strings.size())
 	{
@@ -116,7 +116,7 @@ std::string StringParse::Line::Peek()
 	return "";
 }
 
-std::string StringParse::Line::GetUntil(std::string str)
+std::string stringParse::Line::GetUntil(std::string str)
 {
 	std::string Condition;
 	while (!Empty())
@@ -131,7 +131,7 @@ std::string StringParse::Line::GetUntil(std::string str)
 	return Condition;
 }
 
-bool KlemmUI::StringParse::Line::Contains(std::string str) const
+bool kui::stringParse::Line::Contains(std::string str) const
 {
 	for (auto& i : Strings)
 	{
@@ -143,7 +143,7 @@ bool KlemmUI::StringParse::Line::Contains(std::string str) const
 	return false;
 }
 
-StringParse::Line StringParse::Line::GetLineUntil(std::string str, bool RespectBraces)
+stringParse::Line stringParse::Line::GetLineUntil(std::string str, bool RespectBraces)
 {
 	uint8_t Depth = 1;
 	Line Condition;
@@ -173,7 +173,7 @@ StringParse::Line StringParse::Line::GetLineUntil(std::string str, bool RespectB
 	return Condition;
 }
 
-StringParse::Line StringParse::Line::GetInBraces(bool SquareBraces)
+stringParse::Line stringParse::Line::GetInBraces(bool SquareBraces)
 {
 	uint8_t Depth = 1;
 	Line Condition;
@@ -212,7 +212,7 @@ StringParse::Line StringParse::Line::GetInBraces(bool SquareBraces)
 	return Condition;
 }
 
-std::vector<StringParse::Line> StringParse::Line::GetLinesInBraces()
+std::vector<stringParse::Line> stringParse::Line::GetLinesInBraces()
 {
 	uint8_t Depth = 1;
 	std::vector<Line> Conditions = { };
@@ -255,14 +255,14 @@ std::vector<StringParse::Line> StringParse::Line::GetLinesInBraces()
 	return Conditions;
 }
 
-bool StringParse::Line::Empty() const
+bool stringParse::Line::Empty() const
 {
 	return Strings.size() <= StringPos;
 }
 
-static void ParseWord(std::string& CurrentWord, StringParse::Line& CurrentLine)
+static void ParseWord(std::string& CurrentWord, stringParse::Line& CurrentLine)
 {
-	using namespace StringParse;
+	using namespace stringParse;
 
 	if (!CurrentWord.empty())
 	{
@@ -271,7 +271,7 @@ static void ParseWord(std::string& CurrentWord, StringParse::Line& CurrentLine)
 	CurrentWord.clear();
 }
 
-bool KlemmUI::StringParse::IsStringToken(std::string Element)
+bool kui::stringParse::IsStringToken(std::string Element)
 {
 	if (Element.size() < 2)
 	{
@@ -286,7 +286,7 @@ bool KlemmUI::StringParse::IsStringToken(std::string Element)
 	return Element[0] == '"' && Element[Element.size() - 1] == '"';
 }
 
-bool KlemmUI::StringParse::IsVectorToken(std::string Element)
+bool kui::stringParse::IsVectorToken(std::string Element)
 {
 	if (IsNumber(Element))
 	{
@@ -300,51 +300,51 @@ bool KlemmUI::StringParse::IsVectorToken(std::string Element)
 	return Element[0] == '(' && Element[Element.size() - 1] == ')';
 }
 
-bool KlemmUI::StringParse::IsSizeValue(std::string Element)
+bool kui::stringParse::IsSizeValue(std::string Element)
 {
 	return !Size(Element).SizeValue.empty();
 }
 
-bool KlemmUI::StringParse::Is1DSizeValue(std::string Element)
+bool kui::stringParse::Is1DSizeValue(std::string Element)
 {
 	return !Size(Element, true).SizeValue.empty();
 }
 
-std::string KlemmUI::StringParse::GetAlign(std::string Element)
+std::string kui::stringParse::GetAlign(std::string Element)
 {
 	if (Element == "default")
 	{
-		return "KlemmUI::UIBox::Align::Default";
+		return "kui::UIBox::Align::Default";
 	}
 	if (Element == "reverse")
 	{
-		return "KlemmUI::UIBox::Align::Reverse";
+		return "kui::UIBox::Align::Reverse";
 	}
 	if (Element == "centered")
 	{
-		return "KlemmUI::UIBox::Align::Centered";
+		return "kui::UIBox::Align::Centered";
 	}
 	return "";
 }
 
-std::string KlemmUI::StringParse::GetBorderType(std::string Element)
+std::string kui::stringParse::GetBorderType(std::string Element)
 {
 	if (Element == "none")
 	{
-		return "KlemmUI::UIBox::BorderType::None";
+		return "kui::UIBox::BorderType::None";
 	}
 	if (Element == "rounded")
 	{
-		return "KlemmUI::UIBox::BorderType::Rounded";
+		return "kui::UIBox::BorderType::Rounded";
 	}
 	if (Element == "border")
 	{
-		return "KlemmUI::UIBox::BorderType::DarkenedEdge";
+		return "kui::UIBox::BorderType::DarkenedEdge";
 	}
 	return "";
 }
 
-bool KlemmUI::StringParse::IsNumber(std::string Element)
+bool kui::stringParse::IsNumber(std::string Element)
 {
 	char* p;
 	return(strspn(Element.c_str(), "-.0123456789") == Element.size());
@@ -352,7 +352,7 @@ bool KlemmUI::StringParse::IsNumber(std::string Element)
 
 }
 
-std::string KlemmUI::StringParse::ToCppCode(std::string Value)
+std::string kui::stringParse::ToCppCode(std::string Value)
 {
 	if (IsNumber(Value))
 	{
@@ -361,7 +361,7 @@ std::string KlemmUI::StringParse::ToCppCode(std::string Value)
 	// (number, number, number) or maybe just (number)
 	if (IsVectorToken(Value))
 	{
-		auto Values = StringParse::SeparateString(Value);
+		auto Values = stringParse::SeparateString(Value);
 
 		auto& Strings = Values[0].Strings;
 
@@ -401,7 +401,7 @@ std::string KlemmUI::StringParse::ToCppCode(std::string Value)
 	{
 		if (Value[0] == '$')
 		{
-			return "KlemmUI::MarkupLanguageManager::GetActive()->GetString(" + Value.substr(1) + ")";
+			return "kui::MarkupLanguageManager::GetActive()->GetString(" + Value.substr(1) + ")";
 		}
 		return Value;
 	}
@@ -409,7 +409,7 @@ std::string KlemmUI::StringParse::ToCppCode(std::string Value)
 	return Value;
 }
 
-KlemmUI::StringParse::Size::Size(std::string SizeString, bool Is1D)
+kui::stringParse::Size::Size(std::string SizeString, bool Is1D)
 {
 	// Just a vector/number.
 	if ((!Is1D && IsVectorToken(SizeString)) || IsNumber(SizeString))
@@ -457,20 +457,20 @@ KlemmUI::StringParse::Size::Size(std::string SizeString, bool Is1D)
 	}
 }
 
-std::string KlemmUI::StringParse::Size::SizeModeToKUISizeMode(std::string Mode)
+std::string kui::stringParse::Size::SizeModeToKUISizeMode(std::string Mode)
 {
 	if (Mode == "pr" || Mode == "px")
 	{
-		return "KlemmUI::UIBox::SizeMode::PixelRelative";
+		return "kui::UIBox::SizeMode::PixelRelative";
 	}
 	if (Mode == "ar")
 	{
-		return "KlemmUI::UIBox::SizeMode::AspectRelative";
+		return "kui::UIBox::SizeMode::AspectRelative";
 	}
-	return "KlemmUI::UIBox::SizeMode::ScreenRelative";
+	return "kui::UIBox::SizeMode::ScreenRelative";
 }
 
-std::vector<StringParse::Line> StringParse::SeparateString(std::string String)
+std::vector<stringParse::Line> stringParse::SeparateString(std::string String)
 {
 	String = RemoveComments(String);
 	std::vector<Line> Lines;

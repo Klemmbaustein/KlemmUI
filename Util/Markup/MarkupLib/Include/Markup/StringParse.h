@@ -30,6 +30,7 @@ namespace kui::stringParse
 	std::string GetAlign(std::string Element);
 	std::string GetBorderType(std::string Element);
 	bool IsNumber(std::string Element);
+	bool IsTranslatedString(std::string Element);
 
 	std::string ToCppCode(std::string Value);
 

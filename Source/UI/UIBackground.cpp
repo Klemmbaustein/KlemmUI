@@ -11,11 +11,10 @@ using namespace kui;
 void UIBackground::ScrollTick(Shader* UsedShader)
 {
 	if (CurrentScrollObject != nullptr)
-	{
-		glUniform3f(glGetUniformLocation(UsedShader->GetShaderID(), "u_offset"), -CurrentScrollObject->Percentage, CurrentScrollObject->Position.Y, CurrentScrollObject->Position.Y - CurrentScrollObject->Scale.Y);
-	}
+		UsedShader->SetVec3("u_offset",
+			Vec3f(-CurrentScrollObject->Percentage, CurrentScrollObject->Position.Y, CurrentScrollObject->Position.Y - CurrentScrollObject->Scale.Y));
 	else
-		glUniform3f(glGetUniformLocation(UsedShader->GetShaderID(), "u_offset"), 0, -1000, 1000);
+		UsedShader->SetVec3("u_offset", Vec3f(0, -1000, 1000));
 }
 
 void UIBackground::MakeGLBuffers()
@@ -25,9 +24,9 @@ void UIBackground::MakeGLBuffers()
 	BoxVertexBuffer = new VertexBuffer(
 		{
 			Vertex(Vec2f(0, 0), Vec2f(0, 0), 0),
-			Vertex(Vec2f(0, 1), Vec2f(0, 1.0001f), 1),
-			Vertex(Vec2f(1, 0), Vec2f(1.0001f, 0), 2),
-			Vertex(Vec2f(1, 1), Vec2f(1.0001f, 1.0001f), 3)
+			Vertex(Vec2f(0, 1), Vec2f(0, 1.001f), 1),
+			Vertex(Vec2f(1, 0), Vec2f(1.001f, 0), 2),
+			Vertex(Vec2f(1, 1), Vec2f(1.001f, 1.001f), 3)
 		},
 		{
 			0u, 1u, 2u,

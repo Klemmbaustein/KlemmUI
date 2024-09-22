@@ -62,7 +62,7 @@ static std::vector<PropertyElement> Properties
 	PropertyElement{
 		.Type = PropElementType::UIText,
 		.Name = "color",
-		.SetFormat = {"SetColor(Vec3f({val}))"},
+		.SetFormat = {"SetColor(kui::Vec3f({val}))"},
 		.VarType = UIElement::Variable::VariableType::Vector3,
 	},
 	PropertyElement{
@@ -93,25 +93,25 @@ static std::vector<PropertyElement> Properties
 	PropertyElement{
 		.Type = PropElementType::UIButton,
 		.Name = "color",
-		.SetFormat = {"SetColor(Vec3f({val}))", "SetHoveredColor(Vec3f({val}) * 0.75f)", "SetPressedColor(Vec3f({val}) * 0.5f)"},
+		.SetFormat = {"SetColor(kui::Vec3f({val}))", "SetHoveredColor(kui::Vec3f({val}) * 0.75f)", "SetPressedColor(kui::Vec3f({val}) * 0.5f)"},
 		.VarType = UIElement::Variable::VariableType::Vector3,
 	},
 	PropertyElement{
 		.Type = PropElementType::UIButton,
 		.Name = "normalColor",
-		.SetFormat = {"SetNormalColor(Vec3f({val}))"},
+		.SetFormat = {"SetNormalColor(kui::Vec3f({val}))"},
 		.VarType = UIElement::Variable::VariableType::Vector3,
 	},
 	PropertyElement{
 		.Type = PropElementType::UIButton,
 		.Name = "hoveredColor",
-		.SetFormat = {"SetHoveredColor(Vec3f({val}))"},
+		.SetFormat = {"SetHoveredColor(kui::Vec3f({val}))"},
 		.VarType = UIElement::Variable::VariableType::Vector3,
 	},
 	PropertyElement{
 		.Type = PropElementType::UIButton,
 		.Name = "pressedColor",
-		.SetFormat = {"SetPressedColor(Vec3f({val}))"},
+		.SetFormat = {"SetPressedColor(kui::Vec3f({val}))"},
 		.VarType = UIElement::Variable::VariableType::Vector3,
 	},
 #pragma endregion
@@ -120,7 +120,7 @@ static std::vector<PropertyElement> Properties
 	PropertyElement{
 		.Type = PropElementType::UIBackground,
 		.Name = "color",
-		.SetFormat = {"SetColor(Vec3f({val}))"},
+		.SetFormat = {"SetColor(kui::Vec3f({val}))"},
 		.VarType = UIElement::Variable::VariableType::Vector3,
 	},
 	PropertyElement{
@@ -152,7 +152,7 @@ static std::vector<PropertyElement> Properties
 	PropertyElement{
 		.Type = PropElementType::UIBackground,
 		.Name = "borderColor",
-		.SetFormat = {"BorderColor = Vec3f({val})"},
+		.SetFormat = {"BorderColor = kui::Vec3f({val})"},
 		.VarType = UIElement::Variable::VariableType::Vector3,
 	},
 	PropertyElement{

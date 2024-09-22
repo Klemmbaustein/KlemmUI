@@ -12,7 +12,7 @@
 #include <chrono>
 #include <thread>
 
-#define SDL_WINDOW_PTR(x) SystemWM::SysWindow* x = static_cast<SystemWM::SysWindow*>(this->SysWindowPtr)
+#define SDL_WINDOW_PTR(x) systemWM::SysWindow* x = static_cast<systemWM::SysWindow*>(this->SysWindowPtr)
 
 static thread_local kui::Window* ActiveWindow = nullptr;
 static thread_local bool HasMainWindow = false;
@@ -31,7 +31,7 @@ std::vector<kui::Window*> kui::Window::ActiveWindows;
 void kui::Window::UpdateSize()
 {
 	SDL_WINDOW_PTR(SysWindow);
-	WindowSize = SystemWM::GetWindowSize(SysWindow);
+	WindowSize = systemWM::GetWindowSize(SysWindow);
 }
 
 std::mutex WindowMutex;
@@ -40,15 +40,15 @@ kui::Window::Window(std::string Name, WindowFlag Flags, Vec2ui WindowPos, Vec2ui
 {
 	if (WindowSize == SIZE_DEFAULT)
 	{
-		WindowSize = Vec2f(SystemWM::GetScreenSize()) * 0.6f;
+		WindowSize = Vec2f(systemWM::GetScreenSize()) * 0.6f;
 	}
 
 	if (WindowPos == POSITION_CENTERED)
 	{
-		WindowPos = SystemWM::GetScreenSize() / 2 - WindowSize / 2;
+		WindowPos = systemWM::GetScreenSize() / 2 - WindowSize / 2;
 	}
 
-	SysWindowPtr = SystemWM::NewWindow(this,
+	SysWindowPtr = systemWM::NewWindow(this,
 		WindowSize,
 		WindowPos,
 		Name,
@@ -70,7 +70,7 @@ kui::Window::~Window()
 	std::lock_guard Guard = std::lock_guard(internal::WindowCreationMutex);
 
 	SDL_WINDOW_PTR(SysWindow);
-	SystemWM::DestroyWindow(SysWindow);
+	systemWM::DestroyWindow(SysWindow);
 
 	for (size_t i = 0; i < ActiveWindows.size(); i++)
 	{
@@ -106,7 +106,7 @@ void kui::Window::WaitFrame()
 
 	if (FPS == 0)
 	{
-		FPS = SystemWM::GetDesiredRefreshRate(SysWindow);
+		FPS = systemWM::GetDesiredRefreshRate(SysWindow);
 
 		// FPS might be 0 if the refresh rate is unknown.
 		if (FPS == 0)
@@ -196,7 +196,7 @@ float kui::Window::GetAspectRatio() const
 bool kui::Window::HasFocus()
 {
 	SDL_WINDOW_PTR(SysWindow);
-	return SystemWM::WindowHasFocus(SysWindow);
+	return systemWM::WindowHasFocus(SysWindow);
 }
 
 Vec2ui kui::Window::GetSize() const
@@ -207,13 +207,13 @@ Vec2ui kui::Window::GetSize() const
 void kui::Window::SetSize(Vec2ui NewSize)
 {
 	SDL_WINDOW_PTR(SysWindow);
-	SystemWM::SetWindowSize(SysWindow, NewSize);
+	systemWM::SetWindowSize(SysWindow, NewSize);
 }
 
 void kui::Window::SetPosition(Vec2ui Pos)
 {
 	SDL_WINDOW_PTR(SysWindow);
-	SystemWM::SetWindowPosition(SysWindow, Pos);
+	systemWM::SetWindowPosition(SysWindow, Pos);
 }
 
 void kui::Window::SetWindowFlags(WindowFlag NewFlags)
@@ -247,7 +247,7 @@ void kui::Window::MakeContextCurrent()
 {
 	SDL_WINDOW_PTR(SysWindow);
 
-	SystemWM::ActivateContext(SysWindow);
+	systemWM::ActivateContext(SysWindow);
 }
 
 void kui::Window::CancelClose()
@@ -258,7 +258,7 @@ void kui::Window::CancelClose()
 void kui::Window::SetTitle(std::string NewTitle)
 {
 	SDL_WINDOW_PTR(SysWindow);
-	SystemWM::SetTitle(SysWindow, NewTitle);
+	systemWM::SetTitle(SysWindow, NewTitle);
 }
 
 float kui::Window::GetDPI() const
@@ -270,7 +270,7 @@ void kui::Window::UpdateDPI()
 {
 	SDL_WINDOW_PTR(SysWindow);
 
-	float hdpi = SystemWM::GetDPIScale(SysWindow);
+	float hdpi = systemWM::GetDPIScale(SysWindow);
 
 	if (hdpi == 0)
 	{
@@ -294,7 +294,7 @@ void kui::Window::HandleCursor()
 	}
 	SDL_WINDOW_PTR(SysWindow);
 
-	SystemWM::SetWindowCursor(SysWindow, CurrentCursor);
+	systemWM::SetWindowCursor(SysWindow, CurrentCursor);
 	CurrentCursor = dynamic_cast<UIButton*>(UI.HoveredBox) ? Cursor::Hand : (dynamic_cast<UITextField*>(UI.HoveredBox) ? Cursor::Text : Cursor::Default);
 }
 
@@ -319,7 +319,7 @@ bool kui::Window::UpdateWindow()
 		WaitFrame();
 	}
 	Input.UpdateCursorPosition();
-	SystemWM::UpdateWindow(SysWindow);
+	systemWM::UpdateWindow(SysWindow);
 	Input.Poll();
 
 	FrameDelta = WindowDeltaTimer.Get();
@@ -343,14 +343,14 @@ void kui::Window::OnResized()
 void kui::Window::SetMinSize(Vec2ui MinimumSize)
 {
 	SDL_WINDOW_PTR(SysWindow);
-	SystemWM::SetWindowMinSize(SysWindow, MinimumSize);
+	systemWM::SetWindowMinSize(SysWindow, MinimumSize);
 	MinSize = MinimumSize;
 }
 
 void kui::Window::SetMaxSize(Vec2ui MaximumSize)
 {
 	SDL_WINDOW_PTR(SysWindow);
-	SystemWM::SetWindowMaxSize(SysWindow, MaximumSize);
+	systemWM::SetWindowMaxSize(SysWindow, MaximumSize);
 	MaxSize = MaximumSize;
 }
 
@@ -366,24 +366,24 @@ void kui::Window::SetMaximized(bool NewIsFullScreen)
 
 	if (NewIsFullScreen)
 	{
-		SystemWM::MaximizeWindow(SysWindow);
+		systemWM::MaximizeWindow(SysWindow);
 	}
 	else
 	{
-		SystemWM::RestoreWindow(SysWindow);
+		systemWM::RestoreWindow(SysWindow);
 	}
 }
 
 bool kui::Window::GetWindowFullScreen()
 {
 	SDL_WINDOW_PTR(SysWindow);
-	return SystemWM::IsWindowFullScreen(SysWindow);
+	return systemWM::IsWindowFullScreen(SysWindow);
 }
 
 bool kui::Window::GetMinimized()
 {
 	SDL_WINDOW_PTR(SysWindow);
-	return SystemWM::IsWindowMinimized(SysWindow);
+	return systemWM::IsWindowMinimized(SysWindow);
 }
 
 void kui::Window::SetMinimized(bool NewIsMinimized)
@@ -392,11 +392,11 @@ void kui::Window::SetMinimized(bool NewIsMinimized)
 
 	if (NewIsMinimized)
 	{
-		SystemWM::MinimizeWindow(SysWindow);
+		systemWM::MinimizeWindow(SysWindow);
 	}
 	else
 	{
-		SystemWM::RestoreWindow(SysWindow);
+		systemWM::RestoreWindow(SysWindow);
 	}
 }
 

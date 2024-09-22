@@ -3,7 +3,7 @@
 #include "SystemWM.h"
 #include "SystemWM_X11.h"
 
-namespace kui::SystemWM
+namespace kui::systemWM
 {
 	class SysWindow
 	{

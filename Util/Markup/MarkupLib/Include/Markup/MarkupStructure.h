@@ -33,6 +33,7 @@ namespace kui::MarkupStructure
 
 		std::vector<UIElement> Children;
 		std::vector<Property> ElementProperties;
+		std::vector<Property> TranslatedProperties;
 
 		struct Variable
 		{
@@ -87,7 +88,7 @@ namespace kui::MarkupStructure
 
 		void WriteHeader(const std::string& Path, ParseResult& MarkupElements);
 	private:
-		std::string MakeConstructor(ParseResult& MarkupElements);
+		std::string WriteLayoutFunction(ParseResult& MarkupElements);
 	};
 
 	struct ParseResult

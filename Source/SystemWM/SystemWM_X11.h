@@ -4,7 +4,7 @@
 #include "X11/Xlib.h"
 #include <GL/glx.h>
 
-namespace kui::SystemWM
+namespace kui::systemWM
 {
 	class X11Window
 	{

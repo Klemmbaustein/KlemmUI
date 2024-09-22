@@ -31,6 +31,16 @@ static bool IsMaximized(HWND hWnd)
 	return placement.showCmd == SW_MAXIMIZE;
 }
 
+static std::wstring ToWstring(std::string utf8)
+{
+	int wchars_num = MultiByteToWideChar(CP_UTF8, 0, utf8.c_str(), -1, NULL, 0);
+	wchar_t* wstr = new wchar_t[wchars_num];
+	MultiByteToWideChar(CP_UTF8, 0, utf8.c_str(), -1, wstr, wchars_num);
+	std::wstring str = wstr;
+	delete[] wstr;
+	return str;
+}
+
 static std::array<Vec2ui, 2> AdjustWindowSize(Vec2ui Pos, Vec2ui InSize, DWORD Style, DWORD ExStyle)
 {
 	RECT SizeRect = RECT
@@ -46,7 +56,7 @@ static std::array<Vec2ui, 2> AdjustWindowSize(Vec2ui Pos, Vec2ui InSize, DWORD S
 	return { Vec2ui(SizeRect.left, SizeRect.top), Vec2ui(SizeRect.right - SizeRect.left, SizeRect.bottom - SizeRect.top) };
 }
 
-namespace kui::SystemWM::Borderless
+namespace kui::systemWM::Borderless
 {
 	// Based on: https://github.com/melak47/BorderlessWindow/blob/main/src/BorderlessWindow.cpp
 
@@ -94,7 +104,7 @@ namespace kui::SystemWM::Borderless
 		rect = monitor_info.rcWork;
 	}
 
-	LRESULT HitTest(POINT cursor, kui::SystemWM::SysWindow* Window)
+	LRESULT HitTest(POINT cursor, kui::systemWM::SysWindow* Window)
 	{
 		// identify borders and corners to allow resizing the window.
 		// Note: On Windows 10, windows behave differently and
@@ -226,7 +236,7 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
 		{0x5a, Key::z},
 	};
 
-	SystemWM::SysWindow* SysWindow = reinterpret_cast<SystemWM::SysWindow*>(
+	systemWM::SysWindow* SysWindow = reinterpret_cast<systemWM::SysWindow*>(
 		::GetWindowLongPtr(hWnd, GWLP_USERDATA));
 
 	// Do not do anything if this window doesn't have a Window class associated with it.
@@ -239,7 +249,7 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
 	{
 	case WM_NCCREATE:
 	{
-		const auto caller = reinterpret_cast<SystemWM::SysWindow*>(
+		const auto caller = reinterpret_cast<systemWM::SysWindow*>(
 			reinterpret_cast<CREATESTRUCT*>(lParam)->lpCreateParams);
 
 		::SetWindowLongPtr(hWnd, GWLP_USERDATA,
@@ -272,7 +282,7 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
 			// This causes the edges of a full screen borderless window to be outside of the actual screen.
 			// This code adjusts the size of a borderless window to match the size of the sceren when it is put into full screen.
 			NCCALCSIZE_PARAMS& Parameters = *reinterpret_cast<NCCALCSIZE_PARAMS*>(lParam);
-			SystemWM::Borderless::AdjustFullScreen(hWnd, Parameters.rgrc[0]);
+			systemWM::Borderless::AdjustFullScreen(hWnd, Parameters.rgrc[0]);
 			return 0;
 		}
 		break;
@@ -303,7 +313,7 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
 		// Borderless windows need to define their own hit test for defining the resizable areas and things such as the title bar.
 		if (SysWindow->Borderless)
 		{
-			return SystemWM::Borderless::HitTest(POINT{
+			return systemWM::Borderless::HitTest(POINT{
 				GET_X_LPARAM(lParam),
 				GET_Y_LPARAM(lParam)
 				}, SysWindow);
@@ -387,7 +397,7 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
 	return DefWindowProc(hWnd, uMsg, wParam, lParam);
 }
 
-static const CHAR KUI_WINDOW_CLASS_NAME[] = TEXT("KlemmUIWindow");
+static const CHAR KUI_WINDOW_CLASS_NAME[] = "KlemmUIWindow";
 
 static HICON GetAppIcon(HMODULE Instance)
 {
@@ -399,7 +409,7 @@ static bool CheckFlag(kui::Window::WindowFlag Flag, kui::Window::WindowFlag Valu
 	return (Flag & Value) == Value;
 }
 
-kui::SystemWM::SysWindow* kui::SystemWM::NewWindow(Window* Parent, Vec2ui Size, Vec2ui Pos, std::string Title, Window::WindowFlag Flags)
+kui::systemWM::SysWindow* kui::systemWM::NewWindow(Window* Parent, Vec2ui Size, Vec2ui Pos, std::string Title, Window::WindowFlag Flags)
 {
 	SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
 
@@ -460,10 +470,10 @@ kui::SystemWM::SysWindow* kui::SystemWM::NewWindow(Window* Parent, Vec2ui Size, 
 
 	std::array<Vec2ui, 2> WindowSizes = AdjustWindowSize(Pos, Size, Style, ExStyle);
 
-	OutWindow->WindowHandle = CreateWindowEx(
+	OutWindow->WindowHandle = CreateWindowExW(
 		ExStyle,
-		KUI_WINDOW_CLASS_NAME,
-		TEXT(Title.c_str()),
+		ToWstring(KUI_WINDOW_CLASS_NAME).c_str(),
+		ToWstring(Title).c_str(),
 		Style,
 		WindowSizes[0].X,
 		WindowSizes[0].Y,
@@ -535,7 +545,7 @@ kui::SystemWM::SysWindow* kui::SystemWM::NewWindow(Window* Parent, Vec2ui Size, 
 		SetWindowPos(OutWindow->WindowHandle, NULL, Pos.X, Pos.Y, 0, 0, SWP_FRAMECHANGED | SWP_NOMOVE | SWP_NOSIZE);
 	}
 
-	SystemWM::SetWindowCursor(OutWindow, Window::Cursor::Default);
+	systemWM::SetWindowCursor(OutWindow, Window::Cursor::Default);
 	ShowWindow(OutWindow->WindowHandle, SW_SHOW);
 
 	OutWindow->MakeContextActive();
@@ -543,30 +553,30 @@ kui::SystemWM::SysWindow* kui::SystemWM::NewWindow(Window* Parent, Vec2ui Size, 
 	return OutWindow;
 }
 
-void kui::SystemWM::DestroyWindow(SysWindow* Target)
+void kui::systemWM::DestroyWindow(SysWindow* Target)
 {
 	wglDeleteContext(Target->GLContext);
 	DestroyWindow(Target->WindowHandle);
 	delete Target;
 }
 
-void kui::SystemWM::SwapWindow(SysWindow* Target)
+void kui::systemWM::SwapWindow(SysWindow* Target)
 {
 	wglSwapIntervalEXT(0);
 	SwapBuffers(Target->DeviceContext);
 }
 
-void kui::SystemWM::ActivateContext(SysWindow* Target)
+void kui::systemWM::ActivateContext(SysWindow* Target)
 {
 	Target->MakeContextActive();
 }
 
-Vec2ui kui::SystemWM::GetWindowSize(SysWindow* Target)
+Vec2ui kui::systemWM::GetWindowSize(SysWindow* Target)
 {
 	return Target->Size;
 }
 
-void kui::SystemWM::UpdateWindow(SysWindow*)
+void kui::systemWM::UpdateWindow(SysWindow*)
 {
 	MSG msg;
 	while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
@@ -576,12 +586,12 @@ void kui::SystemWM::UpdateWindow(SysWindow*)
 	}
 }
 
-bool kui::SystemWM::WindowHasFocus(SysWindow* Target)
+bool kui::systemWM::WindowHasFocus(SysWindow* Target)
 {
 	return GetFocus() == Target->WindowHandle;
 }
 
-Vec2i kui::SystemWM::GetCursorPosition(SysWindow* Target)
+Vec2i kui::systemWM::GetCursorPosition(SysWindow* Target)
 {
 	POINT p;
 	if (GetCursorPos(&p) && ScreenToClient(Target->WindowHandle, &p))
@@ -591,7 +601,7 @@ Vec2i kui::SystemWM::GetCursorPosition(SysWindow* Target)
 	return 0;
 }
 
-Vec2ui kui::SystemWM::GetScreenSize()
+Vec2ui kui::systemWM::GetScreenSize()
 {
 	HWND Desktop = GetDesktopWindow();
 	RECT Size;
@@ -599,14 +609,14 @@ Vec2ui kui::SystemWM::GetScreenSize()
 	return Vec2ui(Size.left + Size.right, Size.top + Size.bottom);
 }
 
-std::string kui::SystemWM::GetTextInput(SysWindow* Target)
+std::string kui::systemWM::GetTextInput(SysWindow* Target)
 {
 	std::string Out = Target->TextInput;
 	Target->TextInput.clear();
 	return Out;
 }
 
-uint32_t kui::SystemWM::GetDesiredRefreshRate(SysWindow* From)
+uint32_t kui::systemWM::GetDesiredRefreshRate(SysWindow* From)
 {
 	HMONITOR Monitor = MonitorFromWindow(From->WindowHandle, MONITOR_DEFAULTTONEAREST);
 
@@ -623,7 +633,7 @@ uint32_t kui::SystemWM::GetDesiredRefreshRate(SysWindow* From)
 	return DeviceMode.dmDisplayFrequency;
 }
 
-void kui::SystemWM::SetWindowCursor(SysWindow* Target, Window::Cursor NewCursor)
+void kui::systemWM::SetWindowCursor(SysWindow* Target, Window::Cursor NewCursor)
 {
 	if (Target->ActiveCursor != int(NewCursor))
 	{
@@ -632,12 +642,12 @@ void kui::SystemWM::SetWindowCursor(SysWindow* Target, Window::Cursor NewCursor)
 	}
 }
 
-float kui::SystemWM::GetDPIScale(SysWindow* Target)
+float kui::systemWM::GetDPIScale(SysWindow* Target)
 {
 	return (float)GetDpiForWindow(Target->WindowHandle) / 96.0f;
 }
 
-void kui::SystemWM::SetClipboardText(std::string NewText)
+void kui::systemWM::SetClipboardText(std::string NewText)
 {
 	if (!OpenClipboard(nullptr))
 	{
@@ -664,7 +674,7 @@ void kui::SystemWM::SetClipboardText(std::string NewText)
 	CloseClipboard();
 }
 
-std::string kui::SystemWM::GetClipboardText()
+std::string kui::systemWM::GetClipboardText()
 {
 	if (!OpenClipboard(nullptr))
 	{
@@ -683,17 +693,17 @@ std::string kui::SystemWM::GetClipboardText()
 	return Text;
 }
 
-bool kui::SystemWM::IsLMBDown()
+bool kui::systemWM::IsLMBDown()
 {
 	return GetKeyState(VK_LBUTTON) & 0x8000;
 }
 
-bool kui::SystemWM::IsRMBDown()
+bool kui::systemWM::IsRMBDown()
 {
 	return GetKeyState(VK_RBUTTON) & 0x8000;
 }
 
-void kui::SystemWM::SysWindow::SetSize(Vec2ui NewSize) const
+void kui::systemWM::SysWindow::SetSize(Vec2ui NewSize) const
 {
 	RECT WindowRect = {};
 	GetWindowRect(WindowHandle, &WindowRect);
@@ -711,12 +721,12 @@ void kui::SystemWM::SysWindow::SetSize(Vec2ui NewSize) const
 	MoveWindow(WindowHandle, WindowRect.left, WindowRect.top, NewSizeRect.right - NewSizeRect.left, NewSizeRect.bottom - NewSizeRect.top, true);
 }
 
-void kui::SystemWM::SetWindowSize(SysWindow* Target, Vec2ui Size)
+void kui::systemWM::SetWindowSize(SysWindow* Target, Vec2ui Size)
 {
 	Target->SetSize(Size);
 }
 
-void kui::SystemWM::SetWindowPosition(SysWindow* Target, Vec2ui NewPosition)
+void kui::systemWM::SetWindowPosition(SysWindow* Target, Vec2ui NewPosition)
 {
 	NewPosition = AdjustWindowSize(NewPosition, 0, GetWindowLong(Target->WindowHandle, GWL_STYLE), GetWindowLong(Target->WindowHandle, GWL_EXSTYLE))[0];
 	RECT WindowRect = {};
@@ -724,42 +734,42 @@ void kui::SystemWM::SetWindowPosition(SysWindow* Target, Vec2ui NewPosition)
 	MoveWindow(Target->WindowHandle, NewPosition.X, NewPosition.Y, WindowRect.right - WindowRect.left, WindowRect.bottom - WindowRect.top, true);
 }
 
-void kui::SystemWM::SetTitle(SysWindow* Target, std::string Text)
+void kui::systemWM::SetTitle(SysWindow* Target, std::string Text)
 {
-	SetWindowText(Target->WindowHandle, Text.c_str());
+	SetWindowTextW(Target->WindowHandle, ToWstring(Text).c_str());
 }
 
-bool kui::SystemWM::IsWindowFullScreen(SysWindow* Target)
+bool kui::systemWM::IsWindowFullScreen(SysWindow* Target)
 {
 	return IsMaximized(Target->WindowHandle);
 }
 
-void kui::SystemWM::SetWindowMinSize(SysWindow* Target, Vec2ui MinSize)
+void kui::systemWM::SetWindowMinSize(SysWindow* Target, Vec2ui MinSize)
 {
 	Target->MinSize = AdjustWindowSize(0, MinSize, GetWindowLong(Target->WindowHandle, GWL_STYLE), GetWindowLong(Target->WindowHandle, GWL_EXSTYLE))[1];
 }
 
-void kui::SystemWM::SetWindowMaxSize(SysWindow* Target, Vec2ui MaxSize)
+void kui::systemWM::SetWindowMaxSize(SysWindow* Target, Vec2ui MaxSize)
 {
 	Target->MaxSize = AdjustWindowSize(0, MaxSize, GetWindowLong(Target->WindowHandle, GWL_STYLE), GetWindowLong(Target->WindowHandle, GWL_EXSTYLE))[1];
 }
 
-void kui::SystemWM::RestoreWindow(SysWindow* Target)
+void kui::systemWM::RestoreWindow(SysWindow* Target)
 {
 	::ShowWindow(Target->WindowHandle, SW_RESTORE);
 }
 
-void kui::SystemWM::MinimizeWindow(SysWindow* Target)
+void kui::systemWM::MinimizeWindow(SysWindow* Target)
 {
 	::ShowWindow(Target->WindowHandle, SW_MINIMIZE);
 }
 
-void kui::SystemWM::MaximizeWindow(SysWindow* Target)
+void kui::systemWM::MaximizeWindow(SysWindow* Target)
 {
 	::ShowWindow(Target->WindowHandle, SW_MAXIMIZE);
 }
 
-bool kui::SystemWM::IsWindowMinimized(SysWindow* Target)
+bool kui::systemWM::IsWindowMinimized(SysWindow* Target)
 {
 	WINDOWPLACEMENT placement;
 	ZeroMemory(&placement, sizeof(placement));
@@ -771,21 +781,21 @@ bool kui::SystemWM::IsWindowMinimized(SysWindow* Target)
 	return placement.showCmd == SW_MINIMIZE;
 }
 
-void kui::SystemWM::HideWindow(SysWindow* Target)
+void kui::systemWM::HideWindow(SysWindow* Target)
 {
 	::ShowWindow(Target->WindowHandle, SW_HIDE);
 }
 
 #undef MessageBox
 
-void kui::SystemWM::MessageBox(std::string Text, std::string Title, int Type)
+void kui::systemWM::MessageBox(std::string Text, std::string Title, int Type)
 {
 	std::array<UINT, 3> Types = { 0, MB_ICONWARNING, MB_ICONERROR };
 
-	::MessageBoxA(NULL, Text.c_str(), Title.c_str(), Types[Type]);
+	::MessageBoxW(NULL, ToWstring(Text).c_str(), ToWstring(Title).c_str(), Types[Type]);
 }
 
-void kui::SystemWM::SysWindow::MakeContextActive() const
+void kui::systemWM::SysWindow::MakeContextActive() const
 {
 	if (wglGetCurrentContext() == GLContext)
 	{

@@ -108,28 +108,28 @@ kui::InputManager::InputManager(Window* Parent)
 	RegisterOnKeyDownCallback(Key::c, [](Window* Win) {
 		if (Win->Input.IsKeyDown(Key::LCTRL) || Win->Input.IsKeyDown(Key::RCTRL))
 		{
-			SystemWM::SetClipboardText(Win->Input.GetSelectedTextString());
+			systemWM::SetClipboardText(Win->Input.GetSelectedTextString());
 		}
 		});
 
 	RegisterOnKeyDownCallback(Key::x, [](Window* Win) {
 		if (Win->Input.IsKeyDown(Key::LCTRL) || Win->Input.IsKeyDown(Key::RCTRL))
 		{
-			SystemWM::SetClipboardText(Win->Input.GetSelectedTextString());
+			systemWM::SetClipboardText(Win->Input.GetSelectedTextString());
 			Win->Input.DeleteTextSelection();
 		}
 		});
 
 	RegisterOnKeyDownCallback(Key::v, [](Window* Win) {
 		if (Win->Input.IsKeyDown(Key::LCTRL) || Win->Input.IsKeyDown(Key::RCTRL))
-			Win->Input.AddTextInput(SystemWM::GetClipboardText());
+			Win->Input.AddTextInput(systemWM::GetClipboardText());
 		});
 
 }
 
 void kui::InputManager::UpdateCursorPosition()
 {
-	SystemWM::SysWindow* SysWindow = static_cast<SystemWM::SysWindow*>(ParentWindow->GetSysWindow());
+	systemWM::SysWindow* SysWindow = static_cast<systemWM::SysWindow*>(ParentWindow->GetSysWindow());
 
 	if (!ParentWindow->HasFocus())
 	{
@@ -138,7 +138,7 @@ void kui::InputManager::UpdateCursorPosition()
 	}
 
 	Vec2ui Size = ParentWindow->GetSize();
-	Vec2ui Pos = SystemWM::GetCursorPosition(SysWindow);
+	Vec2ui Pos = systemWM::GetCursorPosition(SysWindow);
 
 	ParentWindow->Input.MousePosition = Vec2(((float)Pos.X / (float)Size.X - 0.5f) * 2.0f, 1.0f - ((float)Pos.Y / (float)Size.Y * 2.0f));
 }
@@ -150,10 +150,10 @@ void InputManager::Poll()
 	IsLMBClicked = false;
 	IsRMBClicked = false;
 
-	SystemWM::SysWindow* SysWindow = static_cast<SystemWM::SysWindow*>(ParentWindow->GetSysWindow());
+	systemWM::SysWindow* SysWindow = static_cast<systemWM::SysWindow*>(ParentWindow->GetSysWindow());
 
-	bool NewLMBDown = SystemWM::IsLMBDown();
-	bool NewRMBDown = SystemWM::IsRMBDown();
+	bool NewLMBDown = systemWM::IsLMBDown();
+	bool NewRMBDown = systemWM::IsRMBDown();
 	if (!IsLMBDown && NewLMBDown)
 	{
 		IsLMBClicked = true;
@@ -166,7 +166,7 @@ void InputManager::Poll()
 	IsLMBDown = NewLMBDown;
 	IsRMBDown = NewRMBDown;
 
-	AddTextInput(SystemWM::GetTextInput(SysWindow));
+	AddTextInput(systemWM::GetTextInput(SysWindow));
 }
 
 void kui::InputManager::MoveMouseWheel(int Amount)

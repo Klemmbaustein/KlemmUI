@@ -9,7 +9,7 @@ int main()
 			app::MessageBox(Message, "Error", app::MessageBoxType::Error);
 		});
 
-	Window MainWindow = Window("Hello, World!", Window::WindowFlag::Resizable, Window::POSITION_CENTERED, Window::SIZE_DEFAULT);
+	Window MainWindow = Window("Hello, World!", Window::WindowFlag::Resizable, Window::POSITION_CENTERED, Vec2ui(640, 480));
 
 	Font* RobotoFont = new Font("res:Roboto-Regular.ttf");
 	MainWindow.Markup.SetDefaultFont(RobotoFont);

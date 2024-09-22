@@ -13,13 +13,18 @@ file(
 	SRCS
 	"${SRC_DIR}/**.cpp"
 )
+file(
+	GLOB_RECURSE
+	INCLUDES
+	"${INC_DIR}/**.h"
+)
 
 set(glew-cmake_BUILD_SHARED OFF)
 set(ONLY_LIBS ON)
 add_subdirectory("Dependencies/glew-cmake")
 add_library(
 	KlemmUI STATIC
-	${SRCS}
+	${SRCS} ${INCLUDES}
 )
 
 option(KLEMMUI_INCLUDE_EXAMPLES "Include example programs" ON)
@@ -91,7 +96,6 @@ macro(klemmui_resources ProjectName ResourceDir)
 	if(NOT ${ProjectName} STREQUAL "KlemmUI")
 		message(STATUS "Using resouces in project")
 		target_compile_definitions(KlemmUI PUBLIC KLEMMUI_USE_RESOURCES)
-		target_compile_definitions(KlemmUI PUBLIC KLEMMUI_RESOURCE_NAME=${ProjectName})
 	endif()
 	message(STATUS "Adding resource dir - ${ResourceDir} -> ${RESOURCE_OUT_FILE}")
 endmacro()

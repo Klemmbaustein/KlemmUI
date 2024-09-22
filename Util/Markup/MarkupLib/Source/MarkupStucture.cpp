@@ -140,9 +140,9 @@ void MarkupElement::WriteHeader(const std::string& Path, ParseResult& MarkupElem
 		Out << "#include \"" << i << "\"" << std::endl;
 	}
 
-	Out << "class " << Root.TypeName << " : public kui::UIBox\n{\n";
+	Out << "class " << Root.TypeName << " : public kui::UIBox, kui::markup::MarkupBox\n{\n";
 
-	std::string Constructor = MakeConstructor(MarkupElements);
+	std::string Constructor = WriteLayoutFunction(MarkupElements);
 	
 	for (auto& i : Root.Variables)
 	{
@@ -179,7 +179,14 @@ void MarkupElement::WriteHeader(const std::string& Path, ParseResult& MarkupElem
 		Out << "\t" << Root.WriteVariableSetter(i);
 	}
 
-	Out << "};" << std::endl;
+	Out << "\tvirtual void OnTranslationChanged() override\n\t{\n";
+	for (auto& i : Root.TranslatedProperties)
+	{
+		Out << "\t\t" << Format::FormatString(i.Name, { Format::FormatArg("val", kui::stringParse::ToCppCode(i.Value)) }) << ";\n";
+	}
+	Out << "\t}";
+
+	Out << "};\n";
 
 
 	bool ShouldWrite = true;
@@ -199,7 +206,7 @@ void MarkupElement::WriteHeader(const std::string& Path, ParseResult& MarkupElem
 	}
 }
 
-std::string MarkupElement::MakeConstructor(ParseResult& MarkupElements)
+std::string MarkupElement::WriteLayoutFunction(ParseResult& MarkupElements)
 {
 	std::stringstream OutStream;
 
@@ -263,9 +270,11 @@ static std::string WriteElementProperty(UIElement* Target, UIElement* Root, std:
 		p.Value = ValueConstant->Value;
 	}
 
-	if (Variable != Root->Variables.end())
+	bool IsTranslated = kui::stringParse::IsTranslatedString(p.Value) && i.VarType == UIElement::Variable::VariableType::String;
+
+	if (Variable != Root->Variables.end() || IsTranslated)
 	{
-		if (Variable->second.Type != i.VarType)
+		if (!IsTranslated && Variable->second.Type != i.VarType)
 		{
 			if (Variable->second.Type == UIElement::Variable::VariableType::None)
 			{
@@ -280,9 +289,14 @@ static std::string WriteElementProperty(UIElement* Target, UIElement* Root, std:
 		{
 			Target->ElementName = "unnamed_" + std::to_string(UnnamedCounter++);
 		}
+		if (IsTranslated)
+		{
+			Root->TranslatedProperties.push_back(Property(Target->ElementName + "->" + i.SetFormat[0], p.Value));
+		}
 	}
 	else
 	{
+
 		switch (i.VarType)
 		{
 		case UIElement::Variable::VariableType::String:
@@ -505,6 +519,7 @@ std::set<std::string> UIElement::GetElementDependencies() const
 		}
 	}
 	Deps.insert("kui/UI/UIBox.h");
+	Deps.insert("kui/Markup/MarkupBox.h");
 	Deps.insert("kui/Markup/Markup.h");
 	return Deps;
 }

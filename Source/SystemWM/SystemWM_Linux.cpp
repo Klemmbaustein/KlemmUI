@@ -8,7 +8,7 @@ static bool CheckFlag(kui::Window::WindowFlag Flag, kui::Window::WindowFlag Valu
 	return (Flag & Value) == Value;
 }
 
-kui::SystemWM::SysWindow* kui::SystemWM::NewWindow(Window* Parent, Vec2ui Size, Vec2ui Pos, std::string Title, Window::WindowFlag Flags)
+kui::systemWM::SysWindow* kui::systemWM::NewWindow(Window* Parent, Vec2ui Size, Vec2ui Pos, std::string Title, Window::WindowFlag Flags)
 {
 	SysWindow* OutWindow = new SysWindow();
 	OutWindow->X11 = X11Window();
@@ -25,133 +25,133 @@ kui::SystemWM::SysWindow* kui::SystemWM::NewWindow(Window* Parent, Vec2ui Size, 
 	return OutWindow;
 }
 
-void kui::SystemWM::DestroyWindow(SysWindow* Target)
+void kui::systemWM::DestroyWindow(SysWindow* Target)
 {
 	Target->X11.Destroy();
 	delete Target;
 }
 
-void kui::SystemWM::SwapWindow(SysWindow* Target)
+void kui::systemWM::SwapWindow(SysWindow* Target)
 {
 	Target->X11.Swap();
 }
 
-void kui::SystemWM::ActivateContext(SysWindow* Target)
+void kui::systemWM::ActivateContext(SysWindow* Target)
 {
 	Target->X11.MakeContextCurrent();
 }
 
-Vec2ui kui::SystemWM::GetWindowSize(SysWindow* Target)
+Vec2ui kui::systemWM::GetWindowSize(SysWindow* Target)
 {
 	return Target->X11.WindowSize;
 }
 
-void kui::SystemWM::UpdateWindow(SysWindow* Target)
+void kui::systemWM::UpdateWindow(SysWindow* Target)
 {
 	Target->X11.UpdateWindow();
 }
 
-bool kui::SystemWM::WindowHasFocus(SysWindow* Target)
+bool kui::systemWM::WindowHasFocus(SysWindow* Target)
 {
 	return Target->X11.HasFocus;
 }
 
-Vec2i kui::SystemWM::GetCursorPosition(SysWindow* Target)
+Vec2i kui::systemWM::GetCursorPosition(SysWindow* Target)
 {
 	return Target->X11.CursorPosition;
 }
 
-Vec2ui kui::SystemWM::GetScreenSize()
+Vec2ui kui::systemWM::GetScreenSize()
 {
 	return X11Window::GetMainScreenResolution();
 }
 
-std::string kui::SystemWM::GetTextInput(SysWindow* Target)
+std::string kui::systemWM::GetTextInput(SysWindow* Target)
 {
 	std::string NewText = Target->X11.TextInput;
 	Target->X11.TextInput.clear();
 	return NewText;
 }
 
-uint32_t kui::SystemWM::GetDesiredRefreshRate(SysWindow* From)
+uint32_t kui::systemWM::GetDesiredRefreshRate(SysWindow* From)
 {
 	return From->X11.GetMonitorRefreshRate();
 }
 
-void kui::SystemWM::SetWindowCursor(SysWindow* Target, Window::Cursor NewCursor)
+void kui::systemWM::SetWindowCursor(SysWindow* Target, Window::Cursor NewCursor)
 {
 	Target->X11.SetCursor(NewCursor);
 }
 
-float kui::SystemWM::GetDPIScale(SysWindow* Target)
+float kui::systemWM::GetDPIScale(SysWindow* Target)
 {
 	return Target->X11.GetDPIScale();
 }
 
-void kui::SystemWM::SetClipboardText(std::string NewText)
+void kui::systemWM::SetClipboardText(std::string NewText)
 {
 }
 
-std::string kui::SystemWM::GetClipboardText()
+std::string kui::systemWM::GetClipboardText()
 {
 	return X11Window::GetClipboard();
 }
 
-bool kui::SystemWM::IsLMBDown()
+bool kui::systemWM::IsLMBDown()
 {
 	return X11Window::IsLMBDown();
 }
 
-bool kui::SystemWM::IsRMBDown()
+bool kui::systemWM::IsRMBDown()
 {
 	return X11Window::IsRMBDown();
 }
 
-void kui::SystemWM::SetWindowSize(SysWindow* Target, Vec2ui Size)
+void kui::systemWM::SetWindowSize(SysWindow* Target, Vec2ui Size)
 {
 	Target->X11.SetSize(Size);
 }
 
-void kui::SystemWM::SetWindowPosition(SysWindow* Target, Vec2ui NewPosition)
+void kui::systemWM::SetWindowPosition(SysWindow* Target, Vec2ui NewPosition)
 {
 	Target->X11.SetPosition(NewPosition);
 }
 
-void kui::SystemWM::SetTitle(SysWindow* Target, std::string Text)
+void kui::systemWM::SetTitle(SysWindow* Target, std::string Text)
 {
 	Target->X11.SetTitle(Text.c_str());
 }
 
-bool kui::SystemWM::IsWindowFullScreen(SysWindow* Target)
+bool kui::systemWM::IsWindowFullScreen(SysWindow* Target)
 {
 	return Target->X11.IsMaximized();
 }
-bool kui::SystemWM::IsWindowMinimized(SysWindow* Target)
+bool kui::systemWM::IsWindowMinimized(SysWindow* Target)
 {
 	return Target->X11.IsMinimized();
 }
 
-void kui::SystemWM::SetWindowMinSize(SysWindow* Target, Vec2ui MinSize)
+void kui::systemWM::SetWindowMinSize(SysWindow* Target, Vec2ui MinSize)
 {
 	Target->X11.SetMinSize(MinSize);
 }
 
-void kui::SystemWM::SetWindowMaxSize(SysWindow* Target, Vec2ui MaxSize)
+void kui::systemWM::SetWindowMaxSize(SysWindow* Target, Vec2ui MaxSize)
 {
 	Target->X11.SetMaxSize(MaxSize);
 }
 
-void kui::SystemWM::RestoreWindow(SysWindow* Target)
+void kui::systemWM::RestoreWindow(SysWindow* Target)
 {
 	Target->X11.Restore();
 }
 
-void kui::SystemWM::MinimizeWindow(SysWindow* Target)
+void kui::systemWM::MinimizeWindow(SysWindow* Target)
 {
 	Target->X11.Minimize();
 }
 
-void kui::SystemWM::MaximizeWindow(SysWindow* Target)
+void kui::systemWM::MaximizeWindow(SysWindow* Target)
 {
 	Target->X11.Maximize();
 }
@@ -161,7 +161,7 @@ static bool CommandExists(std::string Command)
 	return system(("command -v " + Command + " > /dev/null").c_str()) == 0;
 }
 
-void kui::SystemWM::MessageBox(std::string Text, std::string Title, int Type)
+void kui::systemWM::MessageBox(std::string Text, std::string Title, int Type)
 {
 	if (Type < 0 || Type > 2)
 	{

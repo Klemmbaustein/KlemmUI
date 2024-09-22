@@ -351,6 +351,10 @@ bool kui::stringParse::IsNumber(std::string Element)
 	return !(*p);
 
 }
+bool kui::stringParse::IsTranslatedString(std::string Element)
+{
+	return IsStringToken(Element) && Element[0] == '$';
+}
 
 std::string kui::stringParse::ToCppCode(std::string Value)
 {
@@ -401,7 +405,7 @@ std::string kui::stringParse::ToCppCode(std::string Value)
 	{
 		if (Value[0] == '$')
 		{
-			return "kui::MarkupLanguageManager::GetActive()->GetString(" + Value.substr(1) + ")";
+			return "GetTranslation(" + Value.substr(1) + ")";
 		}
 		return Value;
 	}

@@ -36,7 +36,7 @@ void kui::internal::InitGLContext(Window* From)
 
 void kui::internal::DrawWindow(Window* Target)
 {
-	SystemWM::SysWindow* SysWindow = static_cast<SystemWM::SysWindow*>(Target->GetSysWindow());
+	systemWM::SysWindow* SysWindow = static_cast<systemWM::SysWindow*>(Target->GetSysWindow());
 
 	Shader* WindowShader = Target->Shaders.GetShader("WindowShader");
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -52,7 +52,7 @@ void kui::internal::DrawWindow(Window* Target)
 	glDrawArrays(GL_TRIANGLES, 0, 3);
 	WindowShader->Unbind();
 
-	SystemWM::SwapWindow(SysWindow);
+	systemWM::SwapWindow(SysWindow);
 }
 
 std::u32string kui::internal::GetUnicodeString(std::string utf8)

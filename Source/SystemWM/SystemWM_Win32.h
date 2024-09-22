@@ -4,7 +4,7 @@
 #define NOMINMAX
 #include <Windows.h>
 
-namespace kui::SystemWM
+namespace kui::systemWM
 {
 	class SysWindow
 	{

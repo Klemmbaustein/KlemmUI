@@ -1,7 +1,7 @@
 #pragma once
 #include <kui/Window.h>
 
-namespace kui::SystemWM
+namespace kui::systemWM
 {
 	class SysWindow;
 

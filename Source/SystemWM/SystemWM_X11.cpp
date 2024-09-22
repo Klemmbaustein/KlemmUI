@@ -14,8 +14,8 @@
 #define HAS_XRANDR 1
 #endif
 
-thread_local Display* kui::SystemWM::X11Window::XDisplay = nullptr;
-thread_local ::Window kui::SystemWM::X11Window::XRootWindow;
+thread_local Display* kui::systemWM::X11Window::XDisplay = nullptr;
+thread_local ::Window kui::systemWM::X11Window::XRootWindow;
 
 static std::string GetEnv(const std::string& var)
 {
@@ -29,7 +29,7 @@ static std::string GetEnv(const std::string& var)
 
 static void CheckForDisplay()
 {
-	using namespace kui::SystemWM;
+	using namespace kui::systemWM;
 	using namespace kui::app::error;
 
 	if (X11Window::XDisplay == nullptr)
@@ -71,7 +71,7 @@ thread_local static Atom WmDeleteWindow;
 thread_local static Atom NetWmStateMaximizedHorz;
 thread_local static Atom NetWmStateMaximizedVert;
 
-void kui::SystemWM::X11Window::Create(Window* Parent, Vec2ui Size, Vec2ui Pos, std::string Title, bool Borderless, bool Resizable, bool Popup)
+void kui::systemWM::X11Window::Create(Window* Parent, Vec2ui Size, Vec2ui Pos, std::string Title, bool Borderless, bool Resizable, bool Popup)
 {
 	CheckForDisplay();
 
@@ -132,18 +132,18 @@ void kui::SystemWM::X11Window::Create(Window* Parent, Vec2ui Size, Vec2ui Pos, s
 	MakeContextCurrent();
 }
 
-void kui::SystemWM::X11Window::Destroy()
+void kui::systemWM::X11Window::Destroy()
 {
 	XDestroyWindow(XDisplay, XWindow);
 	XFlush(XDisplay);
 }
 
-void kui::SystemWM::X11Window::SetTitle(std::string NewTitle) const
+void kui::systemWM::X11Window::SetTitle(std::string NewTitle) const
 {
 	XStoreName(XDisplay, XWindow, NewTitle.c_str());
 }
 
-void kui::SystemWM::X11Window::MakeContextCurrent() const
+void kui::systemWM::X11Window::MakeContextCurrent() const
 {
 	if (glXGetCurrentContext() != GLContext)
 		glXMakeCurrent(XDisplay, XWindow, GLContext);
@@ -195,7 +195,7 @@ std::string GetSelection(Display* display, Window window, const char* bufname, c
 	return "";
 }
 
-void kui::SystemWM::X11Window::UpdateWindow()
+void kui::systemWM::X11Window::UpdateWindow()
 {
 	while (XPending(XDisplay))
 	{
@@ -205,22 +205,22 @@ void kui::SystemWM::X11Window::UpdateWindow()
 	}
 }
 
-void kui::SystemWM::X11Window::Swap() const
+void kui::systemWM::X11Window::Swap() const
 {
 	glXSwapBuffers(XDisplay, XWindow);
 }
 
-bool kui::SystemWM::X11Window::IsLMBDown()
+bool kui::systemWM::X11Window::IsLMBDown()
 {
 	return QueryPointer(nullptr) & Button1Mask;
 }
 
-bool kui::SystemWM::X11Window::IsRMBDown()
+bool kui::systemWM::X11Window::IsRMBDown()
 {
 	return QueryPointer(nullptr) & Button3Mask;
 }
 
-void kui::SystemWM::X11Window::SetCursor(Window::Cursor NewCursor) const
+void kui::systemWM::X11Window::SetCursor(Window::Cursor NewCursor) const
 {
 	static std::map<Window::Cursor, Cursor> LoadedCursors;
 
@@ -240,7 +240,7 @@ void kui::SystemWM::X11Window::SetCursor(Window::Cursor NewCursor) const
 	}
 }
 
-void kui::SystemWM::X11Window::SetMinSize(Vec2ui NewSize)
+void kui::systemWM::X11Window::SetMinSize(Vec2ui NewSize)
 {
 	XSizeHints* SizeHintsPtr = XAllocSizeHints();
 	SizeHintsPtr->flags = PMinSize;
@@ -250,7 +250,7 @@ void kui::SystemWM::X11Window::SetMinSize(Vec2ui NewSize)
 	XFree(SizeHintsPtr);
 }
 
-void kui::SystemWM::X11Window::SetMaxSize(Vec2ui NewSize)
+void kui::systemWM::X11Window::SetMaxSize(Vec2ui NewSize)
 {
 	XSizeHints* SizeHintsPtr = XAllocSizeHints();
 	SizeHintsPtr->flags = PMaxSize;
@@ -260,7 +260,7 @@ void kui::SystemWM::X11Window::SetMaxSize(Vec2ui NewSize)
 	XFree(SizeHintsPtr);
 }
 
-void kui::SystemWM::X11Window::Maximize()
+void kui::systemWM::X11Window::Maximize()
 {
 	XEvent xev;
 	Atom wm_state = XInternAtom(XDisplay, "_NET_WM_STATE", False);
@@ -277,12 +277,12 @@ void kui::SystemWM::X11Window::Maximize()
 	XSendEvent(XDisplay, DefaultRootWindow(XDisplay), False, SubstructureNotifyMask, &xev);
 }
 
-void kui::SystemWM::X11Window::Minimize()
+void kui::systemWM::X11Window::Minimize()
 {
 	XIconifyWindow(XDisplay, XWindow, 0);
 }
 
-void kui::SystemWM::X11Window::Restore()
+void kui::systemWM::X11Window::Restore()
 {
 	XEvent xev;
 	Atom wm_state = XInternAtom(XDisplay, "_NET_WM_STATE", False);
@@ -312,13 +312,13 @@ void kui::SystemWM::X11Window::Restore()
 	XFlush(XDisplay);
 }
 
-float kui::SystemWM::X11Window::GetDPIScale()
+float kui::systemWM::X11Window::GetDPIScale()
 {
 	// TODO: Implement.
 	return 1.0;
 }
 
-bool kui::SystemWM::X11Window::IsMaximized()
+bool kui::systemWM::X11Window::IsMaximized()
 {
 	Atom ActualReturnType;
 	int ActualReturnFormat;
@@ -348,36 +348,36 @@ bool kui::SystemWM::X11Window::IsMaximized()
 }
 
 // I found no good way of doing this...
-bool kui::SystemWM::X11Window::IsMinimized()
+bool kui::systemWM::X11Window::IsMinimized()
 {
 	return false;
 }
 
-Vec2ui kui::SystemWM::X11Window::GetPosition()
+Vec2ui kui::systemWM::X11Window::GetPosition()
 {
 	XWindowAttributes xwa;
 	XGetWindowAttributes(XDisplay, XWindow, &xwa);
 	return Vec2ui(xwa.x, xwa.y);
 }
 
-Vec2ui kui::SystemWM::X11Window::GetSize()
+Vec2ui kui::systemWM::X11Window::GetSize()
 {
 	XWindowAttributes xwa;
 	XGetWindowAttributes(XDisplay, XWindow, &xwa);
 	return Vec2ui(xwa.width, xwa.height);
 }
 
-void kui::SystemWM::X11Window::SetPosition(Vec2ui NewPosition)
+void kui::systemWM::X11Window::SetPosition(Vec2ui NewPosition)
 {
 	XMoveWindow(XDisplay, XWindow, NewPosition.X, NewPosition.Y);
 }
 
-void kui::SystemWM::X11Window::SetSize(Vec2ui NewSize)
+void kui::systemWM::X11Window::SetSize(Vec2ui NewSize)
 {
 	XResizeWindow(XDisplay, XWindow, NewSize.X, NewSize.Y);
 }
 
-std::string kui::SystemWM::X11Window::GetClipboard()
+std::string kui::systemWM::X11Window::GetClipboard()
 {
 	Window* Current = Window::GetActiveWindow();
 	if (!Current)
@@ -388,7 +388,7 @@ std::string kui::SystemWM::X11Window::GetClipboard()
 	return GetSelection(XDisplay, CurrentWindow->X11.XWindow, "CLIPBOARD", "STRING");
 }
 
-Vec2ui kui::SystemWM::X11Window::GetMainScreenResolution()
+Vec2ui kui::systemWM::X11Window::GetMainScreenResolution()
 {
 	CheckForDisplay();
 #if HAS_XRANDR
@@ -406,7 +406,7 @@ Vec2ui kui::SystemWM::X11Window::GetMainScreenResolution()
 #endif
 }
 
-uint32_t kui::SystemWM::X11Window::GetMonitorRefreshRate() const
+uint32_t kui::systemWM::X11Window::GetMonitorRefreshRate() const
 {
 #if HAS_XRANDR
 	XRRScreenConfiguration* Config = XRRGetScreenInfo(XDisplay, XWindow);
@@ -420,7 +420,7 @@ uint32_t kui::SystemWM::X11Window::GetMonitorRefreshRate() const
 #endif
 }
 
-void kui::SystemWM::X11Window::HandleEvent(XEvent ev)
+void kui::systemWM::X11Window::HandleEvent(XEvent ev)
 {
 	switch (ev.type)
 	{
@@ -493,7 +493,7 @@ void kui::SystemWM::X11Window::HandleEvent(XEvent ev)
 	std::cout << "Unknown event: " << ev.type << std::endl;
 }
 
-void kui::SystemWM::X11Window::HandleKeyPress(KeySym Symbol, bool NewValue)
+void kui::systemWM::X11Window::HandleKeyPress(KeySym Symbol, bool NewValue)
 {
 	static std::map<int, kui::Key> Keys =
 	{
@@ -565,7 +565,7 @@ void kui::SystemWM::X11Window::HandleKeyPress(KeySym Symbol, bool NewValue)
 	Parent->Input.SetKeyDown(Keys[Symbol], NewValue);
 }
 
-int kui::SystemWM::X11Window::QueryPointer(Vec2ui* MousePos)
+int kui::systemWM::X11Window::QueryPointer(Vec2ui* MousePos)
 {
 	::Window OutRoot;
 	::Window OutChild;

@@ -9,7 +9,7 @@ static std::function<void(std::string Message, bool IsFatal)> ErrorCallback =
 
 void kui::app::MessageBox(std::string Text, std::string Title, MessageBoxType Type)
 {
-	SystemWM::MessageBox(Text, Title, int(Type));
+	systemWM::MessageBox(Text, Title, int(Type));
 }
 
 void kui::app::error::Error(std::string Message, bool Fatal)

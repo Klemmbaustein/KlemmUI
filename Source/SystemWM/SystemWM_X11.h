@@ -35,23 +35,23 @@ namespace kui::systemWM
 		static bool IsRMBDown();
 		void SetCursor(Window::Cursor NewCursor) const;
 
-		void SetMinSize(Vec2ui NewSize);
-		void SetMaxSize(Vec2ui NewSize);
+		void SetMinSize(Vec2ui NewSize) const;
+		void SetMaxSize(Vec2ui NewSize) const;
 		
-		void Maximize();
-		void Minimize();
-		void Restore();
+		void Maximize() const;
+		void Minimize() const;
+		void Restore() const;
 
 		float GetDPIScale();
 
-		bool IsMaximized();
+		bool IsMaximized() const;
 		bool IsMinimized();
 
-		Vec2ui GetPosition();
-		Vec2ui GetSize();
+		Vec2ui GetPosition() const;
+		Vec2ui GetSize() const;
 
-		void SetPosition(Vec2ui NewPosition);
-		void SetSize(Vec2ui NewSize);
+		void SetPosition(Vec2ui NewPosition) const;
+		void SetSize(Vec2ui NewSize) const;
 		
 		static std::string GetClipboard();
 

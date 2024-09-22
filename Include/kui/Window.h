@@ -40,6 +40,7 @@ namespace kui
 		std::atomic<bool> ShouldClose = false;
 		std::atomic<bool> ShouldUpdateSize = false;
 		bool IsMainWindow = false;
+		bool IgnoreDPI = false;
 		static std::vector<Window*> ActiveWindows;
 		Vec2ui MinSize;
 		Vec2ui MaxSize;
@@ -146,8 +147,8 @@ namespace kui
 			FullScreen     = 0b001000,
 			/// The window is a popup. A popup window will only have a close button.
 			Popup          = 0b010000,
-			/// The window accepts drag and drop files.
-			AcceptFiles    = 0b100000,
+			/// The window ignores the system's DPI settings and will always have the same pixel size.
+			IgnoreDPI      = 0b100000,
 		};
 
 		/**
@@ -155,6 +156,7 @@ namespace kui
 		* Constructs a window with the given parameters
 		*/
 		Window(std::string Name, WindowFlag Flags, Vec2ui WindowPos = POSITION_CENTERED, Vec2ui WindowSize = SIZE_DEFAULT);
+		Window(const Window&) = delete;
 		virtual ~Window();
 
 		/**
@@ -173,10 +175,10 @@ namespace kui
 
 		/**
 		* @brief
-		* Updates the current window, re-draws the screen if necessary.
+		* Updates the current window, re-draws it if necessary.
 		* 
 		* Usage example:
-		* ```
+		* ```cpp
 		* while (MyWindow.UpdateWindow())
 		* {
 		*     // ...

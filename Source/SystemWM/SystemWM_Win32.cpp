@@ -5,12 +5,12 @@
 #include <Windows.h>
 #include <windowsx.h>
 #include "../Internal/Internal.h"
-#include <unordered_map>
 #include <GL/glew.h>
 #include <GL/wglew.h>
 #include <dwmapi.h>
 #include <iostream>
 #include <array>
+#include <map>
 
 #undef IsMaximized
 
@@ -53,21 +53,25 @@ static std::array<Vec2ui, 2> AdjustWindowSize(Vec2ui Pos, Vec2ui InSize, DWORD S
 
 	AdjustWindowRectEx(&SizeRect, Style, false, ExStyle);
 
-	return { Vec2ui(SizeRect.left, SizeRect.top), Vec2ui(SizeRect.right - SizeRect.left, SizeRect.bottom - SizeRect.top) };
+	return
+	{
+		Vec2ui(SizeRect.left, SizeRect.top),
+		Vec2ui(SizeRect.right - SizeRect.left, SizeRect.bottom - SizeRect.top)
+	};
 }
 
 namespace kui::systemWM::Borderless
 {
 	// Based on: https://github.com/melak47/BorderlessWindow/blob/main/src/BorderlessWindow.cpp
 
-	bool IsCompositionEnabled()
+	static bool IsCompositionEnabled()
 	{
 		BOOL composition_enabled = FALSE;
 		bool success = ::DwmIsCompositionEnabled(&composition_enabled) == S_OK;
 		return composition_enabled && success;
 	}
 
-	void SetShadow(HWND handle, bool enabled)
+	static void SetShadow(HWND handle, bool enabled)
 	{
 		if (IsCompositionEnabled())
 		{
@@ -75,11 +79,12 @@ namespace kui::systemWM::Borderless
 			::DwmExtendFrameIntoClientArea(handle, &shadow_state[enabled]);
 		}
 	}
-	/* Adjust client rect to not spill over monitor edges when maximized.
+	/*
+	 * Adjust client rect to not spill over monitor edges when maximized.
 	 * rect(in/out): in: proposed window rect, out: calculated client rect
 	 * Does nothing if the window is not maximized.
 	 */
-	void AdjustFullScreen(HWND window, RECT& rect)
+	static void AdjustFullScreen(HWND window, RECT& rect)
 	{
 		if (!IsMaximized(window))
 		{
@@ -104,7 +109,7 @@ namespace kui::systemWM::Borderless
 		rect = monitor_info.rcWork;
 	}
 
-	LRESULT HitTest(POINT cursor, kui::systemWM::SysWindow* Window)
+	static LRESULT HitTest(POINT cursor, kui::systemWM::SysWindow* Window)
 	{
 		// identify borders and corners to allow resizing the window.
 		// Note: On Windows 10, windows behave differently and
@@ -236,8 +241,8 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
 		{0x5a, Key::z},
 	};
 
-	systemWM::SysWindow* SysWindow = reinterpret_cast<systemWM::SysWindow*>(
-		::GetWindowLongPtr(hWnd, GWLP_USERDATA));
+	systemWM::SysWindow* SysWindow = 
+		reinterpret_cast<systemWM::SysWindow*>(::GetWindowLongPtr(hWnd, GWLP_USERDATA));
 
 	// Do not do anything if this window doesn't have a Window class associated with it.
 	if (!SysWindow && uMsg != WM_NCCREATE)
@@ -340,11 +345,11 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
 		// The min and max size of a window is checked by windows using the WM_GETMINMAXINFO message.
 		// This returns the min and max size of this window.
 		LPMINMAXINFO MinMaxInfo = (LPMINMAXINFO)lParam;
-		MinMaxInfo->ptMaxPosition;
-		MinMaxInfo->ptMinTrackSize.x = SysWindow->MinSize.X;
-		MinMaxInfo->ptMinTrackSize.y = SysWindow->MinSize.Y;
-		MinMaxInfo->ptMaxTrackSize.x = SysWindow->MaxSize.X;
-		MinMaxInfo->ptMaxTrackSize.y = SysWindow->MaxSize.Y;
+		double Scale = GetDPIScale(SysWindow);
+		MinMaxInfo->ptMinTrackSize.x = double(SysWindow->MinSize.X) * Scale;
+		MinMaxInfo->ptMinTrackSize.y = double(SysWindow->MinSize.Y) * Scale;
+		MinMaxInfo->ptMaxTrackSize.x = std::min(double(SysWindow->MaxSize.X) * Scale, double(INT32_MAX));
+		MinMaxInfo->ptMaxTrackSize.y = std::min(double(SysWindow->MaxSize.Y) * Scale, double(INT32_MAX));
 		return 0;
 	}
 
@@ -484,6 +489,9 @@ kui::systemWM::SysWindow* kui::systemWM::NewWindow(Window* Parent, Vec2ui Size, 
 		Instance,
 		OutWindow
 	);
+
+	if (!CheckFlag(Flags, Window::WindowFlag::IgnoreDPI))
+		SetWindowSize(OutWindow, Vec2ui(Vec2f(Size) * GetDPIScale(OutWindow)));
 
 	if (!OutWindow->WindowHandle)
 	{
@@ -716,9 +724,14 @@ void kui::systemWM::SysWindow::SetSize(Vec2ui NewSize) const
 		.bottom = LONG(WindowRect.top + NewSize.Y),
 	};
 
-	AdjustWindowRectEx(&NewSizeRect, GetWindowLong(WindowHandle, GWL_STYLE), false, GetWindowLong(WindowHandle, GWL_EXSTYLE));
+	AdjustWindowRectEx(&NewSizeRect,
+		GetWindowLong(WindowHandle, GWL_STYLE),
+		false,
+		GetWindowLong(WindowHandle, GWL_EXSTYLE));
 
-	MoveWindow(WindowHandle, WindowRect.left, WindowRect.top, NewSizeRect.right - NewSizeRect.left, NewSizeRect.bottom - NewSizeRect.top, true);
+	MoveWindow(WindowHandle,
+		WindowRect.left, WindowRect.top,
+		NewSizeRect.right - NewSizeRect.left, NewSizeRect.bottom - NewSizeRect.top, true);
 }
 
 void kui::systemWM::SetWindowSize(SysWindow* Target, Vec2ui Size)
@@ -728,10 +741,15 @@ void kui::systemWM::SetWindowSize(SysWindow* Target, Vec2ui Size)
 
 void kui::systemWM::SetWindowPosition(SysWindow* Target, Vec2ui NewPosition)
 {
-	NewPosition = AdjustWindowSize(NewPosition, 0, GetWindowLong(Target->WindowHandle, GWL_STYLE), GetWindowLong(Target->WindowHandle, GWL_EXSTYLE))[0];
+	NewPosition = AdjustWindowSize(NewPosition, 0,
+		GetWindowLong(Target->WindowHandle, GWL_STYLE),
+		GetWindowLong(Target->WindowHandle, GWL_EXSTYLE))[0];
+
 	RECT WindowRect = {};
 	GetWindowRect(Target->WindowHandle, &WindowRect);
-	MoveWindow(Target->WindowHandle, NewPosition.X, NewPosition.Y, WindowRect.right - WindowRect.left, WindowRect.bottom - WindowRect.top, true);
+	MoveWindow(Target->WindowHandle,
+		NewPosition.X, NewPosition.Y,
+		WindowRect.right - WindowRect.left, WindowRect.bottom - WindowRect.top, true);
 }
 
 void kui::systemWM::SetTitle(SysWindow* Target, std::string Text)
@@ -746,12 +764,16 @@ bool kui::systemWM::IsWindowFullScreen(SysWindow* Target)
 
 void kui::systemWM::SetWindowMinSize(SysWindow* Target, Vec2ui MinSize)
 {
-	Target->MinSize = AdjustWindowSize(0, MinSize, GetWindowLong(Target->WindowHandle, GWL_STYLE), GetWindowLong(Target->WindowHandle, GWL_EXSTYLE))[1];
+	Target->MinSize = AdjustWindowSize(0, MinSize,
+		GetWindowLong(Target->WindowHandle, GWL_STYLE),
+		GetWindowLong(Target->WindowHandle, GWL_EXSTYLE))[1];
 }
 
 void kui::systemWM::SetWindowMaxSize(SysWindow* Target, Vec2ui MaxSize)
 {
-	Target->MaxSize = AdjustWindowSize(0, MaxSize, GetWindowLong(Target->WindowHandle, GWL_STYLE), GetWindowLong(Target->WindowHandle, GWL_EXSTYLE))[1];
+	Target->MaxSize = AdjustWindowSize(0, MaxSize,
+		GetWindowLong(Target->WindowHandle, GWL_STYLE),
+		GetWindowLong(Target->WindowHandle, GWL_EXSTYLE))[1];
 }
 
 void kui::systemWM::RestoreWindow(SysWindow* Target)

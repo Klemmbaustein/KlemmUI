@@ -48,12 +48,15 @@ kui::Window::Window(std::string Name, WindowFlag Flags, Vec2ui WindowPos, Vec2ui
 		WindowPos = systemWM::GetScreenSize() / 2 - WindowSize / 2;
 	}
 
+	IgnoreDPI = (Flags & WindowFlag::IgnoreDPI) == WindowFlag::IgnoreDPI;
+
 	SysWindowPtr = systemWM::NewWindow(this,
 		WindowSize,
 		WindowPos,
 		Name,
 		Flags);
 	CurrentWindowFlags = Flags;
+	DPI = systemWM::GetDPIScale(static_cast<systemWM::SysWindow*>(SysWindowPtr));
 
 	std::lock_guard Guard = std::lock_guard(internal::WindowCreationMutex);
 
@@ -270,20 +273,22 @@ void kui::Window::UpdateDPI()
 {
 	SDL_WINDOW_PTR(SysWindow);
 
-	float hdpi = systemWM::GetDPIScale(SysWindow);
+	float NewDPI = IgnoreDPI ? 0 : systemWM::GetDPIScale(SysWindow);
 
-	if (hdpi == 0)
+	if (NewDPI == 0)
 	{
-		hdpi = 1.0f;
+		NewDPI = 1.0f;
 	}
 
-	hdpi *= DPIMultiplier;
+	NewDPI *= DPIMultiplier;
 
-	if (hdpi != DPI && UI.UIElements.size())
+	if (NewDPI != DPI && UI.UIElements.size())
 	{
+		// Resize the window so it still has the same visual scale.
+		Window::SetSize(Vec2f(Window::GetSize()) * (NewDPI / DPI));
 		UI.ForceUpdateUI();
+		DPI = NewDPI;
 	}
-	DPI = hdpi;
 }
 
 void kui::Window::HandleCursor()
@@ -295,7 +300,9 @@ void kui::Window::HandleCursor()
 	SDL_WINDOW_PTR(SysWindow);
 
 	systemWM::SetWindowCursor(SysWindow, CurrentCursor);
-	CurrentCursor = dynamic_cast<UIButton*>(UI.HoveredBox) ? Cursor::Hand : (dynamic_cast<UITextField*>(UI.HoveredBox) ? Cursor::Text : Cursor::Default);
+	CurrentCursor = dynamic_cast<UIButton*>(UI.HoveredBox)
+		? Cursor::Hand
+		: (dynamic_cast<UITextField*>(UI.HoveredBox) ? Cursor::Text : Cursor::Default);
 }
 
 bool kui::Window::UpdateWindow()

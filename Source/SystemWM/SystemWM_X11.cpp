@@ -136,6 +136,7 @@ void kui::systemWM::X11Window::Destroy()
 {
 	XDestroyWindow(XDisplay, XWindow);
 	XFlush(XDisplay);
+	XWindow = 0;
 }
 
 void kui::systemWM::X11Window::SetTitle(std::string NewTitle) const
@@ -150,9 +151,9 @@ void kui::systemWM::X11Window::MakeContextCurrent() const
 }
 
 // Based on: https://stackoverflow.com/questions/27378318/c-get-string-from-clipboard-on-linux/44992938#44992938
-std::string GetSelection(Display* display, Window window, const char* bufname, const char* fmtname)
+static std::string GetSelection(Display* display, Window window, const char* bufname, const char* fmtname)
 {
-	char* result;
+	char* result = nullptr;
 	unsigned long ressize, restail;
 	int resbits;
 	Atom bufid = XInternAtom(display, bufname, False),
@@ -240,7 +241,7 @@ void kui::systemWM::X11Window::SetCursor(Window::Cursor NewCursor) const
 	}
 }
 
-void kui::systemWM::X11Window::SetMinSize(Vec2ui NewSize)
+void kui::systemWM::X11Window::SetMinSize(Vec2ui NewSize) const
 {
 	XSizeHints* SizeHintsPtr = XAllocSizeHints();
 	SizeHintsPtr->flags = PMinSize;
@@ -250,7 +251,7 @@ void kui::systemWM::X11Window::SetMinSize(Vec2ui NewSize)
 	XFree(SizeHintsPtr);
 }
 
-void kui::systemWM::X11Window::SetMaxSize(Vec2ui NewSize)
+void kui::systemWM::X11Window::SetMaxSize(Vec2ui NewSize) const
 {
 	XSizeHints* SizeHintsPtr = XAllocSizeHints();
 	SizeHintsPtr->flags = PMaxSize;
@@ -260,7 +261,7 @@ void kui::systemWM::X11Window::SetMaxSize(Vec2ui NewSize)
 	XFree(SizeHintsPtr);
 }
 
-void kui::systemWM::X11Window::Maximize()
+void kui::systemWM::X11Window::Maximize() const
 {
 	XEvent xev;
 	Atom wm_state = XInternAtom(XDisplay, "_NET_WM_STATE", False);
@@ -277,12 +278,12 @@ void kui::systemWM::X11Window::Maximize()
 	XSendEvent(XDisplay, DefaultRootWindow(XDisplay), False, SubstructureNotifyMask, &xev);
 }
 
-void kui::systemWM::X11Window::Minimize()
+void kui::systemWM::X11Window::Minimize() const
 {
 	XIconifyWindow(XDisplay, XWindow, 0);
 }
 
-void kui::systemWM::X11Window::Restore()
+void kui::systemWM::X11Window::Restore() const
 {
 	XEvent xev;
 	Atom wm_state = XInternAtom(XDisplay, "_NET_WM_STATE", False);
@@ -318,7 +319,7 @@ float kui::systemWM::X11Window::GetDPIScale()
 	return 1.0;
 }
 
-bool kui::systemWM::X11Window::IsMaximized()
+bool kui::systemWM::X11Window::IsMaximized() const
 {
 	Atom ActualReturnType;
 	int ActualReturnFormat;
@@ -353,26 +354,26 @@ bool kui::systemWM::X11Window::IsMinimized()
 	return false;
 }
 
-Vec2ui kui::systemWM::X11Window::GetPosition()
+Vec2ui kui::systemWM::X11Window::GetPosition() const
 {
 	XWindowAttributes xwa;
 	XGetWindowAttributes(XDisplay, XWindow, &xwa);
 	return Vec2ui(xwa.x, xwa.y);
 }
 
-Vec2ui kui::systemWM::X11Window::GetSize()
+Vec2ui kui::systemWM::X11Window::GetSize() const
 {
 	XWindowAttributes xwa;
 	XGetWindowAttributes(XDisplay, XWindow, &xwa);
 	return Vec2ui(xwa.width, xwa.height);
 }
 
-void kui::systemWM::X11Window::SetPosition(Vec2ui NewPosition)
+void kui::systemWM::X11Window::SetPosition(Vec2ui NewPosition) const
 {
 	XMoveWindow(XDisplay, XWindow, NewPosition.X, NewPosition.Y);
 }
 
-void kui::systemWM::X11Window::SetSize(Vec2ui NewSize)
+void kui::systemWM::X11Window::SetSize(Vec2ui NewSize) const
 {
 	XResizeWindow(XDisplay, XWindow, NewSize.X, NewSize.Y);
 }

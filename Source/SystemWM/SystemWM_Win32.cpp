@@ -172,6 +172,12 @@ static HCURSOR WindowCursors[3] =
 	LoadCursor(NULL, IDC_IBEAM),
 };
 
+// Used to make touch screen clicking work. When the user touches a point on the screen,
+// just a single WM_LBUTTONDOWN is sent. This doesn't work well with the method used to
+// actually check if the left mouse button is down, so this timer is used to make sure
+// that the left mouse button is down for at least 2 frames (1 to detect the hover, another
+// to register the click)
+thread_local static int LeftClickOverride = 0;
 
 static LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -241,7 +247,7 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
 		{0x5a, Key::z},
 	};
 
-	systemWM::SysWindow* SysWindow = 
+	systemWM::SysWindow* SysWindow =
 		reinterpret_cast<systemWM::SysWindow*>(::GetWindowLongPtr(hWnd, GWLP_USERDATA));
 
 	// Do not do anything if this window doesn't have a Window class associated with it.
@@ -269,8 +275,9 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
 
 	case WM_SETCURSOR:
 	{
-		// If the cursor is in the client area, intercept the cursor signal and replace the cursor with the cursor set by the window.
-		// If we don't do this, this will break the cursor changing when hovering the resizable corners of the window.
+		// If the cursor is in the client area, intercept the cursor signal and replace the cursor
+		// with the cursor set by the window. If we don't do this, this will break the cursor changing
+		// when hovering the resizable corners of the window.
 		if (LOWORD(lParam) == HTCLIENT)
 		{
 			SetCursor(WindowCursors[int(SysWindow->ActiveCursor)]);
@@ -285,7 +292,8 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
 		{
 			// Windows does borderless windows weirdly.
 			// This causes the edges of a full screen borderless window to be outside of the actual screen.
-			// This code adjusts the size of a borderless window to match the size of the sceren when it is put into full screen.
+			// This code adjusts the size of a borderless window to match the size of the screen
+			// when it is put into full screen.
 			NCCALCSIZE_PARAMS& Parameters = *reinterpret_cast<NCCALCSIZE_PARAMS*>(lParam);
 			systemWM::Borderless::AdjustFullScreen(hWnd, Parameters.rgrc[0]);
 			return 0;
@@ -315,7 +323,8 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
 	}
 	case WM_NCHITTEST:
 	{
-		// Borderless windows need to define their own hit test for defining the resizable areas and things such as the title bar.
+		// Borderless windows need to define their own hit test for defining the resizable
+		// areas and things such as the title bar.
 		if (SysWindow->Borderless)
 		{
 			return systemWM::Borderless::HitTest(POINT{
@@ -325,6 +334,10 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
 		}
 		break;
 	}
+
+	case WM_LBUTTONDOWN:
+		LeftClickOverride = 2;
+		break;
 
 	case WM_MOUSEWHEEL:
 	{
@@ -396,7 +409,6 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
 		SysWindow->Size = Vec2ui(LOWORD(lParam), HIWORD(lParam));
 		break;
 	}
-
 	}
 
 	return DefWindowProc(hWnd, uMsg, wParam, lParam);
@@ -414,7 +426,8 @@ static bool CheckFlag(kui::Window::WindowFlag Flag, kui::Window::WindowFlag Valu
 	return (Flag & Value) == Value;
 }
 
-kui::systemWM::SysWindow* kui::systemWM::NewWindow(Window* Parent, Vec2ui Size, Vec2ui Pos, std::string Title, Window::WindowFlag Flags)
+kui::systemWM::SysWindow* kui::systemWM::NewWindow(
+	Window* Parent, Vec2ui Size, Vec2ui Pos, std::string Title, Window::WindowFlag Flags)
 {
 	SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
 
@@ -550,7 +563,8 @@ kui::systemWM::SysWindow* kui::systemWM::NewWindow(Window* Parent, Vec2ui Size, 
 	if (OutWindow->Borderless)
 	{
 		Borderless::SetShadow(OutWindow->WindowHandle, true);
-		SetWindowPos(OutWindow->WindowHandle, NULL, Pos.X, Pos.Y, 0, 0, SWP_FRAMECHANGED | SWP_NOMOVE | SWP_NOSIZE);
+		SetWindowPos(OutWindow->WindowHandle, NULL, Pos.X, Pos.Y, 0, 0,
+			SWP_FRAMECHANGED | SWP_NOMOVE | SWP_NOSIZE);
 	}
 
 	systemWM::SetWindowCursor(OutWindow, Window::Cursor::Default);
@@ -587,6 +601,8 @@ Vec2ui kui::systemWM::GetWindowSize(SysWindow* Target)
 void kui::systemWM::UpdateWindow(SysWindow*)
 {
 	MSG msg;
+	if (LeftClickOverride > 0)
+		LeftClickOverride--;
 	while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
 	{
 		TranslateMessage(&msg);
@@ -703,7 +719,7 @@ std::string kui::systemWM::GetClipboardText()
 
 bool kui::systemWM::IsLMBDown()
 {
-	return GetKeyState(VK_LBUTTON) & 0x8000;
+	return GetKeyState(VK_LBUTTON) & 0x8000 || LeftClickOverride;
 }
 
 bool kui::systemWM::IsRMBDown()

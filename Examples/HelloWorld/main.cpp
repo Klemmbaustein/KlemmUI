@@ -1,5 +1,5 @@
 #include <kui/KlemmUI.h>
-#include "elements/HelloWorld.hpp"
+#include "HelloWorld.kui.hpp"
 using namespace kui;
 
 int main()

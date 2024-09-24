@@ -63,7 +63,6 @@ void kui::writeHeader::WriteHeaders(std::string Dir, kui::MarkupStructure::Parse
 			if (std::filesystem::path(Header).compare(i.path()) == 0)
 			{
 				Found = true;
-				std::cout << Header << " = " << i << std::endl;
 			}
 		}
 		if (!Found)

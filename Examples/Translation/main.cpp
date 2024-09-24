@@ -13,7 +13,7 @@ int main()
 			app::MessageBox(Message, "Error", app::MessageBoxType::Error);
 		});
 
-	Window MainWindow = Window(EnglishTitle, Window::WindowFlag::Resizable | Window::WindowFlag::IgnoreDPI, Window::POSITION_CENTERED, Vec2ui(800, 600));
+	Window MainWindow = Window(EnglishTitle, Window::WindowFlag::Resizable, Window::POSITION_CENTERED, Vec2ui(800, 600));
 
 	bool IsGerman = false;
 

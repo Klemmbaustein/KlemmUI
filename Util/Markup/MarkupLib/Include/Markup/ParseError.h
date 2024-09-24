@@ -2,7 +2,7 @@
 #include <vector>
 #include "StringParse.h"
 
-namespace kui::ParseError
+namespace kui::parseError
 {
 	void SetCode(std::vector<stringParse::Line>& Code, std::string FileName);
 	void SetLine(size_t Index);

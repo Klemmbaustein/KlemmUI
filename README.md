@@ -1,14 +1,16 @@
 # KlemmUI 3
 
-A C++20 UI library (maybe even a framework?) for creating lightwheight cross platform GUI apps.
+A C++20 UI library (maybe even a framework?) for creating lightweight cross platform GUI apps.
 
 ## Major changes from KlemmUI 2:
 
-- SDL was removed as a dependency, all windowing code was rewritten.
+- SDL removed as a dependency, all windowing code is rewritten.
 - CMake now is the only build system.
 - Added resource generator.
 - More options for styling backgrounds.
 - Better support for translation.
+- Changed the way the resource generator and UI language are used in CMake to better work with
+  the Ninja generator.
 
 
 ## Library features

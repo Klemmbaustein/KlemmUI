@@ -202,11 +202,11 @@ stringParse::Line stringParse::Line::GetInBraces(bool SquareBraces)
 	{
 		if (SquareBraces)
 		{
-			ParseError::Error("Expected a matching ']'");
+			parseError::Error("Expected a matching ']'");
 		}
 		else
 		{
-			ParseError::Error("Expected a matching ')'");
+			parseError::Error("Expected a matching ')'");
 		}
 	}
 	return Condition;
@@ -250,7 +250,7 @@ std::vector<stringParse::Line> stringParse::Line::GetLinesInBraces()
 	}
 	if (!Success)
 	{
-		ParseError::Error("Expected a matching ')'");
+		parseError::Error("Expected a matching ')'");
 	}
 	return Conditions;
 }

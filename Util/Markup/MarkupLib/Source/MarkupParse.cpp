@@ -20,7 +20,7 @@ MarkupStructure::ParseResult MarkupParse::ParseFiles(std::vector<FileEntry> File
 
 	for (auto& File : FileLines)
 	{
-		ParseError::SetCode(File.second, File.first);
+		parseError::SetCode(File.second, File.first);
 
 		auto FileContent = ReadFile(File.second, File.first);
 
@@ -41,7 +41,7 @@ MarkupStructure::ParseResult MarkupParse::ParseFiles(std::vector<FileEntry> File
 	for (auto& Element : AllElements)
 	{
 		auto& Lines = FileLines[Element.File];
-		ParseError::SetCode(Lines, Element.File);
+		parseError::SetCode(Lines, Element.File);
 
 		StructureElements.push_back(ParseElement(Element, Lines));
 	}
@@ -60,7 +60,7 @@ MarkupParse::FileResult MarkupParse::ReadFile(std::vector<stringParse::Line>& Li
 	for (size_t i = 0; i < Lines.size(); i++)
 	{
 		stringParse::Line& ln = Lines[i];
-		ParseError::SetLine(i);
+		parseError::SetLine(i);
 
 		std::string Content = ln.Peek();
 
@@ -70,7 +70,7 @@ MarkupParse::FileResult MarkupParse::ReadFile(std::vector<stringParse::Line>& Li
 			std::string Name = ln.Get();
 			if (MarkupStructure::UIElement::IsDefaultElement(Name))
 			{
-				ParseError::Error("Invalid name: '" + Name + "'. A default element with this name already exists.");
+				parseError::Error("Invalid name: '" + Name + "'. A default element with this name already exists.");
 				continue;
 			}
 
@@ -83,7 +83,7 @@ MarkupParse::FileResult MarkupParse::ReadFile(std::vector<stringParse::Line>& Li
 			Current = &Out.Elements[Out.Elements.size() - 1];
 			if (ln.Get() != "{")
 			{
-				ParseError::Error("Expected a '{' after 'element " + Current->Name + "'");
+				parseError::Error("Expected a '{' after 'element " + Current->Name + "'");
 				Current = nullptr;
 				Out.Elements.pop_back();
 				continue;
@@ -97,7 +97,7 @@ MarkupParse::FileResult MarkupParse::ReadFile(std::vector<stringParse::Line>& Li
 
 			if (ln.Get() != "=")
 			{
-				ParseError::Error(ln.Previous().empty() ? "Expected a '=' after a constant definition." : "Unexpected '" + ln.Previous() + "' after a constant definition. Expected '='");
+				parseError::Error(ln.Previous().empty() ? "Expected a '=' after a constant definition." : "Unexpected '" + ln.Previous() + "' after a constant definition. Expected '='");
 				continue;
 			}
 
@@ -114,20 +114,20 @@ MarkupParse::FileResult MarkupParse::ReadFile(std::vector<stringParse::Line>& Li
 		{
 			if (Depth == 0)
 			{
-				ParseError::Error("Unexpected '}'");
+				parseError::Error("Unexpected '}'");
 				continue;
 			}
 			Depth--;
 		}
 		else if (Depth == 0)
 		{
-			ParseError::Error("Unexpected '" + ln.Get() + "'");
+			parseError::Error("Unexpected '" + ln.Get() + "'");
 		}
 	}
 
 	if (Depth != 0)
 	{
-		ParseError::Error("Expected a closing '}'");
+		parseError::Error("Expected a closing '}'");
 	}
 
 	return Out;
@@ -152,7 +152,7 @@ void kui::MarkupParse::ParseScope(MarkupStructure::UIElement& Elem, std::vector<
 	{
 		stringParse::Line& ln = Lines[i];
 		ln.StringPos = 0;
-		ParseError::SetLine(i);
+		parseError::SetLine(i);
 
 		std::string Begin = ln.Get();
 
@@ -177,13 +177,13 @@ void kui::MarkupParse::ParseScope(MarkupStructure::UIElement& Elem, std::vector<
 
 		if (Begin == "{")
 		{
-			ParseError::Error("Unexpected '{'");
+			parseError::Error("Unexpected '{'");
 		}
 		else if (Begin == "var")
 		{
 			if (!IsRoot)
 			{
-				ParseError::Error("Cannot declare variable here.");
+				parseError::Error("Cannot declare variable here.");
 			}
 			std::string VariableName = ln.Get();
 			std::string Value;
@@ -219,7 +219,7 @@ void kui::MarkupParse::ParseScope(MarkupStructure::UIElement& Elem, std::vector<
 				}
 				else if (ln.Get() != "{")
 				{
-					ParseError::Error("Unexpected '" + ln.Previous() + "'");
+					parseError::Error("Unexpected '" + ln.Previous() + "'");
 				}
 			}
 		}
@@ -231,7 +231,7 @@ void kui::MarkupParse::ParseScope(MarkupStructure::UIElement& Elem, std::vector<
 
 			if (ln.Get() != "=")
 			{
-				ParseError::Error("Expected '=' after '" + ln.Previous() + "'");
+				parseError::Error("Expected '=' after '" + ln.Previous() + "'");
 				continue;
 			}
 			p.Value = ln.GetUntil("");

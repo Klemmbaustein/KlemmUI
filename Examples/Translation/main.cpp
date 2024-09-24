@@ -1,6 +1,6 @@
 #include <kui/KlemmUI.h>
+#include "Translate.kui.hpp"
 #include <map>
-#include "elements/TranslationExample.hpp"
 using namespace kui;
 
 static const char* GermanTitle = "Übersetzungsbeispiel";
@@ -49,7 +49,7 @@ int main()
 		});
 
 	TranslationExample* HelloWorldElement = new TranslationExample();
-
+	
 	HelloWorldElement->switchLanguageButton->OnClicked = [&IsGerman, &MainWindow]
 		{
 			// When the button on the element is clicked, switch the language.

@@ -1,6 +1,7 @@
 #include <Markup/MarkupStructure.h>
 #include "Markup/MarkupParse.h"
 #include "Markup/ParseError.h"
+#include "Markup/WriteHeader.h"
 #include <fstream>
 #include <iostream>
 #include <cstring>
@@ -57,6 +58,8 @@ int main(int argc, const char** argv)
 		return 3;
 	}
 
+	std::filesystem::create_directories(OutPath);
+
 	try
 	{
 		for (const std::string& InPath : InPaths)
@@ -80,17 +83,15 @@ int main(int argc, const char** argv)
 
 	auto ParsedFiles = kui::MarkupParse::ParseFiles(Entries);
 
-	if (kui::ParseError::GetErrorCount())
+	if (kui::parseError::GetErrorCount())
 	{
 		std::cout << "Errors occurred - stopping." << std::endl;
 		return 1;
 	}
 
-	for (auto& i : ParsedFiles.Elements)
-	{
-		i.WriteHeader(OutPath, ParsedFiles);
-	}
-	if (kui::ParseError::GetErrorCount())
+	kui::writeHeader::WriteHeaders(OutPath, ParsedFiles);
+
+	if (kui::parseError::GetErrorCount())
 	{
 		std::cout << "Errors occurred - stopping." << std::endl;
 		return 1;

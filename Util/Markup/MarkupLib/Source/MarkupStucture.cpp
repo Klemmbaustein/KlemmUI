@@ -123,15 +123,14 @@ static std::map<PropElementType, std::string> DefaultConstructors =
 };
 
 static int UnnamedCounter = 0;
-void MarkupElement::WriteHeader(const std::string& Path, ParseResult& MarkupElements)
+std::string MarkupElement::WriteCode(ParseResult& MarkupElements)
 {
 	std::vector<kui::stringParse::Line> Lines = {};
-	ParseError::SetCode(Lines, File);
+	parseError::SetCode(Lines, File);
 	UnnamedCounter = 0;
-	std::filesystem::create_directories(Path);
-	std::string ElementPath = Path + "/" + Root.TypeName + ".hpp";
 	std::stringstream Out;
-	Out << "#pragma once" << std::endl;
+
+	std::string Constructor = WriteLayoutFunction(MarkupElements);
 
 	auto Dependencies = Root.GetElementDependencies();
 
@@ -142,8 +141,6 @@ void MarkupElement::WriteHeader(const std::string& Path, ParseResult& MarkupElem
 
 	Out << "class " << Root.TypeName << " : public kui::UIBox, kui::markup::MarkupBox\n{\n";
 
-	std::string Constructor = WriteLayoutFunction(MarkupElements);
-	
 	for (auto& i : Root.Variables)
 	{
 		std::string TypeName = UIElement::Variable::Descriptions[i.second.Type].CppName;
@@ -187,23 +184,7 @@ void MarkupElement::WriteHeader(const std::string& Path, ParseResult& MarkupElem
 	Out << "\t}";
 
 	Out << "};\n";
-
-
-	bool ShouldWrite = true;
-	if (std::filesystem::exists(ElementPath))
-	{
-		std::ifstream In = std::ifstream(ElementPath);
-		std::string OldContent = std::string(std::istreambuf_iterator<char>(In.rdbuf()),
-			std::istreambuf_iterator<char>());
-		In.close();
-		ShouldWrite = Out.str() != OldContent;
-	}
-	if (ShouldWrite)
-	{
-		std::ofstream OutFile = std::ofstream(ElementPath);
-		OutFile << Out.rdbuf();
-		OutFile.close();
-	}
+	return Out.str();
 }
 
 std::string MarkupElement::WriteLayoutFunction(ParseResult& MarkupElements)
@@ -282,7 +263,7 @@ static std::string WriteElementProperty(UIElement* Target, UIElement* Root, std:
 			}
 			else
 			{
-				kui::ParseError::ErrorNoLine("Variable '" + Variable->first + "' does not have the correct type for the value of '" + i.Name + "'");
+				kui::parseError::ErrorNoLine("Variable '" + Variable->first + "' does not have the correct type for the value of '" + i.Name + "'");
 			}
 		}
 		if (Target->ElementName.empty())
@@ -301,22 +282,22 @@ static std::string WriteElementProperty(UIElement* Target, UIElement* Root, std:
 		{
 		case UIElement::Variable::VariableType::String:
 			if (!kui::stringParse::IsStringToken(p.Value))
-				kui::ParseError::ErrorNoLine("Expected a string for value '" + i.Name + "'");
+				kui::parseError::ErrorNoLine("Expected a string for value '" + i.Name + "'");
 			break;
 
 		case UIElement::Variable::VariableType::Size:
 			if (!kui::stringParse::IsSizeValue(p.Value))
-				kui::ParseError::ErrorNoLine("Expected a size for value '" + i.Name + "'");
+				kui::parseError::ErrorNoLine("Expected a size for value '" + i.Name + "'");
 			break;
 
 		case UIElement::Variable::VariableType::SizeNumber:
 			if (!kui::stringParse::Is1DSizeValue(p.Value))
-				kui::ParseError::ErrorNoLine("Expected a size for value '" + i.Name + "'");
+				kui::parseError::ErrorNoLine("Expected a size for value '" + i.Name + "'");
 			break;
 
 		case UIElement::Variable::VariableType::Align:
 			if (kui::stringParse::GetAlign(p.Value).empty())
-				kui::ParseError::ErrorNoLine("Expected a valid align value for '" + i.Name + "'");
+				kui::parseError::ErrorNoLine("Expected a valid align value for '" + i.Name + "'");
 			p.Value = kui::stringParse::GetAlign(p.Value);
 			break;
 
@@ -420,12 +401,16 @@ std::string UIElement::MakeCode(std::string Parent, UIElement* Root, size_t& Dep
 		}
 	}
 
+	// Check if this element is any user defined type.
 	for (auto& elem : MarkupElements.Elements)
 	{
 		if (elem.Root.TypeName != TypeName)
 		{
 			continue;
 		}
+
+		// If it is a user defined type, store which header declares it.
+		this->Header = elem.Root.Header;
 		for (auto& prop : PropertyCopy)
 		{
 			if (!elem.Root.Variables.contains(prop.Name))
@@ -451,7 +436,7 @@ std::string UIElement::MakeCode(std::string Parent, UIElement* Root, size_t& Dep
 		{
 			continue;
 		}
-		ParseError::ErrorNoLine("Unknown property: " + i.Name);
+		parseError::ErrorNoLine("Unknown property: " + i.Name);
 	}
 
 	if (!Parent.empty())
@@ -509,7 +494,7 @@ std::set<std::string> UIElement::GetElementDependencies() const
 		}
 		else
 		{
-			Deps.insert(i.TypeName + ".hpp");
+			Deps.insert(i.Header + ".hpp");
 		}
 		auto ElemDeps = i.GetElementDependencies();
 

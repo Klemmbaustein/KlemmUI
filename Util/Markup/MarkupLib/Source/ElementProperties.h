@@ -322,7 +322,7 @@ static std::vector<PropertyElement> Properties
 			{
 				return "SetHorizontal(false)";
 			}
-			kui::ParseError::ErrorNoLine("Invalid orientation: '" + Val + "'");
+			kui::parseError::ErrorNoLine("Invalid orientation: '" + Val + "'");
 			return "";
 		},
 		.VarType = UIElement::Variable::VariableType::Bool,

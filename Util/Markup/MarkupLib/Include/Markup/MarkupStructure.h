@@ -29,6 +29,7 @@ namespace kui::MarkupStructure
 		/// Name of the element's type (UIBox, UIButton, MyElement...)
 		std::string TypeName;
 		std::string ElementName;
+		std::string Header;
 		ElementType Type = ElementType::Default;
 
 		std::vector<UIElement> Children;
@@ -85,8 +86,9 @@ namespace kui::MarkupStructure
 	{
 		UIElement Root;
 		std::string File;
+		std::string Header;
 
-		void WriteHeader(const std::string& Path, ParseResult& MarkupElements);
+		std::string WriteCode(ParseResult& MarkupElements);
 	private:
 		std::string WriteLayoutFunction(ParseResult& MarkupElements);
 	};

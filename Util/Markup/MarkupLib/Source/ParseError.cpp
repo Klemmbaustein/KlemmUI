@@ -4,7 +4,7 @@
 #include "Markup/StringParse.h"
 using namespace kui;
 
-namespace kui::ParseError
+namespace kui::parseError
 {
 	std::vector<stringParse::Line>* LoadedCode = nullptr;
 	std::string ActiveFile;
@@ -12,18 +12,18 @@ namespace kui::ParseError
 	int ErrorCount = 0;
 }
 
-void ParseError::SetCode(std::vector<stringParse::Line>& Code, std::string FileName)
+void parseError::SetCode(std::vector<stringParse::Line>& Code, std::string FileName)
 {
 	LoadedCode = &Code;
 	ActiveFile = FileName;
 }
 
-void ParseError::SetLine(size_t Index)
+void parseError::SetLine(size_t Index)
 {
 	LineIndex = Index;
 }
 
-void ParseError::Error(const std::string& Message)
+void parseError::Error(const std::string& Message)
 {
 	auto& Line = LoadedCode->at(LineIndex);
 	std::cerr << ActiveFile << ":" << Line.Index + 1 << ": Error: " << Message << std::endl;
@@ -49,18 +49,18 @@ void ParseError::Error(const std::string& Message)
 	ErrorCount++;
 }
 
-void kui::ParseError::ErrorNoLine(const std::string& Message)
+void kui::parseError::ErrorNoLine(const std::string& Message)
 {
 	std::cerr << ActiveFile << ": Error: " << Message << std::endl;
 	ErrorCount++;
 }
 
-int ParseError::GetErrorCount()
+int parseError::GetErrorCount()
 {
 	return ErrorCount;
 }
 
-void ParseError::ResetError()
+void parseError::ResetError()
 {
 	ErrorCount = 0;
 }

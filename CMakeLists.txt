@@ -50,22 +50,35 @@ add_subdirectory("Util/Resource/")
 target_include_directories(KlemmUI PUBLIC "${INC_DIR}")
 target_link_libraries(KlemmUI PUBLIC libglew_static)
 
-macro(klemmui_markup ProjectName MarkupDir OutDir)
-	
-	add_custom_target(
-		${ProjectName}_WriteHeaders
-		COMMENT "Running build command."
+macro(klemmui_markup ProjectName MarkupDir)
+	set(OutDir "${CMAKE_CURRENT_BINARY_DIR}/ui")
+
+	file(
+		GLOB_RECURSE
+		UI_FILES
+		"${CMAKE_CURRENT_SOURCE_DIR}/${MarkupDir}/**"
 	)
+
+	set(UI_HEADERS)
+	foreach(UI_FILE ${UI_FILES})
+		get_filename_component(HEADER_FILE ${UI_FILE} NAME_WE)
+		set(HEADER_FILE "${OutDir}/${HEADER_FILE}.kui.hpp")
+		list(APPEND UI_HEADERS ${HEADER_FILE})
+	endforeach()
+
+	message("${UI_HEADERS}")
 
 	add_custom_command(
-		TARGET ${ProjectName}_WriteHeaders
+		OUTPUT ${UI_HEADERS}
 		WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 		COMMAND $<TARGET_FILE:KlemmUIHT>  -i ${MarkupDir} -o ${OutDir}
+		DEPENDS ${UI_FILES}
 	)
 
-	add_dependencies(${ProjectName}_WriteHeaders KlemmUIHT)
-	add_dependencies(${ProjectName} ${ProjectName}_WriteHeaders)
+	add_custom_target(${ProjectName}_Headers DEPENDS ${UI_HEADERS})
 
+	add_dependencies(${ProjectName}_Headers KlemmUIHT)
+	add_dependencies(${ProjectName} ${ProjectName}_Headers)
 	target_include_directories(${ProjectName} PRIVATE ${OutDir})
 endmacro()
 
@@ -77,21 +90,22 @@ macro(klemmui_resources ProjectName ResourceDir)
 
 	set(RESOURCE_OUT_FILE ${CMAKE_CURRENT_BINARY_DIR}/res/${ProjectName}_res.c)
 
-	add_custom_command(
-		TARGET ${ProjectName}_WriteResources
-		WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-		COMMAND $<TARGET_FILE:KlemmUIRC>  -i "${ResourceDir}" -o "${RESOURCE_OUT_FILE}" -n ${ProjectName}
+	file(
+		GLOB_RECURSE
+		RESOURCES
+		"${ResourceDir}/**"
 	)
 
-	if(NOT EXISTS ${RESOURCE_OUT_FILE})
-		file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/res)
-		file(TOUCH ${RESOURCE_OUT_FILE})
-	endif()
+	add_custom_command(
+		OUTPUT ${RESOURCE_OUT_FILE}
+		WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+		COMMAND $<TARGET_FILE:KlemmUIRC>  -i "${ResourceDir}" -o "${RESOURCE_OUT_FILE}" -n ${ProjectName}
+		DEPENDS ${RESOURCES}
+	)
 
 	add_library(${ProjectName}_Resources STATIC ${RESOURCE_OUT_FILE})
 
-	add_dependencies(${ProjectName}_WriteResources KlemmUIRC)
-	add_dependencies(${ProjectName}_Resources ${ProjectName}_WriteResources)
+	add_dependencies(${ProjectName}_Resources KlemmUIRC)
 	target_link_libraries(KlemmUI PUBLIC ${ProjectName}_Resources)
 	if(NOT ${ProjectName} STREQUAL "KlemmUI")
 		message(STATUS "Using resouces in project")
@@ -103,6 +117,6 @@ endmacro()
 klemmui_resources(KlemmUI "Resources/")
 
 if(KLEMMUI_INCLUDE_EXAMPLES)
-	add_subdirectory("Examples/HelloWorld" EXCLUDE_FROM_ALL)
-	add_subdirectory("Examples/Translation" EXCLUDE_FROM_ALL)
+	add_subdirectory("Examples/HelloWorld")
+	add_subdirectory("Examples/Translation")
 endif()

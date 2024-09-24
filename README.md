@@ -1,11 +1,19 @@
-﻿# KlemmUI 2
+# KlemmUI 3
 
-A simple C++ library that renders UI elements using OpenGL.
-Most of the UI code is taken from my [Game Engine](https://github.com/Klemmbaustein/Klemmgine).
+A C++20 UI library (maybe even a framework?) for creating lightwheight cross platform GUI apps.
 
-<br><br><br><br><br><br><br><br><br><br><br><br>
-<br><br><br><br><br><br><br><br><br><br><br><br>
-<br><br><br><br><br><br><br><br><br><br><br><br>
-<br><br><br><br><br><br><br><br><br><br><br><br>
+## Major changes from KlemmUI 2:
 
-* ⚡ Blazingly fast
+- SDL was removed as a dependency, all windowing code was rewritten.
+- CMake now is the only build system.
+- Added resource generator.
+- More options for styling backgrounds.
+- Better support for translation.
+
+
+## Library features
+
+- Support for creating GUI apps on Windows and Linux. (Currently only X11 is supported)
+- A language for describing UI layouts that is compiled to C++ headers that can be included into regular code.
+- A resource generator that can translate files into C code that can be used to embed files into applications.
+

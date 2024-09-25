@@ -1,41 +1,26 @@
-#include <KlemmUI/Window.h>
-#include <KlemmUI/UI/UIText.h>
-#include <KlemmUI/UI/UIBackground.h>
-#include <KlemmUI/Application.h>
-#include <KlemmUI/Image.h>
-#include <KlemmUI/Timer.h>
+#include <kui/KlemmUI.h>
+#include "HelloWorld.kui.hpp"
+using namespace kui;
 
 int main()
 {
-	using namespace KlemmUI;
-
-	Application::Error::SetErrorCallback([](std::string Message, bool Fatal)
+	app::error::SetErrorCallback([](std::string Message, bool Fatal)
 		{
-			KlemmUI::Application::MessageBox(Message, "Error", Application::MessageBoxType::Error);
+			app::MessageBox(Message, "Error", app::MessageBoxType::Error);
 		});
 
-	Window MainWindow = Window("Hello, World!", Window::WindowFlag::Resizable, Window::POSITION_CENTERED);
+	Window MainWindow = Window("Hello, World!", Window::WindowFlag::Resizable, Window::POSITION_CENTERED, Vec2ui(640, 480));
 
-	MainWindow.IsAreaGrabbableCallback = [](KlemmUI::Window* Target) -> bool
-		{
-			return true;
-		};
+	Font* RobotoFont = new Font("res:Roboto-Regular.ttf");
+	MainWindow.Markup.SetDefaultFont(RobotoFont);
 
-	(new UIBackground(true, -0.95f, Vector3f(0.25f), 1.9f))
-		->SetCorner(5, UIBox::SizeMode::PixelRelative)
-		->SetBorder(1, UIBox::SizeMode::PixelRelative)
-		->SetCorners(false, false, true, true)
-		->SetBorderColor(Vector3f(1, 0.5f, 0))
-		->AddChild((new UIText(9, 1, "Hello, World!", new Font("file:C:/Windows/Fonts/segoeui.ttf")))
-			->SetTextSizeMode(UIBox::SizeMode::PixelRelative)
-			->SetPadding(5)
-			->SetPaddingSizeMode(UIBox::SizeMode::PixelRelative));
-
-	Timer LoadingTimer;
+	HelloWorld* HelloWorldElement = new HelloWorld();
 
 	while (MainWindow.UpdateWindow())
 	{
 	}
+	
+	delete RobotoFont;
 }
 
 int WinMain()

@@ -5,14 +5,14 @@
 #include <map>
 #include "StringParse.h"
 
-namespace KlemmUI::MarkupStructure
+namespace kui::MarkupStructure
 {
 	struct MarkupElement;
 	struct ParseResult;
 
 	struct Property
 	{
-		StringParse::StringToken Name;
+		stringParse::StringToken Name;
 		std::string Value;
 	};
 
@@ -41,13 +41,15 @@ namespace KlemmUI::MarkupStructure
 			UserDefined,
 		};
 		/// Name of the element's type (UIBox, UIButton, MyElement...)
-		StringParse::StringToken TypeName;
-		std::string ElementName;
+		stringParse::StringToken TypeName;
+		stringParse::StringToken ElementName;
+		std::string Header;
 		ElementType Type = ElementType::Default;
 
 		std::vector<UIElement> Children;
 		std::vector<Property> ElementProperties;
 		size_t StartChar = 0, StartLine = 0, EndChar = 0, EndLine = 0;
+		std::vector<Property> TranslatedProperties;
 
 		struct Variable
 		{
@@ -64,7 +66,7 @@ namespace KlemmUI::MarkupStructure
 				SizeMode,
 				Align,
 				Vector3,
-				Vector2,
+				Vec2,
 				Bool,
 				Orientation,
 				Callback,
@@ -118,18 +120,19 @@ namespace KlemmUI::MarkupStructure
 	{
 		UIElement Root;
 		std::string File;
-		StringParse::StringToken FromToken;
+		stringParse::StringToken FromToken;
+		std::string Header;
 
-		void WriteHeader(const std::string& Path, ParseResult& MarkupElements);
+		std::string WriteCode(ParseResult& MarkupElements);
 	private:
-		std::string MakeConstructor(ParseResult& MarkupElements);
+		std::string WriteLayoutFunction(ParseResult& MarkupElements);
 	};
 
 	struct ParseResult
 	{
 		std::vector<MarkupElement> Elements;
 		std::vector<Constant> Constants;
-		std::map<std::string, std::vector<StringParse::Line>> FileLines;
+		std::map<std::string, std::vector<stringParse::Line>> FileLines;
 
 		Constant* GetConstant(std::string Name);
 	};

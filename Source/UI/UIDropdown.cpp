@@ -1,14 +1,14 @@
-#include <KlemmUI/UI/UIDropdown.h>
-#include <KlemmUI/UI/UIText.h>
-#include <KlemmUI/Application.h>
-#include <KlemmUI/Window.h>
+#include <kui/UI/UIDropdown.h>
+#include <kui/UI/UIText.h>
+#include <kui/App.h>
+#include <kui/Window.h>
 #include <iostream>
-using namespace KlemmUI;
+using namespace kui;
 
-UIDropdown::UIDropdown(Vector2f Position,
+UIDropdown::UIDropdown(Vec2f Position,
 	float Size,
-	Vector3f Color,
-	Vector3f TextColor,
+	Vec3f Color,
+	Vec3f TextColor,
 	std::vector<Option> Options,
 	std::function<void(int OptionIndex)> OnClickedFunction,
 	Font* Renderer)
@@ -29,10 +29,10 @@ UIDropdown::UIDropdown(Vector2f Position,
 	SelectedText = new UIText(TextSize, TextColor, this->Options.at(0).Name, Renderer);
 	SelectedText->SetPadding(TextPadding);
 	AddChild(SelectedText);
-	SetMinSize(Vector2f(Size, 0));
+	SetMinSize(Vec2f(Size, 0));
 
-	OptionsBox = new UIBox(false, Position + Vector2(0, -1));
-	OptionsBox->SetMinSize(Vector2(0, 1));
+	OptionsBox = new UIBox(false, Position + Vec2(0, -1));
+	OptionsBox->SetMinSize(Vec2(0, 1));
 	OptionsBox->IsVisible = false;
 	GenerateOptions();
 }
@@ -46,7 +46,7 @@ UIDropdown* UIDropdown::SetTextSize(float Size, float Padding)
 	return this;
 }
 
-UIDropdown* UIDropdown::SetDropdownColor(Vector3f NewColor, Vector3f TextColor)
+UIDropdown* UIDropdown::SetDropdownColor(Vec3f NewColor, Vec3f TextColor)
 {
 	if (NewColor != DropdownColor || TextColor != DropdownTextColor)
 	{
@@ -64,7 +64,7 @@ UIDropdown* UIDropdown::SetDropdownColor(Vector3f NewColor, Vector3f TextColor)
 	return this;
 }
 
-UIDropdown* KlemmUI::UIDropdown::SetTextSizeMode(UIBox::SizeMode NewMode)
+UIDropdown* kui::UIDropdown::SetTextSizeMode(UIBox::SizeMode NewMode)
 {
 	if (TextSizeMode != NewMode)
 	{
@@ -80,9 +80,9 @@ void UIDropdown::GenerateOptions()
 	OptionsBox->DeleteChildren();
 	for (size_t i = 0; i < Options.size(); i++)
 	{
-		UIButton* NewButton = new UIButton(true, 0, Vector3f::Lerp(DropdownColor, ButtonColor, (i == SelectedIndex) ? 0.5f : 0), nullptr, (int)i);
+		UIButton* NewButton = new UIButton(true, 0, Vec3f::Lerp(DropdownColor, ButtonColor, (i == SelectedIndex) ? 0.5f : 0), nullptr, (int)i);
 		NewButton->SetPadding(0);
-		NewButton->SetMinSize(Vector2f(Size, 0));
+		NewButton->SetMinSize(Vec2f(Size, 0));
 		NewButton->ParentOverride = this;
 
 		UIText* NewText = new UIText(TextSize, DropdownTextColor, Options[i].Name, Renderer);
@@ -119,7 +119,7 @@ void UIDropdown::Tick()
 		OptionsBox->IsVisible = false;
 	}
 	OptionsBox->SetCurrentScrollObject(CurrentScrollObject);
-	OptionsBox->SetPosition(OffsetPosition + Vector2(0, -1));
+	OptionsBox->SetPosition(OffsetPosition + Vec2(0, -1));
 }
 
 void UIDropdown::OnButtonClicked()

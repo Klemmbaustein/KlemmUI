@@ -1,5 +1,5 @@
-#include <KlemmUI/Application.h>
-#include "Window/SystemWM.h"
+#include <kui/App.h>
+#include "SystemWM/SystemWM.h"
 
 static std::function<void(std::string Message, bool IsFatal)> ErrorCallback = 
 	[](std::string Message, bool)
@@ -7,12 +7,12 @@ static std::function<void(std::string Message, bool IsFatal)> ErrorCallback =
 		puts(Message.c_str());
 	};
 
-void KlemmUI::Application::MessageBox(std::string Text, std::string Title, MessageBoxType Type)
+void kui::app::MessageBox(std::string Text, std::string Title, MessageBoxType Type)
 {
-	SystemWM::MessageBox(Text, Title, int(Type));
+	systemWM::MessageBox(Text, Title, int(Type));
 }
 
-void KlemmUI::Application::Error::Error(std::string Message, bool Fatal)
+void kui::app::error::Error(std::string Message, bool Fatal)
 {
 	ErrorCallback(Message, Fatal);
 	if (Fatal)
@@ -21,7 +21,7 @@ void KlemmUI::Application::Error::Error(std::string Message, bool Fatal)
 	}
 }
 
-void KlemmUI::Application::Error::SetErrorCallback(std::function<void(std::string Message, bool IsFatal)> Callback)
+void kui::app::error::SetErrorCallback(std::function<void(std::string Message, bool IsFatal)> Callback)
 {
 	ErrorCallback = Callback;
 }

@@ -1,7 +1,7 @@
-#include <KlemmUI/Markup/Markup.h>
-#include <KlemmUI/Window.h>
+#include <kui/Markup/Markup.h>
+#include <kui/Window.h>
 #include <map>
-using namespace KlemmUI;
+using namespace kui;
 
 void MarkupLanguageManager::SetGetStringFunction(std::function<std::string(std::string)> NewFunction)
 {
@@ -22,7 +22,7 @@ void MarkupLanguageManager::AddFont(std::string FontName, Font* FontPointer)
 	Fonts.insert({FontName, FontPointer});
 }
 
-void KlemmUI::MarkupLanguageManager::SetDefaultFont(Font* FontPointer)
+void kui::MarkupLanguageManager::SetDefaultFont(Font* FontPointer)
 {
 	AddFont("", FontPointer);
 }
@@ -38,7 +38,15 @@ Font* MarkupLanguageManager::GetFont(std::string FontName)
 	return nullptr;
 }
 
-MarkupLanguageManager* KlemmUI::MarkupLanguageManager::GetActive()
+MarkupLanguageManager* kui::MarkupLanguageManager::GetActive()
 {
 	return &Window::GetActiveWindow()->Markup;
+}
+
+void kui::MarkupLanguageManager::OnTranslationChanged()
+{
+	for (const auto& Callback : TranslationChangedCallbacks)
+	{
+		Callback();
+	}
 }

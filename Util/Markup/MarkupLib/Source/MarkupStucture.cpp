@@ -7,9 +7,9 @@
 #include <sstream>
 #include <map>
 #include <Markup/ParseError.h>
-using namespace KlemmUI::MarkupStructure;
+using namespace kui::MarkupStructure;
 
-bool KlemmUI::MarkupStructure::IsSubclassOf(PropElementType Class, PropElementType Parent)
+bool kui::MarkupStructure::IsSubclassOf(PropElementType Class, PropElementType Parent)
 {
 	if (Parent == PropElementType::UIBox)
 	{
@@ -33,7 +33,7 @@ std::map<UIElement::Variable::VariableType, UIElement::Variable::VariableTypeDes
 {
 {
 	VariableType::None,
-	VariableTypeDescription("No type", "KlemmUI::AnyContainer"),
+	VariableTypeDescription("No type", "kui::AnyContainer"),
 },
 {
 	VariableType::Number,
@@ -45,7 +45,7 @@ std::map<UIElement::Variable::VariableType, UIElement::Variable::VariableTypeDes
 },
 {
 	VariableType::Size,
-	VariableTypeDescription("SizeVector", "Vector2f"),
+	VariableTypeDescription("SizeVector", "Vec2f"),
 },
 {
 	VariableType::SizeNumber,
@@ -53,19 +53,19 @@ std::map<UIElement::Variable::VariableType, UIElement::Variable::VariableTypeDes
 },
 {
 	VariableType::SizeMode,
-	VariableTypeDescription("SizeMode", "KlemmUI::UIBox::SizeMode"),
+	VariableTypeDescription("SizeMode", "kui::UIBox::SizeMode"),
 },
 {
 	VariableType::Align,
-	VariableTypeDescription("Align", "KlemmUI::UIBox::Align"),
+	VariableTypeDescription("Align", "kui::UIBox::Align"),
 },
 {
 	VariableType::Vector3,
-	VariableTypeDescription("Vector3", "Vector3f"),
+	VariableTypeDescription("Vector3", "Vec3f"),
 },
 {
-	VariableType::Vector2,
-	VariableTypeDescription("Vector2", "Vector2f"),
+	VariableType::Vec2,
+	VariableTypeDescription("Vec2", "Vec2f"),
 },
 {
 	VariableType::Bool,
@@ -98,15 +98,14 @@ static std::map<PropElementType, std::string> DefaultConstructors =
 };
 
 static int UnnamedCounter = 0;
-void MarkupElement::WriteHeader(const std::string& Path, ParseResult& MarkupElements)
+std::string MarkupElement::WriteCode(ParseResult& MarkupElements)
 {
-	std::vector<KlemmUI::StringParse::Line> Lines = {};
-	ParseError::SetCode(Lines, File);
+	std::vector<kui::stringParse::Line> Lines = {};
+	parseError::SetCode(Lines, File);
 	UnnamedCounter = 0;
-	std::filesystem::create_directories(Path);
-	std::string ElementPath = Path + "/" + Root.TypeName.Text + ".hpp";
 	std::stringstream Out;
-	Out << "#pragma once" << std::endl;
+
+	std::string Constructor = WriteLayoutFunction(MarkupElements);
 
 	auto Dependencies = Root.GetElementDependencies();
 
@@ -115,10 +114,8 @@ void MarkupElement::WriteHeader(const std::string& Path, ParseResult& MarkupElem
 		Out << "#include \"" << i << "\"" << std::endl;
 	}
 
-	Out << "class " << Root.TypeName.Text << " : public KlemmUI::UIBox\n{\n";
+	Out << "class " << Root.TypeName.Text << " : public kui::UIBox, kui::markup::MarkupBox\n{\n";
 
-	std::string Constructor = MakeConstructor(MarkupElements);
-	
 	for (auto& i : Root.Variables)
 	{
 		std::string TypeName = UIElement::Variable::Descriptions[i.second.Type].CppName;
@@ -132,7 +129,7 @@ void MarkupElement::WriteHeader(const std::string& Path, ParseResult& MarkupElem
 				i.second.Value = ValueConstant->Value;
 			}
 
-			std::string Value = StringParse::ToCppCode(i.second.Value);
+			std::string Value = stringParse::ToCppCode(i.second.Value);
 
 			Out << " = " << TypeName << "(" << Value << ")";
 		}
@@ -154,27 +151,18 @@ void MarkupElement::WriteHeader(const std::string& Path, ParseResult& MarkupElem
 		Out << "\t" << Root.WriteVariableSetter(i);
 	}
 
-	Out << "};" << std::endl;
-
-
-	bool ShouldWrite = true;
-	if (std::filesystem::exists(ElementPath))
+	Out << "\tvirtual void OnTranslationChanged() override\n\t{\n";
+	for (auto& i : Root.TranslatedProperties)
 	{
-		std::ifstream In = std::ifstream(ElementPath);
-		std::string OldContent = std::string(std::istreambuf_iterator<char>(In.rdbuf()),
-			std::istreambuf_iterator<char>());
-		In.close();
-		ShouldWrite = Out.str() != OldContent;
+		Out << "\t\t" << Format::FormatString(i.Name, { Format::FormatArg("val", kui::stringParse::ToCppCode(i.Value)) }) << ";\n";
 	}
-	if (ShouldWrite)
-	{
-		std::ofstream OutFile = std::ofstream(ElementPath);
-		OutFile << Out.rdbuf();
-		OutFile.close();
-	}
+	Out << "\t}";
+
+	Out << "};\n";
+	return Out.str();
 }
 
-std::string MarkupElement::MakeConstructor(ParseResult& MarkupElements)
+std::string MarkupElement::WriteLayoutFunction(ParseResult& MarkupElements)
 {
 	std::stringstream OutStream;
 
@@ -186,7 +174,7 @@ std::string MarkupElement::MakeConstructor(ParseResult& MarkupElements)
 	return OutStream.str();
 }
 
-PropElementType KlemmUI::MarkupStructure::GetTypeFromString(std::string TypeName)
+PropElementType kui::MarkupStructure::GetTypeFromString(std::string TypeName)
 {
 	if (TypeName == "UIBox")
 	{
@@ -215,7 +203,7 @@ PropElementType KlemmUI::MarkupStructure::GetTypeFromString(std::string TypeName
 	return PropElementType::Unknown;
 }
 
-std::string KlemmUI::MarkupStructure::GetStringFromType(PropElementType Type)
+std::string kui::MarkupStructure::GetStringFromType(PropElementType Type)
 {
 	if (Type == PropElementType::UIBox)
 	{
@@ -258,6 +246,7 @@ Constant* ParseResult::GetConstant(std::string Name)
 
 static std::string WriteElementProperty(UIElement* Target, UIElement* Root, std::string ElementName, Property p, const PropertyElement& i, ParseResult& MarkupElements)
 {
+	using namespace kui::stringParse;
 	auto Variable = Root->Variables.find(p.Value);
 
 	Constant* ValueConstant = MarkupElements.GetConstant(p.Value);
@@ -267,9 +256,11 @@ static std::string WriteElementProperty(UIElement* Target, UIElement* Root, std:
 		p.Value = ValueConstant->Value;
 	}
 
-	if (Variable != Root->Variables.end())
+	bool IsTranslated = IsTranslatedString(p.Value) && i.VarType == UIElement::Variable::VariableType::String;
+
+	if (Variable != Root->Variables.end() || IsTranslated)
 	{
-		if (Variable->second.Type != i.VarType)
+		if (!IsTranslated && Variable->second.Type != i.VarType)
 		{
 			if (Variable->second.Type == UIElement::Variable::VariableType::None)
 			{
@@ -277,46 +268,51 @@ static std::string WriteElementProperty(UIElement* Target, UIElement* Root, std:
 			}
 			else
 			{
-				KlemmUI::ParseError::ErrorNoLine("Variable '" + Variable->first + "' does not have the correct type for the value of '" + i.Name + "'");
+				kui::parseError::ErrorNoLine("Variable '" + Variable->first + "' does not have the correct type for the value of '" + i.Name + "'");
 			}
 		}
-		if (Target->ElementName.empty())
+		if (Target->ElementName.Empty())
 		{
-			Target->ElementName = "unnamed_" + std::to_string(UnnamedCounter++);
+			Target->ElementName = StringToken("unnamed_" + std::to_string(UnnamedCounter++), 0, 0);
+		}
+		if (IsTranslated)
+		{
+			Root->TranslatedProperties.push_back(Property(StringToken(Target->ElementName.Text + "->" + i.SetFormat[0], 0, 0), p.Value));
 		}
 	}
 	else
 	{
+
 		switch (i.VarType)
 		{
 		case UIElement::Variable::VariableType::String:
-			if (!KlemmUI::StringParse::IsStringToken(p.Value))
-				KlemmUI::ParseError::ErrorNoLine("Expected a string for value '" + i.Name + "'");
+			if (!IsStringToken(p.Value))
+				kui::parseError::ErrorNoLine("Expected a string for value '" + i.Name + "'");
 			break;
 
 		case UIElement::Variable::VariableType::Size:
-			if (!KlemmUI::StringParse::IsSizeValue(p.Value))
-				KlemmUI::ParseError::ErrorNoLine("Expected a size for value '" + i.Name + "'");
+			if (!IsSizeValue(p.Value))
+				kui::parseError::ErrorNoLine("Expected a size for value '" + i.Name + "'");
 			break;
 
 		case UIElement::Variable::VariableType::SizeNumber:
-			if (!KlemmUI::StringParse::Is1DSizeValue(p.Value))
-				KlemmUI::ParseError::ErrorNoLine("Expected a size for value '" + i.Name + "'");
+			if (!Is1DSizeValue(p.Value))
+				kui::parseError::ErrorNoLine("Expected a size for value '" + i.Name + "'");
 			break;
 
 		case UIElement::Variable::VariableType::Align:
-			if (KlemmUI::StringParse::GetAlign(p.Value).empty())
-				KlemmUI::ParseError::ErrorNoLine("Expected a valid align value for '" + i.Name + "'");
-			p.Value = KlemmUI::StringParse::GetAlign(p.Value);
+			if (GetAlign(p.Value).empty())
+				kui::parseError::ErrorNoLine("Expected a valid align value for '" + i.Name + "'");
+			p.Value = GetAlign(p.Value);
 			break;
 
 		case UIElement::Variable::VariableType::SizeMode:
-			p.Value = KlemmUI::StringParse::Size::SizeModeToKUISizeMode(p.Value);
+			p.Value = Size::SizeModeToKUISizeMode(p.Value);
 			break;
 
 		case UIElement::Variable::VariableType::Vector3:
-		case UIElement::Variable::VariableType::Vector2:
-			if (!KlemmUI::StringParse::IsVectorToken(p.Value) || KlemmUI::StringParse::IsNumber(p.Value))
+		case UIElement::Variable::VariableType::Vec2:
+			if (!IsVectorToken(p.Value) || IsNumber(p.Value))
 			{
 				p.Value = "(" + p.Value + ")";
 			}
@@ -335,23 +331,23 @@ static std::string WriteElementProperty(UIElement* Target, UIElement* Root, std:
 
 	for (auto& FormatString : i.SetFormat)
 	{
-		std::string Format = "->" + Format::FormatString(FormatString, { Format::FormatArg("val", KlemmUI::StringParse::ToCppCode(p.Value)) });
+		std::string Format = "->" + Format::FormatString(FormatString, { Format::FormatArg("val", kui::stringParse::ToCppCode(p.Value)) });
 
 		Value += "\t" + ElementName + Format + ";\n";
 		if (Variable != Root->Variables.end())
 		{
-			Variable->second.References.push_back(Target->ElementName + Format);
+			Variable->second.References.push_back(Target->ElementName.Text + Format);
 		}
 	}
 
 	if (i.VarType == UIElement::Variable::VariableType::Size || i.VarType == UIElement::Variable::VariableType::SizeNumber)
 	{
-		auto val = KlemmUI::StringParse::Size(p.Value);
+		auto val = Size(p.Value);
 
 		if (!val.SizeMode.empty())
 		{
 			std::string Format = ElementName + "->" + Format::FormatString(i.SetSizeFormat, {
-				Format::FormatArg("val", KlemmUI::StringParse::Size::SizeModeToKUISizeMode(val.SizeMode))
+				Format::FormatArg("val", Size::SizeModeToKUISizeMode(val.SizeMode))
 				});
 			Value += "\t" + Format + ";\n";
 		}
@@ -362,20 +358,20 @@ static std::string WriteElementProperty(UIElement* Target, UIElement* Root, std:
 
 std::string UIElement::MakeCode(std::string Parent, UIElement* Root, size_t& Depth, ParseResult& MarkupElements)
 {
-	bool HasName = !ElementName.empty();
+	bool HasName = !ElementName.Empty();
 	std::stringstream OutStream;
-	std::string ElemName = ElementName.empty() ? ("e_" + std::to_string(Depth)) : ElementName;
+	std::string ElemName = ElementName.Empty() ? ("e_" + std::to_string(Depth)) : ElementName;
 	if (!Parent.empty())
 	{
 		OutStream << "\t";
-		if (ElementName.empty())
+		if (ElementName.Empty())
 		{
 			OutStream << "auto* ";
 		}
 		std::string ClassName = TypeName;
 		if (Type == ElementType::Default)
 		{
-			ClassName = "KlemmUI::" + ClassName;
+			ClassName = "kui::" + ClassName;
 		}
 		OutStream << ElemName << " = new " << ClassName << "(" << DefaultConstructors[GetTypeFromString(TypeName)] << ");\n";
 	}
@@ -404,18 +400,22 @@ std::string UIElement::MakeCode(std::string Parent, UIElement* Root, size_t& Dep
 		if (!Found && Prop.AlwaysSet)
 		{
 			OutStream << WriteElementProperty(this, Root, ElemName, Property{
-				.Name = StringParse::StringToken(Prop.Name, 0, 0),
+				.Name = stringParse::StringToken(Prop.Name, 0, 0),
 				.Value = Prop.Default
 				}, Prop, MarkupElements);
 		}
 	}
 
+	// Check if this element is any user defined type.
 	for (auto& elem : MarkupElements.Elements)
 	{
 		if (elem.Root.TypeName != TypeName)
 		{
 			continue;
 		}
+
+		// If it is a user defined type, store which header declares it.
+		this->Header = elem.Root.Header;
 		for (auto& prop : PropertyCopy)
 		{
 			if (!elem.Root.Variables.contains(prop.Name))
@@ -430,7 +430,7 @@ std::string UIElement::MakeCode(std::string Parent, UIElement* Root, size_t& Dep
 				prop.Value = ValueConstant->Value;
 			}
 
-			OutStream << "\t" << ElemName << "->Set" << prop.Name.Text << "(" << KlemmUI::StringParse::ToCppCode(prop.Value) << ");" << std::endl;
+			OutStream << "\t" << ElemName << "->Set" << prop.Name.Text << "(" << stringParse::ToCppCode(prop.Value) << ");" << std::endl;
 			prop.Name.Text.clear();
 		}
 	}
@@ -441,7 +441,7 @@ std::string UIElement::MakeCode(std::string Parent, UIElement* Root, size_t& Dep
 		{
 			continue;
 		}
-		ParseError::ErrorNoLine("Unknown property: " + i.Name.Text);
+		parseError::Error("Unknown property: " + i.Name.Text, i.Name);
 	}
 
 	if (!Parent.empty())
@@ -450,10 +450,10 @@ std::string UIElement::MakeCode(std::string Parent, UIElement* Root, size_t& Dep
 	}
 
 	// Name was set because a variable setter uses this element.
-	if (!HasName && !ElementName.empty())
+	if (!HasName && !ElementName.Empty())
 	{
 		// Assign the local variable of the generated element to the global one so it can be used in the setters.
-		OutStream << "\t" << ElementName << " = " << ElemName << ";" << std::endl;
+		OutStream << "\t" << ElementName.Text << " = " << ElemName << ";" << std::endl;
 	}
 
 	if (!Children.empty())
@@ -468,12 +468,12 @@ std::string UIElement::MakeCode(std::string Parent, UIElement* Root, size_t& Dep
 	return OutStream.str();
 }
 
-bool KlemmUI::MarkupStructure::UIElement::IsDefaultElement(const std::string& Name)
+bool kui::MarkupStructure::UIElement::IsDefaultElement(const std::string& Name)
 {
 	return GetTypeFromString(Name) != PropElementType::Unknown;
 }
 
-std::string KlemmUI::MarkupStructure::UIElement::WriteVariableSetter(std::pair<std::string, Variable> Var)
+std::string kui::MarkupStructure::UIElement::WriteVariableSetter(std::pair<std::string, Variable> Var)
 {
 	std::stringstream Out;
 
@@ -495,11 +495,11 @@ std::set<std::string> UIElement::GetElementDependencies() const
 	{
 		if (i.Type == ElementType::Default)
 		{
-			Deps.insert("KlemmUI/UI/" + i.TypeName.Text + ".h");
+			Deps.insert("kui/UI/" + i.TypeName.Text + ".h");
 		}
 		else
 		{
-			Deps.insert(i.TypeName.Text + ".hpp");
+			Deps.insert(i.Header + ".hpp");
 		}
 		auto ElemDeps = i.GetElementDependencies();
 
@@ -508,22 +508,23 @@ std::set<std::string> UIElement::GetElementDependencies() const
 			Deps.insert(elem);
 		}
 	}
-	Deps.insert("KlemmUI/UI/UIBox.h");
-	Deps.insert("KlemmUI/Markup/Markup.h");
+	Deps.insert("kui/UI/UIBox.h");
+	Deps.insert("kui/Markup/MarkupBox.h");
+	Deps.insert("kui/Markup/Markup.h");
 	return Deps;
 }
 
-std::set<std::string> KlemmUI::MarkupStructure::UIElement::GetNamedElements() const
+std::set<std::string> kui::MarkupStructure::UIElement::GetNamedElements() const
 {
 	std::set<std::string> Deps;
 	for (auto& i : Children)
 	{
-		if (!i.ElementName.empty())
+		if (!i.ElementName.Empty())
 		{
-			std::string Out = i.TypeName.Text + "* " + i.ElementName;
+			std::string Out = i.TypeName.Text + "* " + i.ElementName.Text;
 			if (IsDefaultElement(i.TypeName))
 			{
-				Out = "KlemmUI::" + Out;
+				Out = "kui::" + Out;
 			}
 			Deps.insert(Out);
 		}

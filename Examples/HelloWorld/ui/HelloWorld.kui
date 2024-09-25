@@ -1,0 +1,14 @@
+element HelloWorld
+{
+	size = 2sr;
+	position = -1;
+
+	horizontalAlign = centered;
+	verticalAlign = centered;
+
+	child UIText
+	{
+		text = "Hello World!";
+		size = 15px;
+	}
+}

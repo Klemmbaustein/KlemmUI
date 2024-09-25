@@ -2,7 +2,7 @@
 #include "MarkupStructure.h"
 #include "StringParse.h"
 
-namespace KlemmUI::MarkupParse
+namespace kui::MarkupParse
 {
 	struct FileEntry
 	{
@@ -19,7 +19,7 @@ namespace KlemmUI::MarkupParse
 		size_t Start;
 		size_t StartLine;
 		size_t End;
-		StringParse::StringToken DefinitionToken;
+		stringParse::StringToken DefinitionToken;
 		MarkupStructure::MarkupElement StructureElement;
 	};
 
@@ -29,9 +29,9 @@ namespace KlemmUI::MarkupParse
 		std::vector<MarkupStructure::Constant> Constants;
 	};
 
-	FileResult ReadFile(std::vector<StringParse::Line>& Lines, std::string FileName);
-	MarkupStructure::MarkupElement ParseElement(ParsedElement& Elem, std::vector<StringParse::Line>& Lines);
+	FileResult ReadFile(std::vector<stringParse::Line>& Lines, std::string FileName);
+	MarkupStructure::MarkupElement ParseElement(ParsedElement& Elem, std::vector<stringParse::Line>& Lines);
 
 	// Returns the last token that belongs to the element.
-	StringParse::StringToken ParseScope(MarkupStructure::UIElement& Elem, std::vector<StringParse::Line> Lines, size_t Start, bool IsRoot);
+	stringParse::StringToken ParseScope(MarkupStructure::UIElement& Elem, std::vector<stringParse::Line> Lines, size_t Start, bool IsRoot);
 }

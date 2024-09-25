@@ -1,13 +1,13 @@
 #pragma once
-#include <KlemmUI/Vector2.h>
+#include <kui/Vec2.h>
 
 class Framebuffer
 {
 	unsigned int ID;
 	unsigned int Textures[1];
 public:
-	Framebuffer(Vector2ui Resolution);
-	void SetResolution(Vector2ui Resolution);
+	Framebuffer(Vec2ui Resolution);
+	void SetResolution(Vec2ui Resolution);
 	~Framebuffer();
 	void Bind();
 	void Unbind();

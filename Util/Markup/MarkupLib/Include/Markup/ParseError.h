@@ -3,12 +3,12 @@
 #include "StringParse.h"
 #include <functional>
 
-namespace KlemmUI::ParseError
+namespace kui::parseError
 {
-	void SetCode(std::vector<StringParse::Line>& Code, std::string FileName);
+	void SetCode(std::vector<stringParse::Line>& Code, std::string FileName);
 	void SetLine(size_t Index);
 
-	void Error(const std::string& Message, const StringParse::StringToken& From);
+	void Error(const std::string& Message, const stringParse::StringToken& From);
 	void ErrorNoLine(const std::string& Message);
 
 	int GetErrorCount();

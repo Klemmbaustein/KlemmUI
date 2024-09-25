@@ -1,21 +1,20 @@
-#include <KlemmUI/UI/UIBackground.h>
+#include <kui/UI/UIBackground.h>
 #include <GL/glew.h>
 #include <iostream>
 #include "../Rendering/VertexBuffer.h"
-#include <KlemmUI/Rendering/Shader.h>
-#include <KlemmUI/Application.h>
-#include <KlemmUI/Rendering/ScrollObject.h>
-#include <KlemmUI/Window.h>
-using namespace KlemmUI;
+#include <kui/Rendering/Shader.h>
+#include <kui/App.h>
+#include <kui/Rendering/ScrollObject.h>
+#include <kui/Window.h>
+using namespace kui;
 
 void UIBackground::ScrollTick(Shader* UsedShader)
 {
 	if (CurrentScrollObject != nullptr)
-	{
-		glUniform3f(glGetUniformLocation(UsedShader->GetShaderID(), "u_offset"), -CurrentScrollObject->Percentage, CurrentScrollObject->Position.Y, CurrentScrollObject->Position.Y - CurrentScrollObject->Scale.Y);
-	}
+		UsedShader->SetVec3("u_offset",
+			Vec3f(-CurrentScrollObject->Percentage, CurrentScrollObject->Position.Y, CurrentScrollObject->Position.Y - CurrentScrollObject->Scale.Y));
 	else
-		glUniform3f(glGetUniformLocation(UsedShader->GetShaderID(), "u_offset"), 0, -1000, 1000);
+		UsedShader->SetVec3("u_offset", Vec3f(0, -1000, 1000));
 }
 
 void UIBackground::MakeGLBuffers()
@@ -24,10 +23,10 @@ void UIBackground::MakeGLBuffers()
 		delete BoxVertexBuffer;
 	BoxVertexBuffer = new VertexBuffer(
 		{
-			Vertex(Vector2f(0, 0), Vector2f(0, 0), 0),
-			Vertex(Vector2f(0, 1), Vector2f(0, 1.0001f), 1),
-			Vertex(Vector2f(1, 0), Vector2f(1.0001f, 0), 2),
-			Vertex(Vector2f(1, 1), Vector2f(1.0001f, 1.0001f), 3)
+			Vertex(Vec2f(0, 0), Vec2f(0, 0), 0),
+			Vertex(Vec2f(0, 1), Vec2f(0, 1.0f), 1),
+			Vertex(Vec2f(1, 0), Vec2f(1.0f, 0), 2),
+			Vertex(Vec2f(1, 1), Vec2f(1.0f, 1.0), 3)
 		},
 		{
 			0u, 1u, 2u,
@@ -61,15 +60,15 @@ UIBackground* UIBackground::SetCorners(bool TopLeft, bool TopRight, bool BottomL
 	return this;
 }
 
-float KlemmUI::UIBackground::GetBorderSize(float InSize, UIBox::SizeMode Mode)
+float kui::UIBackground::GetBorderSize(float InSize, UIBox::SizeMode Mode)
 {
 	switch (Mode)
 	{
-	case KlemmUI::UIBox::SizeMode::ScreenRelative:
-	case KlemmUI::UIBox::SizeMode::AspectRelative:
+	case kui::UIBox::SizeMode::ScreenRelative:
+	case kui::UIBox::SizeMode::AspectRelative:
 		return InSize;
 		break;
-	case KlemmUI::UIBox::SizeMode::PixelRelative:
+	case kui::UIBox::SizeMode::PixelRelative:
 		return (std::floor(InSize * Window::GetActiveWindow()->GetDPI()) / (float)Window::GetActiveWindow()->GetSize().Y * 4.0f);
 	default:
 		return 0.0f;
@@ -86,7 +85,7 @@ UIBackground* UIBackground::SetOpacity(float NewOpacity)
 	return this;
 }
 
-UIBackground* KlemmUI::UIBackground::SetBorderColor(Vector3f NewColor)
+UIBackground* kui::UIBackground::SetBorderColor(Vec3f NewColor)
 {
 	if (NewColor != BorderColor)
 	{
@@ -101,7 +100,7 @@ float UIBackground::GetOpacity() const
 	return Opacity;
 }
 
-UIBackground* UIBackground::SetColor(Vector3f NewColor)
+UIBackground* UIBackground::SetColor(Vec3f NewColor)
 {
 	if (NewColor != Color)
 	{
@@ -111,7 +110,7 @@ UIBackground* UIBackground::SetColor(Vector3f NewColor)
 	return this;
 }
 
-Vector3f UIBackground::GetColor() const
+Vec3f UIBackground::GetColor() const
 {
 	return Color;
 }
@@ -131,23 +130,6 @@ UIBackground* UIBackground::SetUseTexture(bool UseTexture, unsigned int TextureI
 		RedrawElement();
 	}
 	return this;
-}
-
-void printBits(size_t const size, void const* const ptr)
-{
-	unsigned char* b = (unsigned char*)ptr;
-	unsigned char byte;
-	int i, j;
-
-	for (i = size - 1; i >= 0; i--)
-	{
-		for (j = 7; j >= 0; j--)
-		{
-			byte = (b[i] >> j) & 1;
-			printf("%u", byte);
-		}
-	}
-	puts("");
 }
 
 UIBackground* UIBackground::SetBorder(float Size, UIBox::SizeMode BorderSize)
@@ -201,7 +183,7 @@ UIBackground* UIBackground::SetBorderVisible(int Index, bool Value)
 	return this;
 }
 
-UIBackground* KlemmUI::UIBackground::SetUseTexture(bool UseTexture, std::string TextureFile)
+UIBackground* kui::UIBackground::SetUseTexture(bool UseTexture, std::string TextureFile)
 {
 	if (OwnsTexture)
 	{
@@ -230,7 +212,7 @@ UIBackground* KlemmUI::UIBackground::SetUseTexture(bool UseTexture, std::string 
 	return this;
 }
 
-UIBackground::UIBackground(bool Horizontal, Vector2f Position, Vector3f Color, Vector2f MinScale, Shader* UsedShader) : UIBox(Horizontal, Position)
+UIBackground::UIBackground(bool Horizontal, Vec2f Position, Vec3f Color, Vec2f MinScale, Shader* UsedShader) : UIBox(Horizontal, Position)
 {
 	SetMinSize(MinScale);
 	this->Color = Color;
@@ -269,10 +251,10 @@ void UIBackground::Draw()
 	BackgroundShader->SetVec3("u_color", Color);
 	BackgroundShader->SetVec3("u_borderColor", BorderColor);
 
-	Vector2ui WindowSize = ParentWindow->GetSize() / 2;
+	Vec2ui WindowSize = ParentWindow->GetSize() / 2;
 
-	Vector2f Pos = Vector2f(Vector2i(OffsetPosition * WindowSize)) / WindowSize;
-	Vector2f Res = Vector2f(Vector2i(Size * WindowSize)) / WindowSize;
+	Vec2f Pos = Vec2f(Vec2i(OffsetPosition * WindowSize)) / WindowSize;
+	Vec2f Res = Vec2f(Vec2i(Size * WindowSize)) / WindowSize;
 
 	glUniform4f(glGetUniformLocation(BackgroundShader->GetShaderID(), "u_transform"), Pos.X, Pos.Y, Res.X, Res.Y);
 	BackgroundShader->SetFloat("u_opacity", Opacity);
@@ -283,7 +265,7 @@ void UIBackground::Draw()
 	BackgroundShader->SetInt("u_cornerFlags", int(CornerFlags));
 	BackgroundShader->SetInt("u_borderFlags", int(BorderFlags));
 	BackgroundShader->SetFloat("u_aspectRatio", Window::GetActiveWindow()->GetAspectRatio());
-	BackgroundShader->SetVec2("u_screenRes", Vector2f(
+	BackgroundShader->SetVec2("u_screenRes", Vec2f(
 		(float)Window::GetActiveWindow()->GetSize().X,
 		(float)Window::GetActiveWindow()->GetSize().Y));
 

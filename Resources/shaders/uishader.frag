@@ -31,12 +31,11 @@ bool isBorderVisible(int index)
 void main()
 {
 	vec2 scale = u_transform.zw * vec2(u_aspectRatio, 1);
-	vec2 scaledTexCoords = v_texcoords * scale;
+	vec2 scaledTexCoords = v_texcoords * scale * (1 + 0.5 / u_screenRes);
 	vec2 nonAbsCenteredTexCoords = (scaledTexCoords - scale / 2) * 2;
 	vec2 centeredTexCoords = abs(nonAbsCenteredTexCoords);
 	
 	int cornerIndex = int(round(v_cornerIndex));
-
 	
 	if (u_offset.y > v_position.y)
 	{

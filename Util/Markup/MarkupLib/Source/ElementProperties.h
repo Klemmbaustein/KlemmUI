@@ -1,12 +1,12 @@
 
-std::vector<PropertyElement> KlemmUI::MarkupStructure::Properties
+std::vector<PropertyElement> kui::MarkupStructure::Properties
 {
 #pragma region UITextField
 	PropertyElement{
 		.Type = PropElementType::UITextField,
 		.Name = "font",
 		.Description = "The name of the font used by the text in the text field",
-		.SetFormat = {"SetFont(KlemmUI::MarkupLanguageManager::GetActive()->GetFont({val}))"},
+		.SetFormat = {"SetFont(kui::MarkupLanguageManager::GetActive()->GetFont({val}))"},
 		.VarType = UIElement::Variable::VariableType::String,
 		.AlwaysSet = true,
 		.Default = "\"\""
@@ -70,7 +70,7 @@ std::vector<PropertyElement> KlemmUI::MarkupStructure::Properties
 		.Type = PropElementType::UIText,
 		.Name = "color",
 		.Description = "The color of the text.",
-		.SetFormat = { "SetColor(Vector3f({val}))" },
+		.SetFormat = {"SetColor(kui::Vec3f({val}))"},
 		.VarType = UIElement::Variable::VariableType::Vector3,
 	},
 	PropertyElement{
@@ -85,7 +85,7 @@ std::vector<PropertyElement> KlemmUI::MarkupStructure::Properties
 		.Type = PropElementType::UIText,
 		.Name = "font",
 		.Description = "The name of the font used by the text.",
-		.SetFormat = { "SetFont(KlemmUI::MarkupLanguageManager::GetActive()->GetFont({val}))" },
+		.SetFormat = {"SetFont(kui::MarkupLanguageManager::GetActive()->GetFont({val}))"},
 		.VarType = UIElement::Variable::VariableType::String,
 		.AlwaysSet = true,
 		.Default = "\"\""
@@ -105,28 +105,28 @@ std::vector<PropertyElement> KlemmUI::MarkupStructure::Properties
 		.Type = PropElementType::UIButton,
 		.Name = "color",
 		.Description = "The color of the button. This sets normalColor, hoveredColor and pressedColor to reasonable values from the given color.",
-		.SetFormat = { "SetColor(Vector3f({val}))", "SetHoveredColor(Vector3f({val}) * 0.75f)", "SetPressedColor(Vector3f({val}) * 0.5f)" },
+		.SetFormat = {"SetColor(kui::Vec3f({val}))", "SetHoveredColor(kui::Vec3f({val}) * 0.75f)", "SetPressedColor(kui::Vec3f({val}) * 0.5f)"},
 		.VarType = UIElement::Variable::VariableType::Vector3,
 	},
 	PropertyElement{
 		.Type = PropElementType::UIButton,
 		.Name = "normalColor",
 		.Description = "The normal color of the button, when it isn't pressed or hovered.",
-		.SetFormat = { "SetNormalColor(Vector3f({val}))" },
+		.SetFormat = {"SetNormalColor(kui::Vec3f({val}))"},
 		.VarType = UIElement::Variable::VariableType::Vector3,
 	},
 	PropertyElement{
 		.Type = PropElementType::UIButton,
 		.Name = "hoveredColor",
 		.Description = "The color of the button when it is hovered.",
-		.SetFormat = { "SetHoveredColor(Vector3f({val}))" },
+		.SetFormat = {"SetHoveredColor(kui::Vec3f({val}))"},
 		.VarType = UIElement::Variable::VariableType::Vector3,
 	},
 	PropertyElement{
 		.Type = PropElementType::UIButton,
 		.Name = "pressedColor",
-		.Description = "The color of the button when it is prsesed.",
-		.SetFormat = { "SetPressedColor(Vector3f({val}))" },
+		.Description = "The color of the button when it is pressed.",
+		.SetFormat = {"SetPressedColor(kui::Vec3f({val}))"},
 		.VarType = UIElement::Variable::VariableType::Vector3,
 	},
 #pragma endregion
@@ -136,7 +136,7 @@ std::vector<PropertyElement> KlemmUI::MarkupStructure::Properties
 		.Type = PropElementType::UIBackground,
 		.Name = "color",
 		.Description = "The color of the background.",
-		.SetFormat = { "SetColor(Vector3f({val}))" },
+		.SetFormat = {"SetColor(kui::Vec3f({val}))"},
 		.VarType = UIElement::Variable::VariableType::Vector3,
 	},
 	PropertyElement{
@@ -173,7 +173,7 @@ std::vector<PropertyElement> KlemmUI::MarkupStructure::Properties
 		.Type = PropElementType::UIBackground,
 		.Name = "borderColor",
 		.Description = "The color of the border for the background.",
-		.SetFormat = { "BorderColor = Vector3f({val})" },
+		.SetFormat = {"BorderColor = kui::Vec3f({val})"},
 		.VarType = UIElement::Variable::VariableType::Vector3,
 	},
 	PropertyElement{
@@ -239,7 +239,7 @@ std::vector<PropertyElement> KlemmUI::MarkupStructure::Properties
 		.Type = PropElementType::UIBox,
 		.Name = "minSize",
 		.Description = "The minimum size of this element.",
-		.SetFormat = { "SetMinSize(Vector2f({val}))" },
+		.SetFormat = {"SetMinSize(Vec2f({val}))"},
 		.SetSizeFormat = "SetSizeMode({val})",
 		.VarType = UIElement::Variable::VariableType::Size,
 	},
@@ -247,7 +247,7 @@ std::vector<PropertyElement> KlemmUI::MarkupStructure::Properties
 		.Type = PropElementType::UIBox,
 		.Name = "maxSize",
 		.Description = "The maximum size of this element.",
-		.SetFormat = { "SetMaxSize(Vector2f({val}))" },
+		.SetFormat = {"SetMaxSize(Vec2f({val}))"},
 		.SetSizeFormat = "SetSizeMode({val})",
 		.VarType = UIElement::Variable::VariableType::Size,
 	},
@@ -255,7 +255,7 @@ std::vector<PropertyElement> KlemmUI::MarkupStructure::Properties
 		.Type = PropElementType::UIBox,
 		.Name = "size",
 		.Description = "Sets both minSize and maxSize to the given value.",
-		.SetFormat = { "SetMinSize(Vector2f({val}))", "SetMaxSize(Vector2f({val}))" },
+		.SetFormat = {"SetMinSize(Vec2f({val}))", "SetMaxSize(Vec2f({val}))"},
 		.SetSizeFormat = "SetSizeMode({val})",
 		.VarType = UIElement::Variable::VariableType::Size,
 	},
@@ -263,8 +263,8 @@ std::vector<PropertyElement> KlemmUI::MarkupStructure::Properties
 		.Type = PropElementType::UIBox,
 		.Name = "position",
 		.Description = "The position of the element, from -1 (bottom left corner) to 1 (top right corner).",
-		.SetFormat = { "SetPosition(Vector2f({val}))" },
-		.VarType = UIElement::Variable::VariableType::Vector2,
+		.SetFormat = {"SetPosition(Vec2f({val}))"},
+		.VarType = UIElement::Variable::VariableType::Vec2,
 	},
 	PropertyElement{
 		.Type = PropElementType::UIBox,
@@ -368,7 +368,7 @@ std::vector<PropertyElement> KlemmUI::MarkupStructure::Properties
 			{
 				return "SetHorizontal(false)";
 			}
-			KlemmUI::ParseError::ErrorNoLine("Invalid orientation: '" + Val + "'");
+			kui::parseError::ErrorNoLine("Invalid orientation: '" + Val + "'");
 			return "";
 		},
 		.VarType = UIElement::Variable::VariableType::Bool,

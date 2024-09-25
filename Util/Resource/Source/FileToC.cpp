@@ -1,6 +1,7 @@
 #include "FileToC.h"
 #include "Util.h"
 #include <sstream>
+#include <map>
 
 std::string StringToCharArray(std::string ArrayName, std::string FromString)
 {
@@ -29,12 +30,28 @@ std::string BytesToCharArray(std::string ArrayName, BinaryData Data)
 
 std::string PathToName(std::string Path)
 {
-	ReplaceChar(Path, '/', "_slash_");
-	ReplaceChar(Path, '.', "_dot_");
+	static std::map<char, const char*> ReplacedChars = {
+		{'/', "_slash_"},
+		{'.', "_dot_"},
+		{'-', "_dash_"},
+		{'+', "_plus_"},
+		{'#', "_hash_"},
+		{'*', "_asterisk_"},
+		{' ', "_space_"},
+		{'\'', "_quote_"},
+		{';', "_semicolon_"},
+		{'^', "_caret_"},
+		{'!', "_exclamation_"},
+	};
+
+	for (const std::pair<char, const char*> Replace : ReplacedChars)
+	{
+		ReplaceChar(Path, Replace.first, Replace.second);
+	}
 	return Path;
 }
 
-std::string WriteSourceFile(std::vector<std::pair<std::string, BinaryData>> Resources, std::string ProjectNames)
+std::string WriteSourceFile(std::vector<std::pair<std::string, BinaryData>> Resources, std::string ProjectName)
 {
 	std::stringstream OutString;
 
@@ -57,12 +74,17 @@ std::string WriteSourceFile(std::vector<std::pair<std::string, BinaryData>> Reso
 		OutString << BytesToCharArray(PathToName(i.first), i.second);
 	}
 
-	OutString << "size_t " << ProjectNames << "_GetResourceIndex(const char* FileName)\n{\n";
+	if (ProjectName != "KlemmUI")
+	{
+		ProjectName = "App";
+	}
+
+	OutString << "size_t " << ProjectName << "_GetResourceIndex(const char* FileName)\n{\n";
 	OutString << "\tfor (size_t i = 0; i < " << Resources.size() << "; i++)\n\t{\n";
 	OutString << "\t\tif (strcmp(FileNames[i], FileName) == 0)\n\t\t\treturn i;\n";
 	OutString << "\t}\n\treturn SIZE_MAX;\n}\n";
 
-	OutString << "size_t " << ProjectNames << "_GetResourceSize(size_t ResourceIndex)\n{\n";
+	OutString << "size_t " << ProjectName << "_GetResourceSize(size_t ResourceIndex)\n{\n";
 	OutString << "\tswitch (ResourceIndex)\n\t{\n";
 	for (size_t i = 0; i < Resources.size(); i++)
 	{
@@ -72,7 +94,7 @@ std::string WriteSourceFile(std::vector<std::pair<std::string, BinaryData>> Reso
 	OutString << "\tdefault:\n\t\tbreak;\n";
 	OutString << "\t}\n\treturn 0;\n}\n";
 
-	OutString << "const char* const " << ProjectNames << "_GetResourceBytes(size_t ResourceIndex)\n{\n";
+	OutString << "const char* const " << ProjectName << "_GetResourceBytes(size_t ResourceIndex)\n{\n";
 	OutString << "\tswitch (ResourceIndex)\n\t{\n";
 	for (size_t i = 0; i < Resources.size(); i++)
 	{

@@ -1,12 +1,12 @@
-#include <KlemmUI/UI/UIManager.h>
+#include <kui/UI/UIManager.h>
 #include <GL/glew.h>
-#include <KlemmUI/Window.h>
-#include <KlemmUI/UI/UIBox.h>
-#include <KlemmUI/Image.h>
+#include <kui/Window.h>
+#include <kui/UI/UIBox.h>
+#include <kui/Image.h>
 #include <iostream>
-#include <KlemmUI/Resource.h>
+#include <kui/Resource.h>
 #include <algorithm>
-using namespace KlemmUI;
+using namespace kui;
 
 UIManager::UIManager()
 {
@@ -20,7 +20,7 @@ UIManager::~UIManager()
 
 	for (auto& i : ReferencedTextures)
 	{
-		Image::UnloadImage(i.first);
+		image::UnloadImage(i.first);
 	}
 	ReferencedTextures.clear();
 }
@@ -117,19 +117,19 @@ bool UIManager::DrawElements()
 		glClearColor(0, 0, 0, 1);
 		glEnable(GL_SCISSOR_TEST);
 
-		Vector2ui WindowSize = Window::GetActiveWindow()->GetSize();
+		Vec2ui WindowSize = Window::GetActiveWindow()->GetSize();
 
 		glViewport(0, 0, (GLint)WindowSize.X, (GLint)WindowSize.Y);
 		for (auto& i : RedrawBoxes)
 		{
-			i.Max += Vector2f(3) / Vector2f(WindowSize);
-			i.Min = i.Min - Vector2f(3) / Vector2f(WindowSize);
+			i.Max += Vec2f(3) / Vec2f(WindowSize);
+			i.Min = i.Min - Vec2f(3) / Vec2f(WindowSize);
 
 			i.Min = i.Min.Clamp(-1, 1);
 			i.Max = i.Max.Clamp(-1, 1);
 
-			Vector2f Pos = (i.Min / 2 + 0.5f) * Vector2f(WindowSize);
-			Vector2f Res = (i.Max - i.Min) / 2 * Vector2f(WindowSize);
+			Vec2f Pos = (i.Min / 2 + 0.5f) * Vec2f(WindowSize);
+			Vec2f Res = (i.Max - i.Min) / 2 * Vec2f(WindowSize);
 
 			glScissor(
 				(GLsizei)Pos.X,
@@ -153,7 +153,7 @@ bool UIManager::DrawElements()
 	return false;
 }
 
-void KlemmUI::UIManager::TickElements()
+void kui::UIManager::TickElements()
 {
 	NewHoveredBox = nullptr;
 	for (UIBox* elem : UIElements)
@@ -191,7 +191,7 @@ void UIManager::UpdateEvents()
 	}
 }
 
-unsigned int KlemmUI::UIManager::LoadReferenceTexture(std::string FilePath)
+unsigned int kui::UIManager::LoadReferenceTexture(std::string FilePath)
 {
 	for (auto& i : ReferencedTextures)
 	{
@@ -207,7 +207,7 @@ unsigned int KlemmUI::UIManager::LoadReferenceTexture(std::string FilePath)
 		FilePath = TexturePath + "/" + FilePath;
 	}
 
-	unsigned int NewTexture = Image::LoadImage(FilePath);
+	unsigned int NewTexture = image::LoadImage(FilePath);
 	ReferencedTextures.insert(std::pair(NewTexture, ReferenceTexture{
 		.Name = FilePath,
 		.RefCount = 1,
@@ -216,7 +216,7 @@ unsigned int KlemmUI::UIManager::LoadReferenceTexture(std::string FilePath)
 	return NewTexture;
 }
 
-void KlemmUI::UIManager::UnloadReferenceTexture(unsigned int TextureID)
+void kui::UIManager::UnloadReferenceTexture(unsigned int TextureID)
 {
 	auto Texture = ReferencedTextures.find(TextureID);
 
@@ -228,12 +228,12 @@ void KlemmUI::UIManager::UnloadReferenceTexture(unsigned int TextureID)
 	Texture->second.RefCount--;
 	if (Texture->second.RefCount == 0)
 	{
-		Image::UnloadImage(Texture->first);
+		image::UnloadImage(Texture->first);
 		ReferencedTextures.erase(Texture);
 	}
 }
 
-void KlemmUI::UIManager::SetTexturePath(std::string NewPath)
+void kui::UIManager::SetTexturePath(std::string NewPath)
 {
 	TexturePath = NewPath;
 }
@@ -241,8 +241,8 @@ void KlemmUI::UIManager::SetTexturePath(std::string NewPath)
 static UIManager::RedrawBox CombineBoxes(const UIManager::RedrawBox& BoxA, const UIManager::RedrawBox& BoxB)
 {
 	return UIManager::RedrawBox{
-		.Min = Vector2f::Min(BoxA.Min, BoxB.Min),
-		.Max = Vector2f::Max(BoxA.Max, BoxB.Max),
+		.Min = Vec2f::Min(BoxA.Min, BoxB.Min),
+		.Max = Vec2f::Max(BoxA.Max, BoxB.Max),
 	};
 }
 

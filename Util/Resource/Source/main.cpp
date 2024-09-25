@@ -17,7 +17,7 @@ static bool GetFilesInDirectory(std::filesystem::path Path,
 	{
 		if (i.is_directory())
 			continue;
-		if (LastWriteTime.has_value() && std::filesystem::last_write_time(i) > LastWriteTime.value())
+		if (LastWriteTime.has_value() && std::filesystem::last_write_time(i) >= LastWriteTime.value())
 		{
 			FileWritten = true;
 		}

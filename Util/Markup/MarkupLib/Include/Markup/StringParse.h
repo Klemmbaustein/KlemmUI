@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <optional>
 
-namespace KlemmUI::StringParse
+namespace kui::stringParse
 {
 	struct StringToken
 	{
@@ -67,6 +67,7 @@ namespace KlemmUI::StringParse
 	std::string GetAlign(std::string Element);
 	std::string GetBorderType(std::string Element);
 	bool IsNumber(std::string Element);
+	bool IsTranslatedString(std::string Element);
 
 	std::string ToCppCode(std::string Value);
 

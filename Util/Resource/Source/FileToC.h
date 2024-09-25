@@ -12,4 +12,4 @@ struct BinaryData
 std::string StringToCharArray(std::string ArrayName, std::string FromString);
 std::string BytesToCharArray(std::string ArrayName, BinaryData Data);
 
-std::string WriteSourceFile(std::vector<std::pair<std::string, BinaryData>> Resource, std::string ProjectNames);
+std::string WriteSourceFile(std::vector<std::pair<std::string, BinaryData>> Resource, std::string ProjectName);

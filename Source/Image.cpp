@@ -1,12 +1,12 @@
-#include <KlemmUI/Image.h>
+#include <kui/Image.h>
 #include <GL/glew.h>
 #define STB_IMAGE_IMPLEMENTATION
 #include "Util/stb_image.hpp"
-#include <KlemmUI/Resource.h>
+#include <kui/Resource.h>
 #include <iostream>
-using namespace KlemmUI;
+using namespace kui;
 
-uint8_t* Image::LoadImageBytes(std::string File, size_t& Width, size_t& Height, bool Flipped)
+uint8_t* image::LoadImageBytes(std::string File, size_t& Width, size_t& Height, bool Flipped)
 {
 	int TextureWidth = 0;
 	int TextureHeight = 0;
@@ -32,17 +32,17 @@ uint8_t* Image::LoadImageBytes(std::string File, size_t& Width, size_t& Height, 
 	return TextureBuffer;
 }
 
-void Image::FreeImageBytes(uint8_t* Bytes)
+void image::FreeImageBytes(uint8_t* Bytes)
 {
 	free(Bytes);
 }
 
-unsigned int Image::LoadImage(std::string File)
+unsigned int image::LoadImage(std::string File)
 {
 	return LoadImageWithInfo(File).ID;
 }
 
-unsigned int KlemmUI::Image::LoadImage(uint8_t* Bytes, size_t Width, size_t Height)
+unsigned int kui::image::LoadImage(uint8_t* Bytes, size_t Width, size_t Height)
 {
 	GLuint TextureID;
 	glGenTextures(1, &TextureID);
@@ -60,7 +60,7 @@ unsigned int KlemmUI::Image::LoadImage(uint8_t* Bytes, size_t Width, size_t Heig
 	return TextureID;
 }
 
-Image::ImageInfo Image::LoadImageWithInfo(std::string File)
+image::ImageInfo image::LoadImageWithInfo(std::string File)
 {
 	ImageInfo Ret = {};
 	uint8_t* Bytes = LoadImageBytes(File, Ret.Width, Ret.Height);
@@ -69,7 +69,7 @@ Image::ImageInfo Image::LoadImageWithInfo(std::string File)
 	return Ret;
 }
 
-void Image::UnloadImage(unsigned int ID)
+void image::UnloadImage(unsigned int ID)
 {
 	glDeleteTextures(1, &ID);
 }

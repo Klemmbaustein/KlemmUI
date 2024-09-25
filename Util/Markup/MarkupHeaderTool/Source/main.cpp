@@ -1,6 +1,7 @@
 #include <Markup/MarkupStructure.h>
 #include "Markup/MarkupParse.h"
 #include "Markup/ParseError.h"
+#include "Markup/WriteHeader.h"
 #include <fstream>
 #include <iostream>
 #include <cstring>
@@ -42,7 +43,7 @@ int main(int argc, const char** argv)
 		}
 	}
 
-	std::vector<KlemmUI::MarkupParse::FileEntry> Entries;
+	std::vector<kui::MarkupParse::FileEntry> Entries;
 
 	if (InPaths.empty())
 	{
@@ -57,13 +58,15 @@ int main(int argc, const char** argv)
 		return 3;
 	}
 
+	std::filesystem::create_directories(OutPath);
+
 	try
 	{
 		for (const std::string& InPath : InPaths)
 		{
 			for (const auto& File : std::filesystem::directory_iterator(InPath))
 			{
-				KlemmUI::MarkupParse::FileEntry Entry;
+				kui::MarkupParse::FileEntry Entry;
 				Entry.Name = File.path().filename().string();
 				std::ifstream Source = std::ifstream(File.path());
 				Entry.Content = std::string(std::istreambuf_iterator<char>(Source.rdbuf()),
@@ -78,19 +81,17 @@ int main(int argc, const char** argv)
 		return 2;
 	}
 
-	auto ParsedFiles = KlemmUI::MarkupParse::ParseFiles(Entries);
+	auto ParsedFiles = kui::MarkupParse::ParseFiles(Entries);
 
-	if (KlemmUI::ParseError::GetErrorCount())
+	if (kui::parseError::GetErrorCount())
 	{
 		std::cout << "Errors occurred - stopping." << std::endl;
 		return 1;
 	}
 
-	for (auto& i : ParsedFiles.Elements)
-	{
-		i.WriteHeader(OutPath, ParsedFiles);
-	}
-	if (KlemmUI::ParseError::GetErrorCount())
+	kui::writeHeader::WriteHeaders(OutPath, ParsedFiles);
+
+	if (kui::parseError::GetErrorCount())
 	{
 		std::cout << "Errors occurred - stopping." << std::endl;
 		return 1;

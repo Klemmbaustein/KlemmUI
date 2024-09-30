@@ -1,11 +1,5 @@
 #include <kui/UI/UIButton.h>
-#include <GL/glew.h>
-#include <kui/Rendering/Shader.h>
-#include "../Rendering/VertexBuffer.h"
-#include <kui/App.h>
 #include <kui/Window.h>
-#include <kui/Rendering/ScrollObject.h>
-
 using namespace kui;
 
 void UIButton::Tick()
@@ -42,7 +36,8 @@ void UIButton::Tick()
 		IsSelected = false;
 		if (OnDragged)
 		{
-			ParentWindow->UI.ButtonEvents.push_back(UIManager::ButtonEvent(nullptr, OnDragged, nullptr, ButtonIndex));
+			ParentWindow->UI.ButtonEvents.push_back(UIManager::ButtonEvent(
+				nullptr, OnDragged, nullptr, ButtonIndex));
 		}
 		IsPressed = false;
 		RedrawElement();
@@ -104,11 +99,16 @@ void UIButton::Tick()
 
 void UIButton::OnButtonClicked()
 {
-	if (OnClicked) ParentWindow->UI.ButtonEvents.push_back(UIManager::ButtonEvent(OnClicked, nullptr, nullptr, 0));
-	if (OnClickedFunctionIndex) ParentWindow->UI.ButtonEvents.push_back(UIManager::ButtonEvent(nullptr, OnClickedFunctionIndex, nullptr, ButtonIndex));
+	if (OnClicked)
+		ParentWindow->UI.ButtonEvents.push_back(UIManager::ButtonEvent(
+			OnClicked, nullptr, nullptr, 0));
+	if (OnClickedFunctionIndex)
+		ParentWindow->UI.ButtonEvents.push_back(UIManager::ButtonEvent(
+			nullptr, OnClickedFunctionIndex, nullptr, ButtonIndex));
 	if (ParentOverride)
 	{
-		ParentWindow->UI.ButtonEvents.push_back(UIManager::ButtonEvent(nullptr, nullptr, ParentOverride, ButtonIndex));
+		ParentWindow->UI.ButtonEvents.push_back(UIManager::ButtonEvent(
+			nullptr, nullptr, ParentOverride, ButtonIndex));
 	}
 }
 
@@ -179,7 +179,8 @@ Vec3f UIButton::GetColor() const
 	return ButtonColor;
 }
 
-UIButton::UIButton(bool Horizontal, Vec2f Position, Vec3f Color, std::function<void()> OnClickedFunction) : UIBackground(Horizontal, Position, Color)
+UIButton::UIButton(bool Horizontal, Vec2f Position, Vec3f Color, std::function<void()> OnClickedFunction) 
+	: UIBackground(Horizontal, Position, Color)
 {
 	this->OnClicked = OnClickedFunction;
 	this->ButtonColor = Color;
@@ -188,7 +189,8 @@ UIButton::UIButton(bool Horizontal, Vec2f Position, Vec3f Color, std::function<v
 	HasMouseCollision = true;
 }
 
-UIButton::UIButton(bool Horizontal, Vec2f Position, Vec3f Color, std::function<void(int)> OnClickedFunction, int ButtonIndex) : UIBackground(Horizontal, Position, Color)
+UIButton::UIButton(bool Horizontal, Vec2f Position, Vec3f Color,std::function<void(int)> OnClickedFunction, int ButtonIndex)
+	: UIBackground(Horizontal, Position, Color)
 {
 	this->OnClickedFunctionIndex = OnClickedFunction;
 	this->ButtonColor = Color;

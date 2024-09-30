@@ -269,7 +269,7 @@ stringParse::StringToken kui::MarkupParse::ParseScope(MarkupStructure::UIElement
 			}
 			ln.Get();
 
-			p.Value = ln.GetUntil("").Text;
+			p.Value = ln.GetUntil("");
 
 			Elem.ElementProperties.push_back(p);
 		}

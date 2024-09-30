@@ -253,7 +253,7 @@ static std::string WriteElementProperty(UIElement* Target, UIElement* Root, std:
 
 	if (ValueConstant)
 	{
-		p.Value = ValueConstant->Value;
+		p.Value = StringToken(ValueConstant->Value, 0, 0);
 	}
 
 	bool IsTranslated = IsTranslatedString(p.Value) && i.VarType == UIElement::Variable::VariableType::String;
@@ -303,18 +303,18 @@ static std::string WriteElementProperty(UIElement* Target, UIElement* Root, std:
 		case UIElement::Variable::VariableType::Align:
 			if (GetAlign(p.Value).empty())
 				kui::parseError::ErrorNoLine("Expected a valid align value for '" + i.Name + "'");
-			p.Value = GetAlign(p.Value);
+			p.Value = StringToken(GetAlign(p.Value), 0, 0);
 			break;
 
 		case UIElement::Variable::VariableType::SizeMode:
-			p.Value = Size::SizeModeToKUISizeMode(p.Value);
+			p.Value = StringToken(Size::SizeModeToKUISizeMode(p.Value), 0, 0);
 			break;
 
 		case UIElement::Variable::VariableType::Vector3:
 		case UIElement::Variable::VariableType::Vec2:
 			if (!IsVectorToken(p.Value) || IsNumber(p.Value))
 			{
-				p.Value = "(" + p.Value + ")";
+				p.Value = StringToken("(" + p.Value.Text + ")", 0, 0);
 			}
 			break;
 		default:
@@ -401,7 +401,7 @@ std::string UIElement::MakeCode(std::string Parent, UIElement* Root, size_t& Dep
 		{
 			OutStream << WriteElementProperty(this, Root, ElemName, Property{
 				.Name = stringParse::StringToken(Prop.Name, 0, 0),
-				.Value = Prop.Default
+				.Value = stringParse::StringToken(Prop.Default, 0, 0)
 				}, Prop, MarkupElements);
 		}
 	}
@@ -427,7 +427,7 @@ std::string UIElement::MakeCode(std::string Parent, UIElement* Root, size_t& Dep
 
 			if (ValueConstant)
 			{
-				prop.Value = ValueConstant->Value;
+				prop.Value = kui::stringParse::StringToken(ValueConstant->Value, 0, 0);
 			}
 
 			OutStream << "\t" << ElemName << "->Set" << prop.Name.Text << "(" << stringParse::ToCppCode(prop.Value) << ");" << std::endl;

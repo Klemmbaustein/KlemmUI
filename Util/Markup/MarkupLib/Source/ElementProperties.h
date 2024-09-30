@@ -112,7 +112,7 @@ std::vector<PropertyElement> kui::MarkupStructure::Properties
 		.Type = PropElementType::UIButton,
 		.Name = "normalColor",
 		.Description = "The normal color of the button, when it isn't pressed or hovered.",
-		.SetFormat = {"SetNormalColor(kui::Vec3f({val}))"},
+		.SetFormat = {"SetColor(kui::Vec3f({val}))"},
 		.VarType = UIElement::Variable::VariableType::Vector3,
 	},
 	PropertyElement{
@@ -371,7 +371,7 @@ std::vector<PropertyElement> kui::MarkupStructure::Properties
 			kui::parseError::ErrorNoLine("Invalid orientation: '" + Val + "'");
 			return "";
 		},
-		.VarType = UIElement::Variable::VariableType::Bool,
+		.VarType = UIElement::Variable::VariableType::Orientation,
 	},
 #pragma endregion
 };

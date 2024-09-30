@@ -117,6 +117,11 @@ stringParse::StringToken stringParse::Line::Peek()
 stringParse::StringToken stringParse::Line::GetUntil(std::string str)
 {
 	StringToken Condition;
+	if (Empty())
+	{
+		Condition = Previous();
+		Condition.Text.clear();
+	}
 	while (!Empty())
 	{
 		StringToken Next = Get();
@@ -124,8 +129,10 @@ stringParse::StringToken stringParse::Line::GetUntil(std::string str)
 		{
 			break;
 		}
-		Condition = StringToken(Next, Condition.Empty() ? Next.BeginChar : Condition.BeginChar, Next.EndChar, Next.Line);
+
+		Condition = StringToken(Condition.Text + Next.Text, Condition.Empty() ? Next.BeginChar : Condition.BeginChar, Next.EndChar, Next.Line);
 	}
+
 	return Condition;
 }
 
@@ -490,6 +497,7 @@ kui::stringParse::Size::Size(std::string SizeString, bool Is1D)
 	// Value before size suffix is not a size.
 	if ((!Is1D && !IsVectorToken(Value)) || (Is1D && !IsNumber(Value)))
 	{
+		std::cerr << Value << std::endl;
 		return;
 	}
 

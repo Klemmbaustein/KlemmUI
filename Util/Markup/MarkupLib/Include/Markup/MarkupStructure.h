@@ -13,7 +13,7 @@ namespace kui::MarkupStructure
 	struct Property
 	{
 		stringParse::StringToken Name;
-		std::string Value;
+		stringParse::StringToken Value;
 	};
 
 	enum class PropElementType
@@ -81,7 +81,7 @@ namespace kui::MarkupStructure
 
 			static std::map<VariableType, VariableTypeDescription> Descriptions;
 
-			VariableType Type;
+			VariableType Type = VariableType::None;
 		};
 		std::map<std::string, Variable> Variables;
 		std::string WriteVariableSetter(std::pair<std::string, Variable> Var);

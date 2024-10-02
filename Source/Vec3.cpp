@@ -1,5 +1,6 @@
 #include <kui/Vec3.h>
 #include <vector>
+#include <sstream>
 #include <cmath>
 
 using namespace kui;

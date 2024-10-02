@@ -9,20 +9,7 @@
 #include <Markup/ParseError.h>
 using namespace kui::MarkupStructure;
 
-enum class PropElementType
-{
-	UIBox,
-	Backgrounds_Begin,
-	UIBackground,
-	UIButton,
-	UITextField,
-	Backgrounds_End,
-	UIScrollBox,
-	UIText,
-	Unknown,
-};
-
-static bool IsSubclassOf(PropElementType Class, PropElementType Parent)
+bool kui::MarkupStructure::IsSubclassOf(PropElementType Class, PropElementType Parent)
 {
 	if (Parent == PropElementType::UIBox)
 	{
@@ -41,18 +28,6 @@ static bool IsSubclassOf(PropElementType Class, PropElementType Parent)
 	return Class == Parent;
 }
 
-struct PropertyElement
-{
-	PropElementType Type;
-	std::string Name;
-	std::vector<std::string> SetFormat;
-	// If the VarType is Size, then a second function needs to be specified that sets the size mode.
-	std::string SetSizeFormat;
-	std::string (*CreateCodeFunction)(std::string InValue) = nullptr;
-	UIElement::Variable::VariableType VarType;
-	bool AlwaysSet = false;
-	std::string Default;
-};
 
 std::map<UIElement::Variable::VariableType, UIElement::Variable::VariableTypeDescription> UIElement::Variable::Descriptions =
 {
@@ -70,11 +45,11 @@ std::map<UIElement::Variable::VariableType, UIElement::Variable::VariableTypeDes
 },
 {
 	VariableType::Size,
-	VariableTypeDescription("Size", "Vec2f"),
+	VariableTypeDescription("SizeVector", "Vec2f"),
 },
 {
 	VariableType::SizeNumber,
-	VariableTypeDescription("1d Size", "float"),
+	VariableTypeDescription("SizeValue", "float"),
 },
 {
 	VariableType::SizeMode,
@@ -139,7 +114,7 @@ std::string MarkupElement::WriteCode(ParseResult& MarkupElements)
 		Out << "#include \"" << i << "\"" << std::endl;
 	}
 
-	Out << "class " << Root.TypeName << " : public kui::UIBox, kui::markup::MarkupBox\n{\n";
+	Out << "class " << Root.TypeName.Text << " : public kui::UIBox, kui::markup::MarkupBox\n{\n";
 
 	for (auto& i : Root.Variables)
 	{
@@ -191,7 +166,7 @@ std::string MarkupElement::WriteLayoutFunction(ParseResult& MarkupElements)
 {
 	std::stringstream OutStream;
 
-	OutStream << "\t" << Root.TypeName << "() : UIBox(true)\n\t{\n";
+	OutStream << "\t" << Root.TypeName.Text << "() : UIBox(true)\n\t{\n";
 	size_t Depth = 0;
 	OutStream << Root.MakeCode("", &Root, Depth, MarkupElements);
 	OutStream << "\n\t}" << std::endl;
@@ -199,7 +174,7 @@ std::string MarkupElement::WriteLayoutFunction(ParseResult& MarkupElements)
 	return OutStream.str();
 }
 
-static PropElementType GetTypeFromString(std::string TypeName)
+PropElementType kui::MarkupStructure::GetTypeFromString(std::string TypeName)
 {
 	if (TypeName == "UIBox")
 	{
@@ -228,6 +203,35 @@ static PropElementType GetTypeFromString(std::string TypeName)
 	return PropElementType::Unknown;
 }
 
+std::string kui::MarkupStructure::GetStringFromType(PropElementType Type)
+{
+	if (Type == PropElementType::UIBox)
+	{
+		return "UIBox";
+	}
+	if (Type == PropElementType::UIText)
+	{
+		return "UIText";
+	}
+	if (Type == PropElementType::UIBackground)
+	{
+		return "UIBackground";
+	}
+	if (Type == PropElementType::UIButton)
+	{
+		return "UIButton";
+	}
+	if (Type == PropElementType::UITextField)
+	{
+		return "UITextField";
+	}
+	if (Type == PropElementType::UIScrollBox)
+	{
+		return "UIScrollBox";
+	}
+	return "Unknown";
+}
+
 Constant* ParseResult::GetConstant(std::string Name)
 {
 	for (Constant& i : Constants)
@@ -242,16 +246,17 @@ Constant* ParseResult::GetConstant(std::string Name)
 
 static std::string WriteElementProperty(UIElement* Target, UIElement* Root, std::string ElementName, Property p, const PropertyElement& i, ParseResult& MarkupElements)
 {
+	using namespace kui::stringParse;
 	auto Variable = Root->Variables.find(p.Value);
 
 	Constant* ValueConstant = MarkupElements.GetConstant(p.Value);
 
 	if (ValueConstant)
 	{
-		p.Value = ValueConstant->Value;
+		p.Value = StringToken(ValueConstant->Value, 0, 0);
 	}
 
-	bool IsTranslated = kui::stringParse::IsTranslatedString(p.Value) && i.VarType == UIElement::Variable::VariableType::String;
+	bool IsTranslated = IsTranslatedString(p.Value) && i.VarType == UIElement::Variable::VariableType::String;
 
 	if (Variable != Root->Variables.end() || IsTranslated)
 	{
@@ -266,13 +271,13 @@ static std::string WriteElementProperty(UIElement* Target, UIElement* Root, std:
 				kui::parseError::ErrorNoLine("Variable '" + Variable->first + "' does not have the correct type for the value of '" + i.Name + "'");
 			}
 		}
-		if (Target->ElementName.empty())
+		if (Target->ElementName.Empty())
 		{
-			Target->ElementName = "unnamed_" + std::to_string(UnnamedCounter++);
+			Target->ElementName = StringToken("unnamed_" + std::to_string(UnnamedCounter++), 0, 0);
 		}
 		if (IsTranslated)
 		{
-			Root->TranslatedProperties.push_back(Property(Target->ElementName + "->" + i.SetFormat[0], p.Value));
+			Root->TranslatedProperties.push_back(Property(StringToken(Target->ElementName.Text + "->" + i.SetFormat[0], 0, 0), p.Value));
 		}
 	}
 	else
@@ -281,35 +286,35 @@ static std::string WriteElementProperty(UIElement* Target, UIElement* Root, std:
 		switch (i.VarType)
 		{
 		case UIElement::Variable::VariableType::String:
-			if (!kui::stringParse::IsStringToken(p.Value))
+			if (!IsStringToken(p.Value))
 				kui::parseError::ErrorNoLine("Expected a string for value '" + i.Name + "'");
 			break;
 
 		case UIElement::Variable::VariableType::Size:
-			if (!kui::stringParse::IsSizeValue(p.Value))
+			if (!IsSizeValue(p.Value))
 				kui::parseError::ErrorNoLine("Expected a size for value '" + i.Name + "'");
 			break;
 
 		case UIElement::Variable::VariableType::SizeNumber:
-			if (!kui::stringParse::Is1DSizeValue(p.Value))
+			if (!Is1DSizeValue(p.Value))
 				kui::parseError::ErrorNoLine("Expected a size for value '" + i.Name + "'");
 			break;
 
 		case UIElement::Variable::VariableType::Align:
-			if (kui::stringParse::GetAlign(p.Value).empty())
+			if (GetAlign(p.Value).empty())
 				kui::parseError::ErrorNoLine("Expected a valid align value for '" + i.Name + "'");
-			p.Value = kui::stringParse::GetAlign(p.Value);
+			p.Value = StringToken(GetAlign(p.Value), 0, 0);
 			break;
 
 		case UIElement::Variable::VariableType::SizeMode:
-			p.Value = kui::stringParse::Size::SizeModeToKUISizeMode(p.Value);
+			p.Value = StringToken(Size::SizeModeToKUISizeMode(p.Value), 0, 0);
 			break;
 
 		case UIElement::Variable::VariableType::Vector3:
 		case UIElement::Variable::VariableType::Vec2:
-			if (!kui::stringParse::IsVectorToken(p.Value) || kui::stringParse::IsNumber(p.Value))
+			if (!IsVectorToken(p.Value) || IsNumber(p.Value))
 			{
-				p.Value = "(" + p.Value + ")";
+				p.Value = StringToken("(" + p.Value.Text + ")", 0, 0);
 			}
 			break;
 		default:
@@ -331,18 +336,18 @@ static std::string WriteElementProperty(UIElement* Target, UIElement* Root, std:
 		Value += "\t" + ElementName + Format + ";\n";
 		if (Variable != Root->Variables.end())
 		{
-			Variable->second.References.push_back(Target->ElementName + Format);
+			Variable->second.References.push_back(Target->ElementName.Text + Format);
 		}
 	}
 
 	if (i.VarType == UIElement::Variable::VariableType::Size || i.VarType == UIElement::Variable::VariableType::SizeNumber)
 	{
-		auto val = kui::stringParse::Size(p.Value);
+		auto val = Size(p.Value);
 
 		if (!val.SizeMode.empty())
 		{
 			std::string Format = ElementName + "->" + Format::FormatString(i.SetSizeFormat, {
-				Format::FormatArg("val", kui::stringParse::Size::SizeModeToKUISizeMode(val.SizeMode))
+				Format::FormatArg("val", Size::SizeModeToKUISizeMode(val.SizeMode))
 				});
 			Value += "\t" + Format + ";\n";
 		}
@@ -353,13 +358,13 @@ static std::string WriteElementProperty(UIElement* Target, UIElement* Root, std:
 
 std::string UIElement::MakeCode(std::string Parent, UIElement* Root, size_t& Depth, ParseResult& MarkupElements)
 {
-	bool HasName = !ElementName.empty();
+	bool HasName = !ElementName.Empty();
 	std::stringstream OutStream;
-	std::string ElemName = ElementName.empty() ? ("e_" + std::to_string(Depth)) : ElementName;
+	std::string ElemName = ElementName.Empty() ? ("e_" + std::to_string(Depth)) : ElementName;
 	if (!Parent.empty())
 	{
 		OutStream << "\t";
-		if (ElementName.empty())
+		if (ElementName.Empty())
 		{
 			OutStream << "auto* ";
 		}
@@ -387,7 +392,7 @@ std::string UIElement::MakeCode(std::string Parent, UIElement* Root, size_t& Dep
 			if (i.Name == Prop.Name)
 			{
 				OutStream << WriteElementProperty(this, Root, ElemName, i, Prop, MarkupElements);
-				i.Name.clear();
+				i.Name.Text.clear();
 				Found = true;
 				break;
 			}
@@ -395,8 +400,8 @@ std::string UIElement::MakeCode(std::string Parent, UIElement* Root, size_t& Dep
 		if (!Found && Prop.AlwaysSet)
 		{
 			OutStream << WriteElementProperty(this, Root, ElemName, Property{
-				.Name = Prop.Name,
-				.Value = Prop.Default
+				.Name = stringParse::StringToken(Prop.Name, 0, 0),
+				.Value = stringParse::StringToken(Prop.Default, 0, 0)
 				}, Prop, MarkupElements);
 		}
 	}
@@ -422,21 +427,21 @@ std::string UIElement::MakeCode(std::string Parent, UIElement* Root, size_t& Dep
 
 			if (ValueConstant)
 			{
-				prop.Value = ValueConstant->Value;
+				prop.Value = kui::stringParse::StringToken(ValueConstant->Value, 0, 0);
 			}
 
-			OutStream << "\t" << ElemName << "->Set" << prop.Name << "(" << kui::stringParse::ToCppCode(prop.Value) << ");" << std::endl;
-			prop.Name.clear();
+			OutStream << "\t" << ElemName << "->Set" << prop.Name.Text << "(" << stringParse::ToCppCode(prop.Value) << ");" << std::endl;
+			prop.Name.Text.clear();
 		}
 	}
 
 	for (auto& i : PropertyCopy)
 	{
-		if (i.Name.empty())
+		if (i.Name.Text.empty())
 		{
 			continue;
 		}
-		parseError::ErrorNoLine("Unknown property: " + i.Name);
+		parseError::Error("Unknown property: " + i.Name.Text, i.Name);
 	}
 
 	if (!Parent.empty())
@@ -445,10 +450,10 @@ std::string UIElement::MakeCode(std::string Parent, UIElement* Root, size_t& Dep
 	}
 
 	// Name was set because a variable setter uses this element.
-	if (!HasName && !ElementName.empty())
+	if (!HasName && !ElementName.Empty())
 	{
 		// Assign the local variable of the generated element to the global one so it can be used in the setters.
-		OutStream << "\t" << ElementName << " = " << ElemName << ";" << std::endl;
+		OutStream << "\t" << ElementName.Text << " = " << ElemName << ";" << std::endl;
 	}
 
 	if (!Children.empty())
@@ -490,7 +495,7 @@ std::set<std::string> UIElement::GetElementDependencies() const
 	{
 		if (i.Type == ElementType::Default)
 		{
-			Deps.insert("kui/UI/" + i.TypeName + ".h");
+			Deps.insert("kui/UI/" + i.TypeName.Text + ".h");
 		}
 		else
 		{
@@ -514,9 +519,9 @@ std::set<std::string> kui::MarkupStructure::UIElement::GetNamedElements() const
 	std::set<std::string> Deps;
 	for (auto& i : Children)
 	{
-		if (!i.ElementName.empty())
+		if (!i.ElementName.Empty())
 		{
-			std::string Out = i.TypeName + "* " + i.ElementName;
+			std::string Out = i.TypeName.Text + "* " + i.ElementName.Text;
 			if (IsDefaultElement(i.TypeName))
 			{
 				Out = "kui::" + Out;

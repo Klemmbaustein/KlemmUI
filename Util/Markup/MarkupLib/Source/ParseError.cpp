@@ -23,12 +23,19 @@ void parseError::SetLine(size_t Index)
 	LineIndex = Index;
 }
 
-void parseError::Error(const std::string& Message)
+void parseError::Error(const std::string& Message, const stringParse::StringToken& From)
 {
-	auto& Line = LoadedCode->at(LineIndex);
-	std::cerr << ActiveFile << ":" << Line.Index + 1 << ": Error: " << Message << std::endl;
+	ErrorCallback(Message, From.Line, From.BeginChar, From.EndChar);
+	ErrorCount++;
+}
+
+static void PrintError(std::string Message, size_t Line, size_t Begin, size_t End)
+{
+	using namespace parseError;
+	auto& LineContent = LoadedCode->at(LineIndex);
+	std::cerr << ActiveFile << ":" << Line + 1 << ": Error: " << Message << std::endl;
 	std::string LineString;
-	for (auto& i : Line.Strings)
+	for (auto& i : LineContent.Strings)
 	{
 		if (i == "," || i == "(" || i == ")")
 		{
@@ -46,10 +53,11 @@ void parseError::Error(const std::string& Message)
 		std::cerr << '^';
 	}
 	std::cerr << std::endl;
-	ErrorCount++;
 }
 
-void kui::parseError::ErrorNoLine(const std::string& Message)
+std::function<void(std::string Message, size_t Line, size_t Begin, size_t End)> parseError::ErrorCallback = &PrintError;
+
+void parseError::ErrorNoLine(const std::string& Message)
 {
 	std::cerr << ActiveFile << ": Error: " << Message << std::endl;
 	ErrorCount++;

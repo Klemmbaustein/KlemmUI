@@ -503,15 +503,15 @@ kui::systemWM::SysWindow* kui::systemWM::NewWindow(
 		OutWindow
 	);
 
-	if (!CheckFlag(Flags, Window::WindowFlag::IgnoreDPI))
-		SetWindowSize(OutWindow, Vec2ui(Vec2f(Size) * GetDPIScale(OutWindow)));
-
 	if (!OutWindow->WindowHandle)
 	{
 		delete OutWindow;
 		app::error::Error("Failed to create window", true);
 		return nullptr;
 	}
+
+	if (!CheckFlag(Flags, Window::WindowFlag::IgnoreDPI))
+		SetWindowSize(OutWindow, Vec2ui(Vec2f(Size) * GetDPIScale(OutWindow)));
 
 	static PIXELFORMATDESCRIPTOR PixelFormatDescr =
 	{
@@ -841,7 +841,7 @@ void kui::systemWM::SysWindow::MakeContextActive() const
 	}
 	if (!wglMakeCurrent(DeviceContext, GLContext))
 	{
-		app::error::Error("Failed to make context current.", true);
+		app::error::Error("Failed to make OpenGL context current.", true);
 	}
 }
 #endif

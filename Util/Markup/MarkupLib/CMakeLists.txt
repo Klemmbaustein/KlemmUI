@@ -12,9 +12,14 @@ file(
     SRCS
     "${SRC_DIR}/**.cpp"
 )
+file(
+    GLOB_RECURSE
+    HEADERS
+    "${SRC_DIR}/**.h"
+)
 
 add_library(
    KlemmUIMarkup STATIC
-   ${SRCS}
+   ${SRCS} ${HEADERS}
 )
 target_include_directories(KlemmUIMarkup PUBLIC "${INC_DIR}")

@@ -19,6 +19,7 @@ namespace kui::MarkupParse
 		size_t Start;
 		size_t StartLine;
 		size_t End;
+		stringParse::StringToken DefinitionToken;
 		MarkupStructure::MarkupElement StructureElement;
 	};
 
@@ -31,5 +32,6 @@ namespace kui::MarkupParse
 	FileResult ReadFile(std::vector<stringParse::Line>& Lines, std::string FileName);
 	MarkupStructure::MarkupElement ParseElement(ParsedElement& Elem, std::vector<stringParse::Line>& Lines);
 
-	void ParseScope(MarkupStructure::UIElement& Elem, std::vector<stringParse::Line> Lines, size_t Start, bool IsRoot);
+	// Returns the last token that belongs to the element.
+	stringParse::StringToken ParseScope(MarkupStructure::UIElement& Elem, std::vector<stringParse::Line> Lines, size_t Start, bool IsRoot);
 }

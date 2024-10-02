@@ -3,6 +3,7 @@
 #include <vector>
 #include <set>
 #include <map>
+#include "StringParse.h"
 
 namespace kui::MarkupStructure
 {
@@ -11,8 +12,21 @@ namespace kui::MarkupStructure
 
 	struct Property
 	{
-		std::string Name;
-		std::string Value;
+		stringParse::StringToken Name;
+		stringParse::StringToken Value;
+	};
+
+	enum class PropElementType
+	{
+		UIBox,
+		Backgrounds_Begin,
+		UIBackground,
+		UIButton,
+		UITextField,
+		Backgrounds_End,
+		UIScrollBox,
+		UIText,
+		Unknown,
 	};
 
 	struct UIElement
@@ -27,13 +41,14 @@ namespace kui::MarkupStructure
 			UserDefined,
 		};
 		/// Name of the element's type (UIBox, UIButton, MyElement...)
-		std::string TypeName;
-		std::string ElementName;
+		stringParse::StringToken TypeName;
+		stringParse::StringToken ElementName;
 		std::string Header;
 		ElementType Type = ElementType::Default;
 
 		std::vector<UIElement> Children;
 		std::vector<Property> ElementProperties;
+		size_t StartChar = 0, StartLine = 0, EndChar = 0, EndLine = 0;
 		std::vector<Property> TranslatedProperties;
 
 		struct Variable
@@ -66,7 +81,7 @@ namespace kui::MarkupStructure
 
 			static std::map<VariableType, VariableTypeDescription> Descriptions;
 
-			VariableType Type;
+			VariableType Type = VariableType::None;
 		};
 		std::map<std::string, Variable> Variables;
 		std::string WriteVariableSetter(std::pair<std::string, Variable> Var);
@@ -82,10 +97,30 @@ namespace kui::MarkupStructure
 		std::string Value;
 	};
 
+	PropElementType GetTypeFromString(std::string TypeName);
+	std::string GetStringFromType(PropElementType Type);
+	bool IsSubclassOf(PropElementType Class, PropElementType Parent);
+
+	struct PropertyElement
+	{
+		PropElementType Type;
+		std::string Name;
+		std::string Description;
+		std::vector<std::string> SetFormat;
+		// If the VarType is Size, then a second function needs to be specified that sets the size mode.
+		std::string SetSizeFormat;
+		std::string (*CreateCodeFunction)(std::string InValue) = nullptr;
+		UIElement::Variable::VariableType VarType;
+		bool AlwaysSet = false;
+		std::string Default;
+	};
+	extern std::vector<PropertyElement> Properties;
+
 	struct MarkupElement
 	{
 		UIElement Root;
 		std::string File;
+		stringParse::StringToken FromToken;
 		std::string Header;
 
 		std::string WriteCode(ParseResult& MarkupElements);
@@ -97,6 +132,7 @@ namespace kui::MarkupStructure
 	{
 		std::vector<MarkupElement> Elements;
 		std::vector<Constant> Constants;
+		std::map<std::string, std::vector<stringParse::Line>> FileLines;
 
 		Constant* GetConstant(std::string Name);
 	};

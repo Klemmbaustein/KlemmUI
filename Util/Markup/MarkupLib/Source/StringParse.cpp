@@ -1,7 +1,6 @@
 #include "Markup/StringParse.h"
 #include "Markup/ParseError.h"
 #include <unordered_set>
-#include <iostream>
 #include <cstring>
 #include <sstream>
 using namespace kui;
@@ -497,7 +496,6 @@ kui::stringParse::Size::Size(std::string SizeString, bool Is1D)
 	// Value before size suffix is not a size.
 	if ((!Is1D && !IsVectorToken(Value)) || (Is1D && !IsNumber(Value)))
 	{
-		std::cerr << Value << std::endl;
 		return;
 	}
 

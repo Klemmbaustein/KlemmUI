@@ -102,10 +102,11 @@ macro(klemmui_resources ProjectName ResourceDir)
 		COMMAND $<TARGET_FILE:KlemmUIRC>  -i "${ResourceDir}" -o "${RESOURCE_OUT_FILE}" -n ${ProjectName}
 		DEPENDS ${RESOURCES}
 	)
+	add_custom_target(${ProjectName}_GenResources DEPENDS ${UI_HEADERS})
 
 	add_library(${ProjectName}_Resources STATIC ${RESOURCE_OUT_FILE})
-
-	add_dependencies(${ProjectName}_Resources KlemmUIRC)
+	add_dependencies(${ProjectName}_GenResources KlemmUIRC)
+	add_dependencies(${ProjectName}_Resources ${ProjectName}_GenResources)
 	target_link_libraries(KlemmUI PUBLIC ${ProjectName}_Resources)
 	if(NOT ${ProjectName} STREQUAL "KlemmUI")
 		message(STATUS "Using resouces in project")

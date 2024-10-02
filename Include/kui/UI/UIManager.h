@@ -19,6 +19,8 @@ namespace kui
 		std::map<unsigned int, ReferenceTexture> ReferencedTextures;
 		std::string TexturePath;
 
+		Vec2ui ScissorXY, ScissorWH;
+
 	public:
 		UIManager();
 		~UIManager();

@@ -16,9 +16,9 @@ namespace kui
 	 */
 	class UIBackground : public UIBox
 	{
+	protected:
 		void ScrollTick(Shader* UsedShader);
 		void MakeGLBuffers();
-	protected:
 		bool OwnsTexture = false;
 		bool UseTexture = false;
 		uint8_t CornerFlags = 0b1111;
@@ -116,7 +116,7 @@ namespace kui
 		 */
 		UIBackground(bool Horizontal, Vec2f Position, Vec3f Color, Vec2f MinScale = Vec2f(0), Shader* UsedShader = nullptr);
 		virtual ~UIBackground();
-		void Draw() override;
+		virtual void Draw() override;
 		void Update() override;
 		void OnAttached() override;
 	};

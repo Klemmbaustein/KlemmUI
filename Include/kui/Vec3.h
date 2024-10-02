@@ -25,10 +25,10 @@ namespace kui
 
 		static Vec3 Lerp(Vec3 a, Vec3 b, float val);
 
-		Vec3<T> operator+(Vec3<T> b);
-		Vec3<T> operator-(Vec3<T> b);
-		Vec3<T> operator*(Vec3<T> b);
-		Vec3<T> operator/(Vec3<T> b);
+		Vec3<T> operator+(Vec3<T> b) const;
+		Vec3<T> operator-(Vec3<T> b) const;
+		Vec3<T> operator*(Vec3<T> b) const;
+		Vec3<T> operator/(Vec3<T> b) const;
 		template<class T2> bool operator==(T2 a) const
 		{
 			return a.X == X && a.Y == Y && a.Z == Z;

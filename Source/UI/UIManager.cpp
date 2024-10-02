@@ -2,6 +2,7 @@
 #include <GL/glew.h>
 #include <kui/Window.h>
 #include <kui/UI/UIBox.h>
+#include <kui/UI/UIBlurBackground.h>
 #include <kui/Image.h>
 #include <iostream>
 #include <kui/Resource.h>
@@ -98,6 +99,14 @@ bool UIManager::GetShouldRedrawUI() const
 	return RequiresRedraw;
 }
 
+static UIManager::RedrawBox CombineBoxes(const UIManager::RedrawBox& BoxA, const UIManager::RedrawBox& BoxB)
+{
+	return UIManager::RedrawBox{
+		.Min = Vec2f::Min(BoxA.Min, BoxB.Min),
+		.Max = Vec2f::Max(BoxA.Max, BoxB.Max),
+	};
+}
+
 bool UIManager::DrawElements()
 {
 	TickElements();
@@ -122,6 +131,16 @@ bool UIManager::DrawElements()
 		glViewport(0, 0, (GLint)WindowSize.X, (GLint)WindowSize.Y);
 		for (auto& i : RedrawBoxes)
 		{
+			for (UIBlurBackground* bg : UIBlurBackground::BlurBackgrounds)
+			{
+				RedrawBox BackgroundBox = bg->GetRedrawBox();
+
+				if (RedrawBox::IsBoxOverlapping(i, BackgroundBox))
+				{
+					i = CombineBoxes(i, BackgroundBox);
+				}
+			}
+
 			i.Max += Vec2f(3) / Vec2f(WindowSize);
 			i.Min = i.Min - Vec2f(3) / Vec2f(WindowSize);
 
@@ -131,12 +150,19 @@ bool UIManager::DrawElements()
 			Vec2f Pos = (i.Min / 2 + 0.5f) * Vec2f(WindowSize);
 			Vec2f Res = (i.Max - i.Min) / 2 * Vec2f(WindowSize);
 
-			glScissor(
-				(GLsizei)Pos.X,
-				(GLsizei)Pos.Y,
+			ScissorXY = Vec2ui(Pos.X, Pos.Y);
+			ScissorWH = Vec2ui(
 				std::clamp((GLsizei)Res.X, 0, (GLsizei)WindowSize.X),
 				std::clamp((GLsizei)Res.Y, 0, (GLsizei)WindowSize.Y)
 			);
+
+			glScissor(
+				ScissorXY.X,
+				ScissorXY.Y,
+				ScissorWH.X,
+				ScissorWH.Y
+			);
+
 			glClear(GL_COLOR_BUFFER_BIT);
 			for (UIBox* elem : UIElements)
 			{
@@ -236,14 +262,6 @@ void kui::UIManager::UnloadReferenceTexture(unsigned int TextureID)
 void kui::UIManager::SetTexturePath(std::string NewPath)
 {
 	TexturePath = NewPath;
-}
-
-static UIManager::RedrawBox CombineBoxes(const UIManager::RedrawBox& BoxA, const UIManager::RedrawBox& BoxB)
-{
-	return UIManager::RedrawBox{
-		.Min = Vec2f::Min(BoxA.Min, BoxB.Min),
-		.Max = Vec2f::Max(BoxA.Max, BoxB.Max),
-	};
 }
 
 void UIManager::RedrawArea(RedrawBox Box)

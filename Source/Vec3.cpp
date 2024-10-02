@@ -1,6 +1,5 @@
 #include <kui/Vec3.h>
 #include <vector>
-#include <sstream>
 #include <cmath>
 
 using namespace kui;
@@ -36,25 +35,25 @@ Vec3<T> Vec3<T>::Lerp(Vec3 a, Vec3 b, float val)
 }
 
 template<typename T>
-inline Vec3<T> Vec3<T>::operator+(Vec3<T> b)
+inline Vec3<T> Vec3<T>::operator+(Vec3<T> b) const
 {
 	return Vec3<T>(X + b.X, Y + b.Y, Z + b.Z);
 }
 
 template<typename T>
-inline Vec3<T> Vec3<T>::operator-(Vec3<T> b)
+inline Vec3<T> Vec3<T>::operator-(Vec3<T> b) const
 {
 	return Vec3<T>(X - b.X, Y - b.Y, Z - b.Z);
 }
 
 template<typename T>
-inline Vec3<T> Vec3<T>::operator*(Vec3<T> b)
+inline Vec3<T> Vec3<T>::operator*(Vec3<T> b) const
 {
 	return Vec3<T>(X * b.X, Y * b.Y, Z * b.Z);
 }
 
 template<typename T>
-inline Vec3<T> Vec3<T>::operator/(Vec3<T> b)
+inline Vec3<T> Vec3<T>::operator/(Vec3<T> b) const
 {
 	return Vec3<T>(X / b.X, Y / b.Y, Z / b.Z);
 }

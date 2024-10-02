@@ -23,10 +23,10 @@ void UIBackground::MakeGLBuffers()
 		delete BoxVertexBuffer;
 	BoxVertexBuffer = new VertexBuffer(
 		{
-			Vertex(Vec2f(0, 0), Vec2f(0, 0), 0),
-			Vertex(Vec2f(0, 1), Vec2f(0, 1.0f), 1),
-			Vertex(Vec2f(1, 0), Vec2f(1.0f, 0), 2),
-			Vertex(Vec2f(1, 1), Vec2f(1.0f, 1.0), 3)
+			Vertex(Vec2f(0, 0), 0),
+			Vertex(Vec2f(0, 1), 1),
+			Vertex(Vec2f(1, 0), 2),
+			Vertex(Vec2f(1, 1), 3)
 		},
 		{
 			0u, 1u, 2u,

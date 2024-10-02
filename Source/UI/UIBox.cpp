@@ -338,6 +338,14 @@ void kui::UIBox::SetOffsetPosition(Vec2f NewPos)
 	}
 }
 
+UIManager::RedrawBox UIBox::GetRedrawBox() const
+{
+	return UIManager::RedrawBox{
+		.Min = OffsetPosition,
+		.Max = OffsetPosition + Size,
+	};
+}
+
 float UIBox::GetVerticalOffset()
 {
 	Vec2f UpDown, LeftRight;
@@ -550,10 +558,7 @@ void UIBox::RedrawElement(bool Force)
 	}
 
 	Redrawn = true;
-	ParentWindow->UI.RedrawArea(UIManager::RedrawBox{
-		.Min = GetPosition(),
-		.Max = GetPosition() + GetUsedSize(),
-		});
+	ParentWindow->UI.RedrawArea(GetRedrawBox());
 }
 
 void kui::UIBox::SetUpPadding(float Value)
@@ -646,6 +651,7 @@ void UIBox::DrawThisAndChildren(const UIManager::RedrawBox& Box)
 	{
 		c->UpdateTickState();
 	}
+	LastDrawIndex++;
 	if (IsVisible)
 	{
 		if (UIManager::RedrawBox::IsBoxOverlapping(Box, UIManager::RedrawBox{

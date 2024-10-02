@@ -7,7 +7,6 @@ namespace kui
 	struct Vertex
 	{
 		Vec2f Position;
-		Vec2f TexCoord;
 		float CornerIndex = 0;
 	};
 

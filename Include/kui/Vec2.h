@@ -40,29 +40,31 @@ public:
 		Y = (T)b.Y;
 	}
 
-	Vec2<T> operator+(Vec2<T> b);
-	Vec2<T> operator-(Vec2<T> b);
-	Vec2<T> operator*(Vec2<T> b);
-	Vec2<T> operator/(Vec2<T> b);
+	Vec2<T> operator+(Vec2<T> b) const;
+	Vec2<T> operator-(Vec2<T> b) const;
+	Vec2<T> operator*(Vec2<T> b) const;
+	Vec2<T> operator/(Vec2<T> b) const;
 
 	/// Returns the length (or magnitude) of this vector.
 	float Length() const;
 	/// Returns a normalized version of this vector.
 	Vec2<T> Normalize() const;
 
-	template<Derived<_VecBase2> T2> bool operator==(T2 a)
+	template<Derived<_VecBase2> T2>
+	bool operator==(T2 a) const
 	{
 		return a.X == X && a.Y == Y;
 	}
-	bool operator==(float XY)
+	bool operator==(float XY) const
 	{
 		return XY == X && XY == Y;
 	}
-	bool operator!=(float XY)
+	bool operator!=(float XY) const
 	{
 		return XY != X || XY != Y;
 	}
-	template<Derived<_VecBase2> T2> bool operator!=(T2 a)
+	template<Derived<_VecBase2> T2>
+	bool operator!=(T2 a) const
 	{
 		return a.X != X || a.Y != Y;
 	}

@@ -20,25 +20,25 @@ Vec2<T>::Vec2(T X, T Y)
 }
 
 template<typename T>
-inline Vec2<T> Vec2<T>::operator+(Vec2<T> b)
+inline Vec2<T> Vec2<T>::operator+(Vec2<T> b) const
 {
 	return Vec2<T>(X + b.X, Y + b.Y);
 }
 
 template<typename T>
-inline Vec2<T> Vec2<T>::operator-(Vec2<T> b)
+inline Vec2<T> Vec2<T>::operator-(Vec2<T> b) const
 {
 	return Vec2<T>(X - b.X, Y - b.Y);
 }
 
 template<typename T>
-inline Vec2<T> Vec2<T>::operator*(Vec2<T> b)
+inline Vec2<T> Vec2<T>::operator*(Vec2<T> b) const
 {
 	return Vec2<T>(X * b.X, Y * b.Y);
 }
 
 template<typename T>
-inline Vec2<T> Vec2<T>::operator/(Vec2<T> b)
+inline Vec2<T> Vec2<T>::operator/(Vec2<T> b) const
 {
 	return Vec2<T>(X / b.X, Y / b.Y);
 }

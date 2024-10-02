@@ -369,6 +369,8 @@ namespace kui
 		void SetLeftPadding(float Value);
 		void SetRightPadding(float Value);
 
+		UIManager::RedrawBox GetRedrawBox() const;
+
 protected:
 
 		SizeMode BoxSizeMode = SizeMode::ScreenRelative;
@@ -383,7 +385,7 @@ protected:
 		Vec2f OffsetPosition = NAN;
 		Vec2f MaxSize = Vec2(999, 999);
 		Vec2f MinSize = Vec2(0, 0);
-
+		size_t LastDrawIndex = 0;
 		float UpPadding = 0;
 		float DownPadding = 0;
 		float RightPadding = 0;

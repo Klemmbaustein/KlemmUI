@@ -12,6 +12,7 @@ void main()
 	float it = 0;
 	vec2 end = u_pixelSize * 4;
 	vec2 iter = u_pixelSize;
+	f_color.xyz = vec3(0);
 	for (float x = -end.x; x < end.x; x += iter.x)
 	{
 		for (float y = -end.y; y < end.y; y += iter.y)

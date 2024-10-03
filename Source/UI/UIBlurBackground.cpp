@@ -6,14 +6,14 @@
 #include <GL/glew.h>
 #include <iostream>
 
-const float BlurScale = 0.01f;
+const float BlurScale = 0.02f;
 
 Vec2ui kui::UIBlurBackground::GetPixelSize()
 {
-	return Vec2ui(
+	return Vec2ui::Max(Vec2ui(
 		ParentWindow->GetSize().X * Size.X * 0.5f * BlurScale,
 		ParentWindow->GetSize().Y * Size.X * 0.5f * BlurScale
-	);
+	), 1);
 }
 
 std::set<kui::UIBlurBackground*> kui::UIBlurBackground::BlurBackgrounds;
@@ -98,7 +98,7 @@ void kui::UIBlurBackground::Draw()
 	glDisable(GL_SCISSOR_TEST);
 	glClear(GL_COLOR_BUFFER_BIT);
 	BlurShader->Bind();
-	BlurShader->SetVec2("u_scale", Size * 2);
+	BlurShader->SetVec2("u_scale", Size / 2);
 	BlurShader->SetVec2("u_position", (OffsetPosition + 1) / 2);
 	BlurShader->SetVec2("u_pixelSize", Vec2f(0.1f) / Vec2f(PixelSize));
 	BoxVertexBuffer->Draw();

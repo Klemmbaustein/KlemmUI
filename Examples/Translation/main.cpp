@@ -49,7 +49,7 @@ int main()
 		});
 
 	TranslationExample* HelloWorldElement = new TranslationExample();
-	
+
 	HelloWorldElement->switchLanguageButton->OnClicked = [&IsGerman, &MainWindow]
 		{
 			// When the button on the element is clicked, switch the language.

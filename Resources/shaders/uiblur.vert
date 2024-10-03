@@ -10,5 +10,5 @@ uniform vec2 u_position;
 void main()
 {
 	gl_Position = vec4((a_position - 0.5) * 2, 0, 1);
-	v_texCoords = a_position / u_scale + u_position;
+	v_texCoords = a_position * u_scale + u_position;
 }

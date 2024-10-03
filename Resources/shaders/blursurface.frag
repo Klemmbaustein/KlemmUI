@@ -53,15 +53,15 @@ void main()
 	{
 		vec3 sampled = vec3(0);
 		vec2 offset = (50 / scale) / u_screenRes;
-		for (int x = -NUM_SAMPLES; x < NUM_SAMPLES; x++)
+		for (int x = -NUM_SAMPLES; x <= NUM_SAMPLES; x++)
 		{
-			for (int y = -NUM_SAMPLES; y < NUM_SAMPLES; y++)
+			for (int y = -NUM_SAMPLES; y <= NUM_SAMPLES; y++)
 			{
 				sampled.xyz += texture(u_texture, v_texcoords + offset * vec2(x, y)).xyz;
 			}
 		}
 		sampled.xyz /= NUM_SAMPLES * NUM_SAMPLES * 2 * 2;
-		f_color.xyz = mix(sampled, u_color, u_opacity) + rand(v_texcoords) * 0.025;
+		f_color.xyz = mix(sampled, u_color, u_opacity) + rand(v_texcoords) * 0.01;
 		f_color.w = 1;
 	}
 

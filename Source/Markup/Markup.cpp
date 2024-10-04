@@ -47,6 +47,6 @@ void kui::MarkupLanguageManager::OnTranslationChanged()
 {
 	for (const auto& Callback : TranslationChangedCallbacks)
 	{
-		Callback();
+		Callback.second();
 	}
 }

@@ -7,6 +7,7 @@ namespace kui::markup
 	{
 		bool RegisteredForTranslation = false;
 	protected:
+		virtual ~MarkupBox();
 		virtual void OnTranslationChanged();
 		std::string GetTranslation(const char* TranslationConstant);
 	};

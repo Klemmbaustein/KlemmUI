@@ -1,6 +1,15 @@
 
 std::vector<PropertyElement> kui::MarkupStructure::Properties
 {
+#pragma region UISpinner
+	PropertyElement{
+		.Type = PropElementType::UIBackground,
+		.Name = "backgroundColor",
+		.Description = "The background color of the spinner.",
+		.SetFormat = {"SetBackgroundColor(kui::Vec3f({val}))"},
+		.VarType = UIElement::Variable::VariableType::Vector3,
+	},
+#pragma endregion
 #pragma region UITextField
 	PropertyElement{
 		.Type = PropElementType::UITextField,

@@ -588,6 +588,11 @@ void kui::systemWM::SwapWindow(SysWindow* Target)
 	SwapBuffers(Target->DeviceContext);
 }
 
+void kui::systemWM::WaitFrame(SysWindow* Target, float RemainingTime)
+{
+	DwmFlush();
+}
+
 void kui::systemWM::ActivateContext(SysWindow* Target)
 {
 	Target->MakeContextActive();
@@ -653,7 +658,6 @@ uint32_t kui::systemWM::GetDesiredRefreshRate(SysWindow* From)
 	ZeroMemory(&DeviceMode, sizeof(DeviceMode));
 	DeviceMode.dmSize = sizeof(DeviceMode);
 	EnumDisplaySettings(Info.szDevice, ENUM_CURRENT_SETTINGS, &DeviceMode);
-
 	return DeviceMode.dmDisplayFrequency;
 }
 

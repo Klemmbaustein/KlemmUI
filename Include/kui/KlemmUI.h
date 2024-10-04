@@ -3,6 +3,7 @@
 #include "App.h"
 #include "Image.h"
 #include "UI/UIBlurBackground.h"
+#include "UI/UISpinner.h"
 #include "UI/UIText.h"
 #include "UI/UIDropdown.h"
 #include "UI/UITextField.h"

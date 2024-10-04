@@ -1,5 +1,6 @@
 #include <kui/UI/UIButton.h>
 #include <kui/Window.h>
+#include "../Rendering/VertexBuffer.h"
 using namespace kui;
 
 void UIButton::Tick()
@@ -195,13 +196,13 @@ UIButton::UIButton(bool Horizontal, Vec2f Position, Vec3f Color,std::function<vo
 	this->OnClickedFunctionIndex = OnClickedFunction;
 	this->ButtonColor = Color;
 	this->HoveredColor = Color * 0.75;
-	this->PressedColor = Color * 0.5;	this->ButtonIndex = ButtonIndex;
+	this->PressedColor = Color * 0.5;
+	this->ButtonIndex = ButtonIndex;
 	HasMouseCollision = true;
 }
 
 UIButton::~UIButton()
 {
-	delete ButtonVertexBuffer;
 }
 
 void UIButton::Update()

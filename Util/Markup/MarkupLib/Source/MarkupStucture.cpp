@@ -94,6 +94,8 @@ static std::map<PropElementType, std::string> DefaultConstructors =
 	{PropElementType::UIButton, "true, 0, 1, nullptr"},
 	{PropElementType::UIBackground, "true, 0, 1"},
 	{PropElementType::UITextField, "0, 1, nullptr, nullptr"},
+	{PropElementType::UIBlurBackground, "true, 0, 1"},
+	{PropElementType::UISpinner, "0, 1"},
 	{PropElementType::UIScrollBox, "true, 0, true"},
 };
 
@@ -196,6 +198,14 @@ PropElementType kui::MarkupStructure::GetTypeFromString(std::string TypeName)
 	{
 		return PropElementType::UITextField;
 	}
+	if (TypeName == "UIBlurBackground")
+	{
+		return PropElementType::UIBlurBackground;
+	}
+	if (TypeName == "UISpinner")
+	{
+		return PropElementType::UISpinner;
+	}
 	if (TypeName == "UIScrollBox")
 	{
 		return PropElementType::UIScrollBox;
@@ -224,6 +234,14 @@ std::string kui::MarkupStructure::GetStringFromType(PropElementType Type)
 	if (Type == PropElementType::UITextField)
 	{
 		return "UITextField";
+	}
+	if (Type == PropElementType::UIBlurBackground)
+	{
+		return "UIBlurBackground";
+	}
+	if (Type == PropElementType::UISpinner)
+	{
+		return "UISpinner";
 	}
 	if (Type == PropElementType::UIScrollBox)
 	{

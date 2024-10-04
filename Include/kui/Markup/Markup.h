@@ -83,7 +83,7 @@ namespace kui
 		std::map<std::string, Font*> Fonts;
 		std::function<std::string(std::string)> GetStringFunction;
 	public:
-		std::vector<std::function<void()>> TranslationChangedCallbacks;
+		std::vector<std::pair<void*, std::function<void()>>> TranslationChangedCallbacks;
 
 		void OnTranslationChanged();
 

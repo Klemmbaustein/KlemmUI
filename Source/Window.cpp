@@ -11,6 +11,7 @@
 #include <cstring>
 #include <chrono>
 #include <thread>
+#include <iostream>
 
 #define SDL_WINDOW_PTR(x) systemWM::SysWindow* x = static_cast<systemWM::SysWindow*>(this->SysWindowPtr)
 
@@ -75,6 +76,8 @@ kui::Window::~Window()
 	SDL_WINDOW_PTR(SysWindow);
 	systemWM::DestroyWindow(SysWindow);
 
+	Markup.TranslationChangedCallbacks.clear();
+
 	for (size_t i = 0; i < ActiveWindows.size(); i++)
 	{
 		if (ActiveWindows[i] == this)
@@ -128,7 +131,7 @@ void kui::Window::WaitFrame()
 		float DesiredDelta = 1.0f / (float)FPS;
 #endif
 		float TimeToWait = std::max(DesiredDelta - WindowDeltaTimer.Get(), 0.0f);
-		std::this_thread::sleep_for(std::chrono::milliseconds(int(TimeToWait * 1000.f)));
+		systemWM::WaitFrame(SysWindow, TimeToWait);
 	}
 #if __linux__
 	RedrawnWindow = false;
@@ -325,13 +328,13 @@ bool kui::Window::UpdateWindow()
 	{
 		WaitFrame();
 	}
-	Input.UpdateCursorPosition();
-	systemWM::UpdateWindow(SysWindow);
-	Input.Poll();
-
 	FrameDelta = WindowDeltaTimer.Get();
 	Time += FrameDelta;
 	WindowDeltaTimer.Reset();
+
+	Input.UpdateCursorPosition();
+	systemWM::UpdateWindow(SysWindow);
+	Input.Poll();
 
 	return !ShouldClose;
 }

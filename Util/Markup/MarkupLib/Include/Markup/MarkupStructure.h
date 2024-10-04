@@ -23,6 +23,8 @@ namespace kui::MarkupStructure
 		UIBackground,
 		UIButton,
 		UITextField,
+		UIBlurBackground,
+		UISpinner,
 		Backgrounds_End,
 		UIScrollBox,
 		UIText,

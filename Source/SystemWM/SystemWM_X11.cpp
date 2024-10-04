@@ -8,6 +8,7 @@
 #include <X11/cursorfont.h>
 #include <X11/Xutil.h>
 #include <iostream>
+#include <thread>
 
 #ifdef KLEMMUI_USE_XRANDR
 #include <X11/extensions/Xrandr.h>
@@ -419,6 +420,11 @@ uint32_t kui::systemWM::X11Window::GetMonitorRefreshRate() const
 #else
 	return 60;
 #endif
+}
+
+void kui::systemWM::WaitFrame(SysWindow* Target, float RemainingTime)
+{
+	std::this_thread::sleep_for(std::chrono::microseconds(int(RemainingTime * 1'000'000.0f)));
 }
 
 void kui::systemWM::X11Window::HandleEvent(XEvent ev)

@@ -52,10 +52,10 @@ void main()
 	if (u_opacity < 1)
 	{
 		vec3 sampled = vec3(0);
-		vec2 offset = (50 / scale) / u_screenRes;
-		for (int x = -NUM_SAMPLES; x <= NUM_SAMPLES; x++)
+		vec2 offset = (25 / scale) / u_screenRes;
+		for (int x = -NUM_SAMPLES; x < NUM_SAMPLES; x++)
 		{
-			for (int y = -NUM_SAMPLES; y <= NUM_SAMPLES; y++)
+			for (int y = -NUM_SAMPLES; y < NUM_SAMPLES; y++)
 			{
 				sampled.xyz += texture(u_texture, v_texcoords + offset * vec2(x, y)).xyz;
 			}

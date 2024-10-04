@@ -17,6 +17,7 @@ namespace kui::systemWM
 
 	void SetWindowMinSize(SysWindow* Target, Vec2ui MinSize);
 	void SetWindowMaxSize(SysWindow* Target, Vec2ui MaxSize);
+	void WaitFrame(SysWindow* Target, float RemainingTime);
 
 	void UpdateWindow(SysWindow* Target);
 	bool WindowHasFocus(SysWindow* Target);

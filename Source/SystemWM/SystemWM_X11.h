@@ -1,4 +1,4 @@
-#if __linux__
+#if __linux__ && !KLEMMUI_CUSTOM_SYSTEMWM
 #pragma once
 #include "SystemWM.h"
 #include "X11/Xlib.h"

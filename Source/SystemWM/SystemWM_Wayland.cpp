@@ -1,4 +1,4 @@
-#if __linux__ && KLEMMUI_WAYLAND
+#if __linux__ && KLEMMUI_WAYLAND && !KLEMMUI_CUSTOM_SYSTEMWM
 #include "SystemWM_Wayland.h"
 
 

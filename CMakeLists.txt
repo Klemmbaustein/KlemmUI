@@ -30,6 +30,11 @@ add_library(
 option(KLEMMUI_INCLUDE_EXAMPLES "Include example programs" ON)
 option(KLEMMUI_CUSTOM_SYSTEMWM "Implement custom systemWM functions" OFF)
 
+if(KLEMMUI_CUSTOM_SYSTEMWM)
+	message(STATUS "Not including predefined kui::systemWM::* functions for platform.")
+	target_compile_definitions(KlemmUI PRIVATE KLEMMUI_CUSTOM_SYSTEMWM)
+endif()
+
 if(NOT DEFINED WIN32)
 	option(KLEMMUI_USE_XRANDR "Use the Xrandr X11 extension if available" ON)
 	option(KLEMMUI_WAYLAND_SUPPORT "Support Wayland (very unfinished)" OFF)

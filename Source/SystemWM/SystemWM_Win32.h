@@ -1,4 +1,4 @@
-#if _WIN32
+#if _WIN32 && !KLEMMUI_CUSTOM_SYSTEMWM
 #pragma once
 #include <kui/Window.h>
 #define NOMINMAX

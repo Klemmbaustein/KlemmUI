@@ -1,4 +1,4 @@
-#if _WIN32
+#if _WIN32 && !KLEMMUI_CUSTOM_SYSTEMWM
 #include "SystemWM.h"
 #include "SystemWM_Win32.h"
 #include <kui/App.h>

@@ -1,4 +1,4 @@
-#if __linux__
+#if __linux__ && !KLEMMUI_CUSTOM_SYSTEMWM
 #include "SystemWM.h"
 #include "SystemWM_Linux.h"
 #include <kui/Platform.h>

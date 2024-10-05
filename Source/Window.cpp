@@ -224,24 +224,11 @@ void kui::Window::SetPosition(Vec2ui Pos)
 
 void kui::Window::SetWindowFlags(WindowFlag NewFlags)
 {
-	/*
-	SDL_WINDOW_PTR(GLWindow);
+	SDL_WINDOW_PTR(SysWindow);
 
 	CurrentWindowFlags = NewFlags;
 
-	SDL_SetWindowBordered(GLWindow, SDL_bool((NewFlags & WindowFlag::Borderless) != WindowFlag::Borderless));
-	if ((NewFlags & WindowFlag::Borderless) == WindowFlag::Borderless)
-	{
-		SDL_SetWindowHitTest(GLWindow, WindowHitTest, this);
-	}
-	else
-	{
-		SDL_SetWindowHitTest(GLWindow, nullptr, this);
-	}
-
-	SDL_SetWindowAlwaysOnTop(GLWindow, SDL_bool((NewFlags & WindowFlag::AlwaysOnTop) == WindowFlag::AlwaysOnTop));
-	SDL_SetWindowResizable(GLWindow, SDL_bool((NewFlags & WindowFlag::Resizable) == WindowFlag::Resizable));
-	*/
+	systemWM::UpdateWindowFlags(SysWindow, NewFlags);
 }
 
 kui::Window::WindowFlag kui::Window::GetWindowFlags() const

@@ -28,13 +28,16 @@ add_library(
 )
 
 option(KLEMMUI_INCLUDE_EXAMPLES "Include example programs" ON)
+option(KLEMMUI_CUSTOM_SYSTEMWM "Implement custom systemWM functions" OFF)
 
 if(NOT DEFINED WIN32)
 	option(KLEMMUI_USE_XRANDR "Use the Xrandr X11 extension if available" ON)
+	option(KLEMMUI_WAYLAND_SUPPORT "Support Wayland (very unfinished)" OFF)
 
 	message(STATUS "Checking for X11 extensions")
 	
 	find_library(KLEMMUI_XRANDR_LIB Xrandr)
+	find_library(KLEMMUI_WL_CLIENT_LIB wayland-client)
 
 	if(KLEMMUI_USE_XRANDR AND KLEMMUI_XRANDR_LIB)
 		target_compile_definitions(KlemmUI PRIVATE KLEMMUI_USE_XRANDR)
@@ -42,6 +45,14 @@ if(NOT DEFINED WIN32)
 		message(STATUS "Using Xrandr X11 extension")
 	endif()
 
+	# Very much not completed
+	if(KLEMMUI_WAYLAND_SUPPORT)
+		target_compile_definitions(KlemmUI PUBLIC KLEMMUI_WAYLAND)
+		target_link_libraries(KlemmUI PUBLIC ${KLEMMUI_WL_CLIENT_LIB})
+	endif()
+
+	# GCC defines 'linux' as a macro by default (what?), which conflicts with 'kui::platform::linux'
+	target_compile_options(KlemmUI PUBLIC "-Ulinux")
 endif()
 
 add_subdirectory("Util/Markup/")

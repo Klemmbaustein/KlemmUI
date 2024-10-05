@@ -1,7 +1,9 @@
 #if __linux__
 #include "SystemWM.h"
 #include "SystemWM_Linux.h"
+#include <kui/Platform.h>
 #include <iostream>
+using namespace kui::platform::linux;
 
 static bool CheckFlag(kui::Window::WindowFlag Flag, kui::Window::WindowFlag Value)
 {
@@ -11,16 +13,32 @@ static bool CheckFlag(kui::Window::WindowFlag Flag, kui::Window::WindowFlag Valu
 kui::systemWM::SysWindow* kui::systemWM::NewWindow(Window* Parent, Vec2ui Size, Vec2ui Pos, std::string Title, Window::WindowFlag Flags)
 {
 	SysWindow* OutWindow = new SysWindow();
-	OutWindow->X11 = X11Window();
-	OutWindow->X11.Parent = Parent;
-	OutWindow->X11.Create(
-		Parent,
-		Size, Pos,
-		Title,
-		CheckFlag(Flags, Window::WindowFlag::Borderless),
-		CheckFlag(Flags, Window::WindowFlag::Resizable),
-		CheckFlag(Flags, Window::WindowFlag::Popup)
-	);
+#ifdef KLEMMUI_WAYLAND
+	if (GetUseWayland())
+	{
+		OutWindow->Wayland = WaylandWindow();
+		OutWindow->Wayland.Parent = Parent;
+		OutWindow->Wayland.Create(Parent,
+			Size, Pos,
+			Title,
+			CheckFlag(Flags, Window::WindowFlag::Borderless),
+			CheckFlag(Flags, Window::WindowFlag::Resizable),
+			CheckFlag(Flags, Window::WindowFlag::Popup));
+	}
+	else
+#endif
+	{
+		OutWindow->X11 = X11Window();
+		OutWindow->X11.Parent = Parent;
+		OutWindow->X11.Create(
+			Parent,
+			Size, Pos,
+			Title,
+			CheckFlag(Flags, Window::WindowFlag::Borderless),
+			CheckFlag(Flags, Window::WindowFlag::Resizable),
+			CheckFlag(Flags, Window::WindowFlag::Popup)
+		);
+	}
 
 	return OutWindow;
 }
@@ -34,6 +52,11 @@ void kui::systemWM::DestroyWindow(SysWindow* Target)
 void kui::systemWM::SwapWindow(SysWindow* Target)
 {
 	Target->X11.Swap();
+}
+void kui::systemWM::UpdateWindowFlags(SysWindow* Target, Window::WindowFlag NewFlags)
+{
+	Target->X11.SetBorderless(CheckFlag(NewFlags, Window::WindowFlag::Borderless));
+	Target->X11.SetAlwaysOnTop(CheckFlag(NewFlags, Window::WindowFlag::AlwaysOnTop));
 }
 
 void kui::systemWM::ActivateContext(SysWindow* Target)

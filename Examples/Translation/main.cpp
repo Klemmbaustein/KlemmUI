@@ -1,4 +1,5 @@
 #include <kui/KlemmUI.h>
+#include <kui/Platform.h>
 #include "Translate.kui.hpp"
 #include <map>
 using namespace kui;
@@ -13,7 +14,7 @@ int main()
 			app::MessageBox(Message, "Error", app::MessageBoxType::Error);
 		});
 
-	Window MainWindow = Window(EnglishTitle, Window::WindowFlag::Resizable, Window::POSITION_CENTERED, Vec2ui(800, 600));
+	Window MainWindow = Window(EnglishTitle, Window::WindowFlag::Resizable | platform::win32::WindowFlag::DarkTitleBar, Window::POSITION_CENTERED, Vec2ui(800, 600));
 
 	bool IsGerman = false;
 

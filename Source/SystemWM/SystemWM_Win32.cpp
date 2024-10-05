@@ -6,6 +6,7 @@
 #include <windowsx.h>
 #include "../Internal/Internal.h"
 #include <GL/glew.h>
+#include <kui/Platform.h>
 #include <GL/wglew.h>
 #include <dwmapi.h>
 #include <iostream>
@@ -426,6 +427,43 @@ static bool CheckFlag(kui::Window::WindowFlag Flag, kui::Window::WindowFlag Valu
 	return (Flag & Value) == Value;
 }
 
+static void SetTitleBarDark(kui::systemWM::SysWindow* Target, bool NewIsDark)
+{
+	BOOL UseDarkMode = NewIsDark;
+	DwmSetWindowAttribute(
+		Target->WindowHandle, DWMWINDOWATTRIBUTE::DWMWA_USE_IMMERSIVE_DARK_MODE,
+		&UseDarkMode, sizeof(UseDarkMode));
+}
+
+static std::pair<DWORD, DWORD> GetStyleFromFlags(kui::Window::WindowFlag Flags)
+{
+	using namespace kui;
+	DWORD ExStyle;
+	DWORD Style;
+
+	ExStyle = WS_EX_APPWINDOW;
+	Style = WS_POPUP | WS_CAPTION | WS_SYSMENU;
+
+	if (CheckFlag(Flags, Window::WindowFlag::AlwaysOnTop))
+	{
+		ExStyle |= WS_EX_TOPMOST;
+	}
+
+	if (CheckFlag(Flags, Window::WindowFlag::Resizable))
+	{
+		// Maximize button. Only a resizable window should have this.
+		Style |= WS_MAXIMIZEBOX;
+		// WS_THICKFRAME enables window resizing.
+		Style |= WS_THICKFRAME;
+	}
+
+	if (!CheckFlag(Flags, Window::WindowFlag::Popup))
+	{
+		Style |= WS_MINIMIZEBOX;
+	}
+	return { Style, ExStyle };
+}
+
 kui::systemWM::SysWindow* kui::systemWM::NewWindow(
 	Window* Parent, Vec2ui Size, Vec2ui Pos, std::string Title, Window::WindowFlag Flags)
 {
@@ -462,37 +500,15 @@ kui::systemWM::SysWindow* kui::systemWM::NewWindow(
 			return nullptr;
 		}
 	}
-	DWORD ExStyle;
-	DWORD Style;
 
-	ExStyle = WS_EX_APPWINDOW;
-	Style = WS_POPUP | WS_CAPTION | WS_SYSMENU;
-
-	if (CheckFlag(Flags, Window::WindowFlag::AlwaysOnTop))
-	{
-		ExStyle |= WS_EX_TOPMOST;
-	}
-
-	if (OutWindow->Resizable)
-	{
-		// Maximize button. Only a resizable window should have this.
-		Style |= WS_MAXIMIZEBOX;
-		// WS_THICKFRAME enables window resizing.
-		Style |= WS_THICKFRAME;
-	}
-
-	if (!CheckFlag(Flags, Window::WindowFlag::Popup))
-	{
-		Style |= WS_MINIMIZEBOX;
-	}
-
-	std::array<Vec2ui, 2> WindowSizes = AdjustWindowSize(Pos, Size, Style, ExStyle);
+	std::pair Style = GetStyleFromFlags(Flags);
+	std::array<Vec2ui, 2> WindowSizes = AdjustWindowSize(Pos, Size, Style.first, Style.second);
 
 	OutWindow->WindowHandle = CreateWindowExW(
-		ExStyle,
+		Style.second,
 		ToWstring(KUI_WINDOW_CLASS_NAME).c_str(),
 		ToWstring(Title).c_str(),
-		Style,
+		Style.first,
 		WindowSizes[0].X,
 		WindowSizes[0].Y,
 		WindowSizes[1].X,
@@ -566,6 +582,9 @@ kui::systemWM::SysWindow* kui::systemWM::NewWindow(
 		SetWindowPos(OutWindow->WindowHandle, NULL, Pos.X, Pos.Y, 0, 0,
 			SWP_FRAMECHANGED | SWP_NOMOVE | SWP_NOSIZE);
 	}
+
+	if (CheckFlag(Flags, Window::WindowFlag(platform::win32::WindowFlag::DarkTitleBar)))
+		SetTitleBarDark(OutWindow, true);
 
 	systemWM::SetWindowCursor(OutWindow, Window::Cursor::Default);
 	ShowWindow(OutWindow->WindowHandle, SW_SHOW);
@@ -809,6 +828,24 @@ void kui::systemWM::MinimizeWindow(SysWindow* Target)
 void kui::systemWM::MaximizeWindow(SysWindow* Target)
 {
 	::ShowWindow(Target->WindowHandle, SW_MAXIMIZE);
+}
+
+void kui::systemWM::UpdateWindowFlags(SysWindow* Target, Window::WindowFlag NewFlags)
+{
+	RECT WindowRect;
+	GetWindowRect(Target->WindowHandle, &WindowRect);
+
+	std::pair Styles = GetStyleFromFlags(NewFlags);
+	SetWindowLongPtr(Target->WindowHandle, GWL_STYLE, Styles.first);
+	SetWindowLongPtr(Target->WindowHandle, GWL_EXSTYLE, Styles.second);
+
+	Target->Borderless = CheckFlag(NewFlags, Window::WindowFlag::Borderless);
+	Borderless::SetShadow(Target->WindowHandle, Target->Borderless);
+	SetTitleBarDark(Target, CheckFlag(NewFlags, Window::WindowFlag(platform::win32::WindowFlag::DarkTitleBar)));
+
+	SetWindowPos(Target->WindowHandle, NULL, WindowRect.left, WindowRect.top, 0, 0,
+		SWP_FRAMECHANGED | SWP_NOMOVE | SWP_NOSIZE);
+	ShowWindow(Target->WindowHandle, SW_SHOW);
 }
 
 bool kui::systemWM::IsWindowMinimized(SysWindow* Target)

@@ -15,7 +15,7 @@ namespace kui::systemWM
 		// X11's window class is just called "Window", yay!
 		::kui::Window* Parent;
 
-		void Create(Window* Parent, Vec2ui Size, Vec2ui Pos, std::string Title, bool Borderless, bool Resizable, bool Popup);
+		void Create(Window* Parent, Vec2ui Size, Vec2ui Pos, std::string Title, bool Borderless, bool Resizable, bool AlwaysOnTop);
 		void Destroy();
 		void SetTitle(std::string NewTitle) const;
 
@@ -33,10 +33,10 @@ namespace kui::systemWM
 
 		static bool IsLMBDown();
 		static bool IsRMBDown();
-		void SetCursor(Window::Cursor NewCursor) const;
+		void SetCursor(Window::Cursor NewCursor);
 
-		void SetMinSize(Vec2ui NewSize) const;
-		void SetMaxSize(Vec2ui NewSize) const;
+		void SetMinSize(Vec2ui NewSize);
+		void SetMaxSize(Vec2ui NewSize);
 		
 		void Maximize() const;
 		void Minimize() const;
@@ -58,11 +58,24 @@ namespace kui::systemWM
 		static Vec2ui GetMainScreenResolution();
 		uint32_t GetMonitorRefreshRate() const;
 
+		void SetBorderless(bool NewBorderless);
+		void SetResizable(bool NewResizable);
+		void SetAlwaysOnTop(bool NewAlwaysOnTop);
+
 		Vec2i CursorPosition;
 		Vec2ui WindowSize;
 		std::string TextInput;
 
 		bool HasFocus = false;
+		bool Resizable = true;
+		bool Borderless = false;
+
+		Vec2ui MinSize;
+		Vec2ui MaxSize;
+
+		bool HoveringCorner = false;
+		Window::Cursor CurrentCursor = Window::Cursor::Default;
+		int LastResizeCorner = false;
 	private:
 		void HandleEvent(XEvent ev);
 		void HandleKeyPress(KeySym Symbol, bool NewValue);

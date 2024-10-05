@@ -33,6 +33,8 @@ namespace kui::systemWM
 
 	float GetDPIScale(SysWindow* Target);
 
+	void UpdateWindowFlags(SysWindow* Parent, Window::WindowFlag NewFlags);
+
 	void SetTitle(SysWindow* Target, std::string Text);
 
 	void SetClipboardText(std::string NewText);

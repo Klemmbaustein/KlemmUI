@@ -133,7 +133,7 @@ namespace kui
 		* @brief
 		* Flags for window construction.
 		*/
-		enum class WindowFlag
+		enum class WindowFlag : int
 		{
 			///No window flags.
 			None           = 0b000000,

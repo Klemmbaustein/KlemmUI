@@ -2,6 +2,7 @@
 #pragma once
 #include "SystemWM.h"
 #include "SystemWM_X11.h"
+#include "SystemWM_Wayland.h"
 
 namespace kui::systemWM
 {
@@ -13,6 +14,9 @@ namespace kui::systemWM
 		union
 		{
 			X11Window X11 = {};
+#ifdef KLEMMUI_WAYLAND
+			WaylandWindow Wayland;
+#endif
 		};
 	};
 }

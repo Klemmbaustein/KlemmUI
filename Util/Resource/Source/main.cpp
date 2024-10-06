@@ -7,25 +7,13 @@
 #include <filesystem>
 #include "Util.h"
 
-static bool GetFilesInDirectory(std::filesystem::path Path,
-	std::vector<std::filesystem::path>& OutPaths,
-	std::optional<std::filesystem::file_time_type> LastWriteTime)
+static void GetFilesInDirectory(std::filesystem::path Path,
+	std::vector<std::filesystem::path>& OutPaths)
 {
-	bool FileWritten = !LastWriteTime.has_value();
-
 	for (const auto& i : std::filesystem::recursive_directory_iterator(Path))
 	{
-		if (i.is_directory())
-			continue;
-		if (LastWriteTime.has_value() && std::filesystem::last_write_time(i) >= LastWriteTime.value())
-		{
-			FileWritten = true;
-		}
-
 		OutPaths.push_back(std::filesystem::canonical(i.path()));
 	}
-
-	return FileWritten;
 }
 
 int main(int argc, char** argv)
@@ -83,19 +71,7 @@ int main(int argc, char** argv)
 
 	std::vector<std::filesystem::path> Paths;
 
-	std::optional<std::filesystem::file_time_type> OutFileWriteTime;
-
-	if (std::filesystem::exists(OutPath) && !std::filesystem::is_empty(OutPath))
-	{
-		OutFileWriteTime = std::filesystem::last_write_time(OutPath);
-	}
-
-	bool ShouldWriteFile = GetFilesInDirectory(InPath, Paths, OutFileWriteTime);
-
-	if (!ShouldWriteFile)
-	{
-		return 0;
-	}
+	GetFilesInDirectory(InPath, Paths);
 
 	std::ofstream out = std::ofstream(OutPath);
 	std::filesystem::path CanonicalOutPath = std::filesystem::canonical(std::filesystem::path(OutPath));

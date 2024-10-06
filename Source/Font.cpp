@@ -12,6 +12,7 @@
 #include <kui/Window.h>
 #include <filesystem>
 #include "Internal/Internal.h"
+#include <iostream>
 using namespace kui;
 
 
@@ -28,7 +29,6 @@ Shader* Font::GetTextShader()
 
 size_t Font::GetCharacterIndexADistance(std::vector<TextSegment> Text, float Dist, float Scale)
 {
-	Scale *= 2.5f;
 	std::u32string TextString = internal::GetUnicodeString(TextSegment::CombineToString(Text));
 	TextString.append({ (uint32_t)' ' });
 	float MaxHeight = 0.0f;
@@ -104,10 +104,6 @@ Font::Font(std::string FileName)
 	{
 		Glyph New;
 		int glyph = i;
-		if (i > FONT_MAX_UNICODE_CHARS)
-		{
-			glyph = 0x000025A1;
-		}
 		int w, h, xoff, yoff;
 		auto bmp = stbtt_GetCodepointBitmap(&finf,
 			0.05f,
@@ -141,7 +137,7 @@ Font::Font(std::string FileName)
 		New.Offset = Vec2f((float)xoff, (float)yoff) / 20.0;
 		New.Size = Vec2f((float)w, (float)h) / 20.0;
 
-		CharacterSize = std::max(New.Size.Y + New.Offset.Y, (float)CharacterSize);
+		CharacterSize = std::max(New.Size.Y + std::max(New.Offset.Y, 0.0f), CharacterSize);
 
 		if (New.Size != 0)
 		{
@@ -215,9 +211,8 @@ Font::Font(std::string FileName)
 
 Vec2f Font::GetTextSize(std::vector<TextSegment> Text, float Scale, bool Wrapped, float LengthBeforeWrap)
 {
-	Scale *= 2.5f;
 	LengthBeforeWrap = LengthBeforeWrap * Window::GetActiveWindow()->GetAspectRatio() / Scale;
-	float x = 0.f, y = CharacterSize * 5;
+	float x = 0.f, y = CharacterSize;
 	float MaxX = 0.0f;
 	FontVertex* vData = fontVertexBufferData;
 	uint32_t numVertices = 0;
@@ -275,7 +270,7 @@ Vec2f Font::GetTextSize(std::vector<TextSegment> Text, float Scale, bool Wrapped
 					numVertices = LastWordNumVertices;
 				}
 				x = 0;
-				y += CharacterSize * 5;
+				y += CharacterSize;
 			}
 		}
 	}
@@ -320,7 +315,6 @@ DrawableText* Font::MakeText(std::vector<TextSegment> Text, Vec2f Pos, float Sca
 	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(FontVertex), (const void*)offsetof(FontVertex, color));
 	glBindVertexArray(0);
 
-	Scale *= 2.5f;
 	LengthBeforeWrap = LengthBeforeWrap * Window::GetActiveWindow()->GetAspectRatio() / Scale;
 	Pos.X = Pos.X * 450 * Window::GetActiveWindow()->GetAspectRatio();
 	Pos.Y = Pos.Y * -450;
@@ -361,9 +355,9 @@ DrawableText* Font::MakeText(std::vector<TextSegment> Text, Vec2f Pos, float Sca
 				if (g.Size != 0)
 				{
 					vData[0].position = StartPos + Vec2f(0, g.Size.Y); vData[0].texCoords = g.TexCoordStart + Vec2f(0, g.TexCoordOffset.Y);
-					vData[1].position = StartPos + g.Size;                vData[1].texCoords = g.TexCoordStart + g.TexCoordOffset;
+					vData[1].position = StartPos + g.Size;             vData[1].texCoords = g.TexCoordStart + g.TexCoordOffset;
 					vData[2].position = StartPos + Vec2f(g.Size.X, 0); vData[2].texCoords = g.TexCoordStart + Vec2f(g.TexCoordOffset.X, 0);
-					vData[3].position = StartPos;                         vData[3].texCoords = g.TexCoordStart;
+					vData[3].position = StartPos;                      vData[3].texCoords = g.TexCoordStart;
 					vData[4].position = StartPos + Vec2f(0, g.Size.Y); vData[4].texCoords = g.TexCoordStart + Vec2f(0, g.TexCoordOffset.Y);
 					vData[5].position = StartPos + Vec2f(g.Size.X, 0); vData[5].texCoords = g.TexCoordStart + Vec2f(g.TexCoordOffset.X, 0);
 					vData[0].color = seg.Color;		vData[1].color = seg.Color;
@@ -392,7 +386,7 @@ DrawableText* Font::MakeText(std::vector<TextSegment> Text, Vec2f Pos, float Sca
 					numVertices = LastWordNumVertices;
 				}
 				x = 0;
-				y += CharacterSize * 5.0f;
+				y += CharacterSize;
 			}
 		}
 	}

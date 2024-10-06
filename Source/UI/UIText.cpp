@@ -9,7 +9,7 @@ float UIText::GetRenderedSize() const
 	float RenderedSize = TextSize;
 	if (TextSizeMode == SizeMode::PixelRelative)
 	{
-		RenderedSize = RenderedSize / Window::GetActiveWindow()->GetSize().Y * 50 * ParentWindow->GetDPI();
+		RenderedSize = RenderedSize / Window::GetActiveWindow()->GetSize().Y * 100 * ParentWindow->GetDPI();
 	}
 	return RenderedSize;
 }
@@ -205,12 +205,12 @@ void UIText::Update()
 	}
 	if (Wrap)
 	{
-		Text = Renderer->MakeText(RenderedText, OffsetPosition + Vec2f(0, Size.Y - GetRenderedSize() / 40),
+		Text = Renderer->MakeText(RenderedText, OffsetPosition + Vec2f(0, Size.Y - GetRenderedSize() / 550 * Renderer->CharacterSize),
 			GetRenderedSize(), Color, Opacity, GetWrapDistance());
 	}
 	else
 	{
-		Text = Renderer->MakeText(RenderedText, OffsetPosition + Vec2f(0, Size.Y - GetRenderedSize() / 40),
+		Text = Renderer->MakeText(RenderedText, OffsetPosition + Vec2f(0, Size.Y - GetRenderedSize() / 550 * Renderer->CharacterSize),
 			GetRenderedSize(), Color, Opacity, 999);
 	}
 }

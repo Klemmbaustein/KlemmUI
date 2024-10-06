@@ -89,7 +89,6 @@ namespace kui
 		std::vector<Glyph> LoadedGlyphs;
 
 		uint8_t TabSize = 4;
-		std::string Filename;
 		size_t GetCharacterIndexADistance(std::vector<TextSegment> Text, float Dist, float Scale);
 		Font(std::string filename);
 		Vec2f GetTextSize(std::vector<TextSegment> Text, float Scale, bool Wrapped, float LengthBeforeWrap);

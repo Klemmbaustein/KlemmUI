@@ -13,7 +13,7 @@
 #include <thread>
 #include <iostream>
 
-#define SDL_WINDOW_PTR(x) systemWM::SysWindow* x = static_cast<systemWM::SysWindow*>(this->SysWindowPtr)
+#define SYS_WINDOW_PTR(x) systemWM::SysWindow* x = static_cast<systemWM::SysWindow*>(this->SysWindowPtr)
 
 static thread_local kui::Window* ActiveWindow = nullptr;
 static thread_local bool HasMainWindow = false;
@@ -31,7 +31,7 @@ std::vector<kui::Window*> kui::Window::ActiveWindows;
 
 void kui::Window::UpdateSize()
 {
-	SDL_WINDOW_PTR(SysWindow);
+	SYS_WINDOW_PTR(SysWindow);
 	WindowSize = systemWM::GetWindowSize(SysWindow);
 }
 
@@ -73,7 +73,7 @@ kui::Window::~Window()
 {
 	std::lock_guard Guard = std::lock_guard(internal::WindowCreationMutex);
 
-	SDL_WINDOW_PTR(SysWindow);
+	SYS_WINDOW_PTR(SysWindow);
 	systemWM::DestroyWindow(SysWindow);
 
 	Markup.TranslationChangedCallbacks.clear();
@@ -106,7 +106,7 @@ kui::Window* kui::Window::GetActiveWindow()
 
 void kui::Window::WaitFrame()
 {
-	SDL_WINDOW_PTR(SysWindow);
+	SYS_WINDOW_PTR(SysWindow);
 
 	uint32_t FPS = TargetFPS;
 
@@ -167,26 +167,6 @@ void kui::Window::RedrawInternal()
 
 void kui::Window::SetIconFile(std::string IconFilePath)
 {
-#if 0
-	SDL_WINDOW_PTR(GLWindow);
-
-	size_t Width, Height;
-	uint8_t* IconBytes = image::LoadImageBytes(IconFilePath, Width, Height, true);
-
-	// Limitation of SDL2.
-	if (Width > 64 || Height > 64)
-	{
-		app::error::Error("Window icon too large. Maximum is 64x64 pixels.");
-		return;
-	}
-
-	SDL_Surface* s = SDL_CreateRGBSurfaceWithFormatFrom(IconBytes, 64, 64, 1, (int)Width * 4, SDL_PIXELFORMAT_RGBA8888);
-
-	SDL_SetWindowIcon(GLWindow, s);
-
-	SDL_FreeSurface(s);
-	image::FreeImageBytes(IconBytes);
-#endif
 }
 
 void* kui::Window::GetSysWindow() const
@@ -201,7 +181,7 @@ float kui::Window::GetAspectRatio() const
 
 bool kui::Window::HasFocus()
 {
-	SDL_WINDOW_PTR(SysWindow);
+	SYS_WINDOW_PTR(SysWindow);
 	return systemWM::WindowHasFocus(SysWindow);
 }
 
@@ -212,19 +192,19 @@ Vec2ui kui::Window::GetSize() const
 
 void kui::Window::SetSize(Vec2ui NewSize)
 {
-	SDL_WINDOW_PTR(SysWindow);
+	SYS_WINDOW_PTR(SysWindow);
 	systemWM::SetWindowSize(SysWindow, NewSize);
 }
 
 void kui::Window::SetPosition(Vec2ui Pos)
 {
-	SDL_WINDOW_PTR(SysWindow);
+	SYS_WINDOW_PTR(SysWindow);
 	systemWM::SetWindowPosition(SysWindow, Pos);
 }
 
 void kui::Window::SetWindowFlags(WindowFlag NewFlags)
 {
-	SDL_WINDOW_PTR(SysWindow);
+	SYS_WINDOW_PTR(SysWindow);
 
 	CurrentWindowFlags = NewFlags;
 
@@ -238,7 +218,7 @@ kui::Window::WindowFlag kui::Window::GetWindowFlags() const
 
 void kui::Window::MakeContextCurrent()
 {
-	SDL_WINDOW_PTR(SysWindow);
+	SYS_WINDOW_PTR(SysWindow);
 
 	systemWM::ActivateContext(SysWindow);
 }
@@ -250,7 +230,7 @@ void kui::Window::CancelClose()
 
 void kui::Window::SetTitle(std::string NewTitle)
 {
-	SDL_WINDOW_PTR(SysWindow);
+	SYS_WINDOW_PTR(SysWindow);
 	systemWM::SetTitle(SysWindow, NewTitle);
 }
 
@@ -261,7 +241,7 @@ float kui::Window::GetDPI() const
 
 void kui::Window::UpdateDPI()
 {
-	SDL_WINDOW_PTR(SysWindow);
+	SYS_WINDOW_PTR(SysWindow);
 
 	float NewDPI = IgnoreDPI ? 0 : systemWM::GetDPIScale(SysWindow);
 
@@ -287,7 +267,7 @@ void kui::Window::HandleCursor()
 	{
 		return;
 	}
-	SDL_WINDOW_PTR(SysWindow);
+	SYS_WINDOW_PTR(SysWindow);
 
 	systemWM::SetWindowCursor(SysWindow, CurrentCursor);
 	CurrentCursor = dynamic_cast<UIButton*>(UI.HoveredBox)
@@ -297,7 +277,7 @@ void kui::Window::HandleCursor()
 
 bool kui::Window::UpdateWindow()
 {
-	SDL_WINDOW_PTR(SysWindow);
+	SYS_WINDOW_PTR(SysWindow);
 
 	if (!HasMainWindow)
 	{
@@ -339,14 +319,14 @@ void kui::Window::OnResized()
 
 void kui::Window::SetMinSize(Vec2ui MinimumSize)
 {
-	SDL_WINDOW_PTR(SysWindow);
+	SYS_WINDOW_PTR(SysWindow);
 	systemWM::SetWindowMinSize(SysWindow, MinimumSize);
 	MinSize = MinimumSize;
 }
 
 void kui::Window::SetMaxSize(Vec2ui MaximumSize)
 {
-	SDL_WINDOW_PTR(SysWindow);
+	SYS_WINDOW_PTR(SysWindow);
 	systemWM::SetWindowMaxSize(SysWindow, MaximumSize);
 	MaxSize = MaximumSize;
 }
@@ -359,7 +339,7 @@ std::vector<kui::Window*> kui::Window::GetActiveWindows()
 
 void kui::Window::SetMaximized(bool NewIsFullScreen)
 {
-	SDL_WINDOW_PTR(SysWindow);
+	SYS_WINDOW_PTR(SysWindow);
 
 	if (NewIsFullScreen)
 	{
@@ -373,19 +353,19 @@ void kui::Window::SetMaximized(bool NewIsFullScreen)
 
 bool kui::Window::GetWindowFullScreen()
 {
-	SDL_WINDOW_PTR(SysWindow);
+	SYS_WINDOW_PTR(SysWindow);
 	return systemWM::IsWindowFullScreen(SysWindow);
 }
 
 bool kui::Window::GetMinimized()
 {
-	SDL_WINDOW_PTR(SysWindow);
+	SYS_WINDOW_PTR(SysWindow);
 	return systemWM::IsWindowMinimized(SysWindow);
 }
 
 void kui::Window::SetMinimized(bool NewIsMinimized)
 {
-	SDL_WINDOW_PTR(SysWindow);
+	SYS_WINDOW_PTR(SysWindow);
 
 	if (NewIsMinimized)
 	{

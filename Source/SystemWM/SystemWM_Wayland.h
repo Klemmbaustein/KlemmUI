@@ -1,4 +1,4 @@
-#ifdef KLEMMUI_WAYLAND && !KLEMMUI_CUSTOM_SYSTEMWM
+#if KLEMMUI_WAYLAND && !KLEMMUI_CUSTOM_SYSTEMWM
 #pragma once
 #include "SystemWM.h"
 

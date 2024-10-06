@@ -220,14 +220,11 @@ namespace kui::systemWM::X11Borderless
 		if (result == HITRESULT_DRAG)
 		{
 			InitiateWindowMove(Target, point);
-			return true;
 		}
 		else if (result >= _NET_WM_MOVERESIZE_SIZE_TOPLEFT)
 		{
 			InitiateWindowResize(Target, point, result);
-			return true;
 		}
-		return false;
 	}
 
 	static std::map<int, ::Cursor> LoadedCursors;

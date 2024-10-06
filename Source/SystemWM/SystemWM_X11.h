@@ -3,6 +3,7 @@
 #include "SystemWM.h"
 #include "X11/Xlib.h"
 #include <GL/glx.h>
+#include <cstdint>
 
 namespace kui::systemWM
 {
@@ -41,6 +42,8 @@ namespace kui::systemWM
 		void Maximize() const;
 		void Minimize() const;
 		void Restore() const;
+
+		void SetIcon(uint8_t* TextureBytes, size_t Width, size_t Height);
 
 		float GetDPIScale();
 

@@ -56,6 +56,7 @@ void kui::systemWM::SwapWindow(SysWindow* Target)
 void kui::systemWM::UpdateWindowFlags(SysWindow* Target, Window::WindowFlag NewFlags)
 {
 	Target->X11.SetBorderless(CheckFlag(NewFlags, Window::WindowFlag::Borderless));
+	Target->X11.SetResizable(CheckFlag(NewFlags, Window::WindowFlag::Resizable));
 	Target->X11.SetAlwaysOnTop(CheckFlag(NewFlags, Window::WindowFlag::AlwaysOnTop));
 }
 
@@ -182,6 +183,11 @@ void kui::systemWM::MaximizeWindow(SysWindow* Target)
 static bool CommandExists(std::string Command)
 {
 	return system(("command -v " + Command + " > /dev/null").c_str()) == 0;
+}
+
+void kui::systemWM::SetWindowIcon(SysWindow* Target, uint8_t* Bytes, size_t Width, size_t Height)
+{
+	Target->X11.SetIcon(Bytes, Width, Height);
 }
 
 void kui::systemWM::MessageBox(std::string Text, std::string Title, int Type)

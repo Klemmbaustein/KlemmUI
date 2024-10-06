@@ -12,7 +12,8 @@ static void GetFilesInDirectory(std::filesystem::path Path,
 {
 	for (const auto& i : std::filesystem::recursive_directory_iterator(Path))
 	{
-		OutPaths.push_back(std::filesystem::canonical(i.path()));
+		if (std::filesystem::is_regular_file(i))
+			OutPaths.push_back(std::filesystem::canonical(i.path()));
 	}
 }
 

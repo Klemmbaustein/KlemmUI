@@ -13,6 +13,7 @@ namespace kui::systemWM
 		HGLRC GLContext = nullptr;
 		HDC DeviceContext = nullptr;
 		Window* Parent = nullptr;
+		HICON LastIcon = nullptr;
 
 		bool Borderless = false;
 		bool Resizable = false;

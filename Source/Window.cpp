@@ -2,16 +2,11 @@
 
 #include "Internal/Internal.h"
 #include "SystemWM/SystemWM.h"
-#include <kui/UI/UIBox.h>
-#include <kui/App.h>
 #include <kui/UI/UIButton.h>
 #include <kui/UI/UITextField.h>
 #include <kui/Image.h>
 #include <mutex>
 #include <cstring>
-#include <chrono>
-#include <thread>
-#include <iostream>
 
 #define SYS_WINDOW_PTR(x) systemWM::SysWindow* x = static_cast<systemWM::SysWindow*>(this->SysWindowPtr)
 
@@ -167,6 +162,12 @@ void kui::Window::RedrawInternal()
 
 void kui::Window::SetIconFile(std::string IconFilePath)
 {
+	SYS_WINDOW_PTR(SysWindow);
+
+	size_t w, h;
+	uint8_t* Image = image::LoadImageBytes(IconFilePath, w, h, true);
+	systemWM::SetWindowIcon(SysWindow, Image, w, h);
+	image::FreeImageBytes(Image);
 }
 
 void* kui::Window::GetSysWindow() const

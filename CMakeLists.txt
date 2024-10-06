@@ -82,7 +82,7 @@ macro(klemmui_markup ProjectName MarkupDir)
 		list(APPEND UI_HEADERS ${HEADER_FILE})
 	endforeach()
 
-	message("${UI_HEADERS}")
+	target_sources(${ProjectName} PRIVATE ${UI_FILES})
 
 	add_custom_command(
 		OUTPUT ${UI_HEADERS}
@@ -99,10 +99,6 @@ macro(klemmui_markup ProjectName MarkupDir)
 endmacro()
 
 macro(klemmui_resources ProjectName ResourceDir)
-	add_custom_target(
-		${ProjectName}_WriteResources
-		COMMENT "Running build command."
-	)
 
 	set(RESOURCE_OUT_FILE ${CMAKE_CURRENT_BINARY_DIR}/res/${ProjectName}_res.c)
 
@@ -118,17 +114,16 @@ macro(klemmui_resources ProjectName ResourceDir)
 		COMMAND $<TARGET_FILE:KlemmUIRC>  -i "${ResourceDir}" -o "${RESOURCE_OUT_FILE}" -n ${ProjectName}
 		DEPENDS ${RESOURCES}
 	)
-	add_custom_target(${ProjectName}_GenResources DEPENDS ${UI_HEADERS})
 
 	add_library(${ProjectName}_Resources STATIC ${RESOURCE_OUT_FILE})
-	add_dependencies(${ProjectName}_GenResources KlemmUIRC)
-	add_dependencies(${ProjectName}_Resources ${ProjectName}_GenResources)
+
+	add_dependencies(${ProjectName}_Resources KlemmUIRC)
 	target_link_libraries(KlemmUI PUBLIC ${ProjectName}_Resources)
+
 	if(NOT ${ProjectName} STREQUAL "KlemmUI")
-		message(STATUS "Using resouces in project")
 		target_compile_definitions(KlemmUI PUBLIC KLEMMUI_USE_RESOURCES)
 	endif()
-	message(STATUS "Adding resource dir - ${ResourceDir} -> ${RESOURCE_OUT_FILE}")
+	message(STATUS "Adding resource dir - ${ResourceDir}")
 endmacro()
 
 klemmui_resources(KlemmUI "Resources/")

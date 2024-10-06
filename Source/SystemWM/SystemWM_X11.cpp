@@ -267,7 +267,7 @@ namespace kui::systemWM::X11Borderless
 		default:
 			break;
 		}
-		
+
 		return NewCursor;
 	}
 }
@@ -469,7 +469,7 @@ void kui::systemWM::X11Window::SetMinSize(Vec2ui NewSize)
 void kui::systemWM::X11Window::SetMaxSize(Vec2ui NewSize)
 {
 	if (NewSize == 0)
-		NewSize = 0x7FFFFFFF;
+		NewSize = INT16_MAX;
 
 	MaxSize = NewSize;
 	XSizeHints* SizeHintsPtr = XAllocSizeHints();
@@ -505,7 +505,7 @@ void kui::systemWM::X11Window::Minimize() const
 void kui::systemWM::X11Window::Restore() const
 {
 	XEvent xev;
-	Atom wm_state = XInternAtom(XDisplay, "_NET_WM_STATE", False);
+	Atom wm_state = XInternAtom(XDisplay, "_NET_WM_STATE", false);
 
 	memset(&xev, 0, sizeof(xev));
 	xev.type = ClientMessage;
@@ -516,7 +516,7 @@ void kui::systemWM::X11Window::Restore() const
 	xev.xclient.data.l[1] = NetWmStateMaximizedHorz;
 	xev.xclient.data.l[2] = NetWmStateMaximizedVert;
 
-	XSendEvent(XDisplay, DefaultRootWindow(XDisplay), False, SubstructureNotifyMask, &xev);
+	XSendEvent(XDisplay, DefaultRootWindow(XDisplay), false, SubstructureNotifyMask, &xev);
 
 	XClientMessageEvent ev;
 	std::memset(&ev, 0, sizeof ev);
@@ -527,9 +527,33 @@ void kui::systemWM::X11Window::Restore() const
 	ev.data.l[0] = 1;
 	ev.data.l[1] = CurrentTime;
 	ev.data.l[2] = ev.data.l[3] = ev.data.l[4] = 0;
-	XSendEvent(XDisplay, RootWindow(XDisplay, XDefaultScreen(XDisplay)), False,
+	XSendEvent(XDisplay, RootWindow(XDisplay, XDefaultScreen(XDisplay)), false,
 		SubstructureRedirectMask | SubstructureNotifyMask, (XEvent*)&ev);
 	XFlush(XDisplay);
+}
+
+void kui::systemWM::X11Window::SetIcon(uint8_t* TextureBytes, size_t Width, size_t Height)
+{
+	std::vector<long> ArgbFormat;
+
+	ArgbFormat.reserve(Width * Height + 2);
+	ArgbFormat.push_back(Width);
+	ArgbFormat.push_back(Height);
+
+	for (size_t i = 0; i < Width * Height * 4; i += 4)
+	{
+		uint8_t Bytes[4];
+		Bytes[0] = TextureBytes[i + 2]; // B
+		Bytes[1] = TextureBytes[i + 1]; // G
+		Bytes[2] = TextureBytes[i + 0]; // R
+		Bytes[3] = TextureBytes[i + 3]; // A
+
+		ArgbFormat.push_back(*reinterpret_cast<uint32_t*>(&Bytes));
+	}
+
+	Atom net_wm_icon = XInternAtom(XDisplay, "_NET_WM_ICON", false);
+	Atom cardinal = XInternAtom(XDisplay, "CARDINAL", false);
+	XChangeProperty(XDisplay, XWindow, net_wm_icon, cardinal, 32, PropModeReplace, (unsigned char*)ArgbFormat.data(), Width * Height + 2);
 }
 
 float kui::systemWM::X11Window::GetDPIScale()

@@ -22,7 +22,7 @@ element TranslationExample
 		child UIText
 		{
 			text = $"switch_language";
-			size = 10px;
+			size = 12px;
 			padding = 10px;
 			color = 1;
 		}
@@ -31,6 +31,6 @@ element TranslationExample
 	child UIText
 	{
 		text = $"hello_world";
-		size = 15px;
+		size = 18px;
 	}
 }

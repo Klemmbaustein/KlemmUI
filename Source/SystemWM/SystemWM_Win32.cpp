@@ -622,6 +622,63 @@ Vec2ui kui::systemWM::GetWindowSize(SysWindow* Target)
 	return Target->Size;
 }
 
+void kui::systemWM::SetWindowIcon(SysWindow* Target, uint8_t* Bytes, size_t Width, size_t Height)
+{
+	if (Target->LastIcon)
+	{
+		DestroyIcon(Target->LastIcon);
+	}
+	uint32_t* BitmapBytes = new uint32_t[Width * Height];
+
+	uint32_t* BitmapIterator = BitmapBytes;
+	for (size_t y = 0; y < Height; y++)
+	{
+		for (size_t x = 0; x < Width; x++)
+		{
+			uint32_t Pixel = ((uint32_t*)Bytes)[x + y * Width];
+			uint8_t A = (Pixel & 0xff000000) >> 24;
+			uint8_t B = (Pixel & 0xff0000) >> 16;
+			uint8_t G = (Pixel & 0xff00) >> 8;
+			uint8_t R = (Pixel & 0xff);
+			*BitmapIterator = (A << 24) | (R << 16) | (G << 8) | B;
+			BitmapIterator++;
+		}
+	}
+
+	ICONINFO IconInfo = { TRUE, NULL, NULL, NULL, CreateBitmap(Width, Height, 1, 32, BitmapBytes) };
+
+	HICON hIcon = NULL;
+	if (IconInfo.hbmColor)
+	{
+		IconInfo.hbmMask = CreateCompatibleBitmap(Target->DeviceContext, Width, Height);
+		if (IconInfo.hbmMask)
+		{
+			hIcon = CreateIconIndirect(&IconInfo);
+			if (hIcon == NULL)
+			{
+				app::error::Error("Failed to create icon.");
+			}
+			DeleteObject(IconInfo.hbmMask);
+		}
+		else
+		{
+			app::error::Error("Failed to create color mask.");
+		}
+		DeleteObject(IconInfo.hbmColor);
+
+		SendMessage(Target->WindowHandle, WM_SETICON, ICON_SMALL, (LPARAM)hIcon);
+		SendMessage(Target->WindowHandle, WM_SETICON, ICON_SMALL2, (LPARAM)hIcon);
+		SendMessage(Target->WindowHandle, WM_SETICON, ICON_BIG, (LPARAM)hIcon);
+		Target->LastIcon = hIcon;
+	}
+	else
+	{
+		app::error::Error("Failed to create bitmap mask.");
+	}
+
+	delete[] BitmapBytes;
+}
+
 void kui::systemWM::UpdateWindow(SysWindow*)
 {
 	MSG msg;

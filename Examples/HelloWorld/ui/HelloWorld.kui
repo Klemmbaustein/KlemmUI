@@ -9,6 +9,6 @@ element HelloWorld
 	child UIText
 	{
 		text = "Hello World!";
-		size = 15px;
+		size = 18px;
 	}
 }

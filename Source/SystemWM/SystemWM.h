@@ -36,6 +36,7 @@ namespace kui::systemWM
 	void UpdateWindowFlags(SysWindow* Parent, Window::WindowFlag NewFlags);
 
 	void SetTitle(SysWindow* Target, std::string Text);
+	void SetWindowIcon(SysWindow* Target, uint8_t* Bytes, size_t Width, size_t Height);
 
 	void SetClipboardText(std::string NewText);
 	std::string GetClipboardText();

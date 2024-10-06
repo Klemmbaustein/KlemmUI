@@ -205,12 +205,12 @@ void UIText::Update()
 	}
 	if (Wrap)
 	{
-		Text = Renderer->MakeText(RenderedText, OffsetPosition + Vec2f(0, Size.Y - GetRenderedSize() / 550 * Renderer->CharacterSize),
+		Text = Renderer->MakeText(RenderedText, OffsetPosition + Vec2f(0, Size.Y - GetRenderedSize() / 600 * Renderer->CharacterSize),
 			GetRenderedSize(), Color, Opacity, GetWrapDistance());
 	}
 	else
 	{
-		Text = Renderer->MakeText(RenderedText, OffsetPosition + Vec2f(0, Size.Y - GetRenderedSize() / 550 * Renderer->CharacterSize),
+		Text = Renderer->MakeText(RenderedText, OffsetPosition + Vec2f(0, Size.Y - GetRenderedSize() / 600 * Renderer->CharacterSize),
 			GetRenderedSize(), Color, Opacity, 999);
 	}
 }

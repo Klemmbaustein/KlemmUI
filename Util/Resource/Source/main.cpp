@@ -74,6 +74,7 @@ int main(int argc, char** argv)
 
 	GetFilesInDirectory(InPath, Paths);
 
+	std::filesystem::create_directories(OutPath.substr(0, OutPath.find_last_of("\\/")));
 	std::ofstream out = std::ofstream(OutPath);
 	std::filesystem::path CanonicalOutPath = std::filesystem::canonical(std::filesystem::path(OutPath));
 	std::filesystem::current_path(InPath);

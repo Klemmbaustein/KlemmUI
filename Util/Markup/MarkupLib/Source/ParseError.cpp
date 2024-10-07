@@ -29,11 +29,27 @@ void parseError::Error(const std::string& Message, const stringParse::StringToke
 	ErrorCount++;
 }
 
+static size_t GetLineIndexFromLineNumber(size_t Number, size_t Begin)
+{
+	using namespace kui::parseError;
+	for (size_t i = 0; i < LoadedCode->size(); i++)
+	{
+		for (auto& Token : LoadedCode->at(i).Strings)
+		{
+			if (Token.Line == Number && Token.BeginChar == Begin)
+			{
+				return i;
+			}
+		}
+	}
+	return LineIndex;
+}
+
 static void PrintError(std::string Message, size_t Line, size_t Begin, size_t End)
 {
 	using namespace parseError;
-	auto& LineContent = LoadedCode->at(LineIndex);
-	std::cerr << ActiveFile << ":" << Line + 1 << ": Error: " << Message << std::endl;
+	auto& LineContent = LoadedCode->at(GetLineIndexFromLineNumber(Line, Begin));
+	std::cerr << ActiveFile << "(" << Line + 1 << "," << Begin + 1 << ") Error: " << Message << std::endl;
 	std::string LineString;
 	for (auto& i : LineContent.Strings)
 	{
@@ -47,7 +63,12 @@ static void PrintError(std::string Message, size_t Line, size_t Begin, size_t En
 			LineString.append(" ");
 		}
 	}
-	std::cerr << LineString << std::endl;
+
+	std::string LineNumber = std::to_string(Line + 1) + ":";
+	LineNumber.resize(6, ' ');
+
+	std::cerr << LineNumber << LineString << std::endl;
+	std::cerr << "      ";
 	for (size_t i = 0; i < LineString.size(); i++)
 	{
 		std::cerr << '^';

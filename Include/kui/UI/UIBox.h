@@ -183,7 +183,7 @@ namespace kui
 		 * @return
 		 * The position of the box, where -1, -1 is the bottom left corner of the screen and 1, 1 is the top right corner.
 		 */
-		Vec2f GetPosition();
+		Vec2f GetPosition() const;
 
 		/**
 		 * @brief

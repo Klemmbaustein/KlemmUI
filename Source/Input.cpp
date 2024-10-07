@@ -102,7 +102,10 @@ kui::InputManager::InputManager(Window* Parent)
 		});
 
 	RegisterOnKeyDownCallback(Key::RETURN, [](Window* Win) {
-		Win->Input.PollForText = false;
+		if (!Win->Input.TextAllowNewLine)
+			Win->Input.PollForText = false;
+		else
+			Win->Input.AddTextInput("\n");
 		});
 
 	RegisterOnKeyDownCallback(Key::c, [](Window* Win) {
@@ -191,6 +194,10 @@ void kui::InputManager::MoveMouseWheel(int Amount)
 void kui::InputManager::AddTextInput(std::string Str)
 {
 	if (Str.empty())
+	{
+		return;
+	}
+	if (!CanEditText)
 	{
 		return;
 	}

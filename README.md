@@ -9,6 +9,8 @@ A C++20 UI library (maybe even a framework?) for creating lightweight cross plat
 - Added resource generator.
 - More options for styling backgrounds.
 - Better support for translation.
+- Added UIBlurBackground and UISpinner elements.
+- Improved how the UITextField element works.
 - Changed the way the resource generator and UI language are used in CMake to better work with
   the Ninja generator.
 

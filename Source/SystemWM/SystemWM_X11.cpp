@@ -63,6 +63,8 @@ static unsigned int GetX11CursorFont(kui::Window::Cursor CursorType)
 	case kui::Window::Cursor::Default: return XC_left_ptr;
 	case kui::Window::Cursor::Text: return XC_xterm;
 	case kui::Window::Cursor::Hand: return XC_hand2;
+	case kui::Window::Cursor::ResizeLeftRight: return XC_sb_h_double_arrow;
+	case kui::Window::Cursor::ResizeUpDown: return XC_sb_v_double_arrow;
 	default:
 		break;
 	}

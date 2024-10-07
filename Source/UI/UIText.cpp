@@ -1,6 +1,7 @@
 #include <kui/UI/UIText.h>
 #include <kui/App.h>
 #include <kui/Window.h>
+#include <kui/Rendering/ScrollObject.h>
 
 using namespace kui;
 
@@ -94,6 +95,11 @@ UIText* UIText::SetTextSizeMode(SizeMode NewMode)
 	return this;
 }
 
+Font* UIText::GetTextFont() const
+{
+	return Renderer;
+}
+
 float UIText::GetTextSize() const
 {
 	return TextSize / 2;
@@ -101,10 +107,10 @@ float UIText::GetTextSize() const
 
 Vec2f UIText::GetTextSizeAtScale(float Scale, SizeMode ScaleType, Font* Renderer)
 {
-	float RenderedSize = Scale;
+	float RenderedSize = Scale * 2;
 	if (ScaleType == SizeMode::PixelRelative)
 	{
-		RenderedSize = RenderedSize / Window::GetActiveWindow()->GetSize().Y * 50 * Window::GetActiveWindow()->GetDPI();
+		RenderedSize = RenderedSize / Window::GetActiveWindow()->GetSize().Y * 100 * Window::GetActiveWindow()->GetDPI();
 	}
 	return Renderer->GetTextSize({ TextSegment("A", 1) }, RenderedSize, false, 999999);
 }
@@ -139,8 +145,14 @@ size_t UIText::GetNearestLetterAtLocation(Vec2f Location) const
 {
 	if (Renderer == nullptr)
 		return 0;
-	size_t Depth = Renderer->GetCharacterIndexADistance(RenderedText, Location.X - OffsetPosition.X, GetRenderedSize());
-	return Depth;
+	
+	if (CurrentScrollObject)
+	{
+		Location.Y -= CurrentScrollObject->Percentage;
+	}
+
+	size_t Char = Renderer->GetCharacterAtPosition(RenderedText, Location - OffsetPosition - Vec2f(0, Size.Y), GetRenderedSize(), Wrap, GetWrapDistance());
+	return Char;
 }
 
 std::string UIText::GetText() const
@@ -171,8 +183,11 @@ UIText::~UIText()
 Vec2f UIText::GetLetterLocation(size_t Index) const
 {
 	if (!Renderer) return 0;
-	std::string Text = TextSegment::CombineToString(RenderedText);
-	return Vec2f(Renderer->GetTextSize({ TextSegment(Text.substr(0, Index), 1) }, GetRenderedSize(), false, 999).X, 0) + OffsetPosition;
+	Vec2f EndLocation;
+
+	Renderer->GetTextSize(RenderedText, GetRenderedSize(), Wrap, GetWrapDistance(), &EndLocation, Index);
+	EndLocation.Y = Size.Y - EndLocation.Y;
+	return EndLocation + OffsetPosition;
 }
 
 UIText* UIText::SetWrapEnabled(bool WrapEnabled, float WrapDistance, SizeMode WrapSizeMode)

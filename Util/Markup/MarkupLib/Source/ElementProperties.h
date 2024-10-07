@@ -48,6 +48,27 @@ std::vector<PropertyElement> kui::MarkupStructure::Properties
 		.SetFormat = { "SetHintText({val})" },
 		.VarType = UIElement::Variable::VariableType::String,
 	},
+	PropertyElement{
+		.Type = PropElementType::UITextField,
+		.Name = "text",
+		.Description = "The initial text of the text field.",
+		.SetFormat = { "SetText({val})" },
+		.VarType = UIElement::Variable::VariableType::String,
+	},
+	PropertyElement{
+		.Type = PropElementType::UITextField,
+		.Name = "canEdit",
+		.Description = "If the text field allows editing the text inside of it.",
+		.SetFormat = { "SetCanEdit({val})" },
+		.VarType = UIElement::Variable::VariableType::Bool,
+	},
+	PropertyElement{
+		.Type = PropElementType::UITextField,
+		.Name = "allowNewLine",
+		.Description = "If the text field allows newline characters as input.",
+		.SetFormat = { "SetAllowNewLine({val})" },
+		.VarType = UIElement::Variable::VariableType::Bool,
+	},
 #pragma endregion
 
 #pragma region UIScrollBox

@@ -12,7 +12,7 @@ namespace kui::internal
 	
 	void* GetGLFWMonitorOfWindow(Window* Target);
 
-	std::u32string GetUnicodeString(std::string utf8);
+	std::u32string GetUnicodeString(std::string utf8, bool SameLength = false);
 
 	extern std::mutex WindowCreationMutex;
 }

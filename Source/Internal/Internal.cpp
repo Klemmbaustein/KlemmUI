@@ -4,6 +4,7 @@
 #include <kui/App.h>
 #include "../SystemWM/SystemWM.h"
 #include <mutex>
+#include <cassert>
 
 bool IsGLEWStarted = false;
 std::mutex kui::internal::WindowCreationMutex;
@@ -17,7 +18,7 @@ void kui::internal::InitGLContext(Window* From)
 #if _WIN32
 		GLenum GLEWStatus = glewInit();
 #else
-		GLenum GLEWStatus = glewContextInit();
+		GLenum GLEWStatus = glewContextInit();  
 #endif
 		if (GLEWStatus != GLEW_OK)
 		{
@@ -55,7 +56,7 @@ void kui::internal::DrawWindow(Window* Target)
 	systemWM::SwapWindow(SysWindow);
 }
 
-std::u32string kui::internal::GetUnicodeString(std::string utf8)
+std::u32string kui::internal::GetUnicodeString(std::string utf8, bool SameLength)
 {
 	std::u32string unicode;
 	unicode.reserve(utf8.size());
@@ -108,6 +109,17 @@ std::u32string kui::internal::GetUnicodeString(std::string utf8)
 		if (uni > 0x10FFFF)
 			return std::u32string(utf8.begin(), utf8.end());
 		unicode.push_back(uni);
+		if (SameLength)
+		{
+			for (size_t j = 0; j < todo; j++)
+			{
+				unicode.push_back(1);
+			}
+		}
+	}
+	if (SameLength)
+	{
+		assert(utf8.size() == unicode.size());
 	}
 	return unicode;
 }

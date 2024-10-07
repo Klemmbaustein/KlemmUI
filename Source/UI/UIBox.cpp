@@ -211,7 +211,7 @@ UIBox* UIBox::SetPosition(Vec2f NewPosition)
 	return this;
 }
 
-Vec2f UIBox::GetPosition()
+Vec2f UIBox::GetPosition() const
 {
 	if (CurrentScrollObject)
 	{

@@ -42,6 +42,23 @@ static std::wstring ToWstring(std::string utf8)
 	return str;
 }
 
+static std::string FromWstring(std::wstring Wide)
+{
+	int length = WideCharToMultiByte(CP_UTF8, 0, Wide.c_str(), Wide.size(),
+		0, 0, NULL, NULL);
+	char* str = (char*)malloc((length + 1) * sizeof(char));
+	if (str)
+	{
+		WideCharToMultiByte(CP_UTF8, 0, Wide.c_str(), Wide.size(),
+			str, length, NULL, NULL);
+		str[length] = '\0';
+	}
+	std::string Out;
+	Out = str;
+	free(str);
+	return Out;
+}
+
 static std::array<Vec2ui, 2> AdjustWindowSize(Vec2ui Pos, Vec2ui InSize, DWORD Style, DWORD ExStyle)
 {
 	RECT SizeRect = RECT
@@ -166,11 +183,13 @@ namespace kui::systemWM::Borderless
 	}
 }
 
-static HCURSOR WindowCursors[3] =
+static HCURSOR WindowCursors[5] =
 {
 	LoadCursor(NULL, IDC_ARROW),
 	LoadCursor(NULL, IDC_HAND),
 	LoadCursor(NULL, IDC_IBEAM),
+	LoadCursor(NULL, IDC_SIZENS),
+	LoadCursor(NULL, IDC_SIZEWE),
 };
 
 // Used to make touch screen clicking work. When the user touches a point on the screen,
@@ -757,24 +776,25 @@ void kui::systemWM::SetClipboardText(std::string NewText)
 	{
 		return;
 	}
+	
+	std::wstring WideNewText = ToWstring(NewText);
 
 	HGLOBAL ClipBuffer;
-	char* buffer;
+	wchar_t* buffer;
 	EmptyClipboard();
-	ClipBuffer = GlobalAlloc(GMEM_DDESHARE, NewText.size() + 1);
+	ClipBuffer = GlobalAlloc(GMEM_DDESHARE, (WideNewText.size() + 1) * sizeof(wchar_t));
 	if (!ClipBuffer)
 	{
 		return;
 	}
-	buffer = (char*)GlobalLock(ClipBuffer);
+	buffer = (wchar_t*)GlobalLock(ClipBuffer);
 	if (!buffer)
 	{
 		return;
 	}
-
-	strcpy(buffer, NewText.c_str());
+	wcscpy(buffer, WideNewText.c_str());
 	GlobalUnlock(ClipBuffer);
-	SetClipboardData(CF_TEXT, ClipBuffer);
+	SetClipboardData(CF_UNICODETEXT, ClipBuffer);
 	CloseClipboard();
 }
 
@@ -785,13 +805,13 @@ std::string kui::systemWM::GetClipboardText()
 		return "";
 	}
 
-	HANDLE ClipboardDataHandle = GetClipboardData(CF_TEXT);
-	char* pszText = static_cast<char*>(GlobalLock(ClipboardDataHandle));
-	if (pszText == nullptr)
+	HANDLE ClipboardDataHandle = GetClipboardData(CF_UNICODETEXT);
+	wchar_t* WideText = static_cast<wchar_t*>(GlobalLock(ClipboardDataHandle));
+	if (WideText == nullptr)
 	{
 		return "";
 	}
-	std::string Text = pszText;
+	std::string Text = FromWstring(WideText);
 	GlobalUnlock(ClipboardDataHandle);
 	CloseClipboard();
 	return Text;

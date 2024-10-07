@@ -21,13 +21,14 @@ namespace kui
 		DrawableText* Text = nullptr;
 		float TextWidthOverride = 0;
 		float Opacity = 1.f;
-		SizeMode TextSizeMode = SizeMode::AspectRelative;
 		float GetRenderedSize() const;
 		float GetWrapDistance() const;
 	public:
 		UIText* SetFont(Font* NewFont);
+		Font* GetTextFont() const;
 		void Tick() override;
 		SizeMode WrapSizeMode = SizeMode::ScreenRelative;
+		SizeMode TextSizeMode = SizeMode::ScreenRelative;
 		bool Wrap = false;
 		float WrapDistance = 0.0f;
 		Vec3f GetColor() const;

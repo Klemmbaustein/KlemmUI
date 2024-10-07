@@ -1,6 +1,7 @@
 #pragma once
 #include "UIBackground.h"
 #include "../Vec3.h"
+#include "../Rendering/ScrollObject.h"
 
 namespace kui
 {
@@ -33,9 +34,14 @@ namespace kui
 		std::string HintText; // Will be displayed when the text field is empty
 		bool Dragging = false;
 
-		Vec2f TextHighlightPos;
-		Vec2f TextHighlightSize;
+		Vec2f TextHighlightStart;
+		ScrollObject TextScroll = ScrollObject(0, 1, 1);
+		Vec2f TextHighlightEnd;
 	public:
+		bool CanEdit = true;
+		bool AllowNewLine = false;
+		UITextField* SetAllowNewLine(bool NewValue);
+		UITextField* SetCanEdit(bool NewValue);
 		std::function<void()> OnClickedFunction = nullptr;
 		UIBox* ParentOverride = nullptr;
 		bool GetIsEdited() const { return IsEdited; }

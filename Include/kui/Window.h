@@ -278,8 +278,10 @@ namespace kui
 			Hand,
 			/// I-Beam cursor, used when hovering text.
 			Text,
+			ResizeUpDown,
+			ResizeLeftRight,
 			/// Cursor end index. Not an actual cursor.
-			Cursor_End
+			End
 		};
 		
 		/// The active cursor for this window. 
@@ -313,7 +315,7 @@ namespace kui
 		float DPI = 1;
 		void UpdateDPI();
 		void HandleCursor();
-		void* Cursors[(int)Cursor::Cursor_End];
+		void* Cursors[(int)Cursor::End];
 		WindowFlag CurrentWindowFlags;
 	};
 

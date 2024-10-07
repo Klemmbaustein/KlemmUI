@@ -89,9 +89,9 @@ namespace kui
 		std::vector<Glyph> LoadedGlyphs;
 
 		uint8_t TabSize = 4;
-		size_t GetCharacterIndexADistance(std::vector<TextSegment> Text, float Dist, float Scale);
+		size_t GetCharacterAtPosition(std::vector<TextSegment> Text, Vec2f Position, float Scale, bool Wrapped, float LengthBeforeWrap);
 		Font(std::string filename);
-		Vec2f GetTextSize(std::vector<TextSegment> Text, float Scale, bool Wrapped, float LengthBeforeWrap);
+		Vec2f GetTextSize(std::vector<TextSegment> Text, float Scale, bool Wrapped, float LengthBeforeWrap, Vec2f* EndPos = nullptr, size_t EndIndex = SIZE_MAX);
 		DrawableText* MakeText(std::vector<TextSegment> Text, Vec2f Pos, float Scale, Vec3f Color, float opacity, float LengthBeforeWrap);
 		~Font();
 

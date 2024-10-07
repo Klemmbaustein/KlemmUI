@@ -8,12 +8,19 @@
 #include <kui/Rendering/Shader.h>
 #include <kui/Window.h>
 #include <cmath>
+#include <iostream>
 
 using namespace kui;
 
 void UITextField::Tick()
 {
-	TextObject->WrapDistance = std::max(std::max(Size.X * 1.3f, GetMinSize().X), 0.1f) * 2;
+	TextObject->WrapDistance = Size.X - 0.01f;
+	float CharSize = UIText::GetTextSizeAtScale(TextSize, TextObject->TextSizeMode, TextObject->GetTextFont()).Y;
+	if (TextObject->GetUsedSize().Y > Size.Y)
+		TextScroll.MaxScroll = std::max(TextObject->GetUsedSize().Y - Size.Y + 0.025f, 0.0f);
+	else
+		TextScroll.MaxScroll = 0;
+	TextObject->CurrentScrollObject = &this->TextScroll;
 
 	Vec2f Offset;
 	if (CurrentScrollObject != nullptr)
@@ -73,6 +80,8 @@ void UITextField::Tick()
 
 	if (IsEdited)
 	{
+		ParentWindow->Input.TextAllowNewLine = AllowNewLine;
+		ParentWindow->Input.CanEditText = CanEdit;
 		EnteredText = ParentWindow->Input.Text;
 		if (!ParentWindow->Input.PollForText)
 		{
@@ -88,11 +97,25 @@ void UITextField::Tick()
 			RedrawElement();
 		}
 	}
+
+	std::string NewText = EnteredText.empty() && !IsEdited ? HintText : EnteredText;
+
 	TextObject->SetColor(EnteredText.empty() && !IsEdited ? Vec3f::Lerp(TextColor, Color, 0.25f) : TextColor);
-	TextObject->SetText(EnteredText.empty() && !IsEdited ? HintText : EnteredText);
+
+	if (NewText != TextObject->GetText())
+	{
+		TextObject->SetText(NewText);
+		RedrawElement();
+	}
 
 	TextTimer += ParentWindow->GetDeltaTime();
+
 	Vec2f EditedTextPos = IsEdited ? TextObject->GetLetterLocation(ParentWindow->Input.TextIndex) : 0;
+	float CursorFraction = (OffsetPosition.Y - EditedTextPos.Y) / Size.Y + 1;
+
+	if (!Dragging && IsEdited && ParentWindow->Input.TextSelectionStart == ParentWindow->Input.TextIndex)
+		TextScroll.Percentage = std::max((CursorFraction - 1) * Size.Y + 0.025f, 0.0f);
+	TextScroll.Percentage = std::min(TextScroll.Percentage, TextScroll.MaxScroll);
 
 	if (fmod(TextTimer, 1) < 0.5f && IsEdited)
 	{
@@ -100,7 +123,7 @@ void UITextField::Tick()
 		{
 			TextTimer = 0;
 			IBeamPosition = EditedTextPos;
-			IBeamScale = Vec2f(2.0f / ParentWindow->GetSize().X, TextObject->GetUsedSize().Y);
+			IBeamScale = Vec2f(2.0f / ParentWindow->GetSize().X, CharSize);
 			RedrawElement();
 		}
 		if (!ShowIBeam)
@@ -120,12 +143,25 @@ void UITextField::Tick()
 
 	if (IsEdited)
 	{
-		TextHighlightPos = TextObject->GetLetterLocation(ParentWindow->Input.TextSelectionStart);
-		TextHighlightSize = Vec2f(std::abs(EditedTextPos.X - TextHighlightPos.X), TextObject->GetUsedSize().Y);
-
-		float MinX = std::min(EditedTextPos.X, TextHighlightPos.X);
-		TextHighlightPos.X = MinX;
+		TextHighlightStart = TextObject->GetLetterLocation(ParentWindow->Input.TextSelectionStart);
+		TextHighlightEnd = IBeamPosition;
+		if (TextHighlightStart.Y > TextHighlightEnd.Y)
+			std::swap(TextHighlightStart, TextHighlightEnd);
+		if (TextHighlightStart.Y == TextHighlightEnd.Y && TextHighlightStart.X > TextHighlightEnd.X)
+			std::swap(TextHighlightStart, TextHighlightEnd);
 	}
+}
+
+UITextField* UITextField::SetAllowNewLine(bool NewValue)
+{
+	this->AllowNewLine = NewValue;
+	return this;
+}
+
+UITextField* UITextField::SetCanEdit(bool NewValue)
+{
+	this->CanEdit = NewValue;
+	return this;
 }
 
 UITextField* UITextField::SetText(std::string NewText)
@@ -230,19 +266,64 @@ void UITextField::Update()
 {
 }
 
+bool kui::UITextField::GetIsHovered() const
+{
+	return IsHovered;
+}
+
+bool kui::UITextField::GetIsPressed() const
+{
+	return IsPressed;
+}
+
 void UITextField::DrawBackground()
 {
+	TextScroll.Position = GetPosition();
+	TextScroll.Scale = Vec2f(0) - Size;
 	BackgroundShader->Bind();
 	BoxVertexBuffer->Bind();
 
-	if (IsEdited)
+	BackgroundShader->SetVec3("u_offset",
+		Vec3f(-TextScroll.Percentage, TextScroll.Position.Y, TextScroll.Position.Y - TextScroll.Scale.Y));
+
+	if (IsEdited && ParentWindow->Input.TextSelectionStart != ParentWindow->Input.TextIndex)
 	{
-		BackgroundShader->SetVec3("u_color", Vec3f(0.25f, 1, 1));
-		BackgroundShader->SetInt("u_drawCorner", 0);
-		BackgroundShader->SetInt("u_drawBorder", 0);
-		BackgroundShader->SetFloat("u_opacity", 0.5f);
-		glUniform4f(glGetUniformLocation(BackgroundShader->GetShaderID(), "u_transform"), TextHighlightPos.X, TextHighlightPos.Y, TextHighlightSize.X, TextHighlightSize.Y);
-		BoxVertexBuffer->Draw();
+		float CharSize = IBeamScale.Y;
+		auto DrawHighlight = [this, CharSize](Vec2f Start, Vec2f End)
+			{
+				BackgroundShader->SetVec3("u_color", Vec3f(0.25f, 1, 1));
+				BackgroundShader->SetInt("u_drawCorner", 0);
+				BackgroundShader->SetInt("u_drawBorder", 0);
+				BackgroundShader->SetFloat("u_opacity", 0.5f);
+				Vec2f Size = End - Start;
+				glUniform4f(glGetUniformLocation(BackgroundShader->GetShaderID(), "u_transform"),
+					Start.X, Start.Y, Size.X, Size.Y + CharSize
+				);
+
+				BoxVertexBuffer->Draw();
+			};
+
+		if (TextHighlightStart.Y == TextHighlightEnd.Y)
+		{
+			DrawHighlight(TextHighlightStart, TextHighlightEnd);
+		}
+		else
+		{
+
+			size_t Difference = std::round((TextHighlightEnd.Y - TextHighlightStart.Y) / CharSize);
+
+			if (Difference == 1)
+			{
+				DrawHighlight(TextHighlightEnd, Vec2f(OffsetPosition.X + Size.X, TextHighlightEnd.Y));
+				DrawHighlight(Vec2f(OffsetPosition.X, TextHighlightStart.Y), TextHighlightStart);
+			}
+			else
+			{
+				DrawHighlight(TextHighlightEnd, Vec2f(OffsetPosition.X + Size.X, TextHighlightEnd.Y));
+				DrawHighlight(Vec2f(OffsetPosition.X, TextHighlightStart.Y + CharSize), Vec2f(OffsetPosition.X + Size.X, TextHighlightEnd.Y - CharSize));
+				DrawHighlight(TextHighlightStart, Vec2f(OffsetPosition.X, TextHighlightStart.Y));
+			}
+		}
 	}
 
 	if (ShowIBeam)
@@ -251,7 +332,8 @@ void UITextField::DrawBackground()
 		BackgroundShader->SetInt("u_drawCorner", 0);
 		BackgroundShader->SetInt("u_drawBorder", 0);
 		BackgroundShader->SetFloat("u_opacity", 1);
-		glUniform4f(glGetUniformLocation(BackgroundShader->GetShaderID(), "u_transform"), IBeamPosition.X, IBeamPosition.Y, IBeamScale.X, IBeamScale.Y);
+		glUniform4f(glGetUniformLocation(BackgroundShader->GetShaderID(), "u_transform"),
+			IBeamPosition.X, IBeamPosition.Y, IBeamScale.X, IBeamScale.Y);
 		BoxVertexBuffer->Draw();
 	}
 

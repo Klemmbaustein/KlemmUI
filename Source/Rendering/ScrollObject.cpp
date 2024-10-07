@@ -33,7 +33,7 @@ void ScrollObject::ScrollUp()
 	}
 	if (internal::math::IsPointIn2DBox(Position - Scale, Position, Window::GetActiveWindow()->Input.MousePosition))
 	{
-		Percentage += Speed / 100.f;
+		Percentage += Speed / float(Window::GetActiveWindow()->GetSize().Y) * 5.0f;
 	}
 	if (Percentage > MaxScroll)
 	{
@@ -53,7 +53,7 @@ void ScrollObject::ScrollDown()
 	}
 	if (internal::math::IsPointIn2DBox(Position - Scale, Position, Window::GetActiveWindow()->Input.MousePosition))
 	{
-		Percentage -= Speed / 100.f;
+		Percentage -= Speed / float(Window::GetActiveWindow()->GetSize().Y) * 5.0f;
 	}
 	if (Percentage < 0)
 		Percentage = 0;

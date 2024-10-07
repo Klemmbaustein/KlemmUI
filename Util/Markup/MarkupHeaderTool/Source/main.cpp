@@ -1,4 +1,5 @@
 #include <Markup/MarkupStructure.h>
+#include <Markup/MarkupVerify.h>
 #include "Markup/MarkupParse.h"
 #include "Markup/ParseError.h"
 #include "Markup/WriteHeader.h"
@@ -83,6 +84,13 @@ int main(int argc, const char** argv)
 
 	auto ParsedFiles = kui::MarkupParse::ParseFiles(Entries);
 
+	if (kui::parseError::GetErrorCount())
+	{
+		std::cout << "Errors occurred - stopping." << std::endl;
+		return 1;
+	}
+
+	kui::markupVerify::Verify(ParsedFiles);
 	if (kui::parseError::GetErrorCount())
 	{
 		std::cout << "Errors occurred - stopping." << std::endl;

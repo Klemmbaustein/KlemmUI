@@ -24,7 +24,7 @@ float UIText::GetWrapDistance() const
 	}
 	if (WrapSizeMode == SizeMode::PixelRelative)
 	{
-		Distance = UIBox::PixelSizeToScreenSize(Vec2f((float)Distance, 0.0), ParentWindow).X;
+		Distance = UIBox::PixelSizeToScreenSize(Vec2f(Distance, 0.0), ParentWindow).X;
 	}
 	return Distance;
 }
@@ -58,7 +58,6 @@ UIText* UIText::SetColor(Vec3f NewColor)
 		{
 			i.Color = Color;
 		}
-		Update();
 		RedrawElement();
 	}
 	return this;
@@ -151,7 +150,8 @@ size_t UIText::GetNearestLetterAtLocation(Vec2f Location) const
 		Location.Y -= CurrentScrollObject->Percentage;
 	}
 
-	size_t Char = Renderer->GetCharacterAtPosition(RenderedText, Location - OffsetPosition - Vec2f(0, Size.Y), GetRenderedSize(), Wrap, GetWrapDistance());
+	size_t Char = Renderer->GetCharacterAtPosition(RenderedText, Location - OffsetPosition - Vec2f(0, Size.Y),
+		GetRenderedSize(), Wrap, GetWrapDistance());
 	return Char;
 }
 

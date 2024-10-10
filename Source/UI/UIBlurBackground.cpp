@@ -8,7 +8,7 @@
 
 const float BlurScale = 0.02f;
 
-Vec2ui kui::UIBlurBackground::GetPixelSize()
+kui::Vec2ui kui::UIBlurBackground::GetPixelSize()
 {
 	return Vec2ui::Max(Vec2ui(
 		ParentWindow->GetSize().X * Size.X * 0.5f * BlurScale,

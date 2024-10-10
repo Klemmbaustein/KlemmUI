@@ -46,19 +46,31 @@ void markupVerify::VerifyElement(UIElement& Element, const MarkupElement& Root, 
 
 		std::string Value = prop.Value.Text;
 
-		for (auto& i : Structure.Constants)
+		Constant* FoundConstant = Structure.GetConstant(Value);
+		if (FoundConstant)
 		{
-			if (i.Name == Value)
-			{
-				Value = i.Value;
-			}
+			Value = FoundConstant->Value;
 		}
-		
+
+		Global* FoundGlobal = Structure.GetGlobal(Value);
+		if (FoundGlobal)
+		{
+			if (FoundGlobal->Type == VariableType::None)
+			{
+				FoundGlobal->Type = FoundValue->VarType;
+			}
+			else
+			{
+				parseError::Error("Global '" + Value + "' does not have the correct type for the value of '" + prop.Name.Text + "'", prop.Value);
+			}
+			continue;
+		}
+
 		if (Root.Root.Variables.contains(Value))
 		{
 			auto& Variable = Element.Variables[Value];
 
-			if (Variable.Type == UIElement::Variable::VariableType::None)
+			if (Variable.Type == VariableType::None)
 			{
 				Variable.Type = FoundValue->VarType;
 			}
@@ -71,44 +83,44 @@ void markupVerify::VerifyElement(UIElement& Element, const MarkupElement& Root, 
 
 		switch (FoundValue->VarType)
 		{
-		case UIElement::Variable::VariableType::String:
+		case VariableType::String:
 			if (!IsStringToken(Value))
 				parseError::Error("Expected a string for value '" + prop.Name.Text + "'", prop.Value);
 			break;
 
-		case UIElement::Variable::VariableType::Size:
+		case VariableType::Size:
 			if (!IsSizeValue(Value))
 				parseError::Error("Expected a size for value '" + prop.Value.Text + "'", prop.Value);
 			break;
 
-		case UIElement::Variable::VariableType::SizeNumber:
+		case VariableType::SizeNumber:
 			if (!Is1DSizeValue(Value))
 				parseError::Error("Expected a size for value '" + prop.Name.Text + "'", prop.Value);
 			break;
 
-		case UIElement::Variable::VariableType::Align:
+		case VariableType::Align:
 			if (GetAlign(Value).empty())
 				parseError::Error("Expected a valid align value for '" + prop.Name.Text + "'", prop.Value);
 			break;
 
-		case UIElement::Variable::VariableType::Bool:
+		case VariableType::Bool:
 			if (Value != "true" && Value != "false")
 				parseError::Error("Expected a valid boolean value for '" + prop.Name.Text + "'", prop.Value);
 			break;
 
-		case UIElement::Variable::VariableType::Vector3:
-		case UIElement::Variable::VariableType::Vec2:
+		case VariableType::Vector3:
+		case VariableType::Vec2:
 			if (!IsVectorToken(Value) && !IsNumber(Value))
 			{
 				parseError::Error("Expected a valid vector value for '" + prop.Name.Text + "'", prop.Value);
 			}
 			break;
-		case UIElement::Variable::VariableType::Orientation:
+		case VariableType::Orientation:
 			if (Value != "horizontal" && Value != "vertical")
 				parseError::Error("Expected a valid orientation for '" + prop.Name.Text + "'", prop.Value);
 			break;
 
-		case UIElement::Variable::VariableType::SizeMode:
+		case VariableType::SizeMode:
 		default:
 			break;
 		}

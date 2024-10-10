@@ -1,6 +1,7 @@
 #include "Framebuffer.h"
 #include <GL/glew.h>
 #include <iostream>
+using namespace kui::internal;
 
 Framebuffer::Framebuffer(Vec2ui Resolution)
 {

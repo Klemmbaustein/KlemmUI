@@ -59,7 +59,7 @@ static std::string FromWstring(std::wstring Wide)
 	return Out;
 }
 
-static std::array<Vec2ui, 2> AdjustWindowSize(Vec2ui Pos, Vec2ui InSize, DWORD Style, DWORD ExStyle)
+static std::array<kui::Vec2ui, 2> AdjustWindowSize(kui::Vec2ui Pos, kui::Vec2ui InSize, DWORD Style, DWORD ExStyle)
 {
 	RECT SizeRect = RECT
 	{
@@ -73,8 +73,8 @@ static std::array<Vec2ui, 2> AdjustWindowSize(Vec2ui Pos, Vec2ui InSize, DWORD S
 
 	return
 	{
-		Vec2ui(SizeRect.left, SizeRect.top),
-		Vec2ui(SizeRect.right - SizeRect.left, SizeRect.bottom - SizeRect.top)
+		kui::Vec2ui(SizeRect.left, SizeRect.top),
+		kui::Vec2ui(SizeRect.right - SizeRect.left, SizeRect.bottom - SizeRect.top)
 	};
 }
 
@@ -323,7 +323,7 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
 	case WM_CHAR:
 	case WM_SYSCHAR:
 	{
-		if (wParam < '\t')
+		if (wParam < ' ' && wParam != '\t')
 		{
 			break;
 		}
@@ -636,7 +636,7 @@ void kui::systemWM::ActivateContext(SysWindow* Target)
 	Target->MakeContextActive();
 }
 
-Vec2ui kui::systemWM::GetWindowSize(SysWindow* Target)
+kui::Vec2ui kui::systemWM::GetWindowSize(SysWindow* Target)
 {
 	return Target->Size;
 }
@@ -715,7 +715,7 @@ bool kui::systemWM::WindowHasFocus(SysWindow* Target)
 	return GetFocus() == Target->WindowHandle;
 }
 
-Vec2i kui::systemWM::GetCursorPosition(SysWindow* Target)
+kui::Vec2i kui::systemWM::GetCursorPosition(SysWindow* Target)
 {
 	POINT p;
 	if (GetCursorPos(&p) && ScreenToClient(Target->WindowHandle, &p))
@@ -725,7 +725,7 @@ Vec2i kui::systemWM::GetCursorPosition(SysWindow* Target)
 	return 0;
 }
 
-Vec2ui kui::systemWM::GetScreenSize()
+kui::Vec2ui kui::systemWM::GetScreenSize()
 {
 	HWND Desktop = GetDesktopWindow();
 	RECT Size;

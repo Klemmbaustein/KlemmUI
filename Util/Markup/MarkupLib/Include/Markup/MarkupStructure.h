@@ -31,6 +31,23 @@ namespace kui::MarkupStructure
 		Unknown,
 	};
 
+	enum class VariableType
+	{
+		None,
+		Number,
+		String,
+		Size,
+		SizeNumber,
+		SizeMode,
+		Align,
+		Vector3,
+		Vec2,
+		Bool,
+		Orientation,
+		Callback,
+		CallbackIndex,
+	};
+
 	struct UIElement
 	{
 		static bool IsDefaultElement(const std::string& Name);
@@ -52,28 +69,12 @@ namespace kui::MarkupStructure
 		std::vector<Property> ElementProperties;
 		size_t StartChar = 0, StartLine = 0, EndChar = 0, EndLine = 0;
 		std::vector<Property> TranslatedProperties;
+		std::vector<Property> GlobalProperties;
 
 		struct Variable
 		{
 			std::string Value;
 			std::vector<std::string> References;
-
-			enum class VariableType
-			{
-				None,
-				Number,
-				String,
-				Size,
-				SizeNumber,
-				SizeMode,
-				Align,
-				Vector3,
-				Vec2,
-				Bool,
-				Orientation,
-				Callback,
-				CallbackIndex,
-			};
 
 			struct VariableTypeDescription
 			{
@@ -98,6 +99,12 @@ namespace kui::MarkupStructure
 		std::string Name;
 		std::string Value;
 	};
+	struct Global
+	{
+		std::string Name;
+		VariableType Type = VariableType::None;
+		std::string Value;
+	};
 
 	PropElementType GetTypeFromString(std::string TypeName);
 	std::string GetStringFromType(PropElementType Type);
@@ -112,7 +119,7 @@ namespace kui::MarkupStructure
 		// If the VarType is Size, then a second function needs to be specified that sets the size mode.
 		std::string SetSizeFormat;
 		std::string (*CreateCodeFunction)(std::string InValue) = nullptr;
-		UIElement::Variable::VariableType VarType;
+		VariableType VarType;
 		bool AlwaysSet = false;
 		std::string Default;
 	};
@@ -134,8 +141,10 @@ namespace kui::MarkupStructure
 	{
 		std::vector<MarkupElement> Elements;
 		std::vector<Constant> Constants;
+		std::vector<Global> Globals;
 		std::map<std::string, std::vector<stringParse::Line>> FileLines;
 
 		Constant* GetConstant(std::string Name);
+		Global* GetGlobal(std::string Name);
 	};
 }

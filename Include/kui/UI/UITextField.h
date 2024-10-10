@@ -36,6 +36,7 @@ namespace kui
 
 		Vec2f TextHighlightStart;
 		ScrollObject TextScroll = ScrollObject(0, 1, 1);
+		ScrollObject TextRenderScroll = ScrollObject(0, 1, 1, false);
 		Vec2f TextHighlightEnd;
 	public:
 		bool CanEdit = true;

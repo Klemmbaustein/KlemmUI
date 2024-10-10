@@ -248,7 +248,7 @@ void UIBackground::Draw()
 	glBindTexture(GL_TEXTURE_2D, TextureID);
 	BoxVertexBuffer->Bind();
 	ScrollTick(BackgroundShader);
-	BackgroundShader->SetVec3("u_color", ParentWindow->Input.IsRMBDown ? Vec3f(1, 0, 1) : Color);
+	BackgroundShader->SetVec3("u_color", Color);
 	BackgroundShader->SetVec3("u_borderColor", BorderColor);
 
 	Vec2ui WindowSize = ParentWindow->GetSize() / 2;

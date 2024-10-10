@@ -363,6 +363,8 @@ std::string kui::stringParse::GetBorderType(std::string Element)
 
 bool kui::stringParse::IsNumber(std::string Element)
 {
+	if (Element.empty())
+		return false;
 	char* p;
 	return (strspn(Element.c_str(), "-.0123456789") == Element.size());
 	return !(*p);
@@ -393,7 +395,7 @@ std::string kui::stringParse::ToCppCode(std::string Value)
 		std::string OutString;
 
 		std::string Value;
-
+		size_t Count = 0;
 		for (auto& i : Strings)
 		{
 			if (i == ",")
@@ -405,12 +407,17 @@ std::string kui::stringParse::ToCppCode(std::string Value)
 				Value += i;
 				OutString.append("float(" + Value + ")");
 				Value.clear();
+				Count++;
 			}
 			else
 			{
 				Value += i;
 			}
 		}
+		if (Count == 3)
+			return "kui::Vec3f(" + OutString + ")";
+		if (Count == 2)
+			return "kui::Vec2f(" + OutString + ")";
 		return OutString;
 	}
 	if (IsSizeValue(Value))

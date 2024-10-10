@@ -3,6 +3,7 @@
 #include "Internal/Internal.h"
 #include "SystemWM/SystemWM.h"
 #include <kui/UI/UIButton.h>
+#include <kui/UI/UIScrollBox.h>
 #include <kui/UI/UITextField.h>
 #include <kui/Image.h>
 #include <mutex>
@@ -20,8 +21,8 @@ static thread_local bool HasMainWindow = false;
 static thread_local bool RedrawnWindow = false;
 #endif
 
-const Vec2ui kui::Window::POSITION_CENTERED = Vec2ui(UINT64_MAX, UINT64_MAX);
-const Vec2ui kui::Window::SIZE_DEFAULT = Vec2ui(UINT64_MAX, UINT64_MAX);
+const kui::Vec2ui kui::Window::POSITION_CENTERED = Vec2ui(UINT64_MAX, UINT64_MAX);
+const kui::Vec2ui kui::Window::SIZE_DEFAULT = Vec2ui(UINT64_MAX, UINT64_MAX);
 std::vector<kui::Window*> kui::Window::ActiveWindows;
 
 void kui::Window::UpdateSize()
@@ -186,7 +187,7 @@ bool kui::Window::HasFocus()
 	return systemWM::WindowHasFocus(SysWindow);
 }
 
-Vec2ui kui::Window::GetSize() const
+kui::Vec2ui kui::Window::GetSize() const
 {
 	return WindowSize;
 }
@@ -271,9 +272,17 @@ void kui::Window::HandleCursor()
 	SYS_WINDOW_PTR(SysWindow);
 
 	systemWM::SetWindowCursor(SysWindow, CurrentCursor);
-	CurrentCursor = dynamic_cast<UIButton*>(UI.HoveredBox)
-		? Cursor::Hand
-		: (dynamic_cast<UITextField*>(UI.HoveredBox) ? Cursor::Text : Cursor::Default);
+
+	if (UIScrollBox::IsDraggingScrollBox)
+	{
+		CurrentCursor = Cursor::Hand;
+	}
+	else
+	{
+		CurrentCursor = dynamic_cast<UIButton*>(UI.HoveredBox)
+			? Cursor::Hand
+			: (dynamic_cast<UITextField*>(UI.HoveredBox) ? Cursor::Text : Cursor::Default);
+	}
 }
 
 bool kui::Window::UpdateWindow()

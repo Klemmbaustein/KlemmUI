@@ -12,7 +12,18 @@ std::string kui::markup::MarkupBox::GetTranslation(const char* TranslationConsta
 	return Markup.GetString(TranslationConstant);
 }
 
+kui::AnyContainer kui::markup::MarkupBox::GetGlobal(const char* GlobalName, AnyContainer DefaultValue)
+{
+	auto& Markup = Window::GetActiveWindow()->Markup;
+	HasGlobal = true;
+	return Markup.ListenToGlobal(GlobalName, DefaultValue, this, [this]() {this->OnGlobalChanged(); });
+}
+
 void kui::markup::MarkupBox::OnTranslationChanged()
+{
+}
+
+void kui::markup::MarkupBox::OnGlobalChanged()
 {
 }
 
@@ -29,5 +40,11 @@ kui::markup::MarkupBox::~MarkupBox()
 				break;
 			}
 		}
+	}
+
+	if (HasGlobal && Window::GetActiveWindow())
+	{
+		auto& Markup = Window::GetActiveWindow()->Markup;
+		Markup.RemoveGlobalListener(this);
 	}
 }

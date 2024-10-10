@@ -11,10 +11,11 @@ namespace kui
 	{
 	public:
 		std::any Value;
+		bool Empty = false;
 
 		AnyContainer()
 		{
-
+			Empty = true;
 		}
 
 		AnyContainer(std::any Value)
@@ -48,6 +49,8 @@ namespace kui
 
 		operator float()
 		{
+			if (Empty)
+				return 0;
 			try
 			{
 				return std::any_cast<float>(Value);
@@ -59,6 +62,8 @@ namespace kui
 		}
 		operator std::string()
 		{
+			if (Empty)
+				return "";
 			try
 			{
 				return std::any_cast<std::string>(Value);
@@ -68,12 +73,16 @@ namespace kui
 				return std::any_cast<const char*>(Value);
 			}
 		}
-		operator Vec2f()
+		Vec2f AsVec2()
 		{
+			if (Empty)
+				return 0;
 			return std::any_cast<Vec2f>(Value);
 		}
-		operator Vec3f()
+		Vec3f AsVec3()
 		{
+			if (Empty)
+				return 0;
 			return std::any_cast<Vec3f>(Value);
 		}
 	};
@@ -81,9 +90,21 @@ namespace kui
 	class MarkupLanguageManager
 	{
 		std::map<std::string, Font*> Fonts;
+		struct GlobalInfo
+		{
+			AnyContainer Value;
+			std::map<void*, std::function<void()>> OnChangedCallbacks;
+		};
+
+		std::map<std::string, GlobalInfo> Globals;
 		std::function<std::string(std::string)> GetStringFunction;
 	public:
 		std::vector<std::pair<void*, std::function<void()>>> TranslationChangedCallbacks;
+
+		AnyContainer ListenToGlobal(const char* GlobalName, AnyContainer DefaultValue, void* Target, std::function<void()> OnChanged);
+		void RemoveGlobalListener(void* Target);
+
+		void SetGlobal(const char* GlobalName, AnyContainer Value);
 
 		void OnTranslationChanged();
 

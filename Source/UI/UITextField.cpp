@@ -5,6 +5,7 @@
 #include <GL/glew.h>
 #include <kui/App.h>
 #include <kui/Rendering/ScrollObject.h>
+#include <kui/UI/UIScrollBox.h>
 #include <kui/Rendering/Shader.h>
 #include <kui/Window.h>
 #include <cmath>
@@ -20,14 +21,15 @@ void UITextField::Tick()
 		TextScroll.MaxScroll = std::max(TextObject->GetUsedSize().Y - Size.Y + 0.025f, 0.0f);
 	else
 		TextScroll.MaxScroll = 0;
-	TextObject->CurrentScrollObject = &this->TextScroll;
+	TextObject->CurrentScrollObject = &this->TextRenderScroll;
+
 
 	Vec2f Offset;
 	if (CurrentScrollObject != nullptr)
 	{
 		Offset.Y = CurrentScrollObject->Percentage;
 	}
-	if (ParentWindow->UI.HoveredBox == this)
+	if (ParentWindow->UI.HoveredBox == this && !UIScrollBox::IsDraggingScrollBox)
 	{
 		size_t Nearest = TextObject->GetNearestLetterAtLocation(ParentWindow->Input.MousePosition);
 		if (!IsHovered)
@@ -117,15 +119,16 @@ void UITextField::Tick()
 		TextScroll.Percentage = std::max((CursorFraction - 1) * Size.Y + 0.025f, 0.0f);
 	TextScroll.Percentage = std::min(TextScroll.Percentage, TextScroll.MaxScroll);
 
+	if (EditedTextPos != IBeamPosition)
+	{
+		TextTimer = 0;
+		IBeamPosition = EditedTextPos;
+		IBeamScale = Vec2f(2.0f / ParentWindow->GetSize().X, CharSize);
+		RedrawElement();
+	}
+
 	if (fmod(TextTimer, 1) < 0.5f && IsEdited)
 	{
-		if (EditedTextPos != IBeamPosition)
-		{
-			TextTimer = 0;
-			IBeamPosition = EditedTextPos;
-			IBeamScale = Vec2f(2.0f / ParentWindow->GetSize().X, CharSize);
-			RedrawElement();
-		}
 		if (!ShowIBeam)
 		{
 			RedrawElement();
@@ -280,11 +283,31 @@ void UITextField::DrawBackground()
 {
 	TextScroll.Position = GetPosition();
 	TextScroll.Scale = Vec2f(0) - Size;
+	
+	Vec2f Pos = Vec2f(TextScroll.Position.Y, TextScroll.Position.Y - TextScroll.Scale.Y);
+	float Percentage = -TextScroll.Percentage;
+
+	if (CurrentScrollObject)
+	{
+		Percentage -= CurrentScrollObject->Percentage;
+		TextRenderScroll.Position = CurrentScrollObject->Position;
+		TextRenderScroll.Scale = CurrentScrollObject->Scale;
+		TextRenderScroll.Percentage = CurrentScrollObject->Percentage - TextScroll.Percentage;
+		Pos = Vec2f(TextRenderScroll.Position.Y, TextRenderScroll.Position.Y - TextRenderScroll.Scale.Y);
+	}
+	else
+	{
+		TextRenderScroll.Position = TextScroll.Position;
+		TextRenderScroll.Scale = TextScroll.Scale;
+		TextRenderScroll.Percentage = TextScroll.Percentage;
+	}
 	BackgroundShader->Bind();
 	BoxVertexBuffer->Bind();
 
+
+
 	BackgroundShader->SetVec3("u_offset",
-		Vec3f(-TextScroll.Percentage, TextScroll.Position.Y, TextScroll.Position.Y - TextScroll.Scale.Y));
+		Vec3f(Percentage, Pos.X, Pos.Y));
 
 	if (IsEdited && ParentWindow->Input.TextSelectionStart != ParentWindow->Input.TextIndex)
 	{
@@ -309,7 +332,6 @@ void UITextField::DrawBackground()
 		}
 		else
 		{
-
 			size_t Difference = std::round((TextHighlightEnd.Y - TextHighlightStart.Y) / CharSize);
 
 			if (Difference == 1)
@@ -320,7 +342,10 @@ void UITextField::DrawBackground()
 			else
 			{
 				DrawHighlight(TextHighlightEnd, Vec2f(OffsetPosition.X + Size.X, TextHighlightEnd.Y));
-				DrawHighlight(Vec2f(OffsetPosition.X, TextHighlightStart.Y + CharSize), Vec2f(OffsetPosition.X + Size.X, TextHighlightEnd.Y - CharSize));
+				DrawHighlight(
+					Vec2f(OffsetPosition.X, TextHighlightStart.Y + CharSize), 
+					Vec2f(OffsetPosition.X + Size.X, TextHighlightEnd.Y - CharSize)
+				);
 				DrawHighlight(TextHighlightStart, Vec2f(OffsetPosition.X, TextHighlightStart.Y));
 			}
 		}

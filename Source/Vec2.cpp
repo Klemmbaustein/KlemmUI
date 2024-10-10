@@ -1,4 +1,5 @@
 #include <kui/Vec2.h>
+using namespace kui;
 
 template<typename T>
 Vec2<T>::Vec2()

@@ -12,17 +12,19 @@ std::set<ScrollObject*> ScrollObject::GetAllScrollObjects()
 	return AllScrollObjects;
 }
 
-ScrollObject::ScrollObject(Vec2f Position, Vec2f Scale, float MaxScroll)
+ScrollObject::ScrollObject(Vec2f Position, Vec2f Scale, float MaxScroll, bool Register)
 {
 	this->Position = Position;
 	this->Scale = Vec2f() - Scale;
-	AllScrollObjects.insert(this);
+	if (Register)
+		AllScrollObjects.insert(this);
 	this->MaxScroll = MaxScroll;
 }
 
 ScrollObject::~ScrollObject()
 {
-	AllScrollObjects.erase(this);
+	if (AllScrollObjects.contains(this))
+		AllScrollObjects.erase(this);
 }
 
 void ScrollObject::ScrollUp()

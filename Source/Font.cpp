@@ -10,6 +10,7 @@
 #include <GL/glew.h>
 #include <kui/Window.h>
 #include "Internal/Internal.h"
+#include <iostream>
 using namespace kui;
 
 
@@ -24,7 +25,7 @@ Shader* Font::GetTextShader()
 	return Window::GetActiveWindow()->Shaders.GetShader(TextShaderName);
 }
 
-static void ReplaceTabs(std::vector<TextSegment>& Text, size_t TabSize)
+static void ReplaceTabs(std::vector<TextSegment>& Text, size_t TabSize, char ReplaceWith = ' ')
 {
 	size_t CharIndex = 0;
 	for (auto& i : Text)
@@ -50,8 +51,6 @@ static void ReplaceTabs(std::vector<TextSegment>& Text, size_t TabSize)
 
 size_t Font::GetCharacterAtPosition(std::vector<TextSegment> Text, Vec2f Position, float Scale, bool Wrapped, float LengthBeforeWrap)
 {
-	ReplaceTabs(Text, TabSize);
-
 	float MaxHeight = 0.0f;
 	float x = 0.f, y = 0;
 	size_t i = 0;
@@ -67,9 +66,15 @@ size_t Font::GetCharacterAtPosition(std::vector<TextSegment> Text, Vec2f Positio
 		size_t LastWrapIndex = 0;
 		std::u32string SegmentText = internal::GetUnicodeString(seg.Text, true);
 		bool FoundInCurrentLine = false;
-		for (size_t i = 0; i < SegmentText.size(); i++)
+		for (size_t i = 0; i < SegmentText.size(); i++, CharIndex++)
 		{
 			float CharSize = 0;
+			bool IsTab = SegmentText[i] == int('\t');
+			if (IsTab)
+			{
+				IsTab = true;
+				SegmentText[i] = ' ';
+			}
 			if (SegmentText[i] < 32)
 			{
 				if (SegmentText[i] == int('\n'))
@@ -95,6 +100,11 @@ size_t Font::GetCharacterAtPosition(std::vector<TextSegment> Text, Vec2f Positio
 
 				Glyph g = LoadedGlyphs[GlyphIndex];
 
+				if (IsTab)
+				{
+					g.TotalSize.X *= (TabSize - CharIndex % TabSize);
+				}
+
 				if (((x + g.TotalSize.X) / 450 > LengthBeforeWrap && Wrapped))
 				{
 					if (LastWordIndex != SIZE_MAX && LastWordIndex != LastWrapIndex)
@@ -105,17 +115,13 @@ size_t Font::GetCharacterAtPosition(std::vector<TextSegment> Text, Vec2f Positio
 						{
 							Nearest = SIZE_MAX;
 						}
-					}
-					else if (x > 0)
-					{
-						i--;
+						continue;
 					}
 					LastVerticalDist = -Position.Y - (y + CharacterSize / 2) / 450 * Scale;
 					x = 0;
 					y += CharacterSize;
 
 					FoundInCurrentLine = false;
-					continue;
 				}
 
 				x += g.TotalSize.X;
@@ -293,7 +299,6 @@ Font::Font(std::string FileName)
 
 Vec2f Font::GetTextSize(std::vector<TextSegment> Text, float Scale, bool Wrapped, float LengthBeforeWrap, Vec2f* EndPos, size_t EndIndex)
 {
-	ReplaceTabs(Text, TabSize);
 	LengthBeforeWrap = LengthBeforeWrap * Window::GetActiveWindow()->GetAspectRatio() / Scale;
 	float x = 0.f, y = CharacterSize;
 	float MaxX = 0.0f;
@@ -305,9 +310,14 @@ Vec2f Font::GetTextSize(std::vector<TextSegment> Text, float Scale, bool Wrapped
 		size_t LastWordIndex = SIZE_MAX;
 		size_t LastWrapIndex = 0;
 		std::u32string SegmentText = internal::GetUnicodeString(seg.Text, true);
-		for (size_t i = 0; i < SegmentText.size(); i++)
+		for (size_t i = 0; i < SegmentText.size(); i++, CharIndex++)
 		{
-			if (EndPos && CharIndex++ == EndIndex)
+			bool IsTab = SegmentText[i] == '\t';
+			if (IsTab)
+			{
+				SegmentText[i] = ' ';
+			}
+			if (EndPos && CharIndex == EndIndex)
 			{
 				EndPos->X = x / 450 / Window::GetActiveWindow()->GetAspectRatio() * Scale;
 				EndPos->Y = y / 450 * Scale;
@@ -326,6 +336,11 @@ Vec2f Font::GetTextSize(std::vector<TextSegment> Text, float Scale, bool Wrapped
 				}
 				Glyph g = LoadedGlyphs[GlyphIndex];
 
+				if (IsTab)
+				{
+					g.TotalSize.X *= (TabSize - CharIndex % TabSize);
+				}
+
 				if (((x + g.TotalSize.X) / 450 > LengthBeforeWrap && Wrapped))
 				{
 					if (LastWordIndex != SIZE_MAX && LastWordIndex != LastWrapIndex)
@@ -333,14 +348,10 @@ Vec2f Font::GetTextSize(std::vector<TextSegment> Text, float Scale, bool Wrapped
 						i = LastWordIndex;
 						LastWrapIndex = i;
 						CharIndex = LastWrapCharIndex;
-					}
-					else if (x > 0)
-					{
-						i--;
+						continue;
 					}
 					x = 0;
 					y += CharacterSize;
-					continue;
 				}
 
 				x += g.TotalSize.X;
@@ -402,7 +413,6 @@ DrawableText* Font::MakeText(std::vector<TextSegment> Text, Vec2f Pos, float Sca
 		delete[] fontVertexBufferData;
 		fontVertexBufferData = new FontVertex[fontVertexBufferCapacity * 6];
 	}
-	float MaxHeight = 0.0f;
 	float x = 0.f, y = 0.f;
 	FontVertex* vData = fontVertexBufferData;
 	uint32_t numVertices = 0;
@@ -432,14 +442,10 @@ DrawableText* Font::MakeText(std::vector<TextSegment> Text, Vec2f Pos, float Sca
 						LastWrapIndex = i;
 						vData = LastWordVDataPtr;
 						numVertices = LastWordNumVertices;
-					}
-					else if (x > 0)
-					{
-						i--;
+						continue;
 					}
 					x = 0;
 					y += CharacterSize;
-					continue;
 				}
 
 				Vec2 StartPos = Vec2(x, y) + g.Offset;
@@ -465,7 +471,6 @@ DrawableText* Font::MakeText(std::vector<TextSegment> Text, Vec2f Pos, float Sca
 					LastWordNumVertices = numVertices;
 					LastWordVDataPtr = vData;
 				}
-				MaxHeight = std::max(StartPos.Y + g.Offset.Y, MaxHeight);
 			}
 			if (UTFString[i] == (int)'\n')
 			{

@@ -17,6 +17,7 @@ MarkupStructure::ParseResult MarkupParse::ParseFiles(std::vector<FileEntry> File
 	}
 
 	std::vector<MarkupStructure::Constant> Consts;
+	std::vector<MarkupStructure::Global> Globals;
 
 	for (auto& File : FileLines)
 	{
@@ -35,6 +36,12 @@ MarkupStructure::ParseResult MarkupParse::ParseFiles(std::vector<FileEntry> File
 		{
 			Consts.push_back(Const);
 		}
+
+		for (const MarkupStructure::Global& g : FileContent.Globals)
+		{
+			std::cout << g.Value << std::endl;
+			Globals.push_back(g);
+		}
 	}
 
 	std::vector<MarkupStructure::MarkupElement> StructureElements;
@@ -50,6 +57,7 @@ MarkupStructure::ParseResult MarkupParse::ParseFiles(std::vector<FileEntry> File
 	{
 		.Elements = StructureElements,
 		.Constants = Consts,
+		.Globals = Globals,
 		.FileLines = FileLines,
 	};
 }
@@ -104,21 +112,31 @@ MarkupParse::FileResult MarkupParse::ReadFile(std::vector<stringParse::Line>& Li
 			}
 			Depth++;
 		}
-		else if (Content == "const")
+		else if (Content == "const" || Content == "global")
 		{
-			ln.Get(); // const
+			bool IsConst = ln.Get() == "const";
 			std::string Name = ln.Get();
 
-			if (ln.Get() != "=")
+			if (ln.Get() != "=" && IsConst)
 			{
 				parseError::Error(ln.Peek().Empty() ? "Expected a '=' after a const value." : "Unexpected '" + ln.Peek().Text + "' after a const value. Expected '='", ln.Peek());
 				continue;
 			}
 
-			Out.Constants.push_back(MarkupStructure::Constant{
-				.Name = Name,
-				.Value = ln.GetUntil(""),
-				});
+			if (IsConst)
+			{
+				Out.Constants.push_back(MarkupStructure::Constant{
+					.Name = Name,
+					.Value = ln.GetUntil(""),
+					});
+			}
+			else
+			{
+				Out.Globals.push_back(MarkupStructure::Global{
+					.Name = Name,
+					.Value = ln.GetUntil("")
+					});
+			}
 		}
 		else if (ln.Contains("{") && Depth != 0)
 		{

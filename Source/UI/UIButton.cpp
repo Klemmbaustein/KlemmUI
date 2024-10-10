@@ -1,5 +1,6 @@
 #include <kui/UI/UIButton.h>
 #include <kui/Window.h>
+#include <kui/UI/UIScrollBox.h>
 #include "../Rendering/VertexBuffer.h"
 using namespace kui;
 
@@ -15,20 +16,22 @@ void UIButton::Tick()
 		return;
 	}
 
+	bool Hovered = ParentWindow->UI.HoveredBox == this && !UIScrollBox::IsDraggingScrollBox;
+
 	CurrentButtonState = ButtonState::Normal;
-	if (ParentWindow->UI.HoveredBox == this && !IsHovered)
+	if (Hovered && !this->IsHovered)
 	{
 		RedrawElement();
-		IsHovered = true;
+		this->IsHovered = true;
 	}
 	if (IsHovered && ParentWindow->UI.HoveredBox != this)
 	{
 		RedrawElement();
-		IsHovered = false;
+		this->IsHovered = false;
 	}
 
 
-	if (ParentWindow->UI.HoveredBox == this)
+	if (Hovered)
 	{
 		CurrentButtonState = ButtonState::Hovered;
 	}
@@ -49,7 +52,7 @@ void UIButton::Tick()
 		CurrentButtonState = ButtonState::Hovered;
 	}
 
-	if (ParentWindow->UI.HoveredBox == this)
+	if (Hovered)
 	{
 		if (ParentWindow->Input.IsLMBDown)
 		{

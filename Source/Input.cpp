@@ -2,6 +2,7 @@
 #include <kui/Window.h>
 #include <kui/Rendering/ScrollObject.h>
 #include "SystemWM/SystemWM.h"
+#include <iostream>
 using namespace kui;
 
 Window* kui::InputManager::GetWindowByPtr(void* Ptr)

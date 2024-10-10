@@ -29,8 +29,10 @@ namespace kui
 		float GetDesiredChildrenSize();
 		void UpdateScrollObjectOfObject(UIBox* o);
 	public:
-		void(*OnScrolled)(UIScrollBox* Target) = nullptr;
+		std::function<void(UIScrollBox* This)> OnScroll;
 		
+		uint32_t ScrollBarWidth = 10;
+
 		static bool IsDraggingScrollBox;
 		ScrollObject* GetScrollObject();
 		UIBackground* GetScrollBarSlider();

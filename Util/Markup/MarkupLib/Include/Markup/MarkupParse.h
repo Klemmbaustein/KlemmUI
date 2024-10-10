@@ -27,6 +27,7 @@ namespace kui::MarkupParse
 	{
 		std::vector<ParsedElement> Elements;
 		std::vector<MarkupStructure::Constant> Constants;
+		std::vector<MarkupStructure::Global> Globals;
 	};
 
 	FileResult ReadFile(std::vector<stringParse::Line>& Lines, std::string FileName);

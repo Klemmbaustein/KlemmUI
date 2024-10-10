@@ -13,7 +13,7 @@ namespace kui
 		Vec2f Scale;
 		float Percentage = 0;
 		static std::set<ScrollObject*> GetAllScrollObjects();
-		ScrollObject(Vec2f Position, Vec2f Scale, float MaxScroll);
+		ScrollObject(Vec2f Position, Vec2f Scale, float MaxScroll, bool Register = true);
 		~ScrollObject();
 		void ScrollUp();
 		void ScrollDown();

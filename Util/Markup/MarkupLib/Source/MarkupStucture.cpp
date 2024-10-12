@@ -322,7 +322,7 @@ static std::string WriteElementProperty(UIElement* Target, UIElement* Root, std:
 		}
 		if (ValueGlobal)
 		{
-			std::string GetValue = "GetGlobal(\"" + ValueGlobal->Name + "\", kui::AnyContainer(" + kui::stringParse::ToCppCode(ValueGlobal->Value) + "))";
+			std::string GetValue = "GetGlobal(\"" + ValueGlobal->Name.Text + "\", kui::AnyContainer(" + kui::stringParse::ToCppCode(ValueGlobal->Value) + "))";
 			if (i.VarType == VariableType::Vector3)
 			{
 				GetValue = GetValue + ".AsVec3()";

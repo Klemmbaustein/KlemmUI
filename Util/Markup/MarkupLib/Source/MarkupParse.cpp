@@ -39,7 +39,6 @@ MarkupStructure::ParseResult MarkupParse::ParseFiles(std::vector<FileEntry> File
 
 		for (const MarkupStructure::Global& g : FileContent.Globals)
 		{
-			std::cout << g.Value << std::endl;
 			Globals.push_back(g);
 		}
 	}
@@ -115,7 +114,7 @@ MarkupParse::FileResult MarkupParse::ReadFile(std::vector<stringParse::Line>& Li
 		else if (Content == "const" || Content == "global")
 		{
 			bool IsConst = ln.Get() == "const";
-			std::string Name = ln.Get();
+			stringParse::StringToken Name = ln.Get();
 
 			if (ln.Get() != "=" && IsConst)
 			{
@@ -128,13 +127,15 @@ MarkupParse::FileResult MarkupParse::ReadFile(std::vector<stringParse::Line>& Li
 				Out.Constants.push_back(MarkupStructure::Constant{
 					.Name = Name,
 					.Value = ln.GetUntil(""),
+					.File = FileName
 					});
 			}
 			else
 			{
 				Out.Globals.push_back(MarkupStructure::Global{
 					.Name = Name,
-					.Value = ln.GetUntil("")
+					.Value = ln.GetUntil(""),
+					.File = FileName
 					});
 			}
 		}

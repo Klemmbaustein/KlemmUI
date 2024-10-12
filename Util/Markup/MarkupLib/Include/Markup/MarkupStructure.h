@@ -96,14 +96,16 @@ namespace kui::MarkupStructure
 
 	struct Constant
 	{
-		std::string Name;
+		stringParse::StringToken Name;
 		std::string Value;
+		std::string File;
 	};
 	struct Global
 	{
-		std::string Name;
+		stringParse::StringToken Name;
 		VariableType Type = VariableType::None;
 		std::string Value;
+		std::string File;
 	};
 
 	PropElementType GetTypeFromString(std::string TypeName);

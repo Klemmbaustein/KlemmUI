@@ -16,9 +16,6 @@ void markupVerify::Verify(MarkupStructure::ParseResult& Structure)
 
 void markupVerify::VerifyElement(UIElement& Element, const MarkupElement& Root, MarkupStructure::ParseResult& Structure)
 {
-	for (const std::pair<std::string, UIElement::Variable>& var : Element.Variables)
-	{
-	}
 	PropElementType CurrentType = GetTypeFromString(Element.TypeName.Text);
 
 	for (const Property& prop : Element.ElementProperties)

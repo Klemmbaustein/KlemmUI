@@ -34,9 +34,9 @@ static bool IsMaximized(HWND hWnd)
 
 static std::wstring ToWstring(std::string utf8)
 {
-	int wchars_num = MultiByteToWideChar(CP_UTF8, 0, utf8.c_str(), -1, NULL, 0);
-	wchar_t* wstr = new wchar_t[wchars_num];
-	MultiByteToWideChar(CP_UTF8, 0, utf8.c_str(), -1, wstr, wchars_num);
+	int WideLength = MultiByteToWideChar(CP_UTF8, 0, utf8.c_str(), -1, NULL, 0);
+	wchar_t* wstr = new wchar_t[WideLength];
+	MultiByteToWideChar(CP_UTF8, 0, utf8.c_str(), -1, wstr, WideLength);
 	std::wstring str = wstr;
 	delete[] wstr;
 	return str;
@@ -44,18 +44,16 @@ static std::wstring ToWstring(std::string utf8)
 
 static std::string FromWstring(std::wstring Wide)
 {
-	int length = WideCharToMultiByte(CP_UTF8, 0, Wide.c_str(), Wide.size(),
+	int MultiByteLength = WideCharToMultiByte(CP_UTF8, 0, Wide.c_str(), Wide.size(),
 		0, 0, NULL, NULL);
-	char* str = (char*)malloc((length + 1) * sizeof(char));
-	if (str)
-	{
-		WideCharToMultiByte(CP_UTF8, 0, Wide.c_str(), Wide.size(),
-			str, length, NULL, NULL);
-		str[length] = '\0';
-	}
+	char* str = new char[MultiByteLength]();
+
+	WideCharToMultiByte(CP_UTF8, 0, Wide.c_str(), Wide.size(),
+		str, MultiByteLength, NULL, NULL);
+
 	std::string Out;
 	Out = str;
-	free(str);
+	delete[] str;
 	return Out;
 }
 
@@ -356,7 +354,7 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
 	}
 
 	case WM_LBUTTONDOWN:
-		LeftClickOverride = 2;
+		LeftClickOverride = 3;
 		break;
 
 	case WM_MOUSEWHEEL:
@@ -776,7 +774,7 @@ void kui::systemWM::SetClipboardText(std::string NewText)
 	{
 		return;
 	}
-	
+
 	std::wstring WideNewText = ToWstring(NewText);
 
 	HGLOBAL ClipBuffer;

@@ -1,6 +1,5 @@
 #include <kui/UI/UIBackground.h>
 #include <GL/glew.h>
-#include <iostream>
 #include "../Rendering/VertexBuffer.h"
 #include <kui/Rendering/Shader.h>
 #include <kui/App.h>

@@ -73,6 +73,10 @@ UIBox::~UIBox()
 	{
 		ParentWindow->UI.NewHoveredBox = nullptr;
 	}
+	if (ParentWindow->UI.KeyboardFocusBox == this)
+	{
+		ParentWindow->UI.KeyboardFocusBox = nullptr;
+	}
 
 	for (unsigned int i = 0; i < ParentWindow->UI.UIElements.size(); i++)
 	{
@@ -124,10 +128,6 @@ UIBox* UIBox::GetParent()
 Window* UIBox::GetParentWindow()
 {
 	return ParentWindow;
-}
-
-void UIBox::OnChildClicked(int Index)
-{
 }
 
 void UIBox::MoveToFront()

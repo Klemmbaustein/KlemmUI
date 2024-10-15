@@ -78,16 +78,13 @@ namespace kui
 		{
 			std::function<void()> Function;
 			std::function<void(int)> FunctionIndex;
-			UIBox* Btn = nullptr;
 			int Index = 0;
 			ButtonEvent(std::function<void()> Function,
 				std::function<void(int)> FunctionIndex,
-				UIBox* Btn,
 				int Index = 0)
 			{
 				this->Function = Function;
 				this->FunctionIndex = FunctionIndex;
-				this->Btn = Btn;
 				this->Index = Index;
 			}
 		};

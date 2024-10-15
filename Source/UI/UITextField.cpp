@@ -80,6 +80,11 @@ void UITextField::Tick()
 		Dragging = false;
 	}
 
+	if (ParentWindow->UI.KeyboardFocusBox == this && ParentWindow->Input.IsKeyDown(Key::RETURN))
+	{
+		this->Edit();
+	}
+
 	if (IsEdited)
 	{
 		ParentWindow->Input.TextAllowNewLine = AllowNewLine;
@@ -88,14 +93,14 @@ void UITextField::Tick()
 		if (!ParentWindow->Input.PollForText)
 		{
 			IsEdited = false;
-			if (OnClickedFunction) ParentWindow->UI.ButtonEvents.push_back(UIManager::ButtonEvent(OnClickedFunction, nullptr, nullptr, 0));
+			if (OnClickedFunction) ParentWindow->UI.ButtonEvents.push_back(UIManager::ButtonEvent(OnClickedFunction, nullptr, 0));
 			RedrawElement();
 		}
 		if (!IsHovered && ParentWindow->Input.IsLMBDown && !Dragging)
 		{
 			IsEdited = false;
 			ParentWindow->Input.PollForText = false;
-			if (OnClickedFunction) ParentWindow->UI.ButtonEvents.push_back(UIManager::ButtonEvent(OnClickedFunction, nullptr, nullptr, 0));
+			if (OnClickedFunction) ParentWindow->UI.ButtonEvents.push_back(UIManager::ButtonEvent(OnClickedFunction, nullptr, 0));
 			RedrawElement();
 		}
 	}
@@ -254,15 +259,29 @@ UITextField::UITextField(Vec2f Position, Vec3f Color, Font* Renderer, std::funct
 	TextObject->SetPadding(0.005f);
 	TextObject->Wrap = true;
 	HasMouseCollision = true;
+	KeyboardFocusable = true;
 	this->OnClickedFunction = OnClickedFunction;
 	AddChild(TextObject);
+}
+
+void UITextField::Edit()
+{
+	IsEdited = true;
+	ParentWindow->Input.PollForText = true;
+	ParentWindow->Input.Text = EnteredText;
+	IsPressed = false;
+	ParentWindow->Input.TextIndex = EnteredText.size();
+	RedrawElement();
 }
 
 UITextField::~UITextField()
 {
 	IsEdited = false;
-	EnteredText = ParentWindow->Input.Text;
-	ParentWindow->Input.PollForText = false;
+	if (IsEdited)
+	{
+		EnteredText = ParentWindow->Input.Text;
+		ParentWindow->Input.PollForText = false;
+	}
 }
 
 void UITextField::Update()

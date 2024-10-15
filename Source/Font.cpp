@@ -102,7 +102,9 @@ size_t Font::GetCharacterAtPosition(std::vector<TextSegment> Text, Vec2f Positio
 
 				if (IsTab)
 				{
-					g.TotalSize.X *= (TabSize - CharIndex % TabSize);
+					int Multiplier = (TabSize - CharIndex % TabSize);
+					g.TotalSize.X *= Multiplier;
+					CharIndex += Multiplier - 1;
 				}
 
 				if (((x + g.TotalSize.X) / 450 > LengthBeforeWrap && Wrapped))
@@ -303,6 +305,7 @@ Vec2f Font::GetTextSize(std::vector<TextSegment> Text, float Scale, bool Wrapped
 	float x = 0.f, y = CharacterSize;
 	float MaxX = 0.0f;
 	size_t CharIndex = 0;
+	size_t TabCharIndex = 0;
 	size_t LastWrapCharIndex = 0;
 	bool FoundEndPos = false;
 	for (auto& seg : Text)
@@ -310,7 +313,7 @@ Vec2f Font::GetTextSize(std::vector<TextSegment> Text, float Scale, bool Wrapped
 		size_t LastWordIndex = SIZE_MAX;
 		size_t LastWrapIndex = 0;
 		std::u32string SegmentText = internal::GetUnicodeString(seg.Text, true);
-		for (size_t i = 0; i < SegmentText.size(); i++, CharIndex++)
+		for (size_t i = 0; i < SegmentText.size(); i++, CharIndex++, TabCharIndex++)
 		{
 			bool IsTab = SegmentText[i] == '\t';
 			if (IsTab)
@@ -338,7 +341,9 @@ Vec2f Font::GetTextSize(std::vector<TextSegment> Text, float Scale, bool Wrapped
 
 				if (IsTab)
 				{
-					g.TotalSize.X *= (TabSize - CharIndex % TabSize);
+					int Multiplier = (TabSize - TabCharIndex % TabSize);
+					g.TotalSize.X *= Multiplier;
+					TabCharIndex += Multiplier - 1;
 				}
 
 				if (((x + g.TotalSize.X) / 450 > LengthBeforeWrap && Wrapped))

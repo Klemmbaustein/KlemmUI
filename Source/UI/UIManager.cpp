@@ -4,9 +4,9 @@
 #include <kui/UI/UIBox.h>
 #include <kui/UI/UIBlurBackground.h>
 #include <kui/Image.h>
-#include <iostream>
 #include <kui/Resource.h>
 #include <algorithm>
+#include <iostream>
 using namespace kui;
 
 UIManager::UIManager()
@@ -113,9 +113,9 @@ bool UIManager::DrawElements()
 
 	if (!ElementsToUpdate.empty())
 	{
-		for (UIBox* elem : ElementsToUpdate)
+		for (UIBox* Element : ElementsToUpdate)
 		{
-			elem->UpdateSelfAndChildren();
+			Element->UpdateSelfAndChildren();
 		}
 		ElementsToUpdate.clear();
 	}
@@ -187,6 +187,10 @@ void kui::UIManager::TickElements()
 		if (elem->IsVisible != elem->PrevIsVisible)
 		{
 			elem->RedrawElement(true);
+			if (!elem->IsVisible && Window::GetActiveWindow()->UI.KeyboardFocusBox == elem)
+			{
+				Window::GetActiveWindow()->UI.KeyboardFocusBox = nullptr;
+			}
 			elem->PrevIsVisible = elem->IsVisible;
 		}
 		if (elem->ShouldBeTicked)
@@ -212,8 +216,6 @@ void UIManager::UpdateEvents()
 			e.Function();
 		if (e.FunctionIndex)
 			e.FunctionIndex(e.Index);
-		if (e.Btn)
-			e.Btn->OnChildClicked(e.Index);
 	}
 }
 
@@ -267,30 +269,73 @@ void kui::UIManager::SetTexturePath(std::string NewPath)
 UIBox* kui::UIManager::GetNextKeyboardBox(UIBox* From)
 {
 	bool Found = false;
-	for (UIBox* Box : From->Parent->Children)
+	auto Iterate = [&Found, &From, this](UIBox* Box) -> UIBox*
+		{
+			if (Box == From)
+			{
+				Found = true;
+				return nullptr;
+			}
+			
+			if (Found)
+			{
+				UIBox* FoundBox = FindKeyboardBox(Box);
+
+				if (FoundBox)
+					return FoundBox;
+			}
+			return nullptr;
+		};
+
+	if (From->Parent && From->Parent->VerticalBoxAlign != UIBox::Align::Reverse && !From->Parent->ChildrenHorizontal)
 	{
-		if (Box == From)
+		for (int64_t i = From->Parent->Children.size() - 1; i >= 0; i--)
 		{
-			Found = true;
+			UIBox* FoundBox = Iterate(From->Parent->Children[i]);
+			if (FoundBox)
+				return FoundBox;
 		}
-		else if (Box->KeyboardFocusable && Found)
+	}
+	else if (From->Parent)
+	{
+		for (UIBox* Box : From->Parent->Children)
 		{
-			return Box;
+			UIBox* FoundBox = Iterate(Box);
+			if (FoundBox)
+				return FoundBox;
 		}
 	}
 
+	if (From->Parent)
+	{
+		return GetNextKeyboardBox(From->Parent);
+	}
 	return nullptr;
 }
 
 UIBox* kui::UIManager::FindKeyboardBox(UIBox* From)
 {
+	if (!From->IsVisibleInHierarchy())
+		return nullptr;
 	if (From->KeyboardFocusable)
 		return From;
-	for (UIBox* i : From->Children)
+	if (From->VerticalBoxAlign != UIBox::Align::Reverse && !From->ChildrenHorizontal)
 	{
-		UIBox* ChildResult = FindKeyboardBox(i);
-		if (ChildResult)
-			return ChildResult;
+		for (int64_t i = From->Children.size() - 1; i >= 0; i--)
+		{
+			UIBox* ChildResult = FindKeyboardBox(From->Children[i]);
+			if (ChildResult)
+				return ChildResult;
+		}
+	}
+	else
+	{
+		for (UIBox* Box : From->Children)
+		{
+			UIBox* ChildResult = FindKeyboardBox(Box);
+			if (ChildResult)
+				return ChildResult;
+		}
 	}
 	return nullptr;
 }
@@ -304,22 +349,35 @@ UIBox* kui::UIManager::GetNextFocusableBox(UIBox* From)
 			return Next;
 	}
 
-	for (UIBox* Box : UIElements)
+	for (int WithParent = 0; WithParent < 2; WithParent++)
 	{
-		if (Box->Parent)
-			continue;
+		bool Found = false;
+		for (UIBox* Box : UIElements)
+		{
+			if (Box->Parent)
+				continue;
+			if (!WithParent && From && (From->IsChildOf(Box) || From == Box))
+			{
+				Found = true;
+				continue;
+			}
 
-		UIBox* Found = FindKeyboardBox(Box);
+			if (!Found && !WithParent)
+				continue;
 
-		if (Found)
-			return Found;
+			UIBox* FoundBox = FindKeyboardBox(Box);
+
+			if (FoundBox && From != FoundBox)
+				return FoundBox;
+		}
 	}
+	std::cout << "not found" << std::endl;
 	return nullptr;
 }
 
 void UIManager::RedrawArea(RedrawBox Box)
 {
-	// Do nto redraw the element if it's position has not yet been initialized.
+	// Do not redraw the element if it's position has not yet been initialized.
 	// It will be redrawn once the position has been set anyways.
 	if (std::isnan(Box.Min.X) || std::isnan(Box.Min.Y)
 		|| std::isnan(Box.Max.X) || std::isnan(Box.Max.Y))

@@ -55,7 +55,6 @@ UIScrollBox* UIScrollBox::SetDisplayScrollBar(bool NewDisplay)
 		if (DisplayScrollBar)
 		{
 			ScrollBarBackground = new UIButton(false, 0, 0.3f, nullptr, 0);
-			ScrollBarBackground->ParentOverride = this;
 			ScrollBarBackground->SetBorder(1.0f, UIBox::SizeMode::PixelRelative);
 			ScrollBarBackground->SetBorderColor(0.1f);
 			ScrollBarBackground->SetVerticalAlign(UIBox::Align::Reverse);

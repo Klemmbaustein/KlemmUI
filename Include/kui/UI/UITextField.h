@@ -63,6 +63,7 @@ namespace kui
 		std::string GetText();
 		bool GetIsHovered() const;
 		bool GetIsPressed() const;
+		void Edit();
 
 		kui::UITextField* SetTextSizeMode(UIBox::SizeMode Mode);
 

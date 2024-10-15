@@ -42,7 +42,7 @@ void UIButton::Tick()
 		if (OnDragged)
 		{
 			ParentWindow->UI.ButtonEvents.push_back(UIManager::ButtonEvent(
-				nullptr, OnDragged, nullptr, ButtonIndex));
+				nullptr, OnDragged, ButtonIndex));
 		}
 		IsPressed = false;
 		RedrawElement();
@@ -56,7 +56,10 @@ void UIButton::Tick()
 	if (ParentWindow->UI.KeyboardFocusBox == this)
 	{
 		if (!IsKeyboardFocused)
+		{
+			BorderRadius *= 2;
 			RedrawElement();
+		}
 		CurrentButtonState = ButtonState::KeyboardHovered;
 		IsKeyboardFocused = true;
 	}
@@ -64,6 +67,7 @@ void UIButton::Tick()
 	{
 		RedrawElement();
 		IsKeyboardFocused = false;
+		BorderRadius /= 2;
 	}
 
 	if (Hovered || IsKeyboardFocused)
@@ -107,7 +111,7 @@ void UIButton::Tick()
 		UIBackground::Color = HoveredColor;
 		break;
 	case UIButton::ButtonState::KeyboardHovered:
-		UIBackground::Color = 0;
+		UIBackground::Color = KeyboardHoveredColor;
 		break;
 	case UIButton::ButtonState::Pressed:
 		UIBackground::Color = PressedColor;
@@ -122,15 +126,10 @@ void UIButton::OnButtonClicked()
 {
 	if (OnClicked)
 		ParentWindow->UI.ButtonEvents.push_back(UIManager::ButtonEvent(
-			OnClicked, nullptr, nullptr, 0));
-	if (OnClickedFunctionIndex)
+			OnClicked, nullptr, 0));
+	if (OnClickedIndex)
 		ParentWindow->UI.ButtonEvents.push_back(UIManager::ButtonEvent(
-			nullptr, OnClickedFunctionIndex, nullptr, ButtonIndex));
-	if (ParentOverride)
-	{
-		ParentWindow->UI.ButtonEvents.push_back(UIManager::ButtonEvent(
-			nullptr, nullptr, ParentOverride, ButtonIndex));
-	}
+			nullptr, OnClickedIndex, ButtonIndex));
 }
 
 bool UIButton::GetIsSelected() const
@@ -181,6 +180,20 @@ UIButton* UIButton::SetHoveredColor(Vec3f NewColor)
 	return this;
 }
 
+UIButton* UIButton::SetKeyboardHoveredColor(Vec3f NewColor)
+{
+	if (NewColor != KeyboardHoveredColor)
+	{
+		KeyboardHoveredColor = NewColor;
+		if (IsHovered)
+		{
+			Color = KeyboardHoveredColor;
+			RedrawElement();
+		}
+	}
+	return this;
+}
+
 UIButton* UIButton::SetPressedColor(Vec3f NewColor)
 {
 	if (NewColor != PressedColor)
@@ -188,7 +201,7 @@ UIButton* UIButton::SetPressedColor(Vec3f NewColor)
 		PressedColor = NewColor;
 		if (IsPressed)
 		{
-			Color = ButtonColor;
+			Color = NewColor;
 			RedrawElement();
 		}
 	}
@@ -206,6 +219,7 @@ UIButton::UIButton(bool Horizontal, Vec2f Position, Vec3f Color, std::function<v
 	this->OnClicked = OnClickedFunction;
 	this->ButtonColor = Color;
 	this->HoveredColor = Color * 0.75;
+	this->KeyboardHoveredColor = Color * 0.75;
 	this->PressedColor = Color * 0.5;
 	HasMouseCollision = true;
 	KeyboardFocusable = true;
@@ -214,7 +228,7 @@ UIButton::UIButton(bool Horizontal, Vec2f Position, Vec3f Color, std::function<v
 UIButton::UIButton(bool Horizontal, Vec2f Position, Vec3f Color,std::function<void(int)> OnClickedFunction, int ButtonIndex)
 	: UIBackground(Horizontal, Position, Color)
 {
-	this->OnClickedFunctionIndex = OnClickedFunction;
+	this->OnClickedIndex = OnClickedFunction;
 	this->ButtonColor = Color;
 	this->HoveredColor = Color * 0.75;
 	this->PressedColor = Color * 0.5;

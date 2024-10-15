@@ -18,7 +18,6 @@ namespace kui
 	{
 	protected:
 		Vec2f Offset;
-		VertexBuffer* ButtonVertexBuffer = nullptr;
 		bool IsHovered = false;
 		bool IsPressed = false;
 		bool IsKeyboardFocused = false;
@@ -27,6 +26,7 @@ namespace kui
 		bool CanBeDragged = false;
 		Vec3f ButtonColor = 1.0f;
 		Vec3f HoveredColor = 0.75f;
+		Vec3f KeyboardHoveredColor = 0.5f;
 		Vec3f PressedColor = 0.5f;
 		enum class ButtonState
 		{
@@ -36,16 +36,12 @@ namespace kui
 			Pressed
 		};
 		ButtonState CurrentButtonState = ButtonState::Normal;
-		unsigned int TextureID = 0;
-		float Opacity = 1;
-
-		Shader* UsedShader = nullptr;
 		void Tick() override;
 		virtual void OnButtonClicked();
 	public:
 
 		std::function<void()> OnClicked = nullptr;
-		std::function<void(int)> OnClickedFunctionIndex = nullptr;
+		std::function<void(int)> OnClickedIndex = nullptr;
 		int ButtonIndex = 0;
 
 		std::function<void(int)> OnDragged = nullptr;
@@ -68,6 +64,11 @@ namespace kui
 		 * Sets the button's hovered color.
 		 */
 		UIButton* SetHoveredColor(Vec3f NewColor);
+		/**
+		 * @brief
+		 * Sets the button's keyboard hovered color.
+		 */
+		UIButton* SetKeyboardHoveredColor(Vec3f NewColor);
 		/**
 		 * @brief
 		 * Sets the button's pressed color.
@@ -118,6 +119,5 @@ namespace kui
 
 		void Update() override;
 		void DrawBackground() override;
-		UIBox* ParentOverride = nullptr;
 	};
 }

@@ -135,7 +135,7 @@ std::vector<PropertyElement> kui::MarkupStructure::Properties
 		.Type = PropElementType::UIButton,
 		.Name = "color",
 		.Description = "The color of the button. This sets normalColor, hoveredColor and pressedColor to reasonable values from the given color.",
-		.SetFormat = {"SetColor({val})", "SetHoveredColor({val} * 0.75f)", "SetPressedColor({val} * 0.5f)"},
+		.SetFormat = {"SetColor({val})", "SetHoveredColor({val} * 0.75f)", "SetKeyboardHoveredColor({val} * 0.75f)", "SetPressedColor({val} * 0.5f)"},
 		.VarType = VariableType::Vector3,
 	},
 	PropertyElement{
@@ -149,7 +149,21 @@ std::vector<PropertyElement> kui::MarkupStructure::Properties
 		.Type = PropElementType::UIButton,
 		.Name = "hoveredColor",
 		.Description = "The color of the button when it is hovered.",
+		.SetFormat = {"SetHoveredColor({val})", "SetKeyboardHoveredColor({val})"},
+		.VarType = VariableType::Vector3,
+	},
+	PropertyElement{
+		.Type = PropElementType::UIButton,
+		.Name = "mouseHoveredColor",
+		.Description = "The color of the button when it is hovered by the mouse cursor.",
 		.SetFormat = {"SetHoveredColor({val})"},
+		.VarType = VariableType::Vector3,
+	},
+	PropertyElement{
+		.Type = PropElementType::UIButton,
+		.Name = "keyboardHoveredColor",
+		.Description = "The color of the button when it is selected using keyboard input.",
+		.SetFormat = {"SetKeyboardHoveredColor({val})"},
 		.VarType = VariableType::Vector3,
 	},
 	PropertyElement{

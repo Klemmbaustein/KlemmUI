@@ -233,7 +233,6 @@ namespace kui
 		UIBox* SetHorizontal(bool IsHorizontal);
 
 		bool GetTryFill() const;
-		virtual void OnChildClicked(int Index);
 
 		/**
 		 * @brief

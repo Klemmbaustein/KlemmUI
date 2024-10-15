@@ -16,7 +16,7 @@ namespace kui
 		UIText* SelectedText = nullptr;
 		UIBox* OptionsBox = nullptr;
 		float Size = 0.0f;
-		float TextSize = 0.4f, TextPadding = 0.02f;
+		float TextSize = 1.0f, TextPadding = 0.02f;
 		std::vector<UIButton*> DropdownButtons;
 		std::vector<UIText*> DropdownTexts;
 		Vec3f DropdownColor = 1;
@@ -88,6 +88,6 @@ namespace kui
 
 		void Tick() override;
 		void OnButtonClicked() override;
-		void OnChildClicked(int Index) override;
+		void OnChildClicked(int Index);
 	};
 }

@@ -81,9 +81,10 @@ void UIDropdown::GenerateOptions()
 	for (size_t i = 0; i < Options.size(); i++)
 	{
 		UIButton* NewButton = new UIButton(true, 0, Vec3f::Lerp(DropdownColor, ButtonColor, (i == SelectedIndex) ? 0.5f : 0), nullptr, (int)i);
-		NewButton->SetPadding(0);
 		NewButton->SetMinSize(Vec2f(Size, 0));
-		NewButton->ParentOverride = this;
+		NewButton->OnClickedIndex = [this](int Index) {
+			OnChildClicked(Index);
+			};
 
 		UIText* NewText = new UIText(TextSize, DropdownTextColor, Options[i].Name, Renderer);
 		NewText->SetPadding(TextPadding);
@@ -131,4 +132,5 @@ void UIDropdown::OnChildClicked(int Index)
 {
 	SelectOption((size_t)Index);
 	OptionsBox->IsVisible = false;
+	ParentWindow->UI.KeyboardFocusBox = this;
 }

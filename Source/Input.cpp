@@ -2,7 +2,6 @@
 #include <kui/Window.h>
 #include <kui/Rendering/ScrollObject.h>
 #include "SystemWM/SystemWM.h"
-#include <iostream>
 using namespace kui;
 
 Window* kui::InputManager::GetWindowByPtr(void* Ptr)
@@ -103,8 +102,12 @@ kui::InputManager::InputManager(Window* Parent)
 		});
 
 	RegisterOnKeyDownCallback(Key::TAB, [](Window* Win) {
-		UIBox* Box = Win->UI.GetNextFocusableBox(Win->UI.KeyboardFocusBox);
-		Win->UI.KeyboardFocusBox = Box;
+		if (!Win->Input.PollForText)
+		{
+			UIBox* Box = Win->UI.GetNextFocusableBox(Win->UI.KeyboardFocusBox);
+			if (Box)
+				Win->UI.KeyboardFocusBox = Box;
+		}
 		});
 
 	RegisterOnKeyDownCallback(Key::RETURN, [](Window* Win) {
@@ -149,7 +152,11 @@ void kui::InputManager::UpdateCursorPosition()
 	Vec2ui Size = ParentWindow->GetSize();
 	Vec2ui Pos = systemWM::GetCursorPosition(SysWindow);
 
-	ParentWindow->Input.MousePosition = Vec2(((float)Pos.X / (float)Size.X - 0.5f) * 2.0f, 1.0f - ((float)Pos.Y / (float)Size.Y * 2.0f));
+	ParentWindow->Input.MousePosition =
+		Vec2((
+			(float)Pos.X / (float)Size.X - 0.5f) * 2.0f,
+			1.0f - ((float)Pos.Y / (float)Size.Y * 2.0f)
+		);
 }
 
 void InputManager::Poll()

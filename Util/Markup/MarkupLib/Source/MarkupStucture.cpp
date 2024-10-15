@@ -571,7 +571,7 @@ std::set<std::string> UIElement::GetElementDependencies() const
 		{
 			Deps.insert("kui/UI/" + i.TypeName.Text + ".h");
 		}
-		else
+		else if (!i.Header.empty())
 		{
 			Deps.insert(i.Header + ".hpp");
 		}

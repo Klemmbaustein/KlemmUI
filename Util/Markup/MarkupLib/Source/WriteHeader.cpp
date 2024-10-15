@@ -8,6 +8,8 @@ void kui::writeHeader::WriteHeaders(std::string Dir, kui::MarkupStructure::Parse
 {
 	for (auto& i : From.Elements)
 	{
+		if (i.File.empty())
+			continue;
 		i.Header = Dir + "/" + i.File.substr(0, i.File.find_last_of(".")) + ".kui.hpp";
 	}
 

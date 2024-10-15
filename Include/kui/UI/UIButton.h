@@ -21,6 +21,10 @@ namespace kui
 		VertexBuffer* ButtonVertexBuffer = nullptr;
 		bool IsHovered = false;
 		bool IsPressed = false;
+		bool IsKeyboardFocused = false;
+		bool IsSelected = false;
+		bool NeedsToBeSelected = false;
+		bool CanBeDragged = false;
 		Vec3f ButtonColor = 1.0f;
 		Vec3f HoveredColor = 0.75f;
 		Vec3f PressedColor = 0.5f;
@@ -28,14 +32,11 @@ namespace kui
 		{
 			Normal,
 			Hovered,
+			KeyboardHovered,
 			Pressed
 		};
 		ButtonState CurrentButtonState = ButtonState::Normal;
-		bool UseTexture = false;
 		unsigned int TextureID = 0;
-		bool IsSelected = false;
-		bool NeedsToBeSelected = false;
-		bool CanBeDragged = false;
 		float Opacity = 1;
 
 		Shader* UsedShader = nullptr;

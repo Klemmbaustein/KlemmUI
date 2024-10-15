@@ -2,6 +2,7 @@
 #include <kui/Window.h>
 #include <kui/UI/UIScrollBox.h>
 #include "../Rendering/VertexBuffer.h"
+#include <iostream>
 using namespace kui;
 
 void UIButton::Tick()
@@ -35,7 +36,7 @@ void UIButton::Tick()
 	{
 		CurrentButtonState = ButtonState::Hovered;
 	}
-	else if (IsPressed && ParentWindow->UI.HoveredBox != this)
+	else if (IsPressed && ParentWindow->UI.HoveredBox != this && !IsKeyboardFocused)
 	{
 		IsSelected = false;
 		if (OnDragged)
@@ -52,9 +53,22 @@ void UIButton::Tick()
 		CurrentButtonState = ButtonState::Hovered;
 	}
 
-	if (Hovered)
+	if (ParentWindow->UI.KeyboardFocusBox == this)
 	{
-		if (ParentWindow->Input.IsLMBDown)
+		if (!IsKeyboardFocused)
+			RedrawElement();
+		CurrentButtonState = ButtonState::KeyboardHovered;
+		IsKeyboardFocused = true;
+	}
+	else if (IsKeyboardFocused)
+	{
+		RedrawElement();
+		IsKeyboardFocused = false;
+	}
+
+	if (Hovered || IsKeyboardFocused)
+	{
+		if (ParentWindow->Input.IsLMBDown || ParentWindow->Input.IsKeyDown(Key::RETURN))
 		{
 			CurrentButtonState = ButtonState::Pressed;
 			if (!IsPressed)
@@ -91,6 +105,9 @@ void UIButton::Tick()
 		break;
 	case UIButton::ButtonState::Hovered:
 		UIBackground::Color = HoveredColor;
+		break;
+	case UIButton::ButtonState::KeyboardHovered:
+		UIBackground::Color = 0;
 		break;
 	case UIButton::ButtonState::Pressed:
 		UIBackground::Color = PressedColor;
@@ -191,6 +208,7 @@ UIButton::UIButton(bool Horizontal, Vec2f Position, Vec3f Color, std::function<v
 	this->HoveredColor = Color * 0.75;
 	this->PressedColor = Color * 0.5;
 	HasMouseCollision = true;
+	KeyboardFocusable = true;
 }
 
 UIButton::UIButton(bool Horizontal, Vec2f Position, Vec3f Color,std::function<void(int)> OnClickedFunction, int ButtonIndex)
@@ -202,6 +220,7 @@ UIButton::UIButton(bool Horizontal, Vec2f Position, Vec3f Color,std::function<vo
 	this->PressedColor = Color * 0.5;
 	this->ButtonIndex = ButtonIndex;
 	HasMouseCollision = true;
+	KeyboardFocusable = true;
 }
 
 UIButton::~UIButton()

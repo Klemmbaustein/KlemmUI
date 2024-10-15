@@ -38,7 +38,7 @@ namespace kui
 			return UseTexture;
 		}
 
-		Vec3f BorderColor;
+		Vec3f BorderColor = 1;
 		SizeMode BorderSizeMode = SizeMode::ScreenRelative;
 		SizeMode CornerSizeMode = SizeMode::ScreenRelative;
 		float BorderRadius = 0;

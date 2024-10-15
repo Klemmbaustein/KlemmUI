@@ -328,6 +328,9 @@ namespace kui
 		 * Controls the visibility of the UIBox.
 		 */
 		bool IsVisible = true;
+
+		bool KeyboardFocusable = false;
+
 		ScrollObject* CurrentScrollObject = nullptr;
 
 		void GetPadding(Vec2f& UpDown, Vec2f& LeftRight) const;

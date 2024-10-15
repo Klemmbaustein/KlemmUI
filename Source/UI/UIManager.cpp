@@ -264,6 +264,59 @@ void kui::UIManager::SetTexturePath(std::string NewPath)
 	TexturePath = NewPath;
 }
 
+UIBox* kui::UIManager::GetNextKeyboardBox(UIBox* From)
+{
+	bool Found = false;
+	for (UIBox* Box : From->Parent->Children)
+	{
+		if (Box == From)
+		{
+			Found = true;
+		}
+		else if (Box->KeyboardFocusable && Found)
+		{
+			return Box;
+		}
+	}
+
+	return nullptr;
+}
+
+UIBox* kui::UIManager::FindKeyboardBox(UIBox* From)
+{
+	if (From->KeyboardFocusable)
+		return From;
+	for (UIBox* i : From->Children)
+	{
+		UIBox* ChildResult = FindKeyboardBox(i);
+		if (ChildResult)
+			return ChildResult;
+	}
+	return nullptr;
+}
+
+UIBox* kui::UIManager::GetNextFocusableBox(UIBox* From)
+{
+	if (From)
+	{
+		UIBox* Next = GetNextKeyboardBox(From);
+		if (Next)
+			return Next;
+	}
+
+	for (UIBox* Box : UIElements)
+	{
+		if (Box->Parent)
+			continue;
+
+		UIBox* Found = FindKeyboardBox(Box);
+
+		if (Found)
+			return Found;
+	}
+	return nullptr;
+}
+
 void UIManager::RedrawArea(RedrawBox Box)
 {
 	// Do nto redraw the element if it's position has not yet been initialized.

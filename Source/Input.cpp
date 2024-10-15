@@ -102,6 +102,11 @@ kui::InputManager::InputManager(Window* Parent)
 		Win->Input.PollForText = false;
 		});
 
+	RegisterOnKeyDownCallback(Key::TAB, [](Window* Win) {
+		UIBox* Box = Win->UI.GetNextFocusableBox(Win->UI.KeyboardFocusBox);
+		Win->UI.KeyboardFocusBox = Box;
+		});
+
 	RegisterOnKeyDownCallback(Key::RETURN, [](Window* Win) {
 		if (!Win->Input.TextAllowNewLine)
 			Win->Input.PollForText = false;
@@ -166,6 +171,9 @@ void InputManager::Poll()
 	{
 		IsRMBClicked = true;
 	}
+
+	if (IsLMBClicked)
+		ParentWindow->UI.KeyboardFocusBox = nullptr;
 
 	IsLMBDown = NewLMBDown;
 	IsRMBDown = NewRMBDown;

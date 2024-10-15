@@ -21,6 +21,9 @@ namespace kui
 
 		Vec2ui ScissorXY, ScissorWH;
 
+		UIBox* GetNextKeyboardBox(UIBox* From);
+		UIBox* FindKeyboardBox(UIBox* From);
+
 	public:
 		UIManager();
 		~UIManager();
@@ -31,6 +34,7 @@ namespace kui
 		*/
 		UIBox* HoveredBox = nullptr;
 		UIBox* NewHoveredBox = nullptr;
+		UIBox* KeyboardFocusBox = nullptr;
 
 		std::set<UIBox*> ElementsToUpdate;
 		std::vector<UIBox*> UIElements;
@@ -67,6 +71,8 @@ namespace kui
 		void UnloadReferenceTexture(unsigned int TextureID);
 
 		void SetTexturePath(std::string NewPath);
+
+		UIBox* GetNextFocusableBox(UIBox* From);
 
 		struct ButtonEvent
 		{

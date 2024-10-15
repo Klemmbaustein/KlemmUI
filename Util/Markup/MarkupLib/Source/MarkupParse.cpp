@@ -228,14 +228,14 @@ stringParse::StringToken kui::MarkupParse::ParseScope(MarkupStructure::UIElement
 			{
 				parseError::Error("Cannot declare variable here.", Begin);
 			}
-			std::string VariableName = ln.Get();
+			stringParse::StringToken VariableName = ln.Get();
 			stringParse::StringToken Value;
 
 			if (ln.Get() == "=")
 			{
 				Value = ln.GetUntil("");
 			}
-			Elem.Variables.insert({ VariableName, MarkupStructure::UIElement::Variable(Value, {})});
+			Elem.Variables.insert({ VariableName, MarkupStructure::UIElement::Variable(Value, {}, VariableName)});
 		}
 		else if (Begin == "child")
 		{

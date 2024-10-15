@@ -25,7 +25,7 @@ void parseError::SetLine(size_t Index)
 
 void parseError::Error(const std::string& Message, const stringParse::StringToken& From)
 {
-	ErrorCallback(Message, From.Line, From.BeginChar, From.EndChar);
+	ErrorCallback(Message, ActiveFile, From.Line, From.BeginChar, From.EndChar);
 	ErrorCount++;
 }
 
@@ -45,11 +45,11 @@ static size_t GetLineIndexFromLineNumber(size_t Number, size_t Begin)
 	return LineIndex;
 }
 
-static void PrintError(std::string Message, size_t Line, size_t Begin, size_t End)
+static void PrintError(std::string Message, std::string File, size_t Line, size_t Begin, size_t End)
 {
 	using namespace parseError;
 	auto& LineContent = LoadedCode->at(GetLineIndexFromLineNumber(Line, Begin));
-	std::cerr << ActiveFile << "(" << Line + 1 << "," << Begin + 1 << ") Error: " << Message << std::endl;
+	std::cerr << File << "(" << Line + 1 << "," << Begin + 1 << ") Error: " << Message << std::endl;
 	std::string LineString;
 	for (auto& i : LineContent.Strings)
 	{
@@ -76,7 +76,7 @@ static void PrintError(std::string Message, size_t Line, size_t Begin, size_t En
 	std::cerr << std::endl;
 }
 
-std::function<void(std::string Message, size_t Line, size_t Begin, size_t End)> parseError::ErrorCallback = &PrintError;
+std::function<void(std::string Message, std::string File, size_t Line, size_t Begin, size_t End)> parseError::ErrorCallback = &PrintError;
 
 void parseError::ErrorNoLine(const std::string& Message)
 {

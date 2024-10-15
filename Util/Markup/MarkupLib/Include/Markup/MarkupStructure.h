@@ -75,6 +75,7 @@ namespace kui::MarkupStructure
 		{
 			std::string Value;
 			std::vector<std::string> References;
+			stringParse::StringToken Token;
 
 			struct VariableTypeDescription
 			{

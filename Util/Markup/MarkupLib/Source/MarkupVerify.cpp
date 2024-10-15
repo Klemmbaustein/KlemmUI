@@ -18,6 +18,24 @@ void markupVerify::VerifyElement(UIElement& Element, const MarkupElement& Root, 
 {
 	PropElementType CurrentType = GetTypeFromString(Element.TypeName.Text);
 
+	MarkupElement* CustomType = nullptr;
+	if (GetTypeFromString(Element.TypeName) == PropElementType::Unknown && &Element != &Root.Root)
+	{
+		for (auto& other : Structure.Elements)
+		{
+			if (other.FromToken == Element.TypeName)
+			{
+				CustomType = &other;
+			}
+		}
+
+		if (!CustomType)
+		{
+			parseError::Error("Unknown element type: '" + Element.TypeName.Text + "'", Element.TypeName);
+		}
+	}
+
+
 	for (const Property& prop : Element.ElementProperties)
 	{
 		if (prop.Value.Empty())
@@ -35,6 +53,10 @@ void markupVerify::VerifyElement(UIElement& Element, const MarkupElement& Root, 
 			}
 		}
 
+		if (CustomType && CustomType->Root.Variables.contains(prop.Name))
+		{
+			continue;
+		}
 		if (!FoundValue)
 		{
 			parseError::Error("Unknown property: '" + prop.Name.Text + "'", prop.Name);
@@ -125,22 +147,6 @@ void markupVerify::VerifyElement(UIElement& Element, const MarkupElement& Root, 
 
 	for (auto& elem : Element.Children)
 	{
-		if (GetTypeFromString(elem.TypeName) == PropElementType::Unknown)
-		{
-			bool Found = false;
-			for (auto& other : Structure.Elements)
-			{
-				if (other.FromToken == elem.TypeName)
-				{
-					Found = true;
-				}
-			}
-
-			if (!Found)
-			{
-				parseError::Error("Unknown element type: '" + elem.TypeName.Text + "'", elem.TypeName);
-			}
-		}
 		VerifyElement(elem, Root, Structure);
 	}
 }

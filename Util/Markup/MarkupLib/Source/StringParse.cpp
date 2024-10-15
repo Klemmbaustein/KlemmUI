@@ -5,14 +5,14 @@
 #include <sstream>
 using namespace kui;
 
-static std::unordered_set<char> Whitespace = {
+static const std::unordered_set<char> Whitespace = {
 	' ',
 	'\t',
 	'\n',
 	'\r',
 };
 
-static std::unordered_set<char> SpecialChars = {
+static const std::unordered_set<char> SpecialChars = {
 	'<',
 	'>',
 	'(',
@@ -365,9 +365,7 @@ bool kui::stringParse::IsNumber(std::string Element)
 {
 	if (Element.empty())
 		return false;
-	char* p;
 	return (strspn(Element.c_str(), "-.0123456789") == Element.size());
-	return !(*p);
 }
 bool kui::stringParse::IsTranslatedString(std::string Element)
 {
@@ -440,7 +438,7 @@ stringParse::StringToken::StringToken(std::string Text, size_t BeginChar, size_t
 {
 	this->Text = Text;
 	this->BeginChar = BeginChar;
-	this->EndChar = EndChar + 1;
+	this->EndChar = EndChar;
 	this->Line = Line;
 }
 

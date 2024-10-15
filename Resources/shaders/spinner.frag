@@ -29,7 +29,7 @@ void main()
 
 	vec2 centeredCoords = (v_texcoords - 0.5) * 2;
 
-	if (centeredCoords == 0)
+	if (centeredCoords == vec2(0))
 		discard;
 	vec2 normalizedCoords = normalize(centeredCoords);
 

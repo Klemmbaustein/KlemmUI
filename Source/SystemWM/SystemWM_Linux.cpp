@@ -65,7 +65,7 @@ void kui::systemWM::ActivateContext(SysWindow* Target)
 	Target->X11.MakeContextCurrent();
 }
 
-Vec2ui kui::systemWM::GetWindowSize(SysWindow* Target)
+kui::Vec2ui kui::systemWM::GetWindowSize(SysWindow* Target)
 {
 	return Target->X11.WindowSize;
 }
@@ -80,12 +80,12 @@ bool kui::systemWM::WindowHasFocus(SysWindow* Target)
 	return Target->X11.HasFocus;
 }
 
-Vec2i kui::systemWM::GetCursorPosition(SysWindow* Target)
+kui::Vec2i kui::systemWM::GetCursorPosition(SysWindow* Target)
 {
 	return Target->X11.CursorPosition;
 }
 
-Vec2ui kui::systemWM::GetScreenSize()
+kui::Vec2ui kui::systemWM::GetScreenSize()
 {
 	return X11Window::GetMainScreenResolution();
 }

@@ -57,7 +57,7 @@ if(NOT DEFINED WIN32)
 	endif()
 
 	# GCC defines 'linux' as a macro by default (what?), which conflicts with 'kui::platform::linux'
-	target_compile_options(KlemmUI PUBLIC "-Ulinux")
+	target_compile_options(KlemmUI PUBLIC "-Ulinux" "-Wno-psabi")
 endif()
 
 add_subdirectory("Util/Markup/")

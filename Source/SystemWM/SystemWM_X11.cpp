@@ -7,7 +7,6 @@
 #include <GL/gl.h>
 #include <X11/cursorfont.h>
 #include <X11/Xutil.h>
-#include <X11/extensions/Xfixes.h>
 #include <iostream>
 #include <thread>
 
@@ -606,14 +605,14 @@ bool kui::systemWM::X11Window::IsMinimized()
 	return false;
 }
 
-Vec2ui kui::systemWM::X11Window::GetPosition() const
+kui::Vec2ui kui::systemWM::X11Window::GetPosition() const
 {
 	XWindowAttributes xwa;
 	XGetWindowAttributes(XDisplay, XWindow, &xwa);
 	return Vec2ui(xwa.x, xwa.y);
 }
 
-Vec2ui kui::systemWM::X11Window::GetSize() const
+kui::Vec2ui kui::systemWM::X11Window::GetSize() const
 {
 	XWindowAttributes xwa;
 	XGetWindowAttributes(XDisplay, XWindow, &xwa);
@@ -641,7 +640,7 @@ std::string kui::systemWM::X11Window::GetClipboard()
 	return GetSelection(XDisplay, CurrentWindow->X11.XWindow, "CLIPBOARD", "STRING");
 }
 
-Vec2ui kui::systemWM::X11Window::GetMainScreenResolution()
+kui::Vec2ui kui::systemWM::X11Window::GetMainScreenResolution()
 {
 	CheckForDisplay();
 #if HAS_XRANDR

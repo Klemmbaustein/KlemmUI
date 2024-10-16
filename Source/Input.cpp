@@ -49,7 +49,9 @@ kui::InputManager::InputManager(Window* Parent)
 
 	RegisterOnKeyDownCallback(Key::DELETE, [](Window* Win) {
 		InputManager& In = Win->Input;
-		
+		if (!In.CanEditText)
+			return;
+
 		if (In.PollForText && In.TextIndex < In.Text.size() && In.TextIndex >= 0)
 		{
 			if (In.TextSelectionStart == In.TextIndex)
@@ -69,6 +71,8 @@ kui::InputManager::InputManager(Window* Parent)
 
 	RegisterOnKeyDownCallback(Key::BACKSPACE, [](Window* Win) {
 		InputManager& In = Win->Input;
+		if (!In.CanEditText)
+			return;
 		if (In.PollForText && In.Text.size() > 0)
 		{
 			if (In.TextIndex > 0 || In.TextSelectionStart > 0)
@@ -239,6 +243,8 @@ void kui::InputManager::AddTextInput(std::string Str)
 
 void kui::InputManager::DeleteTextSelection()
 {
+	if (!CanEditText)
+		return;
 	int Difference = std::abs(TextSelectionStart - TextIndex);
 	Text.erase(std::min(TextIndex, TextSelectionStart), Difference);
 	SetTextIndex(std::min(TextIndex, TextSelectionStart), true);

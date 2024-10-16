@@ -12,7 +12,7 @@ uniform vec2 u_position;
 void main()
 {
 	float it = 0;
-	vec2 end = u_pixelSize * 2;
+	vec2 end = u_pixelSize * 6;
 	vec2 iter = u_pixelSize / 2;
 	f_color.xyz = vec3(0);
 

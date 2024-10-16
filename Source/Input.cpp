@@ -105,8 +105,14 @@ kui::InputManager::InputManager(Window* Parent)
 		if (!Win->Input.PollForText)
 		{
 			UIBox* Box = Win->UI.GetNextFocusableBox(Win->UI.KeyboardFocusBox);
+
 			if (Box)
+			{
+				if (Win->UI.KeyboardFocusBox)
+					Win->UI.KeyboardFocusBox->RedrawElement();
 				Win->UI.KeyboardFocusBox = Box;
+				Box->RedrawElement();
+			}
 		}
 		});
 
@@ -179,9 +185,11 @@ void InputManager::Poll()
 		IsRMBClicked = true;
 	}
 
-	if (IsLMBClicked)
+	if (IsLMBClicked && ParentWindow->UI.KeyboardFocusBox)
+	{
+		ParentWindow->UI.KeyboardFocusBox->RedrawElement();
 		ParentWindow->UI.KeyboardFocusBox = nullptr;
-
+	}
 	IsLMBDown = NewLMBDown;
 	IsRMBDown = NewRMBDown;
 

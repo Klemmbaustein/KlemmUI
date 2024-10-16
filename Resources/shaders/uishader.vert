@@ -11,9 +11,9 @@ out float v_cornerIndex;
 
 void main()
 {
-	ivec2 pixelPos = ivec2((a_position.xy * u_transform.zw + vec2(0, -u_offset.x) + u_transform.xy) * u_screenRes);
+	v_texcoords = a_position + 0.5 / u_screenRes;
+	ivec2 pixelPos = ivec2((v_texcoords * u_transform.zw + vec2(0, -u_offset.x) + u_transform.xy) * u_screenRes);
 	gl_Position = vec4(pixelPos / u_screenRes, 0, 1);
-	v_texcoords = a_position;
 	v_position = gl_Position.xy;
 	v_cornerIndex = a_cornerIndex;
 }

@@ -53,7 +53,7 @@ void UIManager::InitUI()
 	glBindTexture(GL_TEXTURE_2D, UITexture);
 	glTexImage2D(GL_TEXTURE_2D,
 		0,
-		GL_RGBA16F,
+		GL_RGBA8,
 		(GLsizei)Window::GetActiveWindow()->GetSize().X,
 		(GLsizei)Window::GetActiveWindow()->GetSize().Y,
 		0,
@@ -371,7 +371,6 @@ UIBox* kui::UIManager::GetNextFocusableBox(UIBox* From)
 				return FoundBox;
 		}
 	}
-	std::cout << "not found" << std::endl;
 	return nullptr;
 }
 

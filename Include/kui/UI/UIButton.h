@@ -20,7 +20,6 @@ namespace kui
 		Vec2f Offset;
 		bool IsHovered = false;
 		bool IsPressed = false;
-		bool IsKeyboardFocused = false;
 		bool IsSelected = false;
 		bool NeedsToBeSelected = false;
 		bool CanBeDragged = false;

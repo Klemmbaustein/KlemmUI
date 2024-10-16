@@ -31,6 +31,7 @@ void UIButton::Tick()
 		this->IsHovered = false;
 	}
 
+	bool IsKeyboardFocused = ParentWindow->UI.KeyboardFocusBox == this;
 
 	if (Hovered)
 	{
@@ -53,21 +54,9 @@ void UIButton::Tick()
 		CurrentButtonState = ButtonState::Hovered;
 	}
 
-	if (ParentWindow->UI.KeyboardFocusBox == this)
+	if (IsKeyboardFocused)
 	{
-		if (!IsKeyboardFocused)
-		{
-			BorderRadius *= 2;
-			RedrawElement();
-		}
 		CurrentButtonState = ButtonState::KeyboardHovered;
-		IsKeyboardFocused = true;
-	}
-	else if (IsKeyboardFocused)
-	{
-		RedrawElement();
-		IsKeyboardFocused = false;
-		BorderRadius /= 2;
 	}
 
 	if (Hovered || IsKeyboardFocused)

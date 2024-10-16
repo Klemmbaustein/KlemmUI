@@ -5,6 +5,7 @@
 #include <kui/App.h>
 #include <kui/Rendering/ScrollObject.h>
 #include <kui/Window.h>
+#include <iostream>
 using namespace kui;
 
 void UIBackground::ScrollTick(Shader* UsedShader)
@@ -250,16 +251,32 @@ void UIBackground::Draw()
 	BackgroundShader->SetVec3("u_color", Color);
 	BackgroundShader->SetVec3("u_borderColor", BorderColor);
 
-	Vec2ui WindowSize = ParentWindow->GetSize() / 2;
+	Vec2ui WindowSize = ParentWindow->GetSize();
 
 	Vec2f Pos = Vec2f(Vec2i(OffsetPosition * WindowSize)) / WindowSize;
-	Vec2f Res = Vec2f(Vec2i(Size * WindowSize)) / WindowSize;
+	Vec2f Res = Size;
+
+	float DrawnBorderRadius = BorderRadius;
+	SizeMode DrawnBorderSizeMode = BorderSizeMode;
+
+	if (this == ParentWindow->UI.KeyboardFocusBox)
+	{
+		if (DrawnBorderRadius == 0)
+		{
+			DrawnBorderRadius = 2;
+			DrawnBorderSizeMode = SizeMode::PixelRelative;
+		}
+		else
+		{
+			DrawnBorderRadius *= 2;
+		}
+	}
 
 	glUniform4f(glGetUniformLocation(BackgroundShader->GetShaderID(), "u_transform"), Pos.X, Pos.Y, Res.X, Res.Y);
 	BackgroundShader->SetFloat("u_opacity", Opacity);
-	BackgroundShader->SetInt("u_drawBorder", BorderRadius != 0);
+	BackgroundShader->SetInt("u_drawBorder", DrawnBorderRadius != 0);
 	BackgroundShader->SetInt("u_drawCorner", CornerRadius != 0);
-	BackgroundShader->SetFloat("u_borderScale", GetBorderSize(BorderRadius, BorderSizeMode));
+	BackgroundShader->SetFloat("u_borderScale", GetBorderSize(DrawnBorderRadius, DrawnBorderSizeMode));
 	BackgroundShader->SetFloat("u_cornerScale", GetBorderSize(CornerRadius, CornerSizeMode));
 	BackgroundShader->SetInt("u_cornerFlags", int(CornerFlags));
 	BackgroundShader->SetInt("u_borderFlags", int(BorderFlags));

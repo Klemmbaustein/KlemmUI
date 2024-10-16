@@ -21,8 +21,8 @@ namespace kui
 
 		Vec2ui ScissorXY, ScissorWH;
 
-		UIBox* GetNextKeyboardBox(UIBox* From);
-		UIBox* FindKeyboardBox(UIBox* From);
+		UIBox* GetNextKeyboardBox(UIBox* From, bool Reverse);
+		UIBox* FindKeyboardBox(UIBox* From, bool Reverse);
 
 	public:
 		UIManager();
@@ -72,7 +72,7 @@ namespace kui
 
 		void SetTexturePath(std::string NewPath);
 
-		UIBox* GetNextFocusableBox(UIBox* From);
+		UIBox* GetNextFocusableBox(UIBox* From, bool Direction);
 
 		struct ButtonEvent
 		{

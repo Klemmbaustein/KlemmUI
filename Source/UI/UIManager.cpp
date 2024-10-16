@@ -266,20 +266,20 @@ void kui::UIManager::SetTexturePath(std::string NewPath)
 	TexturePath = NewPath;
 }
 
-UIBox* kui::UIManager::GetNextKeyboardBox(UIBox* From)
+UIBox* kui::UIManager::GetNextKeyboardBox(UIBox* From, bool Reverse)
 {
 	bool Found = false;
-	auto Iterate = [&Found, &From, this](UIBox* Box) -> UIBox*
+	auto Iterate = [&Found, &From, Reverse, this](UIBox* Box) -> UIBox*
 		{
 			if (Box == From)
 			{
 				Found = true;
 				return nullptr;
 			}
-			
+
 			if (Found)
 			{
-				UIBox* FoundBox = FindKeyboardBox(Box);
+				UIBox* FoundBox = FindKeyboardBox(Box, Reverse);
 
 				if (FoundBox)
 					return FoundBox;
@@ -287,7 +287,12 @@ UIBox* kui::UIManager::GetNextKeyboardBox(UIBox* From)
 			return nullptr;
 		};
 
-	if (From->Parent && From->Parent->VerticalBoxAlign != UIBox::Align::Reverse && !From->Parent->ChildrenHorizontal)
+	bool Direction = From->Parent && From->Parent->VerticalBoxAlign != UIBox::Align::Reverse && !From->Parent->ChildrenHorizontal;
+
+	if (Reverse)
+		Direction = !Direction;
+
+	if (Direction && From->Parent)
 	{
 		for (int64_t i = From->Parent->Children.size() - 1; i >= 0; i--)
 		{
@@ -308,22 +313,28 @@ UIBox* kui::UIManager::GetNextKeyboardBox(UIBox* From)
 
 	if (From->Parent)
 	{
-		return GetNextKeyboardBox(From->Parent);
+		return GetNextKeyboardBox(From->Parent, Reverse);
 	}
 	return nullptr;
 }
 
-UIBox* kui::UIManager::FindKeyboardBox(UIBox* From)
+UIBox* kui::UIManager::FindKeyboardBox(UIBox* From, bool Reverse)
 {
 	if (!From->IsVisibleInHierarchy())
 		return nullptr;
 	if (From->KeyboardFocusable)
 		return From;
-	if (From->VerticalBoxAlign != UIBox::Align::Reverse && !From->ChildrenHorizontal)
+
+	bool Direction = From->VerticalBoxAlign != UIBox::Align::Reverse && !From->ChildrenHorizontal;
+
+	if (Reverse)
+		Direction = !Direction;
+
+	if (Direction)
 	{
 		for (int64_t i = From->Children.size() - 1; i >= 0; i--)
 		{
-			UIBox* ChildResult = FindKeyboardBox(From->Children[i]);
+			UIBox* ChildResult = FindKeyboardBox(From->Children[i], Reverse);
 			if (ChildResult)
 				return ChildResult;
 		}
@@ -332,7 +343,7 @@ UIBox* kui::UIManager::FindKeyboardBox(UIBox* From)
 	{
 		for (UIBox* Box : From->Children)
 		{
-			UIBox* ChildResult = FindKeyboardBox(Box);
+			UIBox* ChildResult = FindKeyboardBox(Box, Reverse);
 			if (ChildResult)
 				return ChildResult;
 		}
@@ -340,11 +351,11 @@ UIBox* kui::UIManager::FindKeyboardBox(UIBox* From)
 	return nullptr;
 }
 
-UIBox* kui::UIManager::GetNextFocusableBox(UIBox* From)
+UIBox* kui::UIManager::GetNextFocusableBox(UIBox* From, bool Reverse)
 {
 	if (From)
 	{
-		UIBox* Next = GetNextKeyboardBox(From);
+		UIBox* Next = GetNextKeyboardBox(From, Reverse);
 		if (Next)
 			return Next;
 	}
@@ -352,23 +363,45 @@ UIBox* kui::UIManager::GetNextFocusableBox(UIBox* From)
 	for (int WithParent = 0; WithParent < 2; WithParent++)
 	{
 		bool Found = false;
-		for (UIBox* Box : UIElements)
-		{
-			if (Box->Parent)
-				continue;
-			if (!WithParent && From && (From->IsChildOf(Box) || From == Box))
+
+		auto Iterate = [this, &From, &WithParent, &Found, Reverse](UIBox* Box) -> UIBox*
 			{
-				Found = true;
-				continue;
+				if (Box->Parent)
+					return nullptr;
+				if (!WithParent && From && (From->IsChildOf(Box) || From == Box))
+				{
+					Found = true;
+					return nullptr;
+				}
+
+				if (!Found && !WithParent)
+					return nullptr;
+
+				UIBox* FoundBox = FindKeyboardBox(Box, Reverse);
+
+				if (FoundBox && From != FoundBox)
+					return FoundBox;
+
+				return nullptr;
+			};
+
+		if (Reverse)
+		{
+			for (int64_t i = UIElements.size() - 1; i >= 0; i--)
+			{
+				UIBox* ElementResult = Iterate(UIElements[i]);
+				if (ElementResult)
+					return ElementResult;
 			}
-
-			if (!Found && !WithParent)
-				continue;
-
-			UIBox* FoundBox = FindKeyboardBox(Box);
-
-			if (FoundBox && From != FoundBox)
-				return FoundBox;
+		}
+		else
+		{
+			for (UIBox* Box : UIElements)
+			{
+				UIBox* ElementResult = Iterate(Box);
+				if (ElementResult)
+					return ElementResult;
+			}
 		}
 	}
 	return nullptr;

@@ -60,7 +60,7 @@ Shader::Shader(std::string VertexSource, std::string FragmentSource, std::string
 	glCompileShader(fragment);
 	CheckCompileErrors(fragment, "FRAGMENT");
 	// if geometry shader is given, compile geometry shader
-	unsigned int geometry;
+	unsigned int geometry = 0;
 	if (!GeometrySource.empty())
 	{
 		const char* gShaderCode = GeometrySource.c_str();

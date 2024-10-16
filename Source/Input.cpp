@@ -104,7 +104,7 @@ kui::InputManager::InputManager(Window* Parent)
 	RegisterOnKeyDownCallback(Key::TAB, [](Window* Win) {
 		if (!Win->Input.PollForText)
 		{
-			UIBox* Box = Win->UI.GetNextFocusableBox(Win->UI.KeyboardFocusBox);
+			UIBox* Box = Win->UI.GetNextFocusableBox(Win->UI.KeyboardFocusBox, Win->Input.IsKeyDown(Key::LSHIFT));
 
 			if (Box)
 			{

@@ -270,7 +270,7 @@ void UITextField::Edit()
 	ParentWindow->Input.PollForText = true;
 	ParentWindow->Input.Text = EnteredText;
 	IsPressed = false;
-	ParentWindow->Input.TextIndex = EnteredText.size();
+	ParentWindow->Input.SetTextIndex(EnteredText.size(), true);
 	RedrawElement();
 }
 

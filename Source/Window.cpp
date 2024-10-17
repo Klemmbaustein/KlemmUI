@@ -46,6 +46,7 @@ kui::Window::Window(std::string Name, WindowFlag Flags, Vec2ui WindowPos, Vec2ui
 	}
 
 	IgnoreDPI = (Flags & WindowFlag::IgnoreDPI) == WindowFlag::IgnoreDPI;
+	std::lock_guard Guard = std::lock_guard(internal::WindowCreationMutex);
 
 	SysWindowPtr = systemWM::NewWindow(this,
 		WindowSize,
@@ -53,9 +54,8 @@ kui::Window::Window(std::string Name, WindowFlag Flags, Vec2ui WindowPos, Vec2ui
 		Name,
 		Flags);
 	CurrentWindowFlags = Flags;
-	DPI = systemWM::GetDPIScale(static_cast<systemWM::SysWindow*>(SysWindowPtr));
+	DPI = IgnoreDPI ? 1.0f : systemWM::GetDPIScale(static_cast<systemWM::SysWindow*>(SysWindowPtr));
 
-	std::lock_guard Guard = std::lock_guard(internal::WindowCreationMutex);
 
 	UpdateSize();
 	SetWindowActive();

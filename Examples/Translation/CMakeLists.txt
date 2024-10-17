@@ -7,6 +7,6 @@ else()
 endif()
 
 klemmui_resources(Translation "../res/")
-klemmui_markup(Translation "ui/" "elements/")
+klemmui_markup(Translation "ui/")
 
 target_link_libraries(Translation PUBLIC KlemmUI)

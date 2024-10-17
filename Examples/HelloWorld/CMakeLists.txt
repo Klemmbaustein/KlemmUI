@@ -7,6 +7,6 @@ else()
 endif()
 
 klemmui_resources(HelloWorld "../res/")
-klemmui_markup(HelloWorld "ui/" "elements/")
+klemmui_markup(HelloWorld "ui/")
 
 target_link_libraries(HelloWorld PUBLIC KlemmUI)

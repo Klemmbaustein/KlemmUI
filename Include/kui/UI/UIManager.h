@@ -39,6 +39,7 @@ namespace kui
 		std::set<UIBox*> ElementsToUpdate;
 		std::vector<UIBox*> UIElements;
 		bool RequiresRedraw = true;
+		bool DrawToWindow = false;
 		unsigned int UIBuffer = 0;
 		unsigned int UITexture = 0;
 

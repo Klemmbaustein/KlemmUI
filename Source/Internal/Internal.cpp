@@ -37,6 +37,9 @@ void kui::internal::InitGLContext(Window* From)
 
 void kui::internal::DrawWindow(Window* Target)
 {
+	if (!Target->UI.DrawToWindow)
+		return;
+
 	systemWM::SysWindow* SysWindow = static_cast<systemWM::SysWindow*>(Target->GetSysWindow());
 
 	Shader* WindowShader = Target->Shaders.GetShader("WindowShader");

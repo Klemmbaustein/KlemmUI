@@ -270,7 +270,7 @@ void UITextField::Edit()
 	ParentWindow->Input.PollForText = true;
 	ParentWindow->Input.Text = EnteredText;
 	IsPressed = false;
-	ParentWindow->Input.SetTextIndex(EnteredText.size(), true);
+	ParentWindow->Input.SetTextIndex((int)EnteredText.size(), true);
 	RedrawElement();
 }
 
@@ -351,7 +351,7 @@ void UITextField::DrawBackground()
 		}
 		else
 		{
-			size_t Difference = std::round((TextHighlightEnd.Y - TextHighlightStart.Y) / CharSize);
+			size_t Difference = size_t(std::round((TextHighlightEnd.Y - TextHighlightStart.Y) / CharSize));
 
 			if (Difference == 1)
 			{

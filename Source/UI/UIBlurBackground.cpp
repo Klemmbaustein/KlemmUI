@@ -11,8 +11,8 @@ const float BlurScale = 0.03f;
 kui::Vec2ui kui::UIBlurBackground::GetPixelSize()
 {
 	return Vec2ui::Max(Vec2ui(
-		ParentWindow->GetSize().X * Size.X * 0.5f * BlurScale,
-		ParentWindow->GetSize().Y * Size.X * 0.5f * BlurScale
+		uint32_t(ParentWindow->GetSize().X * Size.X * 0.5f * BlurScale),
+		uint32_t(ParentWindow->GetSize().Y * Size.X * 0.5f * BlurScale)
 	), 1);
 }
 
@@ -34,8 +34,8 @@ void kui::UIBlurBackground::CreateBlurBuffer()
 	glTexImage2D(GL_TEXTURE_2D,
 		0,
 		GL_RGB8,
-		Size.X,
-		Size.Y,
+		(GLsizei)Size.X,
+		(GLsizei)Size.Y,
 		0,
 		GL_RGB,
 		GL_FLOAT,
@@ -94,7 +94,7 @@ void kui::UIBlurBackground::Draw()
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, ParentWindow->UI.UITexture);
 
-	glViewport(0, 0, PixelSize.X, PixelSize.Y);
+	glViewport(0, 0, (GLsizei)PixelSize.X, (GLsizei)PixelSize.Y);
 	glDisable(GL_SCISSOR_TEST);
 	glClear(GL_COLOR_BUFFER_BIT);
 	BlurShader->Bind();
@@ -103,7 +103,7 @@ void kui::UIBlurBackground::Draw()
 	BlurShader->SetVec2("u_pixelSize", Vec2f(0.1f) / Vec2f(PixelSize));
 	BoxVertexBuffer->Draw();
 	BlurShader->Unbind();
-	glViewport(0, 0, WindowSize.X, WindowSize.Y);
+	glViewport(0, 0, (GLsizei)WindowSize.X, (GLsizei)WindowSize.Y);
 	glBindFramebuffer(GL_FRAMEBUFFER, ParentWindow->UI.UIBuffer);
 	glEnable(GL_SCISSOR_TEST);
 

@@ -44,11 +44,11 @@ static std::wstring ToWstring(std::string utf8)
 
 static std::string FromWstring(std::wstring Wide)
 {
-	int MultiByteLength = WideCharToMultiByte(CP_UTF8, 0, Wide.c_str(), Wide.size(),
+	int MultiByteLength = WideCharToMultiByte(CP_UTF8, 0, Wide.c_str(), int(Wide.size()),
 		0, 0, NULL, NULL);
 	char* str = new char[MultiByteLength]();
 
-	WideCharToMultiByte(CP_UTF8, 0, Wide.c_str(), Wide.size(),
+	WideCharToMultiByte(CP_UTF8, 0, Wide.c_str(), int(Wide.size()),
 		str, MultiByteLength, NULL, NULL);
 
 	std::string Out;
@@ -377,10 +377,10 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
 		// This returns the min and max size of this window.
 		LPMINMAXINFO MinMaxInfo = (LPMINMAXINFO)lParam;
 		double Scale = GetDPIScale(SysWindow);
-		MinMaxInfo->ptMinTrackSize.x = double(SysWindow->MinSize.X) * Scale;
-		MinMaxInfo->ptMinTrackSize.y = double(SysWindow->MinSize.Y) * Scale;
-		MinMaxInfo->ptMaxTrackSize.x = std::min(double(SysWindow->MaxSize.X) * Scale, double(INT32_MAX));
-		MinMaxInfo->ptMaxTrackSize.y = std::min(double(SysWindow->MaxSize.Y) * Scale, double(INT32_MAX));
+		MinMaxInfo->ptMinTrackSize.x = LONG(double(SysWindow->MinSize.X) * Scale);
+		MinMaxInfo->ptMinTrackSize.y = LONG(double(SysWindow->MinSize.Y) * Scale);
+		MinMaxInfo->ptMaxTrackSize.x = LONG(std::min(double(SysWindow->MaxSize.X) * Scale, double(INT32_MAX)));
+		MinMaxInfo->ptMaxTrackSize.y = LONG(std::min(double(SysWindow->MaxSize.Y) * Scale, double(INT32_MAX)));
 		return 0;
 	}
 
@@ -526,10 +526,10 @@ kui::systemWM::SysWindow* kui::systemWM::NewWindow(
 		ToWstring(KUI_WINDOW_CLASS_NAME).c_str(),
 		ToWstring(Title).c_str(),
 		Style.first,
-		WindowSizes[0].X,
-		WindowSizes[0].Y,
-		WindowSizes[1].X,
-		WindowSizes[1].Y,
+		(int)WindowSizes[0].X,
+		(int)WindowSizes[0].Y,
+		(int)WindowSizes[1].X,
+		(int)WindowSizes[1].Y,
 		NULL,
 		NULL,
 		Instance,
@@ -596,7 +596,7 @@ kui::systemWM::SysWindow* kui::systemWM::NewWindow(
 	if (OutWindow->Borderless)
 	{
 		Borderless::SetShadow(OutWindow->WindowHandle, true);
-		SetWindowPos(OutWindow->WindowHandle, NULL, Pos.X, Pos.Y, 0, 0,
+		SetWindowPos(OutWindow->WindowHandle, NULL, (int)Pos.X, (int)Pos.Y, 0, 0,
 			SWP_FRAMECHANGED | SWP_NOMOVE | SWP_NOSIZE);
 	}
 
@@ -662,12 +662,12 @@ void kui::systemWM::SetWindowIcon(SysWindow* Target, uint8_t* Bytes, size_t Widt
 		}
 	}
 
-	ICONINFO IconInfo = { TRUE, NULL, NULL, NULL, CreateBitmap(Width, Height, 1, 32, BitmapBytes) };
+	ICONINFO IconInfo = { TRUE, NULL, NULL, NULL, CreateBitmap((int)Width, (int)Height, 1, 32, BitmapBytes) };
 
 	HICON hIcon = NULL;
 	if (IconInfo.hbmColor)
 	{
-		IconInfo.hbmMask = CreateCompatibleBitmap(Target->DeviceContext, Width, Height);
+		IconInfo.hbmMask = CreateCompatibleBitmap(Target->DeviceContext, (int)Width, (int)Height);
 		if (IconInfo.hbmMask)
 		{
 			hIcon = CreateIconIndirect(&IconInfo);
@@ -862,7 +862,7 @@ void kui::systemWM::SetWindowPosition(SysWindow* Target, Vec2ui NewPosition)
 	RECT WindowRect = {};
 	GetWindowRect(Target->WindowHandle, &WindowRect);
 	MoveWindow(Target->WindowHandle,
-		NewPosition.X, NewPosition.Y,
+		int(NewPosition.X), int(NewPosition.Y),
 		WindowRect.right - WindowRect.left, WindowRect.bottom - WindowRect.top, true);
 }
 

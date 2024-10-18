@@ -95,7 +95,7 @@ size_t Font::GetCharacterAtPosition(std::vector<TextSegment> Text, Vec2f Positio
 				}
 				if (GlyphIndex > LoadedGlyphs.size())
 				{
-					GlyphIndex = LoadedGlyphs.size() - 1;
+					GlyphIndex = int(LoadedGlyphs.size() - 1);
 				}
 
 				Glyph g = LoadedGlyphs[GlyphIndex];
@@ -328,14 +328,14 @@ Vec2f Font::GetTextSize(std::vector<TextSegment> Text, float Scale, bool Wrapped
 			}
 			if (SegmentText[i] >= 32)
 			{
-				int GlyphIndex = (int)SegmentText[i] - 32;
+				int GlyphIndex = int(SegmentText[i] - 32);
 				if (GlyphIndex < 0)
 				{
 					continue;
 				}
 				if (GlyphIndex > LoadedGlyphs.size())
 				{
-					GlyphIndex = LoadedGlyphs.size() - 1;
+					GlyphIndex = int(LoadedGlyphs.size() - 1);
 				}
 				Glyph g = LoadedGlyphs[GlyphIndex];
 

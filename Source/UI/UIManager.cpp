@@ -150,17 +150,17 @@ bool UIManager::DrawElements()
 			Vec2f Pos = (i.Min / 2 + 0.5f) * Vec2f(WindowSize);
 			Vec2f Res = (i.Max - i.Min) / 2 * Vec2f(WindowSize);
 
-			ScissorXY = Vec2ui(Pos.X, Pos.Y);
+			ScissorXY = Vec2ui(uint64_t(Pos.X), uint64_t(Pos.Y));
 			ScissorWH = Vec2ui(
 				std::clamp((GLsizei)Res.X, 0, (GLsizei)WindowSize.X),
 				std::clamp((GLsizei)Res.Y, 0, (GLsizei)WindowSize.Y)
 			);
 
 			glScissor(
-				ScissorXY.X,
-				ScissorXY.Y,
-				ScissorWH.X,
-				ScissorWH.Y
+				GLint(ScissorXY.X),
+				GLint(ScissorXY.Y),
+				GLsizei(ScissorWH.X),
+				GLsizei(ScissorWH.Y)
 			);
 
 			glClear(GL_COLOR_BUFFER_BIT);

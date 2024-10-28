@@ -44,7 +44,7 @@ extern "C"
 	const char* const KlemmUI_GetResourceBytes(size_t ResourceIndex);
 }
 
-kui::Resource::BinaryData kui::Resource::GetBinaryResource(const std::string& Path)
+kui::resource::BinaryData kui::resource::GetBinaryResource(const std::string& Path)
 {
 	size_t ResourceIndex = App_GetResourceIndex(Path.c_str());
 	return BinaryData{
@@ -54,7 +54,7 @@ kui::Resource::BinaryData kui::Resource::GetBinaryResource(const std::string& Pa
 	};
 }
 
-std::string kui::Resource::GetStringResource(const std::string& Path)
+std::string kui::resource::GetStringResource(const std::string& Path)
 {
 	size_t KlemmUIResourceIndex = KlemmUI_GetResourceIndex(Path.c_str());
 	if (KlemmUIResourceIndex != SIZE_MAX)
@@ -73,7 +73,7 @@ std::string kui::Resource::GetStringResource(const std::string& Path)
 }
 
 
-bool kui::Resource::ResourceExists(const std::string& Path)
+bool kui::resource::ResourceExists(const std::string& Path)
 {
 	size_t KlemmUIResourceIndex = KlemmUI_GetResourceIndex(Path.c_str());
 	if (KlemmUIResourceIndex != SIZE_MAX)
@@ -82,7 +82,7 @@ bool kui::Resource::ResourceExists(const std::string& Path)
 	return App_GetResourceIndex(Path.c_str()) != SIZE_MAX;
 }
 
-std::string kui::Resource::GetStringFile(const std::string& Path)
+std::string kui::resource::GetStringFile(const std::string& Path)
 {
 	if (!IsFilePath(Path) && (ResourceExists(ConvertResourcePath(Path)) || IsResourcePath(Path)))
 	{
@@ -99,7 +99,7 @@ std::string kui::Resource::GetStringFile(const std::string& Path)
 	return std::string();
 }
 
-kui::Resource::BinaryData kui::Resource::GetBinaryFile(const std::string& Path)
+kui::resource::BinaryData kui::resource::GetBinaryFile(const std::string& Path)
 {
 	if (!IsFilePath(Path) && (ResourceExists(ConvertResourcePath(Path)) || IsResourcePath(Path)))
 	{
@@ -129,13 +129,13 @@ kui::Resource::BinaryData kui::Resource::GetBinaryFile(const std::string& Path)
 	return BinaryData();
 }
 
-void kui::Resource::FreeBinaryFile(BinaryData Data)
+void kui::resource::FreeBinaryFile(BinaryData Data)
 {
 	if (Data.ResourceType == SIZE_MAX)
 		delete[] Data.Data;
 }
 
-bool kui::Resource::FileExists(const std::string& Path)
+bool kui::resource::FileExists(const std::string& Path)
 {
 	if (ResourceExists(ConvertResourcePath(Path)) && !IsFilePath(Path))
 	{

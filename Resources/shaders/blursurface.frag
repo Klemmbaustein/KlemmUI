@@ -3,7 +3,8 @@
 in vec2 v_texcoords;
 in vec2 v_position;
 in float v_cornerIndex;
-out vec4 f_color;
+layout (location = 0) out vec4 f_color;
+layout (location = 1) out vec4 f_alpha;
 
 uniform vec3 u_color = vec3(1);
 uniform vec3 u_borderColor = vec3(1);
@@ -97,4 +98,6 @@ void main()
 			f_color.rgb = u_borderColor;
 		}
 	}
+	f_alpha.xyz = vec3(1);
+	f_alpha.w = f_color.w;
 }

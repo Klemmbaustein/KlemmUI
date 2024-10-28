@@ -82,20 +82,22 @@ macro(klemmui_markup ProjectName MarkupDir)
 		list(APPEND UI_HEADERS ${HEADER_FILE})
 	endforeach()
 
-	target_sources(${ProjectName} PRIVATE ${UI_FILES})
+	if(${UI_HEADERS})
+		target_sources(${ProjectName} PRIVATE ${UI_FILES})
 
-	add_custom_command(
-		OUTPUT ${UI_HEADERS}
-		WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-		COMMAND $<TARGET_FILE:KlemmUIHT>  -i ${MarkupDir} -o ${OutDir}
-		DEPENDS ${UI_FILES}
-	)
+		add_custom_command(
+			OUTPUT ${UI_HEADERS}
+			WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+			COMMAND $<TARGET_FILE:KlemmUIHT>  -i ${MarkupDir} -o ${OutDir}
+			DEPENDS ${UI_FILES}
+		)
 
-	add_custom_target(${ProjectName}_Headers DEPENDS ${UI_HEADERS})
+		add_custom_target(${ProjectName}_Headers DEPENDS ${UI_HEADERS})
 
-	add_dependencies(${ProjectName}_Headers KlemmUIHT)
-	add_dependencies(${ProjectName} ${ProjectName}_Headers)
-	target_include_directories(${ProjectName} PRIVATE ${OutDir})
+		add_dependencies(${ProjectName}_Headers KlemmUIHT)
+		add_dependencies(${ProjectName} ${ProjectName}_Headers)
+		target_include_directories(${ProjectName} PRIVATE ${OutDir})
+	endif()
 endmacro()
 
 macro(klemmui_resources ProjectName ResourceDir)

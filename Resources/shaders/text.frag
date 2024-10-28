@@ -2,7 +2,8 @@
 in vec2 TexCoords;
 in vec2 v_position;
 in vec3 v_color;
-out vec4 color;
+layout (location = 0) out vec4 color;
+layout (location = 1) out vec4 alpha;
 uniform vec3 u_offset; //X = Y offset; Y = MaxDistance; Z MinDistance
 uniform sampler2D u_texture;
 uniform vec3 textColor;
@@ -32,4 +33,6 @@ void main()
 	}
 	sampled /= NUM_SAMPLES * NUM_SAMPLES * 2 * 2;
 	color = vec4(v_color, sampled * u_opacity);
+	alpha.xyz = vec3(1);
+	alpha.w = color.w;
 }

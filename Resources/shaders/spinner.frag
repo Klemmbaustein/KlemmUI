@@ -3,7 +3,8 @@
 in vec2 v_texcoords;
 in vec2 v_position;
 in float v_cornerIndex;
-out vec4 f_color;
+layout (location = 0) out vec4 f_color;
+layout (location = 1) out vec4 f_alpha;
 
 uniform vec3 u_color = vec3(1);
 uniform vec3 u_backgroundColor = vec3(0);
@@ -64,5 +65,6 @@ void main()
 	value *= smoothSelect(0, 1, angle - spinTime - 0.01, 10);
 
 	f_color = vec4(mix(u_backgroundColor, u_color, value), opacity);
-
+	f_alpha.xyz = vec3(1);
+	f_alpha.w = f_color.w;
 }

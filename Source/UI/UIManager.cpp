@@ -9,15 +9,20 @@
 #include <iostream>
 using namespace kui;
 
+thread_local bool UIManager::UseAlphaBuffer = false;
+
 UIManager::UIManager()
 {
+	UITextures[0] = 0;
+	UITextures[1] = 0;
 }
 
 UIManager::~UIManager()
 {
 	ClearUI();
+	GLsizei NumBuffers = UseAlphaBuffer ? 2 : 1;
 	glDeleteFramebuffers(1, &UIBuffer);
-	glDeleteTextures(1, &UITexture);
+	glDeleteTextures(NumBuffers, UITextures);
 
 	for (auto& i : ReferencedTextures)
 	{
@@ -31,10 +36,10 @@ void UIManager::ForceUpdateUI()
 	if (UIBuffer)
 	{
 		glDeleteFramebuffers(1, &UIBuffer);
-		glDeleteTextures(1, &UITexture);
+		GLsizei NumBuffers = UseAlphaBuffer ? 2 : 1;
+		glDeleteTextures(NumBuffers, UITextures);
 	}
 	UIBuffer = 0;
-	UITexture = 0;
 	InitUI();
 	for (UIBox* i : UIElements)
 	{
@@ -48,14 +53,18 @@ void UIManager::ForceUpdateUI()
 void UIManager::InitUI()
 {
 	glGenFramebuffers(1, &UIBuffer);
-	// create floating point color buffer
-	glGenTextures(1, &UITexture);
-	glBindTexture(GL_TEXTURE_2D, UITexture);
+
+	GLsizei NumBuffers = UseAlphaBuffer ? 2 : 1;
+
+	glGenTextures(NumBuffers, UITextures);
+	glBindTexture(GL_TEXTURE_2D, UITextures[0]);
+
+	GLsizei x = (GLsizei)Window::GetActiveWindow()->GetSize().X, y = (GLsizei)Window::GetActiveWindow()->GetSize().Y;
 	glTexImage2D(GL_TEXTURE_2D,
 		0,
 		GL_RGBA8,
-		(GLsizei)Window::GetActiveWindow()->GetSize().X,
-		(GLsizei)Window::GetActiveWindow()->GetSize().Y,
+		x,
+		y,
 		0,
 		GL_RGBA,
 		GL_FLOAT,
@@ -65,14 +74,33 @@ void UIManager::InitUI()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, UIBuffer);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, UITexture, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, UITextures[0], 0);
+	
+	if (UseAlphaBuffer)
+	{
+		glBindTexture(GL_TEXTURE_2D, UITextures[1]);
+		glTexImage2D(GL_TEXTURE_2D,
+			0,
+			GL_RGBA8,
+			x,
+			y,
+			0,
+			GL_RGBA,
+			GL_FLOAT,
+			NULL);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, UITextures[1], 0);
+	}
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	RedrawUI();
 }
 
 unsigned int UIManager::GetUIFramebuffer() const
 {
-	return UITexture;
+	return UITextures[0];
 }
 
 void UIManager::RedrawUI()
@@ -123,9 +151,13 @@ bool UIManager::DrawElements()
 	if (!RedrawBoxes.empty())
 	{
 		glBindFramebuffer(GL_FRAMEBUFFER, UIBuffer);
-		glClearColor(0, 0, 0, 1);
+		glClearColor(0, 0, 0, 0);
 		glEnable(GL_SCISSOR_TEST);
-
+		if (UseAlphaBuffer)
+		{
+			unsigned int attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+			glDrawBuffers(2, attachments);
+		}
 		Vec2ui WindowSize = Window::GetActiveWindow()->GetSize();
 
 		glViewport(0, 0, (GLint)WindowSize.X, (GLint)WindowSize.Y);
@@ -230,7 +262,7 @@ unsigned int kui::UIManager::LoadReferenceTexture(std::string FilePath)
 		}
 	}
 
-	if (!TexturePath.empty() && !Resource::ResourceExists(FilePath))
+	if (!TexturePath.empty() && !resource::ResourceExists(FilePath))
 	{
 		FilePath = TexturePath + "/" + FilePath;
 	}

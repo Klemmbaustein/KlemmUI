@@ -1,7 +1,7 @@
 #include <cstdint>
 #include <string>
 
-namespace kui::Resource
+namespace kui::resource
 {
 	struct BinaryData
 	{

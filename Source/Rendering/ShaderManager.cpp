@@ -18,7 +18,7 @@ Shader* kui::ShaderManager::LoadShader(std::string VertexName, std::string Fragm
 
 	if (LoadedShader == Shaders.end())
 	{
-		Shader* NewShader = new Shader(Resource::GetStringFile(VertexName), Resource::GetStringFile(FragmentName));
+		Shader* NewShader = new Shader(resource::GetStringFile(VertexName), resource::GetStringFile(FragmentName));
 		Shaders.insert(std::pair(Name, NewShader));
 		return NewShader;
 	}

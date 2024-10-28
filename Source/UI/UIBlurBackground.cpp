@@ -92,7 +92,7 @@ void kui::UIBlurBackground::Draw()
 	}
 	glBindFramebuffer(GL_FRAMEBUFFER, BackgroundBuffer);
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, ParentWindow->UI.UITexture);
+	glBindTexture(GL_TEXTURE_2D, ParentWindow->UI.UITextures[0]);
 
 	glViewport(0, 0, (GLsizei)PixelSize.X, (GLsizei)PixelSize.Y);
 	glDisable(GL_SCISSOR_TEST);

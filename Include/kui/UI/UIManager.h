@@ -28,6 +28,8 @@ namespace kui
 		UIManager();
 		~UIManager();
 
+		thread_local static bool UseAlphaBuffer;
+
 		/**
 		* @brief
 		* The UI element that is currently hovered.
@@ -41,7 +43,7 @@ namespace kui
 		bool RequiresRedraw = true;
 		bool DrawToWindow = true;
 		unsigned int UIBuffer = 0;
-		unsigned int UITexture = 0;
+		unsigned int UITextures[2];
 
 		void ForceUpdateUI();
 		void InitUI();

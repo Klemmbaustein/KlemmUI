@@ -31,8 +31,6 @@ void kui::internal::InitGLContext(Window* From)
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	From->Shaders.LoadShader("res:shaders/postprocess.vert", "res:shaders/postprocess.frag", "WindowShader");
-
-	return;
 }
 
 void kui::internal::DrawWindow(Window* Target)

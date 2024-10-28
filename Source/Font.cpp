@@ -171,13 +171,13 @@ Font::Font(std::string FileName)
 {
 	Window::GetActiveWindow()->Shaders.LoadShader("res:shaders/text.vert", "res:shaders/text.frag", TextShaderName);
 
-	if (!Resource::FileExists(FileName))
+	if (!resource::FileExists(FileName))
 	{
 		app::error::Error("Failed to find font resource: " + FileName);
 		return;
 	}
 
-	Resource::BinaryData TextData = Resource::GetBinaryFile(FileName);
+	resource::BinaryData TextData = resource::GetBinaryFile(FileName);
 
 	stbtt_fontinfo finf;
 	stbtt_InitFont(&finf, TextData.Data, stbtt_GetFontOffsetForIndex(TextData.Data, 0));
@@ -294,7 +294,7 @@ Font::Font(std::string FileName)
 	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(FontVertex), (const void*)offsetof(FontVertex, color));
 	glBindVertexArray(0);
 
-	Resource::FreeBinaryFile(TextData);
+	resource::FreeBinaryFile(TextData);
 
 	delete[] GlypthBitmap;
 }

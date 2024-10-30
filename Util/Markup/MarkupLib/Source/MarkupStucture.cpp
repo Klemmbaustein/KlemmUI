@@ -330,7 +330,6 @@ static ConvertInfo ConvertValue(UIElement* Target, UIElement* Root, kui::stringP
 		}
 		if (Out.ValueGlobal)
 		{
-			std::cout << "VAR: " << Value.Text << std::endl;
 			std::string GetValue = "GetGlobal(\"" + Out.ValueGlobal->Name.Text + "\", kui::AnyContainer(" + kui::stringParse::ToCppCode(Out.ValueGlobal->Value) + "))";
 			if (Type == VariableType::Vector3)
 			{

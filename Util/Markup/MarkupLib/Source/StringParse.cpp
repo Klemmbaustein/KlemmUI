@@ -52,6 +52,7 @@ static std::string RemoveComments(std::string Code)
 			if (last == c && c == '/')
 			{
 				OutCode.pop_back();
+				OutCode.push_back('\n');
 				break;
 			}
 

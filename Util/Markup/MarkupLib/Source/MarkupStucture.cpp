@@ -165,7 +165,7 @@ std::string MarkupElement::WriteCode(ParseResult& MarkupElements)
 	{
 		Global* ValueGlobal = MarkupElements.GetGlobal(i.Value);
 		
-		Out << "\t\t" << Format::FormatString(i.Name, { Format::FormatArg("val", i.Value.Text) }) << ";\n";
+		Out << "\t\t" << Format::FormatString(i.Name, { Format::FormatArg("val", i.Value.Text) }) << "\n";
 	}
 	Out << "\t}\n";
 
@@ -411,7 +411,7 @@ static std::string WriteElementProperty(UIElement* Target, UIElement* Root, std:
 
 	if (i.CreateCodeFunction)
 	{
-		return "\t" + ElementName + "->" + i.CreateCodeFunction(Result.Value) + ";\n";
+		return "\t\t" + ElementName + "->" + i.CreateCodeFunction(Result.Value) + ";\n";
 	}
 
 	std::string Value;
@@ -431,7 +431,7 @@ static std::string WriteElementProperty(UIElement* Target, UIElement* Root, std:
 
 		std::string Format = "->" + Format::FormatString(FormatString, { Format::FormatArg("val", SetValue) });
 
-		Value += "\t" + ElementName + Format + ";\n";
+		Value += "\t\t" + ElementName + Format + ";\n";
 		if (Result.Variable)
 		{
 			Result.Variable->References.push_back(Target->ElementName.Text + Format);
@@ -447,7 +447,7 @@ static std::string WriteElementProperty(UIElement* Target, UIElement* Root, std:
 			std::string Format = ElementName + "->" + Format::FormatString(i.SetSizeFormat, {
 				Format::FormatArg("val", Size::SizeModeToKUISizeMode(val.SizeMode))
 				});
-			Value += "\t" + Format + ";\n";
+			Value += "\t\t" + Format + ";\n";
 		}
 	}
 
@@ -463,7 +463,7 @@ std::string UIElement::MakeCode(std::string Parent, UIElement* Root, size_t& Dep
 	std::string ElemName = ElementName.Empty() ? ("e_" + std::to_string(Depth)) : ElementName;
 	if (!Parent.empty())
 	{
-		OutStream << "\t";
+		OutStream << "\t\t";
 		if (ElementName.Empty())
 		{
 			OutStream << "auto* ";
@@ -535,12 +535,16 @@ std::string UIElement::MakeCode(std::string Parent, UIElement* Root, size_t& Dep
 			}
 			if (Result.ValueGlobal)
 			{
-				std::string SetFormat;
-
-				Root->GlobalProperties.push_back(Property(StringToken(SetFormat, 0, 0), Result.Value));
+				std::string ThisElementName = this->ElementName.Text;
+				if (ThisElementName.empty())
+				{
+					ThisElementName = ElemName;
+				}
+				std::string SetFormat = ThisElementName + "->Set" + prop.Name.Text + "({val})";
+				Root->GlobalProperties.push_back(Property(StringToken(SetFormat + ";", 0, 0), Result.Value));
 			}
 
-			OutStream << "\t" << ElemName << "->Set" << prop.Name.Text << "(" << stringParse::ToCppCode(Result.Value) << ");" << std::endl;
+			OutStream << "\t\t" << Format::FormatString(SetFormat, {Format::FormatArg("val", ToCppCode(Result.Value))}) << ";" << std::endl;
 			prop.Name.Text.clear();
 		}
 	}
@@ -556,14 +560,14 @@ std::string UIElement::MakeCode(std::string Parent, UIElement* Root, size_t& Dep
 
 	if (!Parent.empty())
 	{
-		OutStream << "\t" << Parent << "->AddChild(" << ElemName << ");" << std::endl;
+		OutStream << "\t\t" << Parent << "->AddChild(" << ElemName << ");" << std::endl;
 	}
 
 	// Name was set because a variable setter uses this element.
 	if (!HasName && !ElementName.Empty())
 	{
 		// Assign the local variable of the generated element to the global one so it can be used in the setters.
-		OutStream << "\t" << ElementName.Text << " = " << ElemName << ";" << std::endl;
+		OutStream << "\t\t" << ElementName.Text << " = " << ElemName << ";" << std::endl;
 	}
 
 	if (!Children.empty())

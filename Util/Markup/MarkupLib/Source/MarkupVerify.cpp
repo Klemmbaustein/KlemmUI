@@ -93,7 +93,7 @@ void markupVerify::VerifyElement(UIElement& Element, const MarkupElement& Root, 
 			{
 				Variable.Type = FoundValue->VarType;
 			}
-			else if (FoundGlobal->Type != FoundValue->VarType)
+			else if (Variable.Type != FoundValue->VarType)
 			{
 				parseError::Error("Variable '" + Value + "' does not have the correct type for the value of '" + prop.Name.Text + "'", prop.Value);
 			}

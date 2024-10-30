@@ -82,7 +82,9 @@ macro(klemmui_markup ProjectName MarkupDir)
 		list(APPEND UI_HEADERS ${HEADER_FILE})
 	endforeach()
 
-	if(${UI_HEADERS})
+	file(MAKE_DIRECTORY ${OutDir})
+
+	if(UI_HEADERS)
 		target_sources(${ProjectName} PRIVATE ${UI_FILES})
 
 		add_custom_command(

@@ -215,6 +215,13 @@ std::vector<PropertyElement> kui::MarkupStructure::Properties
 	},
 	PropertyElement{
 		.Type = PropElementType::UIBackground,
+		.Name = "borderSizeMode",
+		.Description = "The size mode of a border for the background.",
+		.SetFormat = { "BorderSizeMode = {val}" },
+		.VarType = VariableType::SizeMode,
+	},
+	PropertyElement{
+		.Type = PropElementType::UIBackground,
 		.Name = "borderColor",
 		.Description = "The color of the border for the background.",
 		.SetFormat = {"BorderColor = {val}"},

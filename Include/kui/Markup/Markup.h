@@ -83,7 +83,14 @@ namespace kui
 		{
 			if (Empty)
 				return 0;
-			return std::any_cast<Vec3f>(Value);
+			try
+			{
+				return std::any_cast<Vec3f>(Value);
+			}
+			catch (std::bad_any_cast)
+			{
+				return Vec3f(std::any_cast<float>(Value));
+			}
 		}
 	};
 

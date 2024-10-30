@@ -173,7 +173,8 @@ UIBackground* UIBackground::SetBorderVisible(int Index, bool Value)
 {
 	int NewFlags = BorderFlags & ~(1 << Index);
 
-	NewFlags |= 1 << Index;
+	if (Value)
+		NewFlags |= 1 << Index;
 
 	if (NewFlags != BorderFlags)
 	{
@@ -279,6 +280,7 @@ void UIBackground::Draw()
 	BackgroundShader->SetFloat("u_borderScale", GetBorderSize(DrawnBorderRadius, DrawnBorderSizeMode));
 	BackgroundShader->SetFloat("u_cornerScale", GetBorderSize(CornerRadius, CornerSizeMode));
 	BackgroundShader->SetInt("u_cornerFlags", int(CornerFlags));
+	std::cout << ((int)BorderFlags & (1 << 3)) << std::endl;
 	BackgroundShader->SetInt("u_borderFlags", int(BorderFlags));
 	BackgroundShader->SetFloat("u_aspectRatio", Window::GetActiveWindow()->GetAspectRatio());
 	BackgroundShader->SetVec2("u_screenRes", Vec2f(

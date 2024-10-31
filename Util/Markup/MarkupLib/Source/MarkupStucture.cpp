@@ -403,7 +403,7 @@ static std::string WriteElementProperty(UIElement* Target, UIElement* Root, std:
 
 		for (auto& FormatElement : i.SetFormat)
 		{
-			SetFormat += ElementName + "->" + FormatElement + ";\n\t\t";
+			SetFormat += Target->ElementName.Text + "->" + FormatElement + ";\n\t\t";
 		}
 
 		Root->GlobalProperties.push_back(Property(StringToken(SetFormat, 0, 0), Result.Value));
@@ -434,7 +434,7 @@ static std::string WriteElementProperty(UIElement* Target, UIElement* Root, std:
 		Value += "\t\t" + ElementName + Format + ";\n";
 		if (Result.Variable)
 		{
-			Result.Variable->References.push_back(ElementName + Format);
+			Result.Variable->References.push_back(Target->ElementName.Text + Format);
 		}
 	}
 

@@ -45,7 +45,7 @@ std::map<VariableType, UIElement::Variable::VariableTypeDescription> UIElement::
 },
 {
 	VariableType::Size,
-	VariableTypeDescription("SizeVector", "Vec2f"),
+	VariableTypeDescription("SizeVector", "kui::Vec2f"),
 },
 {
 	VariableType::SizeNumber,
@@ -324,7 +324,7 @@ static ConvertInfo ConvertValue(UIElement* Target, UIElement* Root, kui::stringP
 				kui::parseError::ErrorNoLine("Variable '" + Out.Variable->Token.Text + "' does not have the correct type for the value of '" + ValueName + "'");
 			}
 		}
-		if (Target->ElementName.Empty())
+		if (Target->ElementName.Empty() && Target != Root)
 		{
 			Target->ElementName = StringToken("unnamed_" + std::to_string(UnnamedCounter++), 0, 0);
 		}
@@ -403,7 +403,7 @@ static std::string WriteElementProperty(UIElement* Target, UIElement* Root, std:
 
 		for (auto& FormatElement : i.SetFormat)
 		{
-			SetFormat += Target->ElementName.Text + "->" + FormatElement + ";\n\t\t";
+			SetFormat += ElementName + "->" + FormatElement + ";\n\t\t";
 		}
 
 		Root->GlobalProperties.push_back(Property(StringToken(SetFormat, 0, 0), Result.Value));
@@ -434,7 +434,7 @@ static std::string WriteElementProperty(UIElement* Target, UIElement* Root, std:
 		Value += "\t\t" + ElementName + Format + ";\n";
 		if (Result.Variable)
 		{
-			Result.Variable->References.push_back(Target->ElementName.Text + Format);
+			Result.Variable->References.push_back(ElementName + Format);
 		}
 	}
 
@@ -572,12 +572,12 @@ std::string UIElement::MakeCode(std::string Parent, UIElement* Root, size_t& Dep
 
 	if (!Children.empty())
 	{
-		OutStream << "\t{\n";
+		OutStream << "\t\t{\n";
 		for (auto& i : Children)
 		{
 			OutStream << i.MakeCode(ElemName, Root, ++Depth, MarkupElements);
 		}
-		OutStream << "\t}\n";
+		OutStream << "\t\t}\n";
 	}
 	return OutStream.str();
 }

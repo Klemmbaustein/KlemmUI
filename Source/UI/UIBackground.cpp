@@ -254,9 +254,6 @@ void UIBackground::Draw()
 
 	Vec2ui WindowSize = ParentWindow->GetSize();
 
-	Vec2f Pos = Vec2f(Vec2i(OffsetPosition * WindowSize)) / WindowSize;
-	Vec2f Res = Size;
-
 	float DrawnBorderRadius = BorderRadius;
 	SizeMode DrawnBorderSizeMode = BorderSizeMode;
 
@@ -273,7 +270,7 @@ void UIBackground::Draw()
 		}
 	}
 
-	glUniform4f(glGetUniformLocation(BackgroundShader->GetShaderID(), "u_transform"), Pos.X, Pos.Y, Res.X, Res.Y);
+	glUniform4f(glGetUniformLocation(BackgroundShader->GetShaderID(), "u_transform"), OffsetPosition.X, OffsetPosition.Y, Size.X, Size.Y);
 	BackgroundShader->SetFloat("u_opacity", Opacity);
 	BackgroundShader->SetInt("u_drawBorder", DrawnBorderRadius != 0);
 	BackgroundShader->SetInt("u_drawCorner", CornerRadius != 0);

@@ -169,7 +169,7 @@ namespace kui
 
 		/**
 		 * @brief
-		 * Gets a pointer to the internal SDL window structure.
+		 * Gets a pointer to the internal systemWM::SysWindow structure.
 		 */
 		void* GetSysWindow() const;
 

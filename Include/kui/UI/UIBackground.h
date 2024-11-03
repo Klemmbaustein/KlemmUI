@@ -23,7 +23,6 @@ namespace kui
 		bool UseTexture = false;
 		uint8_t CornerFlags = 0b1111;
 		uint8_t BorderFlags = 0b1111;
-		Shader* BackgroundShader = nullptr;
 		virtual void DrawBackground();
 		Vec3f Color;
 		VertexBuffer* BoxVertexBuffer = nullptr;
@@ -33,6 +32,7 @@ namespace kui
 		static float GetBorderSize(float InSize, UIBox::SizeMode Mode);
 
 	public:
+		Shader* BackgroundShader = nullptr;
 		bool HasTexture() const
 		{
 			return UseTexture;

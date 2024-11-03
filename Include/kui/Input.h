@@ -180,7 +180,6 @@ namespace kui
 		/// True if the right mouse has been pressed on the last update.
 		bool IsRMBClicked = false;
 
-		bool CursorVisible = false;
 		/**
 		 * @brief
 		 * The position of the moue cursor relative to the window.
@@ -192,6 +191,7 @@ namespace kui
 		bool PollForText = false;
 		bool CanEditText = false;
 		bool TextAllowNewLine = false;
+		bool CursorVisible = false;
 		std::string Text;
 		int TextIndex = 0;
 		int TextSelectionStart = 0;

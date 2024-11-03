@@ -17,7 +17,7 @@ A C++20 UI library (maybe even a framework?) for creating lightweight cross plat
 
 ## Library features
 
-- Support for creating GUI apps on Windows and Linux. (Currently only X11 is supported)
+- Support for creating GUI apps on Windows and Linux. (Currently only X11 is supported by default)
 - A language for describing UI layouts that is compiled to C++ headers that can be included into regular code.
 - A resource generator that can translate files into C code that can be used to embed files into applications.
 

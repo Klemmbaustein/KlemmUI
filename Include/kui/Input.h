@@ -15,6 +15,7 @@
 namespace kui
 {
 	class Window;
+	class UIBox;
 
 	/**
 	* @brief
@@ -179,6 +180,10 @@ namespace kui
 		bool IsLMBClicked = false;
 		/// True if the right mouse has been pressed on the last update.
 		bool IsRMBClicked = false;
+
+		bool KeyboardFocusInput = true;
+
+		kui::UIBox* KeyboardFocusTargetBox = nullptr;
 
 		/**
 		 * @brief

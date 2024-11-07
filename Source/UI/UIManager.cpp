@@ -354,7 +354,7 @@ UIBox* kui::UIManager::FindKeyboardBox(UIBox* From, bool Reverse)
 {
 	if (!From->IsVisibleInHierarchy())
 		return nullptr;
-	if (From->KeyboardFocusable)
+	if (From->KeyboardFocusable && From->IsChildOf(From->ParentWindow->Input.KeyboardFocusTargetBox))
 		return From;
 
 	bool Direction = From->VerticalBoxAlign != UIBox::Align::Reverse && !From->ChildrenHorizontal;

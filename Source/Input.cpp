@@ -106,7 +106,7 @@ kui::InputManager::InputManager(Window* Parent)
 		});
 
 	RegisterOnKeyDownCallback(Key::TAB, [](Window* Win) {
-		if (!Win->Input.PollForText)
+		if (!Win->Input.PollForText && Win->Input.KeyboardFocusInput)
 		{
 			UIBox* Box = Win->UI.GetNextFocusableBox(Win->UI.KeyboardFocusBox, Win->Input.IsKeyDown(Key::LSHIFT));
 
@@ -189,7 +189,7 @@ void InputManager::Poll()
 		IsRMBClicked = true;
 	}
 
-	if (IsLMBClicked && ParentWindow->UI.KeyboardFocusBox)
+	if ((IsLMBClicked || IsRMBClicked) && ParentWindow->UI.KeyboardFocusBox)
 	{
 		ParentWindow->UI.KeyboardFocusBox->RedrawElement();
 		ParentWindow->UI.KeyboardFocusBox = nullptr;

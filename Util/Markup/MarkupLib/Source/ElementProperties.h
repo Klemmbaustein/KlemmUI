@@ -1,7 +1,6 @@
 
 std::vector<PropertyElement> kui::MarkupStructure::Properties
 {
-#pragma region UISpinner
 	PropertyElement{
 		.Type = PropElementType::UISpinner,
 		.Name = "backgroundColor",
@@ -9,8 +8,6 @@ std::vector<PropertyElement> kui::MarkupStructure::Properties
 		.SetFormat = {"SetBackgroundColor({val})"},
 		.VarType = VariableType::Vector3,
 	},
-#pragma endregion
-#pragma region UITextField
 	PropertyElement{
 		.Type = PropElementType::UITextField,
 		.Name = "font",
@@ -69,9 +66,6 @@ std::vector<PropertyElement> kui::MarkupStructure::Properties
 		.SetFormat = { "SetAllowNewLine({val})" },
 		.VarType = VariableType::Bool,
 	},
-#pragma endregion
-
-#pragma region UIScrollBox
 	PropertyElement{
 		.Type = PropElementType::UIScrollBox,
 		.Name = "displayScrollBar",
@@ -79,9 +73,6 @@ std::vector<PropertyElement> kui::MarkupStructure::Properties
 		.SetFormat = { "SetDisplayScrollBar({val}))" },
 		.VarType = VariableType::Bool,
 	},
-#pragma endregion
-
-#pragma region UIText
 	PropertyElement{
 		.Type = PropElementType::UIText,
 		.Name = "text",
@@ -128,9 +119,6 @@ std::vector<PropertyElement> kui::MarkupStructure::Properties
 		.SetSizeFormat = "WrapSizeMode = {val}",
 		.VarType = VariableType::SizeNumber,
 	},
-#pragma endregion
-
-#pragma region UIButton
 	PropertyElement{
 		.Type = PropElementType::UIButton,
 		.Name = "color",
@@ -173,9 +161,6 @@ std::vector<PropertyElement> kui::MarkupStructure::Properties
 		.SetFormat = {"SetPressedColor({val})"},
 		.VarType = VariableType::Vector3,
 	},
-#pragma endregion
-
-#pragma region UIBackground
 	PropertyElement{
 		.Type = PropElementType::UIBackground,
 		.Name = "color",
@@ -283,9 +268,6 @@ std::vector<PropertyElement> kui::MarkupStructure::Properties
 		.SetFormat = { "SetBorderVisible(0, {val})" },
 		.VarType = VariableType::Bool,
 	},
-#pragma endregion
-
-#pragma region UIBox
 	PropertyElement{
 		.Type = PropElementType::UIBox,
 		.Name = "minSize",
@@ -424,5 +406,4 @@ std::vector<PropertyElement> kui::MarkupStructure::Properties
 		},
 		.VarType = VariableType::Orientation,
 	},
-#pragma endregion
 };

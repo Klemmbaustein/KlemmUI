@@ -6,6 +6,7 @@
 #include <fstream>
 #include <iostream>
 #include <cstring>
+#include <sstream>
 #include <filesystem>
 
 void PrintUsage()
@@ -70,8 +71,9 @@ int main(int argc, const char** argv)
 				kui::MarkupParse::FileEntry Entry;
 				Entry.Name = File.path().filename().string();
 				std::ifstream Source = std::ifstream(File.path());
-				Entry.Content = std::string(std::istreambuf_iterator<char>(Source.rdbuf()),
-					std::istreambuf_iterator<char>());
+				std::stringstream SourceStream;
+				SourceStream << Source.rdbuf();
+				Entry.Content = SourceStream.str();
 				Entries.push_back(Entry);
 			}
 		}

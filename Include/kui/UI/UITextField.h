@@ -20,6 +20,7 @@ namespace kui
 	{
 		bool IsHovered = false;
 		bool IsPressed = false;
+		bool ClickStartedOnField = false;
 		Vec2f IBeamPosition;
 		Vec2f IBeamScale = Vec2(0.001, 0.03);
 		bool ShowIBeam = false;

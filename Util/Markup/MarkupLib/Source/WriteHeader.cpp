@@ -18,7 +18,7 @@ void kui::writeHeader::WriteHeaders(std::string Dir, kui::MarkupStructure::Parse
 	for (const auto& HeaderElement : From.Elements)
 	{
 		std::string CurrentHeader = HeaderElement.Header;
-		if (CurrentHeader.empty())
+		if (HeaderElement.WrittenHeader)
 			continue;
 		std::stringstream HeaderStream;
 		HeaderStream << "#pragma once" << std::endl;
@@ -26,13 +26,12 @@ void kui::writeHeader::WriteHeaders(std::string Dir, kui::MarkupStructure::Parse
 
 		for (auto& CheckedElement : From.Elements)
 		{
-			if (CheckedElement.Header.empty())
+			if (CheckedElement.WrittenHeader)
 				continue;
-
 			if (CurrentHeader == CheckedElement.Header)
 			{
 				HeaderStream << CheckedElement.WriteCode(From);
-				CheckedElement.Header.clear();
+				CheckedElement.WrittenHeader = true;
 			}
 		}
 
@@ -40,10 +39,10 @@ void kui::writeHeader::WriteHeaders(std::string Dir, kui::MarkupStructure::Parse
 		if (std::filesystem::exists(CurrentHeader))
 		{
 			std::ifstream In = std::ifstream(CurrentHeader);
-			std::string OldContent = std::string(std::istreambuf_iterator<char>(In.rdbuf()),
-				std::istreambuf_iterator<char>());
+			std::stringstream SourceStream;
+			SourceStream << In.rdbuf();
 			In.close();
-			ShouldWrite = HeaderStream.str() != OldContent;
+			ShouldWrite = HeaderStream.str() != SourceStream.str();
 		}
 		if (ShouldWrite)
 		{

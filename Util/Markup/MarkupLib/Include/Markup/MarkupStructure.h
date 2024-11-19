@@ -134,6 +134,7 @@ namespace kui::MarkupStructure
 		std::string File;
 		stringParse::StringToken FromToken;
 		std::string Header;
+		bool WrittenHeader = false;
 
 		std::string WriteCode(ParseResult& MarkupElements);
 	private:

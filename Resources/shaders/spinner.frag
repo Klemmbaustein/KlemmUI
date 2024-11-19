@@ -61,7 +61,7 @@ void main()
 		angle += 1;
 	}
 
-	float value = smoothSelect(1, 0, (angle - spinTime - abs(sin(u_time * 2) / 4)) - 0.25, 50);
+	float value = smoothSelect(1, 0, (angle - spinTime - abs(sin(u_time * 1.5) / 2)) - 0.5, 50);
 	value *= smoothSelect(0, 1, angle - spinTime - 0.01, 10);
 
 	f_color = vec4(mix(u_backgroundColor, u_color, value), opacity);

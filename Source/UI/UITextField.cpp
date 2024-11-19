@@ -23,7 +23,6 @@ void UITextField::Tick()
 		TextScroll.MaxScroll = 0;
 	TextObject->CurrentScrollObject = &this->TextRenderScroll;
 
-
 	Vec2f Offset;
 	if (CurrentScrollObject != nullptr)
 	{
@@ -31,6 +30,11 @@ void UITextField::Tick()
 	}
 	if (ParentWindow->UI.HoveredBox == this && !UIScrollBox::IsDraggingScrollBox)
 	{
+		if (ParentWindow->Input.IsLMBClicked)
+		{
+			ClickStartedOnField = true;
+		}
+
 		size_t Nearest = TextObject->GetNearestLetterAtLocation(ParentWindow->Input.MousePosition);
 		if (!IsHovered)
 		{
@@ -38,7 +42,7 @@ void UITextField::Tick()
 		}
 		IsHovered = true;
 
-		if (ParentWindow->Input.IsLMBDown && !(!Dragging && ParentWindow->Input.PollForText && !IsEdited))
+		if (ParentWindow->Input.IsLMBDown && ClickStartedOnField && !(!Dragging && ParentWindow->Input.PollForText && !IsEdited))
 		{
 			ParentWindow->Input.PollForText = true;
 			ParentWindow->Input.Text = EnteredText;
@@ -77,6 +81,7 @@ void UITextField::Tick()
 
 	if (!ParentWindow->Input.IsLMBDown)
 	{
+		ClickStartedOnField = false;
 		Dragging = false;
 	}
 

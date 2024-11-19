@@ -515,8 +515,8 @@ std::string UIElement::MakeCode(std::string Parent, UIElement* Root, size_t& Dep
 			continue;
 		}
 
-		// If it is a user defined type, store which header declares it.
-		this->Header = elem.Root.Header;
+		// If it is a user defined type, store which header declares the type of this child.
+		this->Header = elem.Header;
 		for (auto& prop : PropertyCopy)
 		{
 			auto Variable = elem.Root.Variables.find(prop.Name);
@@ -613,7 +613,7 @@ std::set<std::string> UIElement::GetElementDependencies() const
 		}
 		else if (!i.Header.empty())
 		{
-			Deps.insert(i.Header + ".hpp");
+			Deps.insert(i.Header);
 		}
 		auto ElemDeps = i.GetElementDependencies();
 

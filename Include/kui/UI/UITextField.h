@@ -57,7 +57,7 @@ namespace kui
 		UITextField* SetFont(Font* NewFont);
 		UITextField* SetHintText(std::string NewHintText);
 		UITextField* SetColor(Vec3f NewColor) override;
-		Vec3f GetColor() const;
+		Vec3f GetColor() const override;
 		UITextField* SetTextColor(Vec3f NewColor);
 		Vec3f GetTextColor();
 		float GetTextSize() const;

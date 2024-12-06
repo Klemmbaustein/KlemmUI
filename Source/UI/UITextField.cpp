@@ -281,7 +281,6 @@ void UITextField::Edit()
 
 UITextField::~UITextField()
 {
-	IsEdited = false;
 	if (IsEdited)
 	{
 		EnteredText = ParentWindow->Input.Text;

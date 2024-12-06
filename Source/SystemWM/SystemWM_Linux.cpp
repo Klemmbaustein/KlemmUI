@@ -200,7 +200,7 @@ void kui::systemWM::MessageBox(std::string Text, std::string Title, int Type)
 	{
 		std::array<const char*, 3> Types = { "msgbox", "sorry", "error" };
 
-		system(("/usr/bin/env kdialog --title " + Title + " --" + Types[Type] + " \"" + Text + "\"").c_str());
+		system(("/usr/bin/env kdialog --title \"" + Title + "\" --" + Types[Type] + " \"" + Text + "\"").c_str());
 		return;
 	}
 
@@ -208,7 +208,7 @@ void kui::systemWM::MessageBox(std::string Text, std::string Title, int Type)
 	{
 		std::array<const char*, 3> Types = { "info", "warning", "error" };
 
-		system(("/usr/bin/env zenity --title " + Title + " --" + Types[Type] + " --text \"" + Text + "\"").c_str());
+		system(("/usr/bin/env zenity --title \"" + Title + "\" --" + Types[Type] + " --text \"" + Text + "\"").c_str());
 		return;
 	}
 

@@ -184,8 +184,8 @@ bool UIManager::DrawElements()
 
 			ScissorXY = Vec2ui(uint64_t(Pos.X), uint64_t(Pos.Y));
 			ScissorWH = Vec2ui(
-				std::clamp((GLsizei)Res.X, 0, (GLsizei)WindowSize.X),
-				std::clamp((GLsizei)Res.Y, 0, (GLsizei)WindowSize.Y)
+				std::clamp((GLsizei)Res.X + 1, 0, (GLsizei)WindowSize.X),
+				std::clamp((GLsizei)Res.Y + 1, 0, (GLsizei)WindowSize.Y)
 			);
 
 			glScissor(

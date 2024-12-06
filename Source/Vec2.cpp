@@ -91,8 +91,8 @@ Vec2<T> Vec2<T>::Clamp(Vec2<T> Min, Vec2<T> Max)
 	return Vec2<T>(NewX, NewY);
 }
 
-template class Vec2<uint64_t>;
-template class Vec2<int64_t>;
-template class Vec2<int32_t>;
-template class Vec2<float>;
-template class Vec2<double>;
+template class kui::Vec2<uint64_t>;
+template class kui::Vec2<int64_t>;
+template class kui::Vec2<int32_t>;
+template class kui::Vec2<float>;
+template class kui::Vec2<double>;

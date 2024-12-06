@@ -95,7 +95,7 @@ Vec3<T> Vec3<T>::FromString(std::string str)
 	return Vec3();
 }
 
-template class Vec3<uint64_t>;
-template class Vec3<int64_t>;
-template class Vec3<int32_t>;
-template class Vec3<float>;
+template class kui::Vec3<uint64_t>;
+template class kui::Vec3<int64_t>;
+template class kui::Vec3<int32_t>;
+template class kui::Vec3<float>;

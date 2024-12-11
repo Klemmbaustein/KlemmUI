@@ -100,7 +100,7 @@ namespace kui
 		 * UIBackground constructor.
 		 * 
 		 * @param Horizontal
-		 * True if should the children be laid out horizontally, false if vertically.
+		 * True if the children should be laid out horizontally, false if vertically.
 		 * 
 		 * @param Position
 		 * The position of the UIBackground. If it has a parent, this will be ignored.

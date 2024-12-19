@@ -1,16 +1,12 @@
 #include <string>
 inline void ReplaceChar(std::string& Target, char A, std::string b)
 {
-	std::string NewStr = Target;
-	for (size_t i = 0; i < Target.size(); i++)
+	std::string From = { A };
+
+	size_t start_pos = 0;
+	while ((start_pos = Target.find(From, start_pos)) != std::string::npos)
 	{
-		if (Target[i] == A)
-		{
-			NewStr.erase(i, 1);
-			NewStr.insert(i, b);
-			i--;
-			i += b.size() + 1;
-		}
+		Target.replace(start_pos, From.length(), b);
+		start_pos += b.length();
 	}
-	Target = NewStr;
 }

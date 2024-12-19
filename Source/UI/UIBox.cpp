@@ -611,6 +611,11 @@ void UIBox::InvalidateLayout()
 
 UIBox* UIBox::AddChild(UIBox* NewChild)
 {
+	if (NewChild == this)
+	{
+		app::error::Error("Attached an UIBox to itself", true);
+	}
+
 	if (!NewChild->Parent)
 	{
 		NewChild->Parent = this;
@@ -620,7 +625,7 @@ UIBox* UIBox::AddChild(UIBox* NewChild)
 	}
 	else
 	{
-		app::error::Error("Attached an UIObject twice", true);
+		app::error::Error("Attached an UIBox twice", true);
 	}
 	return this;
 }

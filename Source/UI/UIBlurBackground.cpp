@@ -6,7 +6,7 @@
 #include <GL/glew.h>
 #include <iostream>
 
-const float BlurScale = 0.2;
+const float BlurScale = 0.2f;
 const int BlurAmount = 10;
 
 kui::Vec2ui kui::UIBlurBackground::GetPixelSize()

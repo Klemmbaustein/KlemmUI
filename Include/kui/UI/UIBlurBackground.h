@@ -8,10 +8,11 @@ namespace kui
 	{
 	protected:
 		Vec2ui GetPixelSize();
-		unsigned int BackgroundBuffer = 0, BackgroundTexture = 0;
+		bool BuffersLoaded = false;
+		unsigned int BackgroundBuffers[2], BackgroundTextures[2];
 		Shader* BlurShader = nullptr;
 		Vec2ui OldSize;
-		void CreateBlurBuffer();
+		void CreateBlurBuffers();
 		static std::set<UIBlurBackground*> BlurBackgrounds;
 		friend class UIManager;
 	public:

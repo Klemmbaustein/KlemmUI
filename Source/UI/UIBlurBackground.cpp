@@ -6,49 +6,47 @@
 #include <GL/glew.h>
 #include <iostream>
 
-const float BlurScale = 0.03f;
+const float BlurScale = 0.2;
+const int BlurAmount = 10;
 
 kui::Vec2ui kui::UIBlurBackground::GetPixelSize()
 {
 	return Vec2ui::Max(Vec2ui(
-		uint32_t(ParentWindow->GetSize().X * Size.X * 0.5f * BlurScale),
-		uint32_t(ParentWindow->GetSize().Y * Size.X * 0.5f * BlurScale)
+		uint32_t(float(ParentWindow->GetSize().X) * Size.X * 0.5f * BlurScale),
+		uint32_t(float(ParentWindow->GetSize().Y) * Size.X * 0.5f * BlurScale)
 	), 1);
 }
 
 std::set<kui::UIBlurBackground*> kui::UIBlurBackground::BlurBackgrounds;
 
-void kui::UIBlurBackground::CreateBlurBuffer()
+void kui::UIBlurBackground::CreateBlurBuffers()
 {
-	if (BackgroundBuffer)
+	if (BuffersLoaded)
 	{
-		glDeleteBuffers(1, &BackgroundBuffer);
-		glDeleteTextures(1, &BackgroundTexture);
+		glDeleteBuffers(2, BackgroundBuffers);
+		glDeleteTextures(2, BackgroundTextures);
 	}
 
 	const Vec2ui Size = GetPixelSize();
-	glGenFramebuffers(1, &BackgroundBuffer);
-	// create floating point color buffer
-	glGenTextures(1, &BackgroundTexture);
-	glBindTexture(GL_TEXTURE_2D, BackgroundTexture);
-	glTexImage2D(GL_TEXTURE_2D,
-		0,
-		GL_RGB8,
-		(GLsizei)Size.X,
-		(GLsizei)Size.Y,
-		0,
-		GL_RGB,
-		GL_FLOAT,
-		NULL);
 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-	glBindFramebuffer(GL_FRAMEBUFFER, BackgroundBuffer);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, BackgroundTexture, 0);
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glGenFramebuffers(2, BackgroundBuffers);
+	glGenTextures(2, BackgroundTextures);
+	for (unsigned int i = 0; i < 2; i++)
+	{
+		glBindFramebuffer(GL_FRAMEBUFFER, BackgroundBuffers[i]);
+		glBindTexture(GL_TEXTURE_2D, BackgroundTextures[i]);
+		glTexImage2D(
+			GL_TEXTURE_2D, 0, GL_RGBA16F, Size.X, Size.Y, 0, GL_RGBA, GL_FLOAT, NULL
+		);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glFramebufferTexture2D(
+			GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, BackgroundTextures[i], 0
+		);
+	}
+	BuffersLoaded = true;
 }
 
 kui::UIBlurBackground::UIBlurBackground(bool Horizontal, Vec2f Position, Vec3f Color, float Opacity, Vec2f MinScale)
@@ -57,6 +55,10 @@ kui::UIBlurBackground::UIBlurBackground(bool Horizontal, Vec2f Position, Vec3f C
 		"res:shaders/blursurface.frag",
 		"blur background shader"))
 {
+	BackgroundBuffers[0] = 0;
+	BackgroundBuffers[1] = 0;
+	BackgroundTextures[0] = 0;
+	BackgroundTextures[1] = 0;
 	this->Opacity = Opacity;
 	BlurShader = Window::GetActiveWindow()->Shaders.LoadShader(
 		"res:shaders/uiblur.vert",
@@ -68,10 +70,10 @@ kui::UIBlurBackground::UIBlurBackground(bool Horizontal, Vec2f Position, Vec3f C
 
 kui::UIBlurBackground::~UIBlurBackground()
 {
-	if (BackgroundBuffer)
+	if (BuffersLoaded)
 	{
-		glDeleteBuffers(1, &BackgroundBuffer);
-		glDeleteTextures(1, &BackgroundTexture);
+		glDeleteBuffers(2, BackgroundBuffers);
+		glDeleteTextures(2, BackgroundTextures);
 	}
 	BlurBackgrounds.erase(this);
 }
@@ -88,28 +90,40 @@ void kui::UIBlurBackground::Draw()
 	if (OldSize != PixelSize)
 	{
 		OldSize = PixelSize;
-		CreateBlurBuffer();
+		CreateBlurBuffers();
 	}
-	glBindFramebuffer(GL_FRAMEBUFFER, BackgroundBuffer);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, ParentWindow->UI.UITextures[0]);
-
 	glViewport(0, 0, (GLsizei)PixelSize.X, (GLsizei)PixelSize.Y);
 	glDisable(GL_SCISSOR_TEST);
-	glClear(GL_COLOR_BUFFER_BIT);
+	glActiveTexture(GL_TEXTURE0);
+
+	bool horizontal = true, first_iteration = true;
 	BlurShader->Bind();
 	BlurShader->SetVec2("u_scale", Size / 2);
 	BlurShader->SetVec2("u_position", (OffsetPosition + 1) / 2);
-	BlurShader->SetVec2("u_pixelSize", Vec2f(0.1f) / Vec2f(PixelSize));
-	BoxVertexBuffer->Draw();
+
+	for (unsigned int i = 0; i < BlurAmount; i++)
+	{
+		glBindFramebuffer(GL_FRAMEBUFFER, BackgroundBuffers[horizontal]);
+		BlurShader->SetInt("u_horizontal", horizontal);
+		glClear(GL_COLOR_BUFFER_BIT);
+		glBindTexture(
+			GL_TEXTURE_2D, first_iteration ? ParentWindow->UI.UITextures[0] : BackgroundTextures[!horizontal]
+		);
+		BoxVertexBuffer->Draw();
+		BlurShader->SetVec2("u_scale", 1);
+		BlurShader->SetVec2("u_position", 0);
+		horizontal = !horizontal;
+		if (first_iteration)
+			first_iteration = false;
+	}
 	BlurShader->Unbind();
 	glViewport(0, 0, (GLsizei)WindowSize.X, (GLsizei)WindowSize.Y);
 	glBindFramebuffer(GL_FRAMEBUFFER, ParentWindow->UI.UIBuffer);
 	glEnable(GL_SCISSOR_TEST);
 
 	BackgroundShader->Bind();
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, BackgroundTexture);
+
+	glBindTexture(GL_TEXTURE_2D, BackgroundTextures[0]);
 	BoxVertexBuffer->Bind();
 	ScrollTick(BackgroundShader);
 	BackgroundShader->SetVec3("u_color", Color);

@@ -1,17 +1,15 @@
-#include <KlemmUI/Input.h>
-#include <KlemmUI/Window.h>
-#include <SDL.h>
-#include <iostream>
-#include <KlemmUI/Rendering/ScrollObject.h>
-using namespace KlemmUI;
+#include <kui/Input.h>
+#include <kui/Window.h>
+#include <kui/Rendering/ScrollObject.h>
+#include "SystemWM/SystemWM.h"
+using namespace kui;
 
-Window* KlemmUI::InputManager::GetWindowBySDLID(uint32_t ID)
+Window* kui::InputManager::GetWindowByPtr(void* Ptr)
 {
 	std::vector<Window*> ActiveWindows = Window::GetActiveWindows();
 	for (Window* i : ActiveWindows)
 	{
-		SDL_Window* SDLWindow = static_cast<SDL_Window*>(i->GetSDLWindowPtr());
-		if (SDL_GetWindowID(SDLWindow) == ID)
+		if (i->GetSysWindow() == Ptr)
 		{
 			return i;
 		}
@@ -19,14 +17,7 @@ Window* KlemmUI::InputManager::GetWindowBySDLID(uint32_t ID)
 	return nullptr;
 }
 
-
-#define FOR_ALL_WINDOWS(Action) \
-	for (auto& i : Window::GetActiveWindows()) \
-	{ \
-		i->Action; \
-	} \
-
-void KlemmUI::InputManager::MoveTextIndex(int Amount, bool RespectShiftPress)
+void kui::InputManager::MoveTextIndex(int Amount, bool RespectShiftPress)
 {
 	TextIndex = std::max(std::min(TextIndex + Amount, (int)Text.size()), 0);
 	if ((!IsKeyDown(Key::LSHIFT) && !IsKeyDown(Key::RSHIFT)) || !RespectShiftPress)
@@ -35,7 +26,7 @@ void KlemmUI::InputManager::MoveTextIndex(int Amount, bool RespectShiftPress)
 	}
 }
 
-KlemmUI::InputManager::InputManager(Window* Parent)
+kui::InputManager::InputManager(Window* Parent)
 {
 	ParentWindow = Parent;
 	
@@ -58,7 +49,9 @@ KlemmUI::InputManager::InputManager(Window* Parent)
 
 	RegisterOnKeyDownCallback(Key::DELETE, [](Window* Win) {
 		InputManager& In = Win->Input;
-		
+		if (!In.CanEditText)
+			return;
+
 		if (In.PollForText && In.TextIndex < In.Text.size() && In.TextIndex >= 0)
 		{
 			if (In.TextSelectionStart == In.TextIndex)
@@ -78,7 +71,9 @@ KlemmUI::InputManager::InputManager(Window* Parent)
 
 	RegisterOnKeyDownCallback(Key::BACKSPACE, [](Window* Win) {
 		InputManager& In = Win->Input;
-		if (In.PollForText && In.Text.length() > 0)
+		if (!In.CanEditText)
+			return;
+		if (In.PollForText && In.Text.size() > 0)
 		{
 			if (In.TextIndex > 0 || In.TextSelectionStart > 0)
 			{
@@ -110,67 +105,81 @@ KlemmUI::InputManager::InputManager(Window* Parent)
 		Win->Input.PollForText = false;
 		});
 
+	RegisterOnKeyDownCallback(Key::TAB, [](Window* Win) {
+		if (!Win->Input.PollForText && Win->Input.KeyboardFocusInput)
+		{
+			UIBox* Box = Win->UI.GetNextFocusableBox(Win->UI.KeyboardFocusBox, Win->Input.IsKeyDown(Key::LSHIFT));
+
+			if (Box)
+			{
+				if (Win->UI.KeyboardFocusBox)
+					Win->UI.KeyboardFocusBox->RedrawElement();
+				Win->UI.KeyboardFocusBox = Box;
+				Box->RedrawElement();
+			}
+		}
+		});
+
 	RegisterOnKeyDownCallback(Key::RETURN, [](Window* Win) {
-		Win->Input.PollForText = false;
+		if (!Win->Input.TextAllowNewLine)
+			Win->Input.PollForText = false;
+		else
+			Win->Input.AddTextInput("\n");
 		});
 
 	RegisterOnKeyDownCallback(Key::c, [](Window* Win) {
 		if (Win->Input.IsKeyDown(Key::LCTRL) || Win->Input.IsKeyDown(Key::RCTRL))
-			SDL_SetClipboardText(Win->Input.GetSelectedTextString().c_str());
+		{
+			systemWM::SetClipboardText(Win->Input.GetSelectedTextString());
+		}
 		});
 
 	RegisterOnKeyDownCallback(Key::x, [](Window* Win) {
 		if (Win->Input.IsKeyDown(Key::LCTRL) || Win->Input.IsKeyDown(Key::RCTRL))
 		{
-			SDL_SetClipboardText(Win->Input.GetSelectedTextString().c_str());
+			systemWM::SetClipboardText(Win->Input.GetSelectedTextString());
 			Win->Input.DeleteTextSelection();
 		}
 		});
 
 	RegisterOnKeyDownCallback(Key::v, [](Window* Win) {
 		if (Win->Input.IsKeyDown(Key::LCTRL) || Win->Input.IsKeyDown(Key::RCTRL))
-			Win->Input.AddTextInput(SDL_GetClipboardText());
+			Win->Input.AddTextInput(systemWM::GetClipboardText());
 		});
+
 }
 
-void KlemmUI::InputManager::UpdateCursorPosition()
+void kui::InputManager::UpdateCursorPosition()
 {
-	SDL_Window* SDLWindow = static_cast<SDL_Window*>(ParentWindow->GetSDLWindowPtr());
+	systemWM::SysWindow* SysWindow = static_cast<systemWM::SysWindow*>(ParentWindow->GetSysWindow());
 
-	if (SDL_GetMouseFocus() != SDLWindow)
+	if (!ParentWindow->HasFocus())
 	{
 		ParentWindow->Input.MousePosition = 99;
 		return;
 	}
 
-	int Width, Height;
-	SDL_GetWindowSize(SDLWindow, &Width, &Height);
-	int x;
-	int y;
+	Vec2ui Size = ParentWindow->GetSize();
+	Vec2ui Pos = systemWM::GetCursorPosition(SysWindow);
 
-	int PosX, PosY;
-	SDL_GetWindowPosition(SDLWindow, &PosX, &PosY);
-
-	SDL_GetGlobalMouseState(&x, &y);
-
-	x -= PosX;
-	y -= PosY;
-
-	ParentWindow->Input.MousePosition = Vector2(((float)x / (float)Width - 0.5f) * 2.0f, 1.0f - ((float)y / (float)Height * 2.0f));
+	ParentWindow->Input.MousePosition =
+		Vec2((
+			(float)Pos.X / (float)Size.X - 0.5f) * 2.0f,
+			1.0f - ((float)Pos.Y / (float)Size.Y * 2.0f)
+		);
 }
 
 void InputManager::Poll()
 {
-	SDL_Event Event;
-	int MouseState = 0;
-	MouseState = SDL_GetGlobalMouseState(nullptr, nullptr);
 	MoveMouseWheel(ScrollAmount);
 	ScrollAmount = 0;
 	IsLMBClicked = false;
 	IsRMBClicked = false;
 
-	bool NewLMBDown = MouseState & SDL_BUTTON(SDL_BUTTON_LEFT);
-	bool NewRMBDown = MouseState & SDL_BUTTON(SDL_BUTTON_RIGHT);
+	systemWM::SysWindow* SysWindow = static_cast<systemWM::SysWindow*>(ParentWindow->GetSysWindow());
+
+	bool NewLMBDown = systemWM::IsLMBDown();
+	bool NewRMBDown = systemWM::IsRMBDown();
 	if (!IsLMBDown && NewLMBDown)
 	{
 		IsLMBClicked = true;
@@ -180,60 +189,18 @@ void InputManager::Poll()
 		IsRMBClicked = true;
 	}
 
+	if ((IsLMBClicked || IsRMBClicked) && ParentWindow->UI.KeyboardFocusBox)
+	{
+		ParentWindow->UI.KeyboardFocusBox->RedrawElement();
+		ParentWindow->UI.KeyboardFocusBox = nullptr;
+	}
 	IsLMBDown = NewLMBDown;
 	IsRMBDown = NewRMBDown;
 
-	while (SDL_PollEvent(&Event))
-	{
-		switch (Event.type)
-		{
-		case SDL_KEYDOWN:
-			GetWindowBySDLID(Event.window.windowID)->Input.SetKeyDown(static_cast<KlemmUI::Key>(Event.key.keysym.sym), true);
-			break;
-		case SDL_KEYUP:
-			GetWindowBySDLID(Event.window.windowID)->Input.SetKeyDown(static_cast<KlemmUI::Key>(Event.key.keysym.sym), false);
-			break;
-		case SDL_WINDOWEVENT:
-			switch (Event.window.event)
-			{
-			case SDL_WINDOWEVENT_CLOSE:
-				GetWindowBySDLID(Event.window.windowID)->Close();
-				break;
-			case SDL_WINDOWEVENT_RESIZED:
-			{
-				Window* EventWindow = GetWindowBySDLID(Event.window.windowID);
-
-				if (EventWindow != nullptr)
-				{
-					EventWindow->OnResized();
-				}
-			}
-				break;
-			default:
-				break;
-			}
-			break;
-		case SDL_TEXTINPUT:
-		{
-			Window* EventWindow = GetWindowBySDLID(Event.window.windowID);
-			if (EventWindow)
-			{
-				EventWindow->Input.AddTextInput(Event.text.text);
-			}
-		}
-			break;
-		case SDL_MOUSEWHEEL:
-			FOR_ALL_WINDOWS(Input.ScrollAmount += Event.wheel.y);
-			break;
-		default:
-			break;
-		}
-	}
-
-	return;
+	AddTextInput(systemWM::GetTextInput(SysWindow));
 }
 
-void KlemmUI::InputManager::MoveMouseWheel(int Amount)
+void kui::InputManager::MoveMouseWheel(int Amount)
 {
 	while (Amount)
 	{
@@ -252,8 +219,16 @@ void KlemmUI::InputManager::MoveMouseWheel(int Amount)
 
 }
 
-void KlemmUI::InputManager::AddTextInput(std::string Str)
+void kui::InputManager::AddTextInput(std::string Str)
 {
+	if (Str.empty())
+	{
+		return;
+	}
+	if (!CanEditText)
+	{
+		return;
+	}
 	if (PollForText)
 	{
 		if (Text.size() < TextIndex)
@@ -266,8 +241,10 @@ void KlemmUI::InputManager::AddTextInput(std::string Str)
 	}
 }
 
-void KlemmUI::InputManager::DeleteTextSelection()
+void kui::InputManager::DeleteTextSelection()
 {
+	if (!CanEditText)
+		return;
 	int Difference = std::abs(TextSelectionStart - TextIndex);
 	Text.erase(std::min(TextIndex, TextSelectionStart), Difference);
 	SetTextIndex(std::min(TextIndex, TextSelectionStart), true);
@@ -305,11 +282,9 @@ void InputManager::SetKeyDown(Key PressedKey, bool KeyDown)
 	}
 }
 
-Vector2ui KlemmUI::InputManager::GetMouseScreenPosition()
+Vec2ui kui::InputManager::GetMouseScreenPosition()
 {
-	int x, y;
-	SDL_GetGlobalMouseState(&x, &y);
-	return Vector2ui(x, y);
+	return 0;
 }
 
 void InputManager::RegisterOnKeyDownCallback(Key PressedKey, void(*Callback)(Window*))
@@ -324,7 +299,7 @@ void InputManager::RegisterOnKeyDownCallback(Key PressedKey, void(*Callback)(Win
 	}
 }
 
-void KlemmUI::InputManager::RemoveOnKeyDownCallback(Key PressedKey, void(*Callback)(Window*))
+void kui::InputManager::RemoveOnKeyDownCallback(Key PressedKey, void(*Callback)(Window*))
 {
 	if (ButtonPressedCallbacks.contains(PressedKey))
 	{
@@ -341,13 +316,13 @@ void KlemmUI::InputManager::RemoveOnKeyDownCallback(Key PressedKey, void(*Callba
 	}
 }
 
-std::string KlemmUI::InputManager::GetSelectedTextString() const
+std::string kui::InputManager::GetSelectedTextString() const
 {
 	int Start = std::min(TextIndex, TextSelectionStart), End = std::max(TextIndex, TextSelectionStart);
 	return Text.substr(Start, End - Start);
 }
 
-void KlemmUI::InputManager::SetTextIndex(int NewIndex, bool ClearSelection)
+void kui::InputManager::SetTextIndex(int NewIndex, bool ClearSelection)
 {
 	TextIndex = NewIndex;
 	if (ClearSelection)

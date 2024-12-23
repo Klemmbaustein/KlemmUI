@@ -1,12 +1,9 @@
-#include <KlemmUI/UI/UIButton.h>
-#include <GL/glew.h>
-#include <KlemmUI/Rendering/Shader.h>
+#include <kui/UI/UIButton.h>
+#include <kui/Window.h>
+#include <kui/UI/UIScrollBox.h>
 #include "../Rendering/VertexBuffer.h"
-#include <KlemmUI/Application.h>
-#include <KlemmUI/Window.h>
-#include <KlemmUI/Rendering/ScrollObject.h>
-
-using namespace KlemmUI;
+#include <iostream>
+using namespace kui;
 
 void UIButton::Tick()
 {
@@ -20,29 +17,33 @@ void UIButton::Tick()
 		return;
 	}
 
+	bool Hovered = ParentWindow->UI.HoveredBox == this && !UIScrollBox::IsDraggingScrollBox;
+
 	CurrentButtonState = ButtonState::Normal;
-	if (ParentWindow->UI.HoveredBox == this && !IsHovered)
+	if (Hovered && !this->IsHovered)
 	{
 		RedrawElement();
-		IsHovered = true;
+		this->IsHovered = true;
 	}
 	if (IsHovered && ParentWindow->UI.HoveredBox != this)
 	{
 		RedrawElement();
-		IsHovered = false;
+		this->IsHovered = false;
 	}
 
+	bool IsKeyboardFocused = ParentWindow->UI.KeyboardFocusBox == this;
 
-	if (ParentWindow->UI.HoveredBox == this)
+	if (Hovered)
 	{
 		CurrentButtonState = ButtonState::Hovered;
 	}
-	else if (IsPressed && ParentWindow->UI.HoveredBox != this)
+	else if (IsPressed && ParentWindow->UI.HoveredBox != this && !IsKeyboardFocused)
 	{
 		IsSelected = false;
 		if (OnDragged)
 		{
-			ParentWindow->UI.ButtonEvents.push_back(UIManager::ButtonEvent(nullptr, OnDragged, nullptr, ButtonIndex));
+			ParentWindow->UI.ButtonEvents.push_back(UIManager::ButtonEvent(
+				nullptr, OnDragged, ButtonIndex));
 		}
 		IsPressed = false;
 		RedrawElement();
@@ -53,9 +54,14 @@ void UIButton::Tick()
 		CurrentButtonState = ButtonState::Hovered;
 	}
 
-	if (ParentWindow->UI.HoveredBox == this)
+	if (IsKeyboardFocused)
 	{
-		if (ParentWindow->Input.IsLMBDown)
+		CurrentButtonState = ButtonState::KeyboardHovered;
+	}
+
+	if (Hovered || IsKeyboardFocused)
+	{
+		if (ParentWindow->Input.IsLMBDown || ParentWindow->Input.IsKeyDown(Key::RETURN))
 		{
 			CurrentButtonState = ButtonState::Pressed;
 			if (!IsPressed)
@@ -68,7 +74,7 @@ void UIButton::Tick()
 		{
 			if (!NeedsToBeSelected || IsSelected)
 			{
-				OnClicked();
+				OnButtonClicked();
 				IsPressed = false;
 				IsSelected = false;
 				RedrawElement();
@@ -93,6 +99,9 @@ void UIButton::Tick()
 	case UIButton::ButtonState::Hovered:
 		UIBackground::Color = HoveredColor;
 		break;
+	case UIButton::ButtonState::KeyboardHovered:
+		UIBackground::Color = KeyboardHoveredColor;
+		break;
 	case UIButton::ButtonState::Pressed:
 		UIBackground::Color = PressedColor;
 		break;
@@ -102,14 +111,14 @@ void UIButton::Tick()
 
 }
 
-void UIButton::OnClicked()
+void UIButton::OnButtonClicked()
 {
-	if (OnClickedFunction) ParentWindow->UI.ButtonEvents.push_back(UIManager::ButtonEvent(OnClickedFunction, nullptr, nullptr, 0));
-	if (OnClickedFunctionIndex) ParentWindow->UI.ButtonEvents.push_back(UIManager::ButtonEvent(nullptr, OnClickedFunctionIndex, nullptr, ButtonIndex));
-	if (ParentOverride)
-	{
-		ParentWindow->UI.ButtonEvents.push_back(UIManager::ButtonEvent(nullptr, nullptr, ParentOverride, ButtonIndex));
-	}
+	if (OnClicked)
+		ParentWindow->UI.ButtonEvents.push_back(UIManager::ButtonEvent(
+			OnClicked, nullptr, 0));
+	if (OnClickedIndex)
+		ParentWindow->UI.ButtonEvents.push_back(UIManager::ButtonEvent(
+			nullptr, OnClickedIndex, ButtonIndex));
 }
 
 bool UIButton::GetIsSelected() const
@@ -132,7 +141,7 @@ bool UIButton::GetIsPressed() const
 	return IsPressed;
 }
 
-UIBackground* UIButton::SetColor(Vector3f NewColor)
+UIBackground* UIButton::SetColor(Vec3f NewColor)
 {
 	if (NewColor != ButtonColor)
 	{
@@ -146,7 +155,7 @@ UIBackground* UIButton::SetColor(Vector3f NewColor)
 	return this;
 }
 
-UIButton* UIButton::SetHoveredColor(Vector3f NewColor)
+UIButton* UIButton::SetHoveredColor(Vec3f NewColor)
 {
 	if (NewColor != HoveredColor)
 	{
@@ -160,46 +169,65 @@ UIButton* UIButton::SetHoveredColor(Vector3f NewColor)
 	return this;
 }
 
-UIButton* UIButton::SetPressedColor(Vector3f NewColor)
+UIButton* UIButton::SetKeyboardHoveredColor(Vec3f NewColor)
 {
-	if (NewColor != PressedColor)
+	if (NewColor != KeyboardHoveredColor)
 	{
-		PressedColor = NewColor;
-		if (IsPressed)
+		KeyboardHoveredColor = NewColor;
+		if (IsHovered)
 		{
-			Color = ButtonColor;
+			Color = KeyboardHoveredColor;
 			RedrawElement();
 		}
 	}
 	return this;
 }
 
-Vector3f UIButton::GetColor() const
+UIButton* UIButton::SetPressedColor(Vec3f NewColor)
+{
+	if (NewColor != PressedColor)
+	{
+		PressedColor = NewColor;
+		if (IsPressed)
+		{
+			Color = NewColor;
+			RedrawElement();
+		}
+	}
+	return this;
+}
+
+Vec3f UIButton::GetColor() const
 {
 	return ButtonColor;
 }
 
-UIButton::UIButton(bool Horizontal, Vector2f Position, Vector3f Color, std::function<void()> OnClickedFunction) : UIBackground(Horizontal, Position, Color)
+UIButton::UIButton(bool Horizontal, Vec2f Position, Vec3f Color, std::function<void()> OnClickedFunction) 
+	: UIBackground(Horizontal, Position, Color)
 {
-	this->OnClickedFunction = OnClickedFunction;
+	this->OnClicked = OnClickedFunction;
+	this->ButtonColor = Color;
+	this->HoveredColor = Color * 0.75;
+	this->KeyboardHoveredColor = Color * 0.75;
+	this->PressedColor = Color * 0.5;
+	HasMouseCollision = true;
+	KeyboardFocusable = true;
+}
+
+UIButton::UIButton(bool Horizontal, Vec2f Position, Vec3f Color,std::function<void(int)> OnClickedFunction, int ButtonIndex)
+	: UIBackground(Horizontal, Position, Color)
+{
+	this->OnClickedIndex = OnClickedFunction;
 	this->ButtonColor = Color;
 	this->HoveredColor = Color * 0.75;
 	this->PressedColor = Color * 0.5;
+	this->ButtonIndex = ButtonIndex;
 	HasMouseCollision = true;
-}
-
-UIButton::UIButton(bool Horizontal, Vector2f Position, Vector3f Color, std::function<void(int)> OnClickedFunction, int ButtonIndex) : UIBackground(Horizontal, Position, Color)
-{
-	this->OnClickedFunctionIndex = OnClickedFunction;
-	this->ButtonColor = Color;
-	this->HoveredColor = Color * 0.75;
-	this->PressedColor = Color * 0.5;	this->ButtonIndex = ButtonIndex;
-	HasMouseCollision = true;
+	KeyboardFocusable = true;
 }
 
 UIButton::~UIButton()
 {
-	delete ButtonVertexBuffer;
 }
 
 void UIButton::Update()

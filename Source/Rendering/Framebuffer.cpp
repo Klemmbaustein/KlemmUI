@@ -1,8 +1,9 @@
 #include "Framebuffer.h"
 #include <GL/glew.h>
 #include <iostream>
+using namespace kui::internal;
 
-Framebuffer::Framebuffer(Vector2ui Resolution)
+Framebuffer::Framebuffer(Vec2ui Resolution)
 {
 	glGenFramebuffers(1, &ID);
 	glBindFramebuffer(GL_FRAMEBUFFER, ID);
@@ -20,7 +21,7 @@ Framebuffer::Framebuffer(Vector2ui Resolution)
 	Unbind();
 }
 
-void Framebuffer::SetResolution(Vector2ui Resolution)
+void Framebuffer::SetResolution(Vec2ui Resolution)
 {
 	glDeleteTextures(1, &Textures[0]);
 	Bind();

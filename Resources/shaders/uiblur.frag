@@ -16,7 +16,7 @@ void main()
 	vec2 tex_offset = 1.0 / textureSize(u_background, 0); // gets size of single texel
 	f_color.xyz = texture(u_background, v_texCoords).rgb;// * weight[0]; // current fragment's contribution
 	f_color.w = 1;
-	if(u_horizontal)
+	if (u_horizontal)
 	{
 		for(int i = 1; i < 5; ++i)
 		{
@@ -26,7 +26,7 @@ void main()
 	}
 	else
 	{
-		for(int i = 1; i < 5; ++i)
+		for (int i = 1; i < 5; ++i)
 		{
 			f_color.xyz += texture(u_background, v_texCoords + vec2(0.0, tex_offset.y * i)).rgb * weight[i];
 			f_color.xyz += texture(u_background, v_texCoords - vec2(0.0, tex_offset.y * i)).rgb * weight[i];

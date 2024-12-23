@@ -1,8 +1,8 @@
-#include <KlemmUI/Rendering/MarkdownRendering.h>
-#include <KlemmUI/UI/UIBackground.h>
+#include <kui/Rendering/MarkdownRendering.h>
+#include <kui/UI/UIBackground.h>
 #include <cmath>
-#include <KlemmUI/Window.h>
-using namespace KlemmUI;
+#include <kui/Window.h>
+using namespace kui;
 
 static void ReplaceAll(std::string& str, const std::string& from, const std::string& to)
 {
@@ -57,7 +57,7 @@ struct MarkdownLine
 
 		if (Separator)
 		{
-			TargetParent->AddChild((new UIBackground(true, 0, 1, Vector2f(Style.Width, 0.005f)))
+			TargetParent->AddChild((new UIBackground(true, 0, 1, Vec2f(Style.Width, 0.005f)))
 				->SetPadding(0.02f, 0.02f, 0, 0));
 		}
 	}
@@ -292,14 +292,14 @@ void Markdown::RenderMarkdown(std::string Markdown, UIBox* TargetParent, Markdow
 		{
 			if (i.Separator || LineSeperator)
 			{
-				TargetParent->AddChild((new UIBackground(true, 0, 1, Vector2f(Style.Width, 0.005f)))
+				TargetParent->AddChild((new UIBackground(true, 0, 1, Vec2f(Style.Width, 0.005f)))
 					->SetPadding(0.02f, 0.02f, 0, 0));
 			}
 			continue;
 		}
 		if (i.Children.size() && i.IsCodeBlock)
 		{
-			UIBackground* Title = new UIBackground(true, 0, 0.1f, Vector2f(0));
+			UIBackground* Title = new UIBackground(true, 0, 0.1f, Vec2f(0));
 			UIBackground* CodeBackground = new UIBackground(false, 0, Style.Code.BackgroundColor);
 			CodeBackground->AddChild(Title
 				->SetPadding(0)
@@ -318,10 +318,10 @@ void Markdown::RenderMarkdown(std::string Markdown, UIBox* TargetParent, Markdow
 					->SetWrapEnabled(true, Style.Width, UIBox::SizeMode::ScreenRelative)
 					->SetPadding(0.005f));
 			}
-			Title->SetMinSize(Vector2f(Style.Width, 0));
+			Title->SetMinSize(Vec2f(Style.Width, 0));
 			TargetParent->AddChild(CodeBackground
-				->SetPadding(0.02f, 0.02f, 0, 0)
-				->SetBorder(UIBox::BorderType::Rounded, Style.Code.Rounding));
+				->SetCorner(Style.Code.Rounding, UIBox::SizeMode::AspectRelative)
+				->SetPadding(0.02f, 0.02f, 0, 0));
 			continue;
 		}
 		if (i.Children.size())
@@ -338,7 +338,7 @@ void Markdown::RenderMarkdown(std::string Markdown, UIBox* TargetParent, Markdow
 				if (c.IsCodeBlock)
 				{
 					Target = (new UIBackground(false, 0, Style.Code.BackgroundColor))
-						->SetBorder(UIBox::BorderType::Rounded, Style.Code.Rounding)
+						->SetBorder(Style.Code.Rounding, UIBox::SizeMode::AspectRelative)
 						->SetPadding(0);
 					Sidebox->AddChild(Target);
 				}

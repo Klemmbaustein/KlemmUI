@@ -17,3 +17,6 @@ Examples/HelloWorld/HelloWorld
 
 CMakeFiles/
 Docs/
+*.aps
+/LinuxBuild
+elements/

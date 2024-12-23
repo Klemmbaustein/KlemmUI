@@ -21,8 +21,6 @@ uniform vec2 u_screenRes = vec2(1600, 900);
 uniform int u_cornerFlags = 0;
 uniform int u_borderFlags = 0;
 
-#define NUM_SAMPLES 2
-
 bool isBorderVisible(int index)
 {
 	return (u_borderFlags & (1 << index)) != 0;

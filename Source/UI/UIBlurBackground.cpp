@@ -13,7 +13,7 @@ kui::Vec2ui kui::UIBlurBackground::GetPixelSize()
 {
 	return Vec2ui::Max(Vec2ui(
 		uint32_t(float(ParentWindow->GetSize().X) * Size.X * 0.5f * BlurScale),
-		uint32_t(float(ParentWindow->GetSize().Y) * Size.X * 0.5f * BlurScale)
+		uint32_t(float(ParentWindow->GetSize().Y) * Size.Y * 0.5f * BlurScale)
 	), 1);
 }
 

@@ -19,6 +19,9 @@ std::string MarkupLanguageManager::GetString(std::string From)
 
 void MarkupLanguageManager::AddFont(std::string FontName, Font* FontPointer)
 {
+	if (Fonts.contains(FontName))
+		Fonts.erase(FontName);
+
 	Fonts.insert({ FontName, FontPointer });
 }
 

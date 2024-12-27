@@ -124,7 +124,6 @@ namespace kui
 	 */
 	class InputManager
 	{
-		std::map<Key, bool> PressedKeys;
 
 		static Window* GetWindowByPtr(void* ID);
 		std::map<Key, std::vector<void(*)(Window*)>> ButtonPressedCallbacks;
@@ -135,6 +134,7 @@ namespace kui
 		std::atomic<int> ScrollAmount = 0;
 
 	public:
+		std::map<Key, bool> PressedKeys;
 		InputManager(Window* ParentWindow);
 
 		void UpdateCursorPosition();

@@ -214,8 +214,9 @@ bool UIManager::DrawElements()
 void kui::UIManager::TickElements()
 {
 	NewHoveredBox = nullptr;
-	for (UIBox* elem : UIElements)
+	for (size_t i = 0; i < UIElements.size(); i++)
 	{
+		UIBox* elem = UIElements[i];
 		if (elem->IsVisible != elem->PrevIsVisible)
 		{
 			elem->RedrawElement(true);

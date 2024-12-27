@@ -44,7 +44,7 @@ namespace kui
 		bool AllowNewLine = false;
 		UITextField* SetAllowNewLine(bool NewValue);
 		UITextField* SetCanEdit(bool NewValue);
-		std::function<void()> OnClickedFunction = nullptr;
+		std::function<void()> OnChanged = nullptr;
 		UIBox* ParentOverride = nullptr;
 		bool GetIsEdited() const { return IsEdited; }
 		UITextField* SetText(std::string NewText);
@@ -81,10 +81,10 @@ namespace kui
 		 * @param Renderer
 		 * The font used in the text field.
 		 * 
-		 * @param OnClickedFunction
+		 * @param OnChanged
 		 * Function called when a new text has been entered.
 		 */
-		UITextField(Vec2f Position, Vec3f Color, Font* Renderer, std::function<void()> OnClickedFunction);
+		UITextField(Vec2f Position, Vec3f Color, Font* Renderer, std::function<void()> OnChanged);
 		~UITextField() override;
 		void Update() override;
 		void DrawBackground() override;

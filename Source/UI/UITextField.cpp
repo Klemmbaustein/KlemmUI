@@ -98,14 +98,14 @@ void UITextField::Tick()
 		if (!ParentWindow->Input.PollForText)
 		{
 			IsEdited = false;
-			if (OnClickedFunction) ParentWindow->UI.ButtonEvents.push_back(UIManager::ButtonEvent(OnClickedFunction, nullptr, 0));
+			if (OnChanged) ParentWindow->UI.ButtonEvents.push_back(UIManager::ButtonEvent(OnChanged, nullptr, 0));
 			RedrawElement();
 		}
 		if (!IsHovered && ParentWindow->Input.IsLMBDown && !Dragging)
 		{
 			IsEdited = false;
 			ParentWindow->Input.PollForText = false;
-			if (OnClickedFunction) ParentWindow->UI.ButtonEvents.push_back(UIManager::ButtonEvent(OnClickedFunction, nullptr, 0));
+			if (OnChanged) ParentWindow->UI.ButtonEvents.push_back(UIManager::ButtonEvent(OnChanged, nullptr, 0));
 			RedrawElement();
 		}
 	}
@@ -255,22 +255,24 @@ kui::UITextField* kui::UITextField::SetTextSizeMode(UIBox::SizeMode Mode)
 	return this;
 }
 
-UITextField::UITextField(Vec2f Position, Vec3f Color, Font* Renderer, std::function<void()> OnClickedFunction)
+UITextField::UITextField(Vec2f Position, Vec3f Color, Font* Renderer, std::function<void()> OnChanged)
 	: UIBackground(true, Position, Color)
 {
 	TextFieldColor = Color;
 	TextObject = new UIText(0, Vec3f(1), HintText, Renderer);
 	TextObject->SetTextSize(0.5f);
-	TextObject->SetPadding(0.005f);
+	TextObject->SetPadding(3);
+	TextObject->SetPaddingSizeMode(SizeMode::PixelRelative);
 	TextObject->Wrap = true;
 	HasMouseCollision = true;
 	KeyboardFocusable = true;
-	this->OnClickedFunction = OnClickedFunction;
+	this->OnChanged = OnChanged;
 	AddChild(TextObject);
 }
 
 void UITextField::Edit()
 {
+	TextObject->WrapDistance = 15;
 	IsEdited = true;
 	ParentWindow->Input.PollForText = true;
 	ParentWindow->Input.Text = EnteredText;

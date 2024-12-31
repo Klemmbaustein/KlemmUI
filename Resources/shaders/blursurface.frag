@@ -50,7 +50,7 @@ void main()
 	}
 	if (u_opacity < 1)
 	{
-		vec3 sampled = clamp(texture(u_texture, v_texcoords).xyz * 0.002, 0, 1);
+		vec3 sampled = clamp(texture(u_texture, v_texcoords).xyz, 0, 1);
 		f_color.xyz = mix(sampled, u_color, u_opacity) + rand(v_texcoords) * 0.01;
 		f_color.w = 1;
 	}

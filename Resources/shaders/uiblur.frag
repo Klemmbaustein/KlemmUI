@@ -14,7 +14,7 @@ uniform float weight[5] = float[] (0.227027, 0.1945946, 0.1216216, 0.054054, 0.0
 void main()
 {
 	vec2 tex_offset = 1.0 / textureSize(u_background, 0); // gets size of single texel
-	f_color.xyz = texture(u_background, v_texCoords).rgb;// * weight[0]; // current fragment's contribution
+	f_color.xyz = texture(u_background, v_texCoords).rgb * weight[0]; // current fragment's contribution
 	f_color.w = 1;
 	if (u_horizontal)
 	{
@@ -32,5 +32,4 @@ void main()
 			f_color.xyz += texture(u_background, v_texCoords - vec2(0.0, tex_offset.y * i)).rgb * weight[i];
 		}
 	}
-	f_color.xyz *= 0.9;
 }

@@ -35,7 +35,7 @@ namespace kui
 		/**
 		 * @brief
 		 * Sets the color of the text.
-		 * 
+		 *
 		 * If the text is made of multiple TextSegments, all segments will have the given color assigned.
 		 */
 		UIText* SetColor(Vec3f NewColor);
@@ -43,7 +43,7 @@ namespace kui
 		/**
 		 * @brief
 		 * Sets the opacity of the text to the given value.
-		 * 
+		 *
 		 * 0 Means completely translucent, 1 means completely visible.
 		 */
 		UIText* SetOpacity(float NewOpacity);
@@ -57,7 +57,7 @@ namespace kui
 		/**
 		 * @brief
 		 * Sets the size mode of the text.
-		 * 
+		 *
 		 * > Note: This has to be used instead of UIBox::SetSizeMode()
 		 */
 		UIText* SetTextSizeMode(SizeMode NewMode);
@@ -71,16 +71,16 @@ namespace kui
 		/**
 		 * @brief
 		 * Enables or disables text wrapping with the given distance and size mode.
-		 * 
+		 *
 		 * @param WrapEnabled
 		 * If this is true, text wrapping will be enabled.
-		 * 
+		 *
 		 * @param WrapDistance
 		 * The distance at which the text should be wrapped.
-		 * 
+		 *
 		 * @param WrapSizeMode
 		 * The size mode of the wrap distance. See size mode for more info.
-		 * 
+		 *
 		 * @return
 		 * A pointer to this UIText.
 		 */
@@ -102,16 +102,16 @@ namespace kui
 		/**
 		 * @brief
 		 * UIText constructor.
-		 * 
+		 *
 		 * @param Scale
 		 * The size of the text.
-		 * 
+		 *
 		 * @param Color
 		 * The color of the text.
-		 * 
+		 *
 		 * @param Text
 		 * The displayed color of the text.
-		 * 
+		 *
 		 * @param Renderer
 		 * The font used by the text.
 		 */
@@ -120,14 +120,14 @@ namespace kui
 		/**
 		 * @brief
 		 * UIText constructor.
-		 * 
+		 *
 		 * @param Scale
 		 * The size of the text.
-		 * 
+		 *
 		 * @param Text
 		 * The segments of the text.
 		 * A text segment contains a color and a string.
-		 * 
+		 *
 		 * @param Renderer
 		 * The font used by the text.
 		 */
@@ -137,5 +137,11 @@ namespace kui
 		void Update() override;
 		void OnAttached() override;
 		Vec2f GetUsedSize() override;
+	private:
+		float LastRenderSize = 0;
+		bool LastWrapEnabled = false;
+		float LastWrapDistance = 0;
+		bool TextChanged = false;
+		Vec2f LastSize;
 	};
 }

@@ -58,6 +58,7 @@ UIText* UIText::SetColor(Vec3f NewColor)
 		{
 			i.Color = Color;
 		}
+		TextChanged = true;
 		RedrawElement();
 	}
 	return this;
@@ -134,6 +135,7 @@ UIText* UIText::SetText(std::vector<TextSegment> NewText)
 	if (NewText != RenderedText)
 	{
 		RenderedText = NewText;
+		TextChanged = true;
 		InvalidateLayout();
 		RedrawElement();
 	}
@@ -166,6 +168,7 @@ UIText::UIText(float Scale, Vec3f Color, std::string Text, Font* NewFont) : UIBo
 	this->Color = Color;
 	this->Renderer = NewFont;
 	RenderedText = { TextSegment(Text, Color) };
+	TextChanged = true;
 }
 
 UIText::UIText(float Scale, std::vector<TextSegment> Text, Font* NewFont) : UIBox(true, 0)
@@ -173,6 +176,7 @@ UIText::UIText(float Scale, std::vector<TextSegment> Text, Font* NewFont) : UIBo
 	this->TextSize = Scale * 2;
 	this->Renderer = NewFont;
 	RenderedText = Text;
+	TextChanged = true;
 }
 
 UIText::~UIText()
@@ -239,7 +243,24 @@ Vec2f UIText::GetUsedSize()
 	if (!Renderer)
 		return 0;
 
-	Vec2f Size = Renderer->GetTextSize(RenderedText, GetRenderedSize(), Wrap, GetWrapDistance());
+	float RenderSize = GetRenderedSize();
+	float WrapDistance = GetWrapDistance();
+
+	Vec2f Size;
+
+	if (RenderSize == LastRenderSize && LastWrapEnabled == Wrap && LastWrapDistance == WrapDistance && !TextChanged)
+	{
+		Size = LastSize;
+	}
+	else
+	{
+		Size = Renderer->GetTextSize(RenderedText, RenderSize, Wrap, WrapDistance);
+		LastSize = Size;
+		LastRenderSize = RenderSize;
+		LastWrapEnabled = Wrap;
+		LastWrapDistance = WrapDistance;
+		TextChanged = false;
+	}
 
 	if (TextWidthOverride != 0)
 	{

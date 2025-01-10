@@ -175,6 +175,21 @@ void UIBox::OnAttached()
 
 UIBox* UIBox::SetMaxSize(Vec2f NewMaxSize)
 {
+	if (TryFill && Parent)
+	{
+		if (Parent->ChildrenHorizontal && MaxSize.X != NewMaxSize.X)
+		{
+			MaxSize = NewMaxSize;
+			GetAbsoluteParent()->InvalidateLayout();
+		}
+		else if (!Parent->ChildrenHorizontal && MaxSize.Y != NewMaxSize.Y)
+		{
+			MaxSize = NewMaxSize;
+			GetAbsoluteParent()->InvalidateLayout();
+		}
+		return this;
+	}
+
 	if (NewMaxSize != MaxSize)
 	{
 		MaxSize = NewMaxSize;
@@ -190,6 +205,21 @@ Vec2f UIBox::GetMaxSize() const
 
 UIBox* UIBox::SetMinSize(Vec2f NewMinSize)
 {
+	if (TryFill && Parent)
+	{
+		if (Parent->ChildrenHorizontal && MinSize.X != NewMinSize.X)
+		{
+			MinSize = NewMinSize;
+			GetAbsoluteParent()->InvalidateLayout();
+		}
+		else if (!Parent->ChildrenHorizontal && MinSize.Y != NewMinSize.Y)
+		{
+			MinSize = NewMinSize;
+			GetAbsoluteParent()->InvalidateLayout();
+		}
+		return this;
+	}
+
 	if (NewMinSize != MinSize)
 	{
 		MinSize = NewMinSize;

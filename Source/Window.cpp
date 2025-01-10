@@ -33,6 +33,12 @@ void kui::Window::UpdateSize()
 
 std::mutex WindowMutex;
 
+void* kui::Window::GetPlatformHandle() const
+{
+	SYS_WINDOW_PTR(SysWindow);
+	return systemWM::GetPlatformHandle(SysWindow);
+}
+
 kui::Window::Window(std::string Name, WindowFlag Flags, Vec2ui WindowPos, Vec2ui WindowSize)
 {
 	if (WindowSize == SIZE_DEFAULT)

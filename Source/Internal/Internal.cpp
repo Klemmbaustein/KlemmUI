@@ -47,7 +47,7 @@ void kui::internal::DrawWindow(Window* Target)
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, Target->UI.GetUIFramebuffer());
 	WindowShader->SetInt("u_ui", 0);
-	WindowShader->SetInt("u_hasWindowBorder", int((Target->GetWindowFlags() & Window::WindowFlag::Borderless) == Window::WindowFlag::Borderless));
+	WindowShader->SetInt("u_hasWindowBorder", int((Target->GetWindowFlags() & Window::WindowFlag::Borderless) == Window::WindowFlag::Borderless && !Target->GetWindowFullScreen()));
 	WindowShader->SetVec2("u_screenRes", Target->GetSize());
 	WindowShader->SetVec3("u_borderColor", Target->BorderColor);
 

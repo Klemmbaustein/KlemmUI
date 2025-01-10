@@ -49,6 +49,9 @@ namespace kui::systemWM
 	void MaximizeWindow(SysWindow* Target);
 	void MinimizeWindow(SysWindow* Target);
 	void HideWindow(SysWindow* Target);
+
+	void* GetPlatformHandle(SysWindow* Target);
+
 	void RestoreWindow(SysWindow* Target);
 
 	void MessageBox(std::string Text, std::string Title, int Type);

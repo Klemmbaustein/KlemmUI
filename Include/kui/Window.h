@@ -311,6 +311,8 @@ namespace kui
 		 */
 		float GetDPI() const;
 
+		void* GetPlatformHandle() const;
+
 	private:
 		float DPI = 1;
 		void UpdateDPI();

@@ -10,6 +10,7 @@
 #include <GL/wglew.h>
 #include <dwmapi.h>
 #include <iostream>
+#include <kui/UI/UIButton.h>
 #include <array>
 #include <map>
 
@@ -142,7 +143,21 @@ namespace kui::systemWM::Borderless
 			return HTNOWHERE;
 		}
 
-		const LRESULT drag = Window->Parent->IsAreaGrabbableCallback
+		if (Window->Parent->UI.HoveredBox && dynamic_cast<UIButton*>(Window->Parent->UI.HoveredBox))
+		{
+			return HTCLIENT;
+		}
+
+		Vec2ui Pos = systemWM::GetCursorPosition(Window);
+
+		Window->Parent->Input.MousePosition =
+			Vec2((
+				(float)Pos.X / (float)Window->Parent->GetSize().X - 0.5f) * 2.0f,
+				1.0f - ((float)Pos.Y / (float)Window->Parent->GetSize().Y * 2.0f)
+			);
+
+		const LRESULT drag = Window->Parent->Input.MousePosition != Vec2f(99)
+			&& Window->Parent->IsAreaGrabbableCallback
 			&& Window->Parent->IsAreaGrabbableCallback(Window->Parent) ? HTCAPTION : HTCLIENT;
 
 		if (!Window->Resizable)
@@ -710,7 +725,7 @@ void kui::systemWM::UpdateWindow(SysWindow*)
 
 bool kui::systemWM::WindowHasFocus(SysWindow* Target)
 {
-	return GetFocus() == Target->WindowHandle;
+	return GetForegroundWindow() == Target->WindowHandle;
 }
 
 kui::Vec2i kui::systemWM::GetCursorPosition(SysWindow* Target)
@@ -938,6 +953,11 @@ bool kui::systemWM::IsWindowMinimized(SysWindow* Target)
 void kui::systemWM::HideWindow(SysWindow* Target)
 {
 	::ShowWindow(Target->WindowHandle, SW_HIDE);
+}
+
+void* kui::systemWM::GetPlatformHandle(SysWindow* Target)
+{
+	return Target->WindowHandle;
 }
 
 #undef MessageBox

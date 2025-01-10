@@ -252,8 +252,6 @@ void UIBackground::Draw()
 	BackgroundShader->SetVec3("u_color", Color);
 	BackgroundShader->SetVec3("u_borderColor", BorderColor);
 
-	Vec2ui WindowSize = ParentWindow->GetSize();
-
 	float DrawnBorderRadius = BorderRadius;
 	SizeMode DrawnBorderSizeMode = BorderSizeMode;
 

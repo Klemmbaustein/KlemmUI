@@ -67,7 +67,7 @@ void main()
 		sampled.xyz /= samples;
 		sampled.w /= NUM_SAMPLES * NUM_SAMPLES * 2 * 2;
 		f_color = vec4(clamp(u_color * sampled.rgb, vec3(0), vec3(1)), u_opacity);
-		f_color.a *= sampled.a;
+		f_color.a *= sampled.w;
 	}
 	else
 	{

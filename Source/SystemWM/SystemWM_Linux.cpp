@@ -190,6 +190,11 @@ void kui::systemWM::SetWindowIcon(SysWindow* Target, uint8_t* Bytes, size_t Widt
 	Target->X11.SetIcon(Bytes, Width, Height);
 }
 
+void* kui::systemWM::GetPlatformHandle(SysWindow* Target)
+{
+	return reinterpret_cast<void*>(Target->X11.XWindow);
+}
+
 void kui::systemWM::MessageBox(std::string Text, std::string Title, int Type)
 {
 	if (Type < 0 || Type > 2)

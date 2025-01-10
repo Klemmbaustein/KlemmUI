@@ -378,7 +378,7 @@ std::vector<PropertyElement> kui::MarkupStructure::Properties
 		.Type = PropElementType::UIBox,
 		.Name = "hasMouseCollision",
 		.Description = "True if this element has mouse collision. If it has mouse collision, it will block hovering or clicking anything below it.",
-		.SetFormat = { "HasMouseCollision((bool){val})" },
+		.SetFormat = { "HasMouseCollision = bool({val})" },
 		.VarType = VariableType::Bool,
 	},
 	PropertyElement{

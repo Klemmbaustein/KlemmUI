@@ -317,7 +317,7 @@ void UITextField::DrawBackground()
 		Percentage -= CurrentScrollObject->Percentage;
 		TextRenderScroll.Position = CurrentScrollObject->Position;
 		TextRenderScroll.Scale = CurrentScrollObject->Scale;
-		TextRenderScroll.Percentage = CurrentScrollObject->Percentage - TextScroll.Percentage;
+		TextRenderScroll.Percentage = -Percentage;
 		Pos = Vec2f(TextRenderScroll.Position.Y, TextRenderScroll.Position.Y - TextRenderScroll.Scale.Y);
 	}
 	else

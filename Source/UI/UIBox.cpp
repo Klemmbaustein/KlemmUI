@@ -150,6 +150,8 @@ Vec2f UIBox::GetUsedSize()
 
 Vec2f UIBox::GetScreenPosition() const
 {
+	if (CurrentScrollObject)
+		return OffsetPosition + Vec2f(0, CurrentScrollObject->Percentage);
 	return OffsetPosition;
 }
 
@@ -341,8 +343,8 @@ void kui::UIBox::SetOffsetPosition(Vec2f NewPos)
 UIManager::RedrawBox UIBox::GetRedrawBox() const
 {
 	return UIManager::RedrawBox{
-		.Min = OffsetPosition,
-		.Max = OffsetPosition + Size,
+		.Min = GetScreenPosition(),
+		.Max = GetScreenPosition() + Size,
 	};
 }
 

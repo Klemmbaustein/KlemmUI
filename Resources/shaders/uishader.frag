@@ -46,7 +46,7 @@ void main()
 	{
 		discard;
 	}
-	/*if (u_useTexture == 1)
+	if (u_useTexture == 1)
 	{
 		vec4 sampled = vec4(0.0);
 		vec2 offset = (0.5 / scale) / u_screenRes;
@@ -69,7 +69,7 @@ void main()
 		f_color = vec4(clamp(u_color * sampled.rgb, vec3(0.0), vec3(1.0)), u_opacity);
 		f_color.a *= sampled.w;
 	}
-	else*/
+	else
 	{
 		f_color = vec4(u_color, u_opacity);
 	}

@@ -1,8 +1,9 @@
 #include <kui/Rendering/Shader.h>
-#include <GL/glew.h>
+#include "../Internal/OpenGL.h"
 #include <fstream>
 #include <sstream>
 #include <kui/App.h>
+#include <iostream>
 
 using namespace kui;
 
@@ -43,12 +44,21 @@ unsigned int Shader::GetShaderID()
 	return ShaderID;
 }
 
-Shader::Shader(std::string VertexSource, std::string FragmentSource, std::string GeometrySource)
+Shader::Shader(std::string VertexSource, std::string FragmentSource)
 {
+#if KLEMMUI_WEB_BUILD
+	VertexSource = "#version 300 es\nprecision mediump float;\n" + VertexSource;
+	FragmentSource = "#version 300 es\nprecision mediump float;\n" + FragmentSource;
+#else
+	VertexSource = "#version 330\n" + VertexSource;
+	FragmentSource = "#version 330\n" + FragmentSource;
+#endif
+
 	const char* vShaderCode = VertexSource.c_str();
 	const char* fShaderCode = FragmentSource.c_str();
 	// 2. compile shaders
 	unsigned int vertex, fragment;
+
 	// vertex shader
 	vertex = glCreateShader(GL_VERTEX_SHADER);
 	glShaderSource(vertex, 1, &vShaderCode, NULL);
@@ -61,28 +71,17 @@ Shader::Shader(std::string VertexSource, std::string FragmentSource, std::string
 	CheckCompileErrors(fragment, "FRAGMENT");
 	// if geometry shader is given, compile geometry shader
 	unsigned int geometry = 0;
-	if (!GeometrySource.empty())
-	{
-		const char* gShaderCode = GeometrySource.c_str();
-		geometry = glCreateShader(GL_GEOMETRY_SHADER);
-		glShaderSource(geometry, 1, &gShaderCode, NULL);
-		glCompileShader(geometry);
-		CheckCompileErrors(geometry, "GEOMETRY");
-	}
+
 	// shader Program
 	ShaderID = glCreateProgram();
 	glAttachShader(ShaderID, vertex);
 	glAttachShader(ShaderID, fragment);
-	if (!GeometrySource.empty())
-		glAttachShader(ShaderID, geometry);
+
 	glLinkProgram(ShaderID);
 	CheckCompileErrors(ShaderID, "PROGRAM");
 	// delete the shaders as they're linked into our program now and no longer necessary
 	glDeleteShader(vertex);
 	glDeleteShader(fragment);
-	if (!GeometrySource.empty())
-		glDeleteShader(geometry);
-
 }
 
 Shader::~Shader()

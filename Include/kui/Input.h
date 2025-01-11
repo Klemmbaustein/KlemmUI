@@ -1,6 +1,7 @@
 #pragma once
 #include "Vec2.h"
 #include <vector>
+#include <unordered_map>
 #include <map>
 #include <atomic>
 
@@ -134,7 +135,7 @@ namespace kui
 		std::atomic<int> ScrollAmount = 0;
 
 	public:
-		std::map<Key, bool> PressedKeys;
+		std::unordered_map<Key, bool> PressedKeys;
 		InputManager(Window* ParentWindow);
 
 		void UpdateCursorPosition();

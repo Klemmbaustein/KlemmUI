@@ -1,4 +1,4 @@
-#version 330
+//! #version 330
 
 in vec2 v_texCoords;
 
@@ -7,7 +7,7 @@ out vec4 f_color;
 uniform sampler2D u_background;
 uniform vec2 u_scale;
 uniform vec2 u_position;
-uniform bool u_horizontal = false;
+uniform bool u_horizontal;
 
 uniform float weight[5] = float[] (0.227027, 0.1945946, 0.1216216, 0.054054, 0.016216);
 

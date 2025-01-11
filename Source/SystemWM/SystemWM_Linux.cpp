@@ -195,6 +195,11 @@ void* kui::systemWM::GetPlatformHandle(SysWindow* Target)
 	return reinterpret_cast<void*>(Target->X11.XWindow);
 }
 
+void kui::systemWM::WaitFrame(SysWindow* Target, float RemainingTime)
+{
+	std::this_thread::sleep_for(std::chrono::microseconds(int(RemainingTime * 1'000'000.0f)));
+}
+
 void kui::systemWM::MessageBox(std::string Text, std::string Title, int Type)
 {
 	if (Type < 0 || Type > 2)

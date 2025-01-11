@@ -2,7 +2,6 @@
 #include <kui/Window.h>
 #include <kui/UI/UIScrollBox.h>
 #include "../Rendering/VertexBuffer.h"
-#include <iostream>
 using namespace kui;
 
 void UIButton::Tick()

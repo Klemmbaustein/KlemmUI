@@ -19,9 +19,14 @@ file(
 	"${INC_DIR}/**.h"
 )
 
+option(KLEMMUI_WEB "Build the library with emscripten" OFF)
+
 set(glew-cmake_BUILD_SHARED OFF)
 set(ONLY_LIBS ON)
-add_subdirectory("Dependencies/glew-cmake")
+if(NOT KLEMMUI_WEB)
+	add_subdirectory("Dependencies/glew-cmake")
+endif()
+
 add_library(
 	KlemmUI STATIC
 	${SRCS} ${INCLUDES}
@@ -35,7 +40,12 @@ if(KLEMMUI_CUSTOM_SYSTEMWM)
 	target_compile_definitions(KlemmUI PRIVATE KLEMMUI_CUSTOM_SYSTEMWM)
 endif()
 
-if(NOT DEFINED WIN32)
+if(KLEMMUI_WEB)
+	message("Web build, woah!")
+	# m? i wish the linux people gave their things names that remotely make sense...
+	target_link_libraries(KlemmUI PUBLIC GLESv2 EGL m X11)
+	target_compile_definitions(KlemmUI PUBLIC KLEMMUI_WEB_BUILD=1)
+elseif(NOT DEFINED WIN32)
 	option(KLEMMUI_USE_XRANDR "Use the Xrandr X11 extension if available" ON)
 	option(KLEMMUI_WAYLAND_SUPPORT "Support Wayland (very unfinished)" OFF)
 
@@ -64,7 +74,10 @@ add_subdirectory("Util/Markup/")
 add_subdirectory("Util/Resource/")
 
 target_include_directories(KlemmUI PUBLIC "${INC_DIR}")
-target_link_libraries(KlemmUI PUBLIC libglew_static)
+
+if(NOT KLEMMUI_WEB)
+	target_link_libraries(KlemmUI PUBLIC libglew_static)
+endif()
 
 macro(klemmui_markup ProjectName MarkupDir)
 	set(OutDir "${CMAKE_CURRENT_BINARY_DIR}/ui")
@@ -112,12 +125,14 @@ macro(klemmui_resources ProjectName ResourceDir)
 		"${ResourceDir}/**"
 	)
 
-	add_custom_command(
-		OUTPUT ${RESOURCE_OUT_FILE}
-		WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-		COMMAND $<TARGET_FILE:KlemmUIRC>  -i "${ResourceDir}" -o "${RESOURCE_OUT_FILE}" -n ${ProjectName}
-		DEPENDS ${RESOURCES}
-	)
+	if(NOT KLEMMUI_WEB)
+		add_custom_command(
+			OUTPUT ${RESOURCE_OUT_FILE}
+			WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+			COMMAND $<TARGET_FILE:KlemmUIRC>  -i "${ResourceDir}" -o "${RESOURCE_OUT_FILE}" -n ${ProjectName}
+			DEPENDS ${RESOURCES}
+		)
+	endif()
 
 	add_library(${ProjectName}_Resources STATIC ${RESOURCE_OUT_FILE})
 
@@ -129,6 +144,16 @@ macro(klemmui_resources ProjectName ResourceDir)
 	endif()
 	message(STATUS "Adding resource dir - ${ResourceDir}")
 endmacro()
+
+# Makes executables compile as a web project.
+macro(klemmui_web_project TargetName)
+	if(KLEMMUI_WEB)
+		set_target_properties(${TargetName}
+			PROPERTIES SUFFIX ".html"
+			LINK_FLAGS "-s USE_GLFW=3 -s ASYNCIFY -s MIN_WEBGL_VERSION=2 --bind -gsource-map --emrun")
+	endif()
+endmacro()
+
 
 klemmui_resources(KlemmUI "Resources/")
 

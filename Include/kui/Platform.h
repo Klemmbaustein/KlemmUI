@@ -3,6 +3,8 @@
 #define KLEMMUI_WINDOWS
 #elif __linux__
 #define KLEMMUI_LINUX
+#elif KLEMMUI_WEB_BUILD
+#define KLEMMUI_WEB
 #else
 #error Unknown Platform
 #endif

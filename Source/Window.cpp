@@ -43,7 +43,11 @@ kui::Window::Window(std::string Name, WindowFlag Flags, Vec2ui WindowPos, Vec2ui
 {
 	if (WindowSize == SIZE_DEFAULT)
 	{
+#ifdef KLEMMUI_WEB_BUILD
+		WindowSize = systemWM::GetScreenSize();
+#else
 		WindowSize = Vec2f(systemWM::GetScreenSize()) * 0.6f;
+#endif
 	}
 
 	if (WindowPos == POSITION_CENTERED)

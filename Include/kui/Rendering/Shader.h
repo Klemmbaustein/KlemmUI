@@ -12,7 +12,7 @@ namespace kui
 	public:
 		unsigned int GetShaderID();
 
-		Shader(std::string VertexPath, std::string FragmentPath, std::string GeometryPath = "");
+		Shader(std::string VertexPath, std::string FragmentPath);
 		~Shader();
 		void Bind();
 		void Unbind();

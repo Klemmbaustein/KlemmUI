@@ -1,4 +1,4 @@
-#version 330 
+//! #version 330
 in vec2 TexCoords;
 in vec2 v_position;
 in vec3 v_color;
@@ -7,8 +7,8 @@ layout (location = 1) out vec4 alpha;
 uniform vec3 u_offset; //X = Y offset; Y = MaxDistance; Z MinDistance
 uniform sampler2D u_texture;
 uniform vec3 textColor;
-uniform float u_opacity = 1.0f;
-uniform vec2 u_screenRes = vec2(1500, 1500);
+uniform float u_opacity;
+uniform vec2 u_screenRes;
 uniform vec3 transform;
 #define NUM_SAMPLES 3
 
@@ -22,7 +22,7 @@ void main()
 	{
 		discard;
 	}
-	float sampled = 0;
+	float sampled = 0.0;
 	vec2 offset = (1.5 / transform.z) / u_screenRes;
 	for (int x = -NUM_SAMPLES; x < NUM_SAMPLES; x++)
 	{
@@ -31,7 +31,7 @@ void main()
 			sampled += texture(u_texture, TexCoords + offset * vec2(x, y)).a;
 		}
 	}
-	sampled /= NUM_SAMPLES * NUM_SAMPLES * 2 * 2;
+	sampled /= float(NUM_SAMPLES) * float(NUM_SAMPLES) * 2.0 * 2.0;
 	color = vec4(v_color, sampled * u_opacity);
 	alpha.xyz = vec3(1);
 	alpha.w = color.w;

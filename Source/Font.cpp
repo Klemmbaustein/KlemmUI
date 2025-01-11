@@ -7,7 +7,7 @@
 #include <kui/App.h>
 #include <kui/Rendering/ScrollObject.h>
 #include <kui/Resource.h>
-#include <GL/glew.h>
+#include "Internal/OpenGL.h"
 #include <kui/Window.h>
 #include "Internal/Internal.h"
 #include <iostream>

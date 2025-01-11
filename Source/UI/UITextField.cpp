@@ -2,7 +2,7 @@
 #include <kui/UI/UIText.h>
 #include <kui/Input.h>
 #include "../Rendering/VertexBuffer.h"
-#include <GL/glew.h>
+#include "../Internal/OpenGL.h"
 #include <kui/App.h>
 #include <kui/Rendering/ScrollObject.h>
 #include <kui/UI/UIScrollBox.h>

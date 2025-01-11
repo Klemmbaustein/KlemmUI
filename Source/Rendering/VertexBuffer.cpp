@@ -1,5 +1,5 @@
 #include "VertexBuffer.h"
-#include <GL/glew.h>
+#include "../Internal/OpenGL.h"
 #include <iostream>
 using namespace kui;
 

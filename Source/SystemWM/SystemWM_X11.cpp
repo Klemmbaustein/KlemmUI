@@ -678,11 +678,6 @@ void kui::systemWM::X11Window::SetBorderless(bool NewBorderless)
 	Borderless = NewBorderless;
 }
 
-void kui::systemWM::WaitFrame(SysWindow* Target, float RemainingTime)
-{
-	std::this_thread::sleep_for(std::chrono::microseconds(int(RemainingTime * 1'000'000.0f)));
-}
-
 void kui::systemWM::X11Window::SetResizable(bool NewResizable)
 {
 	if (NewResizable == Resizable)
@@ -844,7 +839,6 @@ void kui::systemWM::X11Window::HandleKeyPress(KeySym Symbol, bool NewValue)
 		{XK_9, Key::k9},
 		{XK_semicolon, Key::SEMICOLON},
 		{XK_less, Key::LESS},
-		{XK_Return, Key::RETURN},
 		{XK_Return, Key::RETURN},
 		{XK_bracketleft, Key::LEFTBRACKET},
 		{XK_bracketright, Key::RIGHTBRACKET},

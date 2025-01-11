@@ -1,5 +1,5 @@
 #include <kui/UI/UIManager.h>
-#include <GL/glew.h>
+#include "../Internal/OpenGL.h"
 #include <kui/Window.h>
 #include <kui/UI/UIBox.h>
 #include <kui/UI/UIBlurBackground.h>
@@ -62,7 +62,7 @@ void UIManager::InitUI()
 	GLsizei x = (GLsizei)Window::GetActiveWindow()->GetSize().X, y = (GLsizei)Window::GetActiveWindow()->GetSize().Y;
 	glTexImage2D(GL_TEXTURE_2D,
 		0,
-		GL_RGBA8,
+		GL_RGBA16F,
 		x,
 		y,
 		0,

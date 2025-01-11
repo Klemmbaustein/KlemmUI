@@ -8,5 +8,6 @@ endif()
 
 klemmui_resources(HelloWorld "../res/")
 klemmui_markup(HelloWorld "ui/")
+klemmui_web_project(HelloWorld)
 
 target_link_libraries(HelloWorld PUBLIC KlemmUI)

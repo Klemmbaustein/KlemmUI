@@ -1,5 +1,5 @@
 #include <kui/Image.h>
-#include <GL/glew.h>
+#include "Internal/OpenGL.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include "Util/stb_image.hpp"
 #include <kui/Resource.h>

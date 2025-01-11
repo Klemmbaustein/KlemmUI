@@ -1,4 +1,4 @@
-#version 330
+//! #version 330
 
 in vec2 v_texcoords;
 in vec2 v_position;
@@ -6,20 +6,20 @@ in float v_cornerIndex;
 layout (location = 0) out vec4 f_color;
 layout (location = 1) out vec4 f_alpha;
 
-uniform vec3 u_color = vec3(1);
-uniform vec3 u_borderColor = vec3(1);
+uniform vec3 u_color;
+uniform vec3 u_borderColor;
 uniform sampler2D u_texture;
 uniform vec3 u_offset; // Scroll bar: X = scrolled distance; Y = MaxDistance; Z MinDistance
-uniform float u_opacity = 1;
-uniform bool u_drawBorder = false;
-uniform bool u_drawCorner = true;
-uniform float u_borderScale = 0;
-uniform float u_cornerScale = 0;
-uniform vec4 u_transform = vec4(vec2(0), vec2(1));
-uniform float u_aspectRatio = 16.0/9.0;
-uniform vec2 u_screenRes = vec2(1600, 900);
-uniform int u_cornerFlags = 0;
-uniform int u_borderFlags = 0;
+uniform float u_opacity;
+uniform bool u_drawBorder;
+uniform bool u_drawCorner;
+uniform float u_borderScale;
+uniform float u_cornerScale;
+uniform vec4 u_transform;
+uniform float u_aspectRatio;
+uniform vec2 u_screenRes;
+uniform int u_cornerFlags;
+uniform int u_borderFlags;
 
 bool isBorderVisible(int index)
 {

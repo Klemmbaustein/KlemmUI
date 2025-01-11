@@ -8,5 +8,6 @@ endif()
 
 klemmui_resources(Translation "../res/")
 klemmui_markup(Translation "ui/")
+klemmui_web_project(Translation)
 
 target_link_libraries(Translation PUBLIC KlemmUI)

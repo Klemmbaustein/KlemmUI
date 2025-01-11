@@ -1,4 +1,4 @@
-#version 330
+//! #version 330
 
 in vec2 v_texcoords;
 in vec2 v_position;
@@ -6,11 +6,11 @@ in float v_cornerIndex;
 layout (location = 0) out vec4 f_color;
 layout (location = 1) out vec4 f_alpha;
 
-uniform vec3 u_color = vec3(1);
-uniform vec3 u_backgroundColor = vec3(0);
+uniform vec3 u_color;
+uniform vec3 u_backgroundColor;
 uniform vec3 u_offset; // Scroll bar: X = scrolled distance; Y = MaxDistance; Z MinDistance
-uniform float u_opacity = 1;
-uniform float u_time = 0;
+uniform float u_opacity;
+uniform float u_time;
 
 float smoothSelect(float a, float b, float value, float smoothness)
 {

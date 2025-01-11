@@ -1,5 +1,5 @@
 #include "Internal.h"
-#include <GL/glew.h>
+#include "OpenGL.h"
 #include <kui/Rendering/Shader.h>
 #include <kui/App.h>
 #include "../SystemWM/SystemWM.h"
@@ -13,6 +13,7 @@ void kui::internal::InitGLContext(Window* From)
 {
 	From->MakeContextCurrent();
 
+#ifndef KLEMMUI_WEB_BUILD
 	if (!IsGLEWStarted)
 	{
 #if _WIN32
@@ -26,6 +27,8 @@ void kui::internal::InitGLContext(Window* From)
 		}
 		IsGLEWStarted = true;
 	}
+#else
+#endif
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

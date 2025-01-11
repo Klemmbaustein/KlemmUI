@@ -1,10 +1,8 @@
 #include <kui/UI/UIBlurBackground.h>
 #include <kui/Rendering/Shader.h>
 #include <kui/Window.h>
-#include <kui/Resource.h>
 #include "../Rendering/VertexBuffer.h"
-#include <GL/glew.h>
-#include <iostream>
+#include "../Internal/OpenGL.h"
 
 const float BlurScale = 0.2f;
 const int BlurAmount = 15;

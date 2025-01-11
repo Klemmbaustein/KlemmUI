@@ -88,6 +88,7 @@ std::string kui::resource::GetStringFile(const std::string& Path)
 	{
 		return GetStringResource(ConvertResourcePath(Path));
 	}
+#ifndef KLEMMUI_WEB_BUILD
 	if (std::filesystem::exists(Path) && !std::filesystem::is_directory(Path))
 	{
 		std::ifstream in = std::ifstream(ConvertFilePath(Path));
@@ -95,6 +96,7 @@ std::string kui::resource::GetStringFile(const std::string& Path)
 		instr << in.rdbuf();
 		return instr.str();
 	}
+#endif
 	app::error::Error("Failed to find file: " + Path);
 	return std::string();
 }
@@ -106,6 +108,7 @@ kui::resource::BinaryData kui::resource::GetBinaryFile(const std::string& Path)
 		return GetBinaryResource(ConvertResourcePath(Path));
 	}
 	std::string FilePath = ConvertFilePath(Path);
+#ifndef KLEMMUI_WEB_BUILD
 	if (std::filesystem::exists(FilePath) && !std::filesystem::is_directory(FilePath))
 	{
 		std::ifstream File = std::ifstream(FilePath, std::ios::binary);
@@ -124,7 +127,7 @@ kui::resource::BinaryData kui::resource::GetBinaryFile(const std::string& Path)
 			.FileSize = Size,
 			};
 	}
-
+#endif
 	app::error::Error("Failed to find file: " + Path);
 	return BinaryData();
 }

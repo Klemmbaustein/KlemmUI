@@ -20,6 +20,8 @@ file(
 )
 
 option(KLEMMUI_WEB "Build the library with emscripten" OFF)
+option(KLEMMUI_WEB_RESOURCE_PATH "Resource and UI headers path for a web build" "")
+option(KLEMMUI_WEB_BUILD_AS_HTML "Build web projects as HTML" ON)
 
 set(glew-cmake_BUILD_SHARED OFF)
 set(ONLY_LIBS ON)
@@ -41,7 +43,7 @@ if(KLEMMUI_CUSTOM_SYSTEMWM)
 endif()
 
 if(KLEMMUI_WEB)
-	message("Web build, woah!")
+	message("Building for the web...")
 	# m? i wish the linux people gave their things names that remotely make sense...
 	target_link_libraries(KlemmUI PUBLIC GLESv2 EGL m X11)
 	target_compile_definitions(KlemmUI PUBLIC KLEMMUI_WEB_BUILD=1)
@@ -97,7 +99,7 @@ macro(klemmui_markup ProjectName MarkupDir)
 
 	file(MAKE_DIRECTORY ${OutDir})
 
-	if(UI_HEADERS)
+	if(UI_HEADERS AND NOT KLEMMUI_WEB)
 		target_sources(${ProjectName} PRIVATE ${UI_FILES})
 
 		add_custom_command(
@@ -112,6 +114,8 @@ macro(klemmui_markup ProjectName MarkupDir)
 		add_dependencies(${ProjectName}_Headers KlemmUIHT)
 		add_dependencies(${ProjectName} ${ProjectName}_Headers)
 		target_include_directories(${ProjectName} PRIVATE ${OutDir})
+	else()
+		target_include_directories(${ProjectName} PRIVATE ${CMAKE_SOURCE_DIR}/${KLEMMUI_WEB_RESOURCE_PATH}/headers)
 	endif()
 endmacro()
 
@@ -132,25 +136,32 @@ macro(klemmui_resources ProjectName ResourceDir)
 			COMMAND $<TARGET_FILE:KlemmUIRC>  -i "${ResourceDir}" -o "${RESOURCE_OUT_FILE}" -n ${ProjectName}
 			DEPENDS ${RESOURCES}
 		)
+	else()
+		set(RESOURCE_OUT_FILE ${CMAKE_SOURCE_DIR}/${KLEMMUI_WEB_RESOURCE_PATH}/${ProjectName}_res.c)
 	endif()
 
-	add_library(${ProjectName}_Resources STATIC ${RESOURCE_OUT_FILE})
+	if(NOT KLEMMUI_WEB OR EXISTS ${RESOURCE_OUT_FILE})
+		add_library(${ProjectName}_Resources STATIC ${RESOURCE_OUT_FILE})
 
-	add_dependencies(${ProjectName}_Resources KlemmUIRC)
-	target_link_libraries(KlemmUI PUBLIC ${ProjectName}_Resources)
+		add_dependencies(${ProjectName}_Resources KlemmUIRC)
+		target_link_libraries(KlemmUI PUBLIC ${ProjectName}_Resources)
 
-	if(NOT ${ProjectName} STREQUAL "KlemmUI")
-		target_compile_definitions(KlemmUI PUBLIC KLEMMUI_USE_RESOURCES)
+		if(NOT ${ProjectName} STREQUAL "KlemmUI")
+			target_compile_definitions(KlemmUI PUBLIC KLEMMUI_USE_RESOURCES)
+		endif()
+		message(STATUS "Adding resource dir - ${ResourceDir}")
 	endif()
-	message(STATUS "Adding resource dir - ${ResourceDir}")
 endmacro()
 
 # Makes executables compile as a web project.
 macro(klemmui_web_project TargetName)
 	if(KLEMMUI_WEB)
-		set_target_properties(${TargetName}
-			PROPERTIES SUFFIX ".html"
+		set_target_properties(${TargetName} PROPERTIES
 			LINK_FLAGS "-s USE_GLFW=3 -s ASYNCIFY -s MIN_WEBGL_VERSION=2 --bind -gsource-map --emrun")
+		if(KLEMMUI_WEB_BUILD_AS_HTML)
+			set_target_properties(${TargetName}
+				PROPERTIES SUFFIX ".html")
+		endif()
 	endif()
 endmacro()
 

@@ -33,9 +33,9 @@ float rand(vec2 n)
 
 void main()
 {
-	vec2 scale = u_transform.zw * vec2(u_aspectRatio, 1);
-	vec2 scaledTexCoords = v_texcoords * scale * (1 + 0.5 / u_screenRes);
-	vec2 nonAbsCenteredTexCoords = (scaledTexCoords - scale / 2) * 2;
+	vec2 scale = u_transform.zw * vec2(u_aspectRatio, 1.0);
+	vec2 scaledTexCoords = v_texcoords * scale * (1.0 + 0.5 / u_screenRes);
+	vec2 nonAbsCenteredTexCoords = (scaledTexCoords - scale / 2.0) * 2.0;
 	vec2 centeredTexCoords = abs(nonAbsCenteredTexCoords);
 	
 	int cornerIndex = int(round(v_cornerIndex));
@@ -48,23 +48,23 @@ void main()
 	{
 		discard;
 	}
-	if (u_opacity < 1)
+	if (u_opacity < 1.0)
 	{
-		vec3 sampled = clamp(texture(u_texture, v_texcoords).xyz, 0, 1);
+		vec3 sampled = clamp(texture(u_texture, v_texcoords).xyz, 0.0, 1.0);
 		f_color.xyz = mix(sampled, u_color, u_opacity) + rand(v_texcoords) * 0.01;
-		f_color.w = 1;
+		f_color.w = 1.0;
 	}
 
 	if (u_drawCorner && (u_cornerFlags & (1 << cornerIndex)) != 0
 		&& (centeredTexCoords.y >= scale.y - u_cornerScale) && (centeredTexCoords.x >= scale.x - u_cornerScale))
 	{
-		float borderSize = pow((length((scale - u_cornerScale) - centeredTexCoords) / u_cornerScale), u_cornerScale * 1000);
-		f_color.a *= clamp(1.0 / borderSize, 0, 1);
+		float borderSize = pow((length((scale - u_cornerScale) - centeredTexCoords) / u_cornerScale), u_cornerScale * 1000.0);
+		f_color.a *= clamp(1.0 / borderSize, 0.0, 1.0);
 
 		if (u_drawBorder && u_cornerScale > u_borderScale)
 		{
 			float cornerDistance = (length((scale - u_cornerScale) - centeredTexCoords));
-			f_color.rgb = mix(f_color.rgb, u_borderColor, clamp((u_borderScale - (u_cornerScale - cornerDistance)) / u_borderScale * 4, 0, 1));
+			f_color.rgb = mix(f_color.rgb, u_borderColor, clamp((u_borderScale - (u_cornerScale - cornerDistance)) / u_borderScale * 4.0, 0.0, 1.0));
 		}
 	}
 
@@ -87,6 +87,6 @@ void main()
 			f_color.rgb = u_borderColor;
 		}
 	}
-	f_alpha.xyz = vec3(1);
+	f_alpha.xyz = vec3(1.0);
 	f_alpha.w = f_color.w;
 }

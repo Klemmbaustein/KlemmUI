@@ -8,6 +8,7 @@
 #include <kui/Image.h>
 #include <mutex>
 #include <cstring>
+#include <iostream>
 
 #define SYS_WINDOW_PTR(x) systemWM::SysWindow* x = static_cast<systemWM::SysWindow*>(this->SysWindowPtr)
 

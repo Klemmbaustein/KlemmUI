@@ -14,7 +14,7 @@ Examples/HelloWorld/HelloWorld
 
 *.exe
 *.pdb
-
+out/
 CMakeFiles/
 Docs/
 *.aps

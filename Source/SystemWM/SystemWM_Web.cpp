@@ -85,6 +85,7 @@ kui::systemWM::SysWindow* kui::systemWM::NewWindow(Window* Parent, Vec2ui Size, 
 
 	glfwInit();
 
+	OutWindow->Parent = Parent;
 	OutWindow->GLWindow = glfwCreateWindow(Size.X, Size.Y, Title.c_str(), nullptr, nullptr);
 	glfwSetWindowUserPointer(OutWindow->GLWindow, OutWindow);
 

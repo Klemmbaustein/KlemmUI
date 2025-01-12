@@ -1,12 +1,14 @@
 #pragma once
-#include "../UI/UIBox.h"
 #include "../Font.h"
 #include <any>
 #include <functional>
 #include <string>
+#include <map>
 
 namespace kui
 {
+	class UIBox;
+
 	class AnyContainer
 	{
 	public:

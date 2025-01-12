@@ -3,7 +3,7 @@
 #include <iostream>
 using namespace kui;
 
-UISpinner::UISpinner(Vec2f Position, Vec3f Color, Vec2f Size, SizeMode SizeMode)
+UISpinner::UISpinner(Vec2f Position, Vec3f Color, SizeVec Size)
 	: UIBackground(true, Position, Color, Size, Window::GetActiveWindow()->Shaders.LoadShader(
 		"res:shaders/uishader.vert",
 		"res:shaders/spinner.frag",
@@ -11,7 +11,6 @@ UISpinner::UISpinner(Vec2f Position, Vec3f Color, Vec2f Size, SizeMode SizeMode)
 	))
 {
 	SetMaxSize(Size);
-	SetSizeMode(SizeMode);
 }
 
 UISpinner::~UISpinner()

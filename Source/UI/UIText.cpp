@@ -2,17 +2,13 @@
 #include <kui/App.h>
 #include <kui/Window.h>
 #include <kui/Rendering/ScrollObject.h>
+#include <iostream>
 
 using namespace kui;
 
 float UIText::GetRenderedSize() const
 {
-	float RenderedSize = TextSize;
-	if (TextSizeMode == SizeMode::PixelRelative)
-	{
-		RenderedSize = RenderedSize / Window::GetActiveWindow()->GetSize().Y * 100 * ParentWindow->GetDPI();
-	}
-	return RenderedSize;
+	return TextSize.GetScreen().Y * 100;
 }
 
 float UIText::GetWrapDistance() const
@@ -74,23 +70,12 @@ UIText* UIText::SetOpacity(float NewOpacity)
 	return this;
 }
 
-UIText* UIText::SetTextSize(float Size)
+UIText* UIText::SetTextSize(UISize Size)
 {
-	Size *= 2;
 	if (Size != TextSize)
 	{
 		TextSize = Size;
 		InvalidateLayout();
-	}
-	return this;
-}
-
-UIText* UIText::SetTextSizeMode(SizeMode NewMode)
-{
-	if (this->TextSizeMode != NewMode)
-	{
-		RedrawElement();
-		this->TextSizeMode = NewMode;
 	}
 	return this;
 }
@@ -100,19 +85,14 @@ Font* UIText::GetTextFont() const
 	return Renderer;
 }
 
-float UIText::GetTextSize() const
+UISize UIText::GetTextSize() const
 {
-	return TextSize / 2;
+	return TextSize;
 }
 
-Vec2f UIText::GetTextSizeAtScale(float Scale, SizeMode ScaleType, Font* Renderer)
+Vec2f UIText::GetTextSizeAtScale(UISize Scale, Font* Renderer)
 {
-	float RenderedSize = Scale * 2;
-	if (ScaleType == SizeMode::PixelRelative)
-	{
-		RenderedSize = RenderedSize / Window::GetActiveWindow()->GetSize().Y * 100 * Window::GetActiveWindow()->GetDPI();
-	}
-	return Renderer->GetTextSize({ TextSegment("A", 1) }, RenderedSize, false, 999999);
+	return Renderer->GetTextSize({ TextSegment("A", 1) }, Scale.GetScreen().Y * 2, false, 999999);
 }
 
 UIText* UIText::SetTextWidthOverride(float NewTextWidthOverride)
@@ -162,18 +142,18 @@ std::string UIText::GetText() const
 	return TextSegment::CombineToString(RenderedText);
 }
 
-UIText::UIText(float Scale, Vec3f Color, std::string Text, Font* NewFont) : UIBox(true, 0)
+UIText::UIText(UISize Scale, Vec3f Color, std::string Text, Font* NewFont) : UIBox(true, 0)
 {
-	this->TextSize = Scale * 2;
+	this->TextSize = Scale;
 	this->Color = Color;
 	this->Renderer = NewFont;
 	RenderedText = { TextSegment(Text, Color) };
 	TextChanged = true;
 }
 
-UIText::UIText(float Scale, std::vector<TextSegment> Text, Font* NewFont) : UIBox(true, 0)
+UIText::UIText(UISize Scale, std::vector<TextSegment> Text, Font* NewFont) : UIBox(true, 0)
 {
-	this->TextSize = Scale * 2;
+	this->TextSize = Scale;
 	this->Renderer = NewFont;
 	RenderedText = Text;
 	TextChanged = true;
@@ -238,10 +218,10 @@ void UIText::OnAttached()
 {
 }
 
-Vec2f UIText::GetUsedSize()
+SizeVec UIText::GetUsedSize()
 {
 	if (!Renderer)
-		return 0;
+		return SizeVec(0, SizeMode::ScreenRelative);
 
 	float RenderSize = GetRenderedSize();
 	float WrapDistance = GetWrapDistance();
@@ -264,7 +244,7 @@ Vec2f UIText::GetUsedSize()
 
 	if (TextWidthOverride != 0)
 	{
-		return Vec2f(TextWidthOverride, Size.Y);
+		return SizeVec(Vec2f(TextWidthOverride, Size.Y), SizeMode::ScreenRelative);
 	}
-	return Size;
+	return SizeVec(Size, SizeMode::ScreenRelative);
 }

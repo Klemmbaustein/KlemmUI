@@ -8,7 +8,7 @@ namespace kui
 	protected:
 		float Time = 0;
 	public:
-		UISpinner(Vec2f Position, Vec3f Color, Vec2f Size = Vec2f(40), SizeMode SizeMode = SizeMode::PixelRelative);
+		UISpinner(Vec2f Position, Vec3f Color, SizeVec Size = SizeVec(40, SizeMode::PixelRelative));
 		virtual ~UISpinner() override;
 
 		float Speed = 1;

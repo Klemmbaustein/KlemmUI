@@ -47,7 +47,7 @@ void kui::UIBlurBackground::CreateBlurBuffers()
 	BuffersLoaded = true;
 }
 
-kui::UIBlurBackground::UIBlurBackground(bool Horizontal, Vec2f Position, Vec3f Color, float Opacity, Vec2f MinScale)
+kui::UIBlurBackground::UIBlurBackground(bool Horizontal, Vec2f Position, Vec3f Color, float Opacity, SizeVec MinScale)
 	: UIBackground(Horizontal, Position, Color, MinScale, Window::GetActiveWindow()->Shaders.LoadShader(
 		"res:shaders/uishader.vert",
 		"res:shaders/blursurface.frag",
@@ -134,10 +134,10 @@ void kui::UIBlurBackground::Draw()
 
 	glUniform4f(glGetUniformLocation(BackgroundShader->GetShaderID(), "u_transform"), Pos.X, Pos.Y, Res.X, Res.Y);
 	BackgroundShader->SetFloat("u_opacity", Opacity);
-	BackgroundShader->SetInt("u_drawBorder", BorderRadius != 0);
-	BackgroundShader->SetInt("u_drawCorner", CornerRadius != 0);
-	BackgroundShader->SetFloat("u_borderScale", GetBorderSize(BorderRadius, BorderSizeMode));
-	BackgroundShader->SetFloat("u_cornerScale", GetBorderSize(CornerRadius, CornerSizeMode));
+	BackgroundShader->SetInt("u_drawBorder", BorderRadius.Value != 0);
+	BackgroundShader->SetInt("u_drawCorner", CornerRadius.Value != 0);
+	BackgroundShader->SetFloat("u_borderScale", GetBorderSize(BorderRadius));
+	BackgroundShader->SetFloat("u_cornerScale", GetBorderSize(CornerRadius));
 	BackgroundShader->SetInt("u_cornerFlags", int(CornerFlags));
 	BackgroundShader->SetInt("u_borderFlags", int(BorderFlags));
 	BackgroundShader->SetFloat("u_aspectRatio", Window::GetActiveWindow()->GetAspectRatio());

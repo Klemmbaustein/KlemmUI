@@ -60,16 +60,16 @@ UIBackground* UIBackground::SetCorners(bool TopLeft, bool TopRight, bool BottomL
 	return this;
 }
 
-float kui::UIBackground::GetBorderSize(float InSize, UIBox::SizeMode Mode)
+float kui::UIBackground::GetBorderSize(UISize InSize)
 {
-	switch (Mode)
+	switch (InSize.Mode)
 	{
-	case kui::UIBox::SizeMode::ScreenRelative:
-	case kui::UIBox::SizeMode::AspectRelative:
-		return InSize;
+	case kui::SizeMode::ScreenRelative:
+	case kui::SizeMode::AspectRelative:
+		return InSize.Value;
 		break;
-	case kui::UIBox::SizeMode::PixelRelative:
-		return (std::floor(InSize * Window::GetActiveWindow()->GetDPI()) / (float)Window::GetActiveWindow()->GetSize().Y * 4.0f);
+	case kui::SizeMode::PixelRelative:
+		return (std::floor(InSize.Value * Window::GetActiveWindow()->GetDPI()) / (float)Window::GetActiveWindow()->GetSize().Y * 4.0f);
 	default:
 		return 0.0f;
 	}
@@ -132,23 +132,22 @@ UIBackground* UIBackground::SetUseTexture(bool UseTexture, unsigned int TextureI
 	return this;
 }
 
-UIBackground* UIBackground::SetBorder(float Size, UIBox::SizeMode BorderSize)
+UIBackground* UIBackground::SetBorder(UISize BorderSize, Vec3f Color)
 {
-	if (BorderSize != BorderSizeMode || Size != BorderRadius)
+	if (BorderSize != this->BorderRadius)
 	{
-		BorderSizeMode = BorderSize;
-		BorderRadius = Size;
+		this->BorderRadius = BorderSize;
 		RedrawElement();
 	}
+	SetBorderColor(Color);
 	return this;
 }
 
-UIBackground* UIBackground::SetCorner(float Size, UIBox::SizeMode BorderSize)
+UIBackground* UIBackground::SetCorner(UISize CornerSize)
 {
-	if (BorderSize != CornerSizeMode || Size != CornerRadius)
+	if (CornerSize != CornerRadius)
 	{
-		CornerSizeMode = BorderSize;
-		CornerRadius = Size;
+		CornerRadius = CornerSize;
 		RedrawElement();
 	}
 	return this;
@@ -213,7 +212,7 @@ UIBackground* kui::UIBackground::SetUseTexture(bool UseTexture, std::string Text
 	return this;
 }
 
-UIBackground::UIBackground(bool Horizontal, Vec2f Position, Vec3f Color, Vec2f MinScale, Shader* UsedShader) : UIBox(Horizontal, Position)
+UIBackground::UIBackground(bool Horizontal, Vec2f Position, Vec3f Color, SizeVec MinScale, Shader* UsedShader) : UIBox(Horizontal, Position)
 {
 	SetMinSize(MinScale);
 	this->Color = Color;
@@ -252,28 +251,26 @@ void UIBackground::Draw()
 	BackgroundShader->SetVec3("u_color", Color);
 	BackgroundShader->SetVec3("u_borderColor", BorderColor);
 
-	float DrawnBorderRadius = BorderRadius;
-	SizeMode DrawnBorderSizeMode = BorderSizeMode;
+	UISize DrawnBorderRadius = BorderRadius;
 
 	if (this == ParentWindow->UI.KeyboardFocusBox)
 	{
-		if (DrawnBorderRadius == 0)
+		if (DrawnBorderRadius.Value == 0)
 		{
-			DrawnBorderRadius = 2;
-			DrawnBorderSizeMode = SizeMode::PixelRelative;
+			DrawnBorderRadius = UISize::Pixels(2);
 		}
 		else
 		{
-			DrawnBorderRadius *= 2;
+			DrawnBorderRadius.Value *= 2;
 		}
 	}
 
 	glUniform4f(glGetUniformLocation(BackgroundShader->GetShaderID(), "u_transform"), OffsetPosition.X, OffsetPosition.Y, Size.X, Size.Y);
 	BackgroundShader->SetFloat("u_opacity", Opacity);
-	BackgroundShader->SetInt("u_drawBorder", DrawnBorderRadius != 0);
-	BackgroundShader->SetInt("u_drawCorner", CornerRadius != 0);
-	BackgroundShader->SetFloat("u_borderScale", GetBorderSize(DrawnBorderRadius, DrawnBorderSizeMode));
-	BackgroundShader->SetFloat("u_cornerScale", GetBorderSize(CornerRadius, CornerSizeMode));
+	BackgroundShader->SetInt("u_drawBorder", DrawnBorderRadius.Value != 0);
+	BackgroundShader->SetInt("u_drawCorner", CornerRadius.Value != 0);
+	BackgroundShader->SetFloat("u_borderScale", GetBorderSize(DrawnBorderRadius));
+	BackgroundShader->SetFloat("u_cornerScale", GetBorderSize(CornerRadius));
 	BackgroundShader->SetInt("u_cornerFlags", int(CornerFlags));
 	BackgroundShader->SetInt("u_borderFlags", int(BorderFlags));
 	BackgroundShader->SetFloat("u_aspectRatio", Window::GetActiveWindow()->GetAspectRatio());

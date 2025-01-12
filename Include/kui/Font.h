@@ -57,7 +57,7 @@ namespace kui
 		unsigned int NumVerts = 0;
 		DrawableText(unsigned int VAO, unsigned int VBO, unsigned int NumVerts, unsigned int Texture, Vec2f Position, float Scale, Vec3f Color, float opacity);
 	public:
-		float Opacity = 1.f;
+		float Opacity = 1.0f;
 		void Draw(ScrollObject* CurrentScrollObject) const;
 		~DrawableText();
 	};

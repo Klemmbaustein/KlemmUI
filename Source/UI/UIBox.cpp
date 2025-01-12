@@ -25,7 +25,7 @@ bool UIBox::IsChildOf(UIBox* Parent)
 	return this->Parent->IsChildOf(Parent);
 }
 
-void UIBox::GetPadding(Vec2f& UpDown, Vec2f& LeftRight) const
+void UIBox::GetPadding(SizeVec& UpDown, SizeVec& LeftRight) const
 {
 	UpDown.X = UpPadding;
 	UpDown.Y = DownPadding;
@@ -41,16 +41,6 @@ const std::vector<UIBox*>& UIBox::GetChildren()
 void UIBox::UpdateElement()
 {
 	UpdateSelfAndChildren();
-}
-
-UIBox* UIBox::SetSizeMode(SizeMode NewMode)
-{
-	if (NewMode != BoxSizeMode)
-	{
-		BoxSizeMode = NewMode;
-		GetAbsoluteParent()->InvalidateLayout();
-	}
-	return this;
 }
 
 UIBox::UIBox(bool Horizontal, Vec2f Position)
@@ -143,9 +133,9 @@ void UIBox::MoveToFront()
 	ParentWindow->UI.UIElements.push_back(this);
 }
 
-Vec2f UIBox::GetUsedSize()
+SizeVec UIBox::GetUsedSize()
 {
-	return Size;
+	return SizeVec(Size, SizeMode::ScreenRelative);
 }
 
 Vec2f UIBox::GetScreenPosition() const
@@ -173,23 +163,8 @@ void UIBox::OnAttached()
 {
 }
 
-UIBox* UIBox::SetMaxSize(Vec2f NewMaxSize)
+UIBox* UIBox::SetMaxSize(SizeVec NewMaxSize)
 {
-	if (TryFill && Parent)
-	{
-		if (Parent->ChildrenHorizontal && MaxSize.X != NewMaxSize.X)
-		{
-			MaxSize = NewMaxSize;
-			GetAbsoluteParent()->InvalidateLayout();
-		}
-		else if (!Parent->ChildrenHorizontal && MaxSize.Y != NewMaxSize.Y)
-		{
-			MaxSize = NewMaxSize;
-			GetAbsoluteParent()->InvalidateLayout();
-		}
-		return this;
-	}
-
 	if (NewMaxSize != MaxSize)
 	{
 		MaxSize = NewMaxSize;
@@ -198,28 +173,13 @@ UIBox* UIBox::SetMaxSize(Vec2f NewMaxSize)
 	return this;
 }
 
-Vec2f UIBox::GetMaxSize() const
+SizeVec UIBox::GetMaxSize() const
 {
 	return MaxSize;
 }
 
-UIBox* UIBox::SetMinSize(Vec2f NewMinSize)
+UIBox* UIBox::SetMinSize(SizeVec NewMinSize)
 {
-	if (TryFill && Parent)
-	{
-		if (Parent->ChildrenHorizontal && MinSize.X != NewMinSize.X)
-		{
-			MinSize = NewMinSize;
-			GetAbsoluteParent()->InvalidateLayout();
-		}
-		else if (!Parent->ChildrenHorizontal && MinSize.Y != NewMinSize.Y)
-		{
-			MinSize = NewMinSize;
-			GetAbsoluteParent()->InvalidateLayout();
-		}
-		return this;
-	}
-
 	if (NewMinSize != MinSize)
 	{
 		MinSize = NewMinSize;
@@ -228,9 +188,50 @@ UIBox* UIBox::SetMinSize(Vec2f NewMinSize)
 	return this;
 }
 
-Vec2f UIBox::GetMinSize() const
+
+SizeVec UIBox::GetMinSize() const
 {
 	return MinSize;
+}
+
+UIBox* kui::UIBox::SetMinWidth(UISize NewWidth)
+{
+	if (NewWidth != MinSize.X)
+	{
+		MinSize.X = NewWidth;
+		InvalidateLayout();
+	}
+	return this;
+}
+
+UIBox* kui::UIBox::SetMinHeight(UISize NewHeight)
+{
+	if (NewHeight != MinSize.Y)
+	{
+		MinSize.Y = NewHeight;
+		InvalidateLayout();
+	}
+	return this;
+}
+
+UIBox* kui::UIBox::SetMaxWidth(UISize NewWidth)
+{
+	if (NewWidth != MaxSize.X)
+	{
+		MaxSize.X = NewWidth;
+		InvalidateLayout();
+	}
+	return this;
+}
+
+UIBox* kui::UIBox::SetMaxHeight(UISize NewHeight)
+{
+	if (NewHeight != MaxSize.Y)
+	{
+		MaxSize.Y = NewHeight;
+		InvalidateLayout();
+	}
+	return this;
 }
 
 UIBox* UIBox::SetPosition(Vec2f NewPosition)
@@ -255,7 +256,7 @@ Vec2f UIBox::GetPosition() const
 	}
 }
 
-UIBox* UIBox::SetPadding(float Up, float Down, float Left, float Right)
+UIBox* UIBox::SetPadding(UISize Up, UISize Down, UISize Left, UISize Right)
 {
 	if (Up != UpPadding || Down != DownPadding || Left != LeftPadding || Right != RightPadding)
 	{
@@ -268,7 +269,7 @@ UIBox* UIBox::SetPadding(float Up, float Down, float Left, float Right)
 	return this;
 }
 
-UIBox* UIBox::SetPadding(float AllDirs)
+UIBox* UIBox::SetPadding(UISize AllDirs)
 {
 	if (AllDirs != UpPadding || AllDirs != DownPadding || AllDirs != LeftPadding || AllDirs != RightPadding)
 	{
@@ -276,26 +277,6 @@ UIBox* UIBox::SetPadding(float AllDirs)
 		DownPadding = AllDirs;
 		LeftPadding = AllDirs;
 		RightPadding = AllDirs;
-		GetAbsoluteParent()->InvalidateLayout();
-	}
-	return this;
-}
-
-UIBox* UIBox::SetPaddingSizeMode(SizeMode NewSizeMode)
-{
-	if (NewSizeMode != PaddingSizeMode)
-	{
-		PaddingSizeMode = NewSizeMode;
-		InvalidateLayout();
-	}
-	return this;
-}
-
-UIBox* UIBox::SetTryFill(bool NewTryFill)
-{
-	if (TryFill != NewTryFill)
-	{
-		TryFill = NewTryFill;
 		GetAbsoluteParent()->InvalidateLayout();
 	}
 	return this;
@@ -323,11 +304,6 @@ UIBox* UIBox::SetHorizontal(bool IsHorizontal)
 	return this;
 }
 
-bool UIBox::GetTryFill() const
-{
-	return TryFill;
-}
-
 void UIBox::Update()
 {
 }
@@ -338,15 +314,6 @@ void UIBox::UpdateSelfAndChildren()
 	UpdatePosition();
 
 	Update();
-}
-
-Vec2f UIBox::GetLeftRightPadding(const UIBox* Target) const
-{
-	if (Target->PaddingSizeMode != SizeMode::AspectRelative)
-	{
-		return Vec2f(Target->LeftPadding, Target->RightPadding);
-	}
-	return Vec2f(Target->LeftPadding, Target->RightPadding) / (float)ParentWindow->GetAspectRatio();
 }
 
 Vec2f UIBox::PixelSizeToScreenSize(Vec2f PixelSize, Window* TargetWindow)
@@ -365,7 +332,7 @@ void kui::UIBox::SetOffsetPosition(Vec2f NewPos)
 		Vec2f NewScreenPos = GetPosition();
 		ParentWindow->UI.RedrawArea(UIManager::RedrawBox{
 			.Min = Vec2f::Min(ScreenPos, NewScreenPos),
-			.Max = Vec2f::Max(ScreenPos, NewScreenPos) + GetUsedSize(),
+			.Max = Vec2f::Max(ScreenPos, NewScreenPos) + GetUsedSize().GetScreen(),
 			});
 	}
 }
@@ -427,53 +394,60 @@ void UIBox::UpdateScale()
 
 		if (ChildrenHorizontal)
 		{
-			NewSize.X += c->Size.X + LeftRight.X + LeftRight.Y;
-			if (!c->TryFill)
+			if (c->MinSize.X.Mode != SizeMode::ParentRelative)
+			{
+				NewSize.X += c->Size.X + LeftRight.X + LeftRight.Y;
+			}
+			if (c->MinSize.Y.Mode != SizeMode::ParentRelative)
 			{
 				NewSize.Y = std::max(NewSize.Y, c->Size.Y + UpDown.X + UpDown.Y);
 			}
 		}
 		else
 		{
-			NewSize.Y += c->Size.Y + UpDown.X + UpDown.Y;
-			if (!c->TryFill)
+			if (c->MinSize.Y.Mode != SizeMode::ParentRelative)
+			{
+				NewSize.Y += c->Size.Y + UpDown.X + UpDown.Y;
+			}
+			if (c->MinSize.X.Mode != SizeMode::ParentRelative)
 			{
 				NewSize.X = std::max(NewSize.X, c->Size.X + LeftRight.X + LeftRight.Y);
 			}
 		}
 	}
 
-	if (TryFill && Parent)
+	Vec2f ScreenMinSize = MinSize.GetScreen();
+	Vec2f ScreenMaxSize = MaxSize.GetScreen();
+
+	if (Parent)
 	{
 		Vec2f UpDown, LeftRight;
 		GetPaddingScreenSize(UpDown, LeftRight);
-		if (Parent->ChildrenHorizontal)
+		Vec2f AvailableParentSize = Parent->Size - Vec2f(LeftRight.X + LeftRight.Y, UpDown.X + UpDown.Y);
+
+		if (MinSize.X.Mode == SizeMode::ParentRelative)
 		{
-			NewSize.Y = Parent->Size.Y - (UpDown.X + UpDown.Y);
-			MinSize.Y = 0;
-			MaxSize.Y = 999999;
+			ScreenMinSize.X = AvailableParentSize.X * MinSize.X.Value;
+		}
+		if (MinSize.Y.Mode == SizeMode::ParentRelative)
+		{
+			ScreenMinSize.Y = AvailableParentSize.Y * MinSize.Y.Value;
 		}
 		else
 		{
-			NewSize.X = Parent->Size.X - (LeftRight.X + LeftRight.Y);
-			MinSize.X = 0;
-			MaxSize.X = 999999;
+			std::cout << int(MinSize.Y.Mode) << std::endl;
+		}
+		if (MaxSize.X.Mode == SizeMode::ParentRelative)
+		{
+			ScreenMaxSize.X = AvailableParentSize.X * MaxSize.X.Value;
+		}
+		if (MaxSize.Y.Mode == SizeMode::ParentRelative)
+		{
+			ScreenMaxSize.Y = AvailableParentSize.Y * MaxSize.Y.Value;
 		}
 	}
-
-	Vec2f AdjustedMinSize = MinSize;
-	Vec2f AdjustedMaxSize = MaxSize;
-	if (BoxSizeMode == SizeMode::AspectRelative)
-	{
-		AdjustedMinSize.X /= ParentWindow->GetAspectRatio();
-		AdjustedMaxSize.X /= ParentWindow->GetAspectRatio();
-	}
-	if (BoxSizeMode == SizeMode::PixelRelative)
-	{
-		AdjustedMinSize = PixelSizeToScreenSize(AdjustedMinSize, ParentWindow);
-		AdjustedMaxSize = PixelSizeToScreenSize(AdjustedMaxSize, ParentWindow);
-	}
-	NewSize = NewSize.Clamp(AdjustedMinSize, AdjustedMaxSize);
+	
+	NewSize = NewSize.Clamp(ScreenMinSize, ScreenMaxSize);
 
 	if (NewSize != Size)
 	{
@@ -567,19 +541,11 @@ void UIBox::UpdatePosition()
 
 void UIBox::GetPaddingScreenSize(Vec2f& UpDown, Vec2f& LeftRight) const
 {
-	UpDown.X = UpPadding;
-	UpDown.Y = DownPadding;
+	UpDown.X = UpPadding.GetScreen().Y;
+	UpDown.Y = DownPadding.GetScreen().Y;
 
-	if (PaddingSizeMode == SizeMode::PixelRelative)
-	{
-		UpDown = UpDown / (float)ParentWindow->GetSize().Y * ParentWindow->GetDPI() * 2;
-	}
-
-	LeftRight = GetLeftRightPadding(this);
-	if (PaddingSizeMode == SizeMode::PixelRelative)
-	{
-		LeftRight = LeftRight / (float)ParentWindow->GetSize().X * ParentWindow->GetDPI() * 2;
-	}
+	LeftRight.X = LeftPadding.GetScreen().X;
+	LeftRight.Y = RightPadding.GetScreen().X;
 }
 
 void UIBox::RedrawElement(bool Force)
@@ -593,7 +559,7 @@ void UIBox::RedrawElement(bool Force)
 	ParentWindow->UI.RedrawArea(GetRedrawBox());
 }
 
-void kui::UIBox::SetUpPadding(float Value)
+void kui::UIBox::SetUpPadding(UISize Value)
 {
 	if (UpPadding != Value)
 	{
@@ -602,7 +568,7 @@ void kui::UIBox::SetUpPadding(float Value)
 	}
 }
 
-void kui::UIBox::SetDownPadding(float Value)
+void kui::UIBox::SetDownPadding(UISize Value)
 {
 	if (DownPadding != Value)
 	{
@@ -611,7 +577,7 @@ void kui::UIBox::SetDownPadding(float Value)
 	}
 }
 
-void kui::UIBox::SetLeftPadding(float Value)
+void kui::UIBox::SetLeftPadding(UISize Value)
 {
 	if (LeftPadding != Value)
 	{
@@ -620,7 +586,7 @@ void kui::UIBox::SetLeftPadding(float Value)
 	}
 }
 
-void kui::UIBox::SetRightPadding(float Value)
+void kui::UIBox::SetRightPadding(UISize Value)
 {
 	if (RightPadding != Value)
 	{

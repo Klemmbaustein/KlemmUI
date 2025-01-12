@@ -519,6 +519,13 @@ kui::stringParse::Size::Size(std::string SizeString, bool Is1D)
 		SizeMode = "ar";
 		return;
 	}
+	// Parent Relative
+	if (SizeSuffix == "pn")
+	{
+		SizeValue = Value;
+		SizeMode = "pn";
+		return;
+	}
 	// Screen Relative (default)
 	if (SizeSuffix == "sr")
 	{
@@ -532,13 +539,17 @@ std::string kui::stringParse::Size::SizeModeToKUISizeMode(std::string Mode)
 {
 	if (Mode == "pr" || Mode == "px")
 	{
-		return "kui::UIBox::SizeMode::PixelRelative";
+		return "kui::SizeMode::PixelRelative";
 	}
 	if (Mode == "ar")
 	{
-		return "kui::UIBox::SizeMode::AspectRelative";
+		return "kui::SizeMode::AspectRelative";
 	}
-	return "kui::UIBox::SizeMode::ScreenRelative";
+	if (Mode == "pn")
+	{
+		return "kui::SizeMode::ParentRelative";
+	}
+	return "kui::SizeMode::ScreenRelative";
 }
 
 std::vector<stringParse::Line> stringParse::SeparateString(std::string String)

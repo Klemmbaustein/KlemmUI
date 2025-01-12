@@ -27,20 +27,20 @@ UIDropdown::UIDropdown(Vec2f Position,
 	}
 	SelectedOption = Options.at(0);
 	SelectedText = new UIText(TextSize, TextColor, this->Options.at(0).Name, Renderer);
-	SelectedText->SetPadding(TextPadding);
+	//SelectedText->SetPadding(TextPadding);
 	AddChild(SelectedText);
-	SetMinSize(Vec2f(Size, 0));
+	SetMinSize(SizeVec(Vec2f(Size, 0), SizeMode::AspectRelative));
 
 	OptionsBox = new UIBox(false, Position + Vec2(0, -1));
-	OptionsBox->SetMinSize(Vec2(0, 1));
+	OptionsBox->SetMinSize(SizeVec(Vec2f(0, 1), SizeMode::AspectRelative));
 	OptionsBox->IsVisible = false;
 	GenerateOptions();
 }
 
-UIDropdown* UIDropdown::SetTextSize(float Size, float Padding)
+UIDropdown* UIDropdown::SetTextSize(UISize Size, UISize Padding)
 {
 	SelectedText->SetTextSize(Size);
-	SelectedText->SetPadding(Padding);
+	//SelectedText->SetPadding(Padding);
 	this->TextSize = Size;
 	this->TextPadding = Padding;
 	return this;
@@ -64,31 +64,19 @@ UIDropdown* UIDropdown::SetDropdownColor(Vec3f NewColor, Vec3f TextColor)
 	return this;
 }
 
-UIDropdown* kui::UIDropdown::SetTextSizeMode(UIBox::SizeMode NewMode)
-{
-	if (TextSizeMode != NewMode)
-	{
-		TextSizeMode = NewMode;
-		SelectedText->SetTextSizeMode(TextSizeMode);
-		GenerateOptions();
-	}
-	return this;
-}
-
 void UIDropdown::GenerateOptions()
 {
 	OptionsBox->DeleteChildren();
 	for (size_t i = 0; i < Options.size(); i++)
 	{
 		UIButton* NewButton = new UIButton(true, 0, Vec3f::Lerp(DropdownColor, ButtonColor, (i == SelectedIndex) ? 0.5f : 0), nullptr, (int)i);
-		NewButton->SetMinSize(Vec2f(Size, 0));
+		NewButton->SetMinSize(SizeVec(Vec2f(Size, 0), SizeMode::AspectRelative));
 		NewButton->OnClickedIndex = [this](int Index) {
 			OnChildClicked(Index);
 			};
 
 		UIText* NewText = new UIText(TextSize, DropdownTextColor, Options[i].Name, Renderer);
-		NewText->SetPadding(TextPadding);
-		NewText->SetTextSizeMode(TextSizeMode);
+		//NewText->SetPadding(TextPadding);
 		NewButton->AddChild(NewText);
 
 		OptionsBox->AddChild(NewButton);

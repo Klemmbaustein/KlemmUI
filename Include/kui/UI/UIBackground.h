@@ -29,7 +29,7 @@ namespace kui
 		unsigned int TextureID = 0;
 		float Opacity = 1;
 		Vec3f ColorMultiplier = 1;
-		static float GetBorderSize(float InSize, UIBox::SizeMode Mode);
+		static float GetBorderSize(UISize InSize);
 
 	public:
 		Shader* BackgroundShader = nullptr;
@@ -39,10 +39,8 @@ namespace kui
 		}
 
 		Vec3f BorderColor = 1;
-		SizeMode BorderSizeMode = SizeMode::ScreenRelative;
-		SizeMode CornerSizeMode = SizeMode::ScreenRelative;
-		float BorderRadius = 0;
-		float CornerRadius = 0;
+		UISize BorderRadius = 0;
+		UISize CornerRadius = 0;
 
 		/**
 		 * @brief
@@ -87,11 +85,11 @@ namespace kui
 		UIBackground* SetUseTexture(bool UseTexture, unsigned int TextureID = 0);
 		UIBackground* SetUseTexture(bool UseTexture, std::string TextureFile);
 
-		UIBackground* SetBorder(float Size, UIBox::SizeMode BorderSize);
+		UIBackground* SetBorder(UISize BorderSize, Vec3f Color);
 		UIBackground* SetBorderEdges(bool Top, bool Down, bool Left, bool Right);
 		UIBackground* SetBorderVisible(int Index, bool Value);
 
-		UIBackground* SetCorner(float Size, UIBox::SizeMode BorderSize);
+		UIBackground* SetCorner(UISize CornerSize);
 		UIBackground* SetCorners(bool TopLeft, bool TopRight, bool BottomLeft, bool BottomRight);
 		UIBackground* SetCornerVisible(int Index, bool Value);
 
@@ -114,7 +112,7 @@ namespace kui
 		 * @param UsedShader
 		 * The shader used by the UIBackground. If this is nullptr, the default shader is used.
 		 */
-		UIBackground(bool Horizontal, Vec2f Position, Vec3f Color, Vec2f MinScale = Vec2f(0), Shader* UsedShader = nullptr);
+		UIBackground(bool Horizontal, Vec2f Position, Vec3f Color, SizeVec MinScale = SizeVec::Smallest(), Shader* UsedShader = nullptr);
 		virtual ~UIBackground();
 		virtual void Draw() override;
 		void Update() override;

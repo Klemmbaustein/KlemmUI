@@ -4,6 +4,7 @@
 #include <vector>
 #include <cmath>
 #include <kui/UI/UIManager.h>
+#include <kui/UISize.h>
 
 namespace kui
 {
@@ -35,54 +36,17 @@ namespace kui
 			Reverse
 		};
 
-		/**
-		 * @brief
-		 * Describes the way size should be calculated for a UIBox.
-		 */
-		enum class SizeMode
-		{
-			/**
-			 * @brief
-			 * Default value. Size should be relative to the screen.
-			 *
-			 * A box with the position x=-1, y=-1 (bottom left corner) and a size of x=1, y=2 will always fill half the screen.
-			 *
-			 * A box where `size x` = `size y` will only be square if the screen itself is square.
-			 */
-			ScreenRelative = 0,
-			/**
-			 * @brief
-			 * Size should be relative to the aspect ratio.
-			 *
-			 * A box where `size x` = `size y` is guaranteed to be square.
-			 *
-			 * An AspectRelative box with the size x=1, x=1 has the same size as a ScreenRelative box with the size x=1/AspectRatio, y=1.
-			 */
-			AspectRelative = 1,
-			/**
-			 * @brief
-			 * Size should be relative to the screen resolution.
-			 *
-			 * A box where `size x` = `size y` is guaranteed to be square.
-			 * No matter the screens resolution, the box will always have the same size in pixels.
-			 */
-			PixelRelative = 2
-		};
-
-
-		UIBox* SetSizeMode(SizeMode NewMode);
-
 		Align HorizontalBoxAlign = Align::Default;
 		Align VerticalBoxAlign = Align::Reverse;
 
 		/**
 		 * @brief
 		 * Constructs a UIBox with either horizontal or vertical child align with the given position.
-		 * 
+		 *
 		 * @param Horizontal
 		 * If true, the UIBox's children will be laid out horizontally. If false, they will be laid out vertically.
 		 * See kui::UIBox::SetHorizontal() for more details.
-		 * 
+		 *
 		 * @param Position
 		 * The position of the UIBox.
 		 * If the UIBox is a child of another UIBox, this is ignored.
@@ -91,7 +55,7 @@ namespace kui
 		/**
 		 * @brief
 		 * UIBox destructor.
-		 * 
+		 *
 		 * When deleted, a UIBox will also delete all children.
 		 */
 		virtual ~UIBox();
@@ -100,7 +64,7 @@ namespace kui
 		/**
 		* @brief
 		* Invalidates the layout of this UIBox, causing the position and scale of this UIBox and all children to be recalculated on the next UI update.
-		* 
+		*
 		* This function is called by all functions that modify any value that changes the position or scale.
 		*/
 		void InvalidateLayout();
@@ -108,14 +72,14 @@ namespace kui
 		/**
 		 * @brief
 		 * Adds the given UIBox to this UIBox's children.
-		 * 
+		 *
 		 * @return
 		 * A pointer to this UIBox.
 		 */
 		UIBox* AddChild(UIBox* NewChild);
 		UIBox* GetAbsoluteParent();
 		void DrawThisAndChildren(const UIManager::RedrawBox& Box);
-		
+
 		/**
 		 * @brief
 		 * Deletes all children of this element.
@@ -125,13 +89,13 @@ namespace kui
 		/**
 		 * @brief
 		 * Checks if this UIBox is visible in it's hierarchy.
-		 * 
+		 *
 		 * ```
 		 * UIBox A (visible) -> returns true
 		 *   UIBox B (invisible) -> returns false
 		 *     UIBox C (visible) -> returns false
 		 * ```
-		 * 
+		 *
 		 * UIBox C is not visible in the hierarchy since any invisible UIBox will not render it's children.
 		 */
 		bool IsVisibleInHierarchy();
@@ -147,8 +111,8 @@ namespace kui
 		 * @return
 		 * A pointer to this UIBox.
 		 */
-		UIBox* SetMaxSize(Vec2f NewMaxSize);
-		Vec2f GetMaxSize() const;
+		UIBox* SetMaxSize(SizeVec NewMaxSize);
+		SizeVec GetMaxSize() const;
 
 		/**
 		 * @brief
@@ -160,9 +124,15 @@ namespace kui
 		 * @return
 		 * A pointer to this UIBox.
 		 */
-		UIBox* SetMinSize(Vec2f NewMinSize);
-		Vec2f GetMinSize() const;
-		
+		UIBox* SetMinSize(SizeVec NewMinSize);
+		SizeVec GetMinSize() const;
+
+		UIBox* SetMinWidth(UISize NewWidth);
+		UIBox* SetMinHeight(UISize NewHeight);
+
+		UIBox* SetMaxWidth(UISize NewWidth);
+		UIBox* SetMaxHeight(UISize NewHeight);
+
 		/**
 		 * @brief
 		 * Sets the position of the UIBox.
@@ -170,7 +140,7 @@ namespace kui
 		 * @param NewPosition
 		 * The new position of the box, where -1, -1 is the bottom left corner of the screen and 1, 1 is the top right corner.
 		 * The position is ignored if this UIBox is a child of another UIBox.
-		 * 
+		 *
 		 * @return
 		 * A pointer to this UIBox.
 		 */
@@ -194,8 +164,8 @@ namespace kui
 		 * @return
 		 * A pointer to this UIBox.
 		 */
-		UIBox* SetPadding(float Up, float Down, float Left, float Right);
-	
+		UIBox* SetPadding(UISize Up, UISize Down, UISize Left, UISize Right);
+
 		/**
 		 * @brief
 		 * Sets the padding of a UIBox, in all directions.
@@ -205,19 +175,17 @@ namespace kui
 		 * @return
 		 * A pointer to this UIBox.
 		 */
-		UIBox* SetPadding(float AllDirs);
-		UIBox* SetPaddingSizeMode(SizeMode NewSizeMode);
-		UIBox* SetTryFill(bool NewTryFill);
+		UIBox* SetPadding(UISize AllDirs);
 
 		/**
 		 * @brief
 		 * Sets if the orientation of the children is horizontal.
-		 * 
+		 *
 		 * If Orientation is Horizontal, the children of this UIBox will be aligned horizontally.
-		 * 
+		 *
 		 * ```
 		 * Example:
-		 * 
+		 *
 		 *  ____________________________________    ____________________________________
 		 * | _______   _______                  |  | _______                            |
 		 * ||Child 1| |Child 2|                 |  ||Child 1|                           |
@@ -232,8 +200,6 @@ namespace kui
 		 */
 		UIBox* SetHorizontal(bool IsHorizontal);
 
-		bool GetTryFill() const;
-
 		/**
 		 * @brief
 		 * Moves this UIBox to the front of the window, on top of all other elements.
@@ -247,7 +213,7 @@ namespace kui
 		 * @return
 		 * The used size of the box.
 		 */
-		virtual Vec2f GetUsedSize();
+		virtual SizeVec GetUsedSize();
 		Vec2f GetScreenPosition() const;
 		void SetCurrentScrollObject(UIScrollBox* s);
 		void SetCurrentScrollObject(ScrollObject* s);
@@ -255,10 +221,10 @@ namespace kui
 		/**
 		 * @brief
 		 * Checks if this UIBox a child of the given parent, or any parent of this UIBox is a child of the parent.
-		 * 
+		 *
 		 * @param Parent
 		 * The parent which should be checked for.
-		 * 
+		 *
 		 * @return
 		 * True if this UIBox is a parent to the given UIBox, or any parent of this UIBox is a child of the parent.
 		 */
@@ -267,7 +233,7 @@ namespace kui
 		/**
 		 * @brief
 		 * Sets the horizontal align for all children.
-		 * 
+		 *
 		 * ```
 		 * Example
 		 *  ____________________________________    ____________________________________
@@ -278,9 +244,9 @@ namespace kui
 		 * | Parent box                         |  | Parent box                         |
 		 * | Horizontal Align: Default          |  | Horizontal Align: Centered         |
 		 * |____________________________________|  |____________________________________|
-		 * 
+		 *
 		 * ```
-		 * 
+		 *
 		 * @return
 		 * A reference to this UIBox.
 		 */
@@ -289,13 +255,13 @@ namespace kui
 		/**
 		 * @brief
 		 * Sets the horizontal align for all children.
-		 * 
+		 *
 		 * Notes:
 		 * - The default vertical align is Align::Reverse, not Align::Default.
 		 * - **Align::Reverse aligns boxes from the top down (from 1 to -1)** while Align.Default aligns boxes from the bottom up (from -1 to 1)
 		 *   The reason for this is that this corresponds to the way horizontal align works.
 		 *   (Default is from -1 to 1 - left to right, Reverse 1 to -1, right to left)
-		 * 
+		 *
 		 * ```
 		 * Example
 		 *  ____________________________________    ____________________________________
@@ -307,7 +273,7 @@ namespace kui
 		 * | Vertical Align: Reverse            |  ||_______| |_______|                 |
 		 * |____________________________________|  |____________________________________|
 		 * ```
-		 * 
+		 *
 		 * @return
 		 * A reference to this %UIBox.
 		 */
@@ -316,7 +282,7 @@ namespace kui
 		/**
 		 * @brief
 		 * Boolean controlling the collision of the UIBox.
-		 * 
+		 *
 		 * If a UIBox has mouse collision, it can be hovered. If it does not have collision, it will be purely visual.
 		 * kui::UIButton has this enabled by default.
 		 */
@@ -332,7 +298,7 @@ namespace kui
 
 		ScrollObject* CurrentScrollObject = nullptr;
 
-		void GetPadding(Vec2f& UpDown, Vec2f& LeftRight) const;
+		void GetPadding(SizeVec& UpDown, SizeVec& LeftRight) const;
 
 		/**
 		 * @brief
@@ -360,46 +326,45 @@ namespace kui
 		/**
 		 * @brief
 		 * If this is called, the area this element occupies will be redrawn.
-		 * 
+		 *
 		 * @param Force
 		 * If this is true, the element will be redrawn even if it is not visible.
 		 */
 		void RedrawElement(bool Force = false);
 
-		void SetUpPadding(float Value);
-		void SetDownPadding(float Value);
-		void SetLeftPadding(float Value);
-		void SetRightPadding(float Value);
+		void SetUpPadding(UISize Value);
+		void SetDownPadding(UISize Value);
+		void SetLeftPadding(UISize Value);
+		void SetRightPadding(UISize Value);
 
 		UIManager::RedrawBox GetRedrawBox() const;
 
-protected:
-
-		SizeMode BoxSizeMode = SizeMode::ScreenRelative;
+	protected:
 		bool ShouldBeTicked = true;
-		bool TryFill = false;
 		bool Redrawn = false;
+	private:
+		bool PrevIsVisible = true;
+		bool ChildrenHorizontal = true;
+	protected:
 		virtual void Update();
 		virtual void Draw();
 		virtual void Tick();
 		void UpdateHoveredState();
 		Vec2f Position;
 		Vec2f OffsetPosition = NAN;
-		Vec2f MaxSize = Vec2(999, 999);
-		Vec2f MinSize = Vec2(0, 0);
+		SizeVec MaxSize = UISize::Largest();
+		SizeVec MinSize = UISize::Smallest();
 		size_t LastDrawIndex = 0;
-		float UpPadding = 0;
-		float DownPadding = 0;
-		float RightPadding = 0;
-		float LeftPadding = 0;
+		UISize UpPadding;
+		UISize DownPadding;
+		UISize RightPadding;
+		UISize LeftPadding;
 		Vec2f Size;
-		SizeMode PaddingSizeMode = SizeMode::ScreenRelative;
 		Window* ParentWindow = nullptr;
 
 		std::vector<UIBox*> Children;
 		UIBox* Parent = nullptr;
 		void UpdateSelfAndChildren();
-		Vec2f GetLeftRightPadding(const UIBox* Target) const;
 
 	private:
 
@@ -407,10 +372,8 @@ protected:
 
 		float GetVerticalOffset();
 		float GetHorizontalOffset();
-		bool PrevIsVisible = true;
 		void UpdateScale();
 		void UpdatePosition();
-		bool ChildrenHorizontal;
 
 
 		friend UIManager;

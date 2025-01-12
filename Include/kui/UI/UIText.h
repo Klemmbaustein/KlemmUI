@@ -17,10 +17,10 @@ namespace kui
 		Font* Renderer = nullptr;
 		Vec3f Color;
 		std::vector<TextSegment> RenderedText;
-		float TextSize = 0.5f;
+		UISize TextSize = UISize::Pixels(10);
 		DrawableText* Text = nullptr;
 		float TextWidthOverride = 0;
-		float Opacity = 1.f;
+		float Opacity = 1.0f;
 		float GetRenderedSize() const;
 		float GetWrapDistance() const;
 	public:
@@ -52,17 +52,10 @@ namespace kui
 		 * @brief
 		 * Sets the size of the text.
 		 */
-		UIText* SetTextSize(float Size);
+		UIText* SetTextSize(UISize Size);
 
-		/**
-		 * @brief
-		 * Sets the size mode of the text.
-		 *
-		 * > Note: This has to be used instead of UIBox::SetSizeMode()
-		 */
-		UIText* SetTextSizeMode(SizeMode NewMode);
-		float GetTextSize() const;
-		static Vec2f GetTextSizeAtScale(float Scale, SizeMode ScaleType, Font* Renderer);
+		UISize GetTextSize() const;
+		static Vec2f GetTextSizeAtScale(UISize Scale, Font* Renderer);
 		UIText* SetTextWidthOverride(float NewTextWidthOverride);
 
 		size_t GetNearestLetterAtLocation(Vec2f Location) const;
@@ -115,7 +108,7 @@ namespace kui
 		 * @param Renderer
 		 * The font used by the text.
 		 */
-		UIText(float Scale, Vec3f Color, std::string Text, Font* Renderer);
+		UIText(UISize Scale, Vec3f Color, std::string Text, Font* Renderer);
 
 		/**
 		 * @brief
@@ -131,12 +124,12 @@ namespace kui
 		 * @param Renderer
 		 * The font used by the text.
 		 */
-		UIText(float Scale, std::vector<TextSegment> Text, Font* Renderer);
+		UIText(UISize Scale, std::vector<TextSegment> Text, Font* Renderer);
 		virtual ~UIText();
 		void Draw() override;
 		void Update() override;
 		void OnAttached() override;
-		Vec2f GetUsedSize() override;
+		SizeVec GetUsedSize() override;
 	private:
 		float LastRenderSize = 0;
 		bool LastWrapEnabled = false;

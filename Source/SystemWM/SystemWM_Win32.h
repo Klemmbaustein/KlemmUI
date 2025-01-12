@@ -20,6 +20,7 @@ namespace kui::systemWM
 		bool Popup = false;
 		int ActiveCursor = -1;
 
+		Vec3f OldBorderColor = 0;
 		Vec2ui Size;
 		Vec2ui MinSize = 1;
 		Vec2ui MaxSize = INT32_MAX;

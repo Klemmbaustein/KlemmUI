@@ -16,9 +16,9 @@ using namespace kui;
 void UITextField::Tick()
 {
 	TextObject->WrapDistance = Size.X - 0.01f;
-	float CharSize = UIText::GetTextSizeAtScale(TextSize, TextObject->TextSizeMode, TextObject->GetTextFont()).Y;
-	if (TextObject->GetUsedSize().Y > Size.Y)
-		TextScroll.MaxScroll = std::max(TextObject->GetUsedSize().Y - Size.Y + 0.025f, 0.0f);
+	float CharSize = UIText::GetTextSizeAtScale(TextObject->GetTextSize(), TextObject->GetTextFont()).Y;
+	if (TextObject->GetUsedSize().GetScreen().Y > Size.Y)
+		TextScroll.MaxScroll = std::max(TextObject->GetUsedSize().GetScreen().Y - Size.Y + 0.025f, 0.0f);
 	else
 		TextScroll.MaxScroll = 0;
 	TextObject->CurrentScrollObject = &this->TextRenderScroll;
@@ -191,13 +191,9 @@ UITextField* UITextField::SetText(std::string NewText)
 	return this;
 }
 
-UITextField* UITextField::SetTextSize(float NewTextSize)
+UITextField* UITextField::SetTextSize(UISize NewTextSize)
 {
-	if (NewTextSize != TextSize)
-	{
-		TextObject->SetTextSize(NewTextSize);
-		TextSize = NewTextSize;
-	}
+	TextObject->SetTextSize(NewTextSize);
 	return this;
 }
 
@@ -239,9 +235,9 @@ Vec3f UITextField::GetTextColor()
 	return TextObject->GetColor();
 }
 
-float UITextField::GetTextSize() const
+UISize UITextField::GetTextSize() const
 {
-	return TextSize;
+	return TextObject->GetTextSize();
 }
 
 std::string UITextField::GetText()
@@ -249,9 +245,8 @@ std::string UITextField::GetText()
 	return EnteredText;
 }
 
-kui::UITextField* kui::UITextField::SetTextSizeMode(UIBox::SizeMode Mode)
+kui::UITextField* kui::UITextField::SetTextSizeMode(SizeMode Mode)
 {
-	TextObject->SetTextSizeMode(Mode);
 	return this;
 }
 
@@ -259,10 +254,8 @@ UITextField::UITextField(Vec2f Position, Vec3f Color, Font* Renderer, std::funct
 	: UIBackground(true, Position, Color)
 {
 	TextFieldColor = Color;
-	TextObject = new UIText(0, Vec3f(1), HintText, Renderer);
-	TextObject->SetTextSize(0.5f);
-	TextObject->SetPadding(3);
-	TextObject->SetPaddingSizeMode(SizeMode::PixelRelative);
+	TextObject = new UIText(UISize::Pixels(11), Vec3f(1), HintText, Renderer);
+	TextObject->SetPadding(UISize::Pixels(3));
 	TextObject->Wrap = true;
 	HasMouseCollision = true;
 	KeyboardFocusable = true;

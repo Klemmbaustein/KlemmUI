@@ -29,7 +29,6 @@ namespace kui
 		UIText* TextObject = nullptr;
 		bool IsEdited = false;
 		std::string EnteredText = "";
-		float TextSize = 0.5f;
 		void Tick() override;
 		float TextTimer = 0.0f;
 		std::string HintText; // Will be displayed when the text field is empty
@@ -48,7 +47,7 @@ namespace kui
 		UIBox* ParentOverride = nullptr;
 		bool GetIsEdited() const { return IsEdited; }
 		UITextField* SetText(std::string NewText);
-		UITextField* SetTextSize(float NewTextSize);
+		UITextField* SetTextSize(UISize NewTextSize);
 
 		/**
 		 * @brief
@@ -60,13 +59,13 @@ namespace kui
 		Vec3f GetColor() const override;
 		UITextField* SetTextColor(Vec3f NewColor);
 		Vec3f GetTextColor();
-		float GetTextSize() const;
+		UISize GetTextSize() const;
 		std::string GetText();
 		bool GetIsHovered() const;
 		bool GetIsPressed() const;
 		void Edit();
 
-		kui::UITextField* SetTextSizeMode(UIBox::SizeMode Mode);
+		kui::UITextField* SetTextSizeMode(SizeMode Mode);
 
 		/**
 		 * @brief

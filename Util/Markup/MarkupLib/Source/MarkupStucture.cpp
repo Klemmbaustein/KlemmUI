@@ -53,7 +53,7 @@ std::map<VariableType, UIElement::Variable::VariableTypeDescription> UIElement::
 },
 {
 	VariableType::SizeMode,
-	VariableTypeDescription("SizeMode", "kui::UIBox::SizeMode"),
+	VariableTypeDescription("SizeMode", "kui::SizeMode"),
 },
 {
 	VariableType::Align,
@@ -90,7 +90,7 @@ std::map<VariableType, UIElement::Variable::VariableTypeDescription> UIElement::
 static std::map<PropElementType, std::string> DefaultConstructors =
 {
 	{PropElementType::UIBox, "true"},
-	{PropElementType::UIText, "1, 1, \"\", nullptr"},
+	{PropElementType::UIText, "kui::UISize(1), 1, \"\", nullptr"},
 	{PropElementType::UIButton, "true, 0, 1, nullptr"},
 	{PropElementType::UIBackground, "true, 0, 1"},
 	{PropElementType::UITextField, "0, 1, nullptr, nullptr"},
@@ -424,6 +424,27 @@ static std::string WriteElementProperty(UIElement* Target, UIElement* Root, std:
 		{
 			SetValue = Result.Value.Text;
 		}
+		else if (i.VarType == VariableType::Size || i.VarType == VariableType::SizeNumber)
+		{
+			auto val = Size(p.Value);
+
+			if (i.VarType == VariableType::SizeNumber)
+			{
+				SetValue = "kui::UISize("
+					+ kui::stringParse::ToCppCode(val.SizeValue)
+					+ ", "
+					+ val.SizeModeToKUISizeMode(val.SizeMode)
+					+ ")";
+			}
+			else
+			{
+				SetValue = "kui::SizeVec("
+					+ kui::stringParse::ToCppCode(val.SizeValue)
+					+ ", "
+					+ val.SizeModeToKUISizeMode(val.SizeMode)
+					+ ")";
+			}
+		}
 		else
 		{
 			SetValue = kui::stringParse::ToCppCode(Result.Value);
@@ -435,19 +456,6 @@ static std::string WriteElementProperty(UIElement* Target, UIElement* Root, std:
 		if (Result.Variable)
 		{
 			Result.Variable->References.push_back(Target->ElementName.Text + Format);
-		}
-	}
-
-	if (i.VarType == VariableType::Size || i.VarType == VariableType::SizeNumber && !Result.ValueGlobal)
-	{
-		auto val = Size(p.Value);
-
-		if (!val.SizeMode.empty())
-		{
-			std::string Format = ElementName + "->" + Format::FormatString(i.SetSizeFormat, {
-				Format::FormatArg("val", Size::SizeModeToKUISizeMode(val.SizeMode))
-				});
-			Value += "\t\t" + Format + ";\n";
 		}
 	}
 

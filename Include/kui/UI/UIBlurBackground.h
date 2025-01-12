@@ -16,7 +16,7 @@ namespace kui
 		static std::set<UIBlurBackground*> BlurBackgrounds;
 		friend class UIManager;
 	public:
-		UIBlurBackground(bool Horizontal, Vec2f Position, Vec3f Color, float Opacity = 0.5f, Vec2f MinScale = Vec2f(0));
+		UIBlurBackground(bool Horizontal, Vec2f Position, Vec3f Color, float Opacity = 0.5f, SizeVec MinScale = SizeVec::Smallest());
 		virtual ~UIBlurBackground() override;
 
 		void Draw() override;

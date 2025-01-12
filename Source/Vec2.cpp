@@ -1,4 +1,5 @@
 #include <kui/Vec2.h>
+#include <kui/UISize.h>
 using namespace kui;
 
 template<typename T>

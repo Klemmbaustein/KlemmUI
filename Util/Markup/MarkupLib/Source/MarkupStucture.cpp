@@ -430,17 +430,17 @@ static std::string WriteElementProperty(UIElement* Target, UIElement* Root, std:
 
 			if (i.VarType == VariableType::SizeNumber)
 			{
-				SetValue = "kui::UISize("
+				SetValue = "kui::UISize(float("
 					+ kui::stringParse::ToCppCode(val.SizeValue)
-					+ ", "
+					+ "), "
 					+ val.SizeModeToKUISizeMode(val.SizeMode)
 					+ ")";
 			}
 			else
 			{
-				SetValue = "kui::SizeVec("
+				SetValue = "kui::SizeVec(kui::Vec2f("
 					+ kui::stringParse::ToCppCode(val.SizeValue)
-					+ ", "
+					+ "), "
 					+ val.SizeModeToKUISizeMode(val.SizeMode)
 					+ ")";
 			}

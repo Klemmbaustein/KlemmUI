@@ -30,7 +30,7 @@ namespace kui
 		SizeMode WrapSizeMode = SizeMode::ScreenRelative;
 		SizeMode TextSizeMode = SizeMode::ScreenRelative;
 		bool Wrap = false;
-		float WrapDistance = 0.0f;
+		UISize WrapDistance = 0.0f;
 		Vec3f GetColor() const;
 		/**
 		 * @brief
@@ -71,13 +71,10 @@ namespace kui
 		 * @param WrapDistance
 		 * The distance at which the text should be wrapped.
 		 *
-		 * @param WrapSizeMode
-		 * The size mode of the wrap distance. See size mode for more info.
-		 *
 		 * @return
 		 * A pointer to this UIText.
 		 */
-		UIText* SetWrapEnabled(bool WrapEnabled, float WrapDistance, SizeMode WrapSizeMode);
+		UIText* SetWrapEnabled(bool WrapEnabled, UISize WrapDistance);
 
 		/**
 		 * @brief

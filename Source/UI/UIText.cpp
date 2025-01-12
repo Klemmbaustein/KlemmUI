@@ -13,15 +13,7 @@ float UIText::GetRenderedSize() const
 
 float UIText::GetWrapDistance() const
 {
-	float Distance = WrapDistance;
-	if (WrapSizeMode == SizeMode::AspectRelative)
-	{
-		Distance /= Window::GetActiveWindow()->GetAspectRatio();
-	}
-	if (WrapSizeMode == SizeMode::PixelRelative)
-	{
-		Distance = UIBox::PixelSizeToScreenSize(Vec2f(Distance, 0.0), ParentWindow).X;
-	}
+	float Distance = WrapDistance.GetScreen().X;
 	return Distance;
 }
 
@@ -174,11 +166,10 @@ Vec2f UIText::GetLetterLocation(size_t Index) const
 	return EndLocation + OffsetPosition;
 }
 
-UIText* UIText::SetWrapEnabled(bool WrapEnabled, float WrapDistance, SizeMode WrapSizeMode)
+UIText* UIText::SetWrapEnabled(bool WrapEnabled, UISize WrapDistance)
 {
 	this->Wrap = WrapEnabled;
 	this->WrapDistance = WrapDistance;
-	this->WrapSizeMode = WrapSizeMode;
 	return this;
 }
 

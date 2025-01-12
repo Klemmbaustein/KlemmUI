@@ -15,7 +15,7 @@ using namespace kui;
 
 void UITextField::Tick()
 {
-	TextObject->WrapDistance = Size.X - 0.01f;
+	TextObject->WrapDistance = UISize::Screen(Size.X - 0.01f);
 	float CharSize = UIText::GetTextSizeAtScale(TextObject->GetTextSize(), TextObject->GetTextFont()).Y;
 	if (TextObject->GetUsedSize().GetScreen().Y > Size.Y)
 		TextScroll.MaxScroll = std::max(TextObject->GetUsedSize().GetScreen().Y - Size.Y + 0.025f, 0.0f);
@@ -265,7 +265,6 @@ UITextField::UITextField(Vec2f Position, Vec3f Color, Font* Renderer, std::funct
 
 void UITextField::Edit()
 {
-	TextObject->WrapDistance = 15;
 	IsEdited = true;
 	ParentWindow->Input.PollForText = true;
 	ParentWindow->Input.Text = EnteredText;

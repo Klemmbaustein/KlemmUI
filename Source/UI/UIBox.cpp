@@ -433,10 +433,6 @@ void UIBox::UpdateScale()
 		{
 			ScreenMinSize.Y = AvailableParentSize.Y * MinSize.Y.Value;
 		}
-		else
-		{
-			std::cout << int(MinSize.Y.Mode) << std::endl;
-		}
 		if (MaxSize.X.Mode == SizeMode::ParentRelative)
 		{
 			ScreenMaxSize.X = AvailableParentSize.X * MaxSize.X.Value;

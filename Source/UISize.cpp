@@ -76,6 +76,11 @@ kui::SizeVec::SizeVec(float XY)
 {
 }
 
+SizeVec kui::SizeVec::Pixels(float X, float Y)
+{
+	return SizeVec(Vec2f(X, Y), SizeMode::PixelRelative);
+}
+
 Vec2f kui::SizeVec::GetPixels(Window* With) const
 {
 	return Vec2f(X.GetPixels().X, Y.GetPixels().Y);
@@ -89,4 +94,14 @@ Vec2f kui::SizeVec::GetScreen(Window* With) const
 bool kui::SizeVec::operator==(const SizeVec& other) const
 {
 	return X == other.X && Y == other.Y;
+}
+
+kui::UISize operator""_px(long double i)
+{
+	return kui::UISize::Pixels(float(i));
+}
+
+kui::UISize operator""_px(unsigned long long int i)
+{
+	return kui::UISize::Pixels(float(i));
 }

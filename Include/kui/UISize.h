@@ -108,6 +108,8 @@ namespace kui
 		SizeVec(Vec2f XY);
 		SizeVec(float XY);
 
+		static SizeVec Pixels(float X, float Y);
+
 		Vec2f GetPixels(Window* With = Window::GetActiveWindow()) const;
 		Vec2f GetScreen(Window* With = Window::GetActiveWindow()) const;
 
@@ -123,3 +125,6 @@ namespace kui
 		bool operator==(const SizeVec& other) const;
 	};
 }
+
+kui::UISize operator ""_px(long double);
+kui::UISize operator ""_px(unsigned long long int);

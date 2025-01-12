@@ -1,51 +1,27 @@
-#include <KlemmUI/Application.h>
-#include <iostream>
-#include "Internal.h"
-#if _WIN32
-#define NOMINMAX
-#define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
-#endif
+#include <kui/App.h>
+#include "SystemWM/SystemWM.h"
 
-namespace KlemmUI::Application
-{
-	static std::string ShaderPath;
-
-	static void(*ErrorCallback)(std::string Message) = [](std::string Message) {
+static std::function<void(std::string Message, bool IsFatal)> ErrorCallback = 
+	[](std::string Message, bool)
+	{
 		puts(Message.c_str());
-		};
+	};
+
+void kui::app::MessageBox(std::string Text, std::string Title, MessageBoxType Type)
+{
+	systemWM::MessageBox(Text, Title, int(Type));
 }
 
-std::string KlemmUI::Application::GetShaderPath()
+void kui::app::error::Error(std::string Message, bool Fatal)
 {
-	return ShaderPath;
-}
-
-void KlemmUI::Application::SetShaderPath(std::string NewShaderPath)
-{
-	ShaderPath = NewShaderPath;
-}
-
-void KlemmUI::Application::Initialize(std::string ShaderPath)
-{
-#if _WIN32
-	SetProcessDPIAware();
-#endif
-
-	SetShaderPath(ShaderPath);
-	Internal::InitSDL();
-}
-
-void KlemmUI::Application::Error::Error(std::string Message, bool Fatal)
-{
-	ErrorCallback(Message);
+	ErrorCallback(Message, Fatal);
 	if (Fatal)
 	{
 		abort();
 	}
 }
 
-void KlemmUI::Application::Error::SetErrorCallback(void(*Callback)(std::string Message))
+void kui::app::error::SetErrorCallback(std::function<void(std::string Message, bool IsFatal)> Callback)
 {
 	ErrorCallback = Callback;
 }

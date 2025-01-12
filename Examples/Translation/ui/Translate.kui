@@ -1,0 +1,43 @@
+element TranslationExample
+{
+	size = 2sr;
+	position = -1;
+
+	horizontalAlign = centered;
+	verticalAlign = centered;
+
+	orientation = vertical;
+
+	child UIButton switchLanguageButton
+	{
+		padding = 10px;
+
+		corners = 8px;
+
+		border = 1px;
+		borderColor = 1;
+
+		color = (0.15, 0.1, 0.2);
+
+		child UIText
+		{
+			text = $"switch_language";
+			size = 12px;
+			padding = 10px;
+			color = 1;
+		}
+
+		child UIBackground
+		{
+			width = 10px;
+			height = 1pn;
+			padding = 2px;
+		}
+	}
+
+	child UIText
+	{
+		text = $"hello_world";
+		size = 18px;
+	}
+}

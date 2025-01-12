@@ -456,6 +456,22 @@ KlemmUI::StringParse::Size::Size(std::string SizeString, bool Is1D)
 		return;
 	}
 }
+std::string kui::stringParse::Size::ToCppCode(bool IsVector)
+{
+	if (IsVector)
+	{
+		return "kui::SizeVec(kui::Vec2f("
+			+ stringParse::ToCppCode(SizeValue)
+			+ "), "
+			+ SizeModeToKUISizeMode(SizeMode)
+			+ ")";
+	}
+	return "kui::UISize(float("
+		+ stringParse::ToCppCode(SizeValue)
+		+ "), "
+		+ SizeModeToKUISizeMode(SizeMode)
+		+ ")";
+}
 
 std::string KlemmUI::StringParse::Size::SizeModeToKUISizeMode(std::string Mode)
 {

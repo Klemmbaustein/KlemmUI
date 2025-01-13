@@ -129,9 +129,10 @@ namespace kui
 		SizeVec GetUsedSize() override;
 	private:
 		float LastRenderSize = 0;
-		bool LastWrapEnabled = false;
 		float LastWrapDistance = 0;
+		bool LastWrapEnabled = false;
 		bool TextChanged = false;
+		float LastAspect = 0;
 		Vec2f LastSize;
 	};
 }

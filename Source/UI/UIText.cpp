@@ -219,7 +219,11 @@ SizeVec UIText::GetUsedSize()
 
 	Vec2f Size;
 
-	if (RenderSize == LastRenderSize && LastWrapEnabled == Wrap && LastWrapDistance == WrapDistance && !TextChanged)
+	if (RenderSize == LastRenderSize
+		&& LastWrapEnabled == Wrap
+		&& LastWrapDistance == WrapDistance
+		&& ParentWindow->GetAspectRatio() == LastAspect
+		&& !TextChanged)
 	{
 		Size = LastSize;
 	}
@@ -230,6 +234,7 @@ SizeVec UIText::GetUsedSize()
 		LastRenderSize = RenderSize;
 		LastWrapEnabled = Wrap;
 		LastWrapDistance = WrapDistance;
+		LastAspect = ParentWindow->GetAspectRatio();
 		TextChanged = false;
 	}
 

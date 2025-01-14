@@ -1,5 +1,6 @@
 #pragma once
 #include "Vec2.h"
+#include <cmath>
 
 namespace kui
 {
@@ -51,7 +52,23 @@ namespace kui
 		static Window* GetActiveWindow();
 
 		float Value = 0;
-		SizeMode Mode = SizeMode::PixelRelative;
+		SizeMode Mode = SizeMode::ScreenRelative;
+		
+		UISize()
+		{
+			
+		}
+		
+		UISize(float Val)
+		{
+			Value = Val;
+		}
+		
+		UISize(float Val, SizeMode Mode)
+		{
+			Value = Val;
+			this->Mode = Mode;
+		}
 
 		bool operator==(const UISize& b) const;
 

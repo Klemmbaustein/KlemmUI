@@ -473,7 +473,7 @@ kui::stringParse::Size::Size(std::string SizeString, bool Is1D)
 		SizeMode.clear();
 	}
 
-	bool IsPercent = SizeString[SizeString.size() - 1] == '%';
+	bool IsPercent = SizeString.size() > 0 && SizeString[SizeString.size() - 1] == '%';
 
 	if (SizeString.size() <= 2 && !IsPercent)
 	{

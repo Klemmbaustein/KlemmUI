@@ -57,7 +57,7 @@ kui::Window::Window(std::string Name, WindowFlag Flags, Vec2ui WindowPos, Vec2ui
 	}
 
 	IgnoreDPI = (Flags & WindowFlag::IgnoreDPI) == WindowFlag::IgnoreDPI;
-	std::lock_guard Guard = std::lock_guard(internal::WindowCreationMutex);
+	std::unique_lock Guard = std::unique_lock(internal::WindowCreationMutex);
 
 	SysWindowPtr = systemWM::NewWindow(this,
 		WindowSize,
@@ -78,7 +78,7 @@ kui::Window::Window(std::string Name, WindowFlag Flags, Vec2ui WindowPos, Vec2ui
 
 kui::Window::~Window()
 {
-	std::lock_guard Guard = std::lock_guard(internal::WindowCreationMutex);
+	std::unique_lock Guard = std::unique_lock(internal::WindowCreationMutex);
 
 	SYS_WINDOW_PTR(SysWindow);
 	systemWM::DestroyWindow(SysWindow);
@@ -354,7 +354,7 @@ void kui::Window::SetMaxSize(Vec2ui MaximumSize)
 
 std::vector<kui::Window*> kui::Window::GetActiveWindows()
 {
-	std::lock_guard Guard = std::lock_guard(WindowMutex);
+	std::unique_lock Guard = std::unique_lock(internal::WindowCreationMutex);
 	return ActiveWindows;
 }
 

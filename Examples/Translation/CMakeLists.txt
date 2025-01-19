@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.15)
 
 if(DEFINED WIN32)
-	add_executable(Translation "main.cpp")
+	add_executable(Translation WIN32 "main.cpp")
 else()
 	add_executable(Translation "main.cpp")
 endif()

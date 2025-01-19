@@ -3,6 +3,7 @@
 #include "SystemWM_Linux.h"
 #include <kui/Platform.h>
 #include <iostream>
+#include <thread>
 using namespace kui::platform::linux;
 
 static bool CheckFlag(kui::Window::WindowFlag Flag, kui::Window::WindowFlag Value)

@@ -99,27 +99,41 @@ void Shader::Unbind()
 	glUseProgram(0);
 }
 
+unsigned int Shader::GetUniformLocation(const std::string& Name) const
+{
+	auto Found = Uniforms.find(Name);
+	if (Found != Uniforms.end())
+		return Found->second;
+
+	unsigned int Location = glGetUniformLocation(ShaderID, Name.c_str());
+
+	Uniforms.insert({ Name, Location });
+
+	return Location;
+}
+
+
 void Shader::SetBool(const std::string& Name, bool Value)
 {
-	glUniform1i(glGetUniformLocation(ShaderID, Name.c_str()), (int)Value);
+	glUniform1i(GetUniformLocation(Name), (int)Value);
 }
 
 void Shader::SetInt(const std::string& Name, int Value)
 {
-	glUniform1i(glGetUniformLocation(ShaderID, Name.c_str()), Value);
+	glUniform1i(GetUniformLocation(Name), Value);
 }
 
 void Shader::SetFloat(const std::string& Name, float Value)
 {
-	glUniform1f(glGetUniformLocation(ShaderID, Name.c_str()), Value);
+	glUniform1f(GetUniformLocation(Name), Value);
 }
 
 void Shader::SetVec2(const std::string& Name, Vec2f Value)
 {
-	glUniform2f(glGetUniformLocation(ShaderID, Name.c_str()), Value.X, Value.Y);
+	glUniform2f(GetUniformLocation(Name), Value.X, Value.Y);
 }
 
 void Shader::SetVec3(const std::string& Name, Vec3f Value)
 {
-	glUniform3f(glGetUniformLocation(ShaderID, Name.c_str()), Value.X, Value.Y, Value.Z);
+	glUniform3f(GetUniformLocation(Name), Value.X, Value.Y, Value.Z);
 }

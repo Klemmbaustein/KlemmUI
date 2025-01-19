@@ -26,13 +26,6 @@ element TranslationExample
 			padding = 10px;
 			color = 1;
 		}
-
-		child UIBackground
-		{
-			width = 10px;
-			height = 1pn;
-			padding = 2px;
-		}
 	}
 
 	child UIText

@@ -5,7 +5,7 @@ namespace kui::markupVerify
 {
 	void VerifyElement(
 		MarkupStructure::UIElement& Element,
-		const MarkupStructure::MarkupElement& Root,
+		MarkupStructure::MarkupElement& Root,
 		MarkupStructure::ParseResult& Structure
 	);
 

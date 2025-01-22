@@ -45,6 +45,10 @@ namespace kui
 		{
 			this->Value = Value;
 		}
+		AnyContainer(UISize Value)
+		{
+			this->Value = Value;
+		}
 		AnyContainer(SizeVec Value)
 		{
 			this->Value = Value;
@@ -80,6 +84,8 @@ namespace kui
 				return std::any_cast<const char*>(Value);
 			}
 		}
+		SizeVec AsSizeVec();
+		UISize AsSize();
 		Vec2f AsVec2();
 		Vec3f AsVec3()
 		{

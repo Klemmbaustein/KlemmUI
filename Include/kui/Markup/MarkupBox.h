@@ -8,7 +8,7 @@ namespace kui::markup
 	{
 		bool RegisteredForTranslation = false;
 		bool HasGlobal = false;
-	protected:
+	public:
 		virtual ~MarkupBox();
 		virtual void OnTranslationChanged();
 		virtual void OnGlobalChanged();

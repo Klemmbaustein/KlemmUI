@@ -713,20 +713,22 @@ void kui::systemWM::SetWindowIcon(SysWindow* Target, uint8_t* Bytes, size_t Widt
 
 void kui::systemWM::UpdateWindow(SysWindow* Target)
 {
-	const Vec3f& Color = Target->Parent->BorderColor;
-	if (Target->Borderless && Target->OldBorderColor != Color)
-	{
-		COLORREF BorderColor = RGB(Color.X * 255.0f, Color.Y * 255.0f, Color.Z * 255.0f);
-		DwmSetWindowAttribute(Target->WindowHandle, DWMWA_BORDER_COLOR, &BorderColor, sizeof(BorderColor));
-		Target->OldBorderColor = Color;
-	}
-	else if (!Target->Borderless && Color != Vec3f(-1))
-	{
-		// Value for the default border color. Only borderless windows should get a custom border color.
-		COLORREF BorderColor = 0xFFFFFFFF;
-		DwmSetWindowAttribute(Target->WindowHandle, DWMWA_BORDER_COLOR, &BorderColor, sizeof(BorderColor));
-		Target->OldBorderColor = -1;
-	}
+	// TODO: Reimplement with a check for windows 11 (or when windows 10 reaches eol), this logs a lot of
+	// errors in the debug console right now.
+	//const Vec3f& Color = Target->Parent->BorderColor;
+	//if (Target->Borderless && Target->OldBorderColor != Color)
+	//{
+	//	COLORREF BorderColor = RGB(Color.X * 255.0f, Color.Y * 255.0f, Color.Z * 255.0f);
+	//	DwmSetWindowAttribute(Target->WindowHandle, DWMWA_BORDER_COLOR, &BorderColor, sizeof(BorderColor));
+	//	Target->OldBorderColor = Color;
+	//}
+	//else if (!Target->Borderless && Color != Vec3f(-1))
+	//{
+	//	// Value for the default border color. Only borderless windows should get a custom border color.
+	//	COLORREF BorderColor = 0xFFFFFFFF;
+	//	DwmSetWindowAttribute(Target->WindowHandle, DWMWA_BORDER_COLOR, &BorderColor, sizeof(BorderColor));
+	//	Target->OldBorderColor = -1;
+	//}
 
 
 	MSG msg;

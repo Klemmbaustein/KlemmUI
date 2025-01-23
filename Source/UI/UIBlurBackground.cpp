@@ -15,7 +15,7 @@ kui::Vec2ui kui::UIBlurBackground::GetPixelSize()
 	), 1);
 }
 
-std::set<kui::UIBlurBackground*> kui::UIBlurBackground::BlurBackgrounds;
+thread_local std::set<kui::UIBlurBackground*> kui::UIBlurBackground::BlurBackgrounds;
 
 void kui::UIBlurBackground::CreateBlurBuffers()
 {

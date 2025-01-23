@@ -263,7 +263,7 @@ unsigned int kui::UIManager::LoadReferenceTexture(std::string FilePath)
 		}
 	}
 
-	if (!TexturePath.empty() && !resource::ResourceExists(FilePath))
+	if (!TexturePath.empty() && !resource::FileExists(FilePath))
 	{
 		FilePath = TexturePath + "/" + FilePath;
 	}

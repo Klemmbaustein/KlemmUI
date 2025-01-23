@@ -7,6 +7,9 @@
 
 const char* const RESOURCE_PREFIX = "res:";
 const char* const FILE_PREFIX = "file:";
+
+extern thread_local bool kui::resource::ErrorOnFail = true;
+
 static bool IsResourcePath(const std::string& Path)
 {
 	return Path.substr(0, strlen(RESOURCE_PREFIX)) == RESOURCE_PREFIX;
@@ -97,7 +100,8 @@ std::string kui::resource::GetStringFile(const std::string& Path)
 		return instr.str();
 	}
 #endif
-	app::error::Error("Failed to find file: " + Path);
+	if (ErrorOnFail)
+		app::error::Error("Failed to find file: " + Path);
 	return std::string();
 }
 
@@ -109,26 +113,34 @@ kui::resource::BinaryData kui::resource::GetBinaryFile(const std::string& Path)
 	}
 	std::string FilePath = ConvertFilePath(Path);
 #ifndef KLEMMUI_WEB_BUILD
-	if (std::filesystem::exists(FilePath) && !std::filesystem::is_directory(FilePath))
+	try
 	{
-		std::ifstream File = std::ifstream(FilePath, std::ios::binary);
+		if (std::filesystem::exists(FilePath) && !std::filesystem::is_directory(FilePath))
+		{
+			std::ifstream File = std::ifstream(FilePath, std::ios::binary);
 
-		File.seekg(0, std::ios::end);
-		size_t Size = File.tellg();
-		File.seekg(0, std::ios::beg);
+			File.seekg(0, std::ios::end);
+			size_t Size = File.tellg();
+			File.seekg(0, std::ios::beg);
 
-		uint8_t* Buffer = new uint8_t[Size]();
+			uint8_t* Buffer = new uint8_t[Size]();
 
-		File.read((char*)Buffer, Size);
-		File.close();
+			File.read((char*)Buffer, Size);
+			File.close();
 
-		return BinaryData{
-			.Data = Buffer,
-			.FileSize = Size,
+			return BinaryData{
+				.Data = Buffer,
+				.FileSize = Size,
 			};
+		}
+	}
+	catch (std::filesystem::filesystem_error)
+	{
+
 	}
 #endif
-	app::error::Error("Failed to find file: " + Path);
+	if (ErrorOnFail)
+		app::error::Error("Failed to find file: " + Path);
 	return BinaryData();
 }
 

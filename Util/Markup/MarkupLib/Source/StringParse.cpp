@@ -482,8 +482,8 @@ kui::stringParse::Size::Size(std::string SizeString, bool Is1D)
 		return;
 	}
 
-	std::string SizeSuffix = SizeString.substr(SizeString.size() - 2);
-	std::string Value = SizeString.substr(0, SizeString.size() - 2);
+	std::string Value;
+	std::string SizeSuffix;
 
 	if (IsPercent)
 	{
@@ -496,6 +496,11 @@ kui::stringParse::Size::Size(std::string SizeString, bool Is1D)
 		{
 
 		}
+	}
+	else
+	{
+		SizeSuffix = SizeString.substr(SizeString.size() - 2);
+		Value = SizeString.substr(0, SizeString.size() - 2);
 	}
 
 	// Value before size suffix is not a size.

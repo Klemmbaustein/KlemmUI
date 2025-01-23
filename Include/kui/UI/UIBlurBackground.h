@@ -13,7 +13,7 @@ namespace kui
 		Shader* BlurShader = nullptr;
 		Vec2ui OldSize;
 		void CreateBlurBuffers();
-		static std::set<UIBlurBackground*> BlurBackgrounds;
+		static thread_local std::set<UIBlurBackground*> BlurBackgrounds;
 		friend class UIManager;
 	public:
 		UIBlurBackground(bool Horizontal, Vec2f Position, Vec3f Color, float Opacity = 0.5f, SizeVec MinScale = SizeVec::Smallest());

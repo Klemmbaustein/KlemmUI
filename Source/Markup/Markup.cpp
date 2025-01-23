@@ -54,6 +54,11 @@ AnyContainer MarkupLanguageManager::ListenToGlobal(const char* GlobalName, AnyCo
 	return DefaultValue;
 }
 
+void kui::MarkupLanguageManager::ClearGlobals()
+{
+	Globals.clear();
+}
+
 void MarkupLanguageManager::SetGlobal(const char* GlobalName, AnyContainer Value)
 {
 	bool Found = false;

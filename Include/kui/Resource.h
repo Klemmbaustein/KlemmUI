@@ -21,4 +21,6 @@ namespace kui::resource
 	void FreeBinaryFile(BinaryData Data);
 
 	bool FileExists(const std::string& Path);
+
+	extern thread_local bool ErrorOnFail;
 }

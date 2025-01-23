@@ -113,6 +113,7 @@ namespace kui
 		AnyContainer ListenToGlobal(const char* GlobalName, AnyContainer DefaultValue, void* Target, std::function<void()> OnChanged);
 		void RemoveGlobalListener(void* Target);
 
+		void ClearGlobals();
 		void SetGlobal(const char* GlobalName, AnyContainer Value);
 
 		void OnTranslationChanged();

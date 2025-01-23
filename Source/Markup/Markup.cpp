@@ -133,3 +133,31 @@ Vec2f kui::AnyContainer::AsVec2()
 		return std::any_cast<SizeVec>(Value).GetScreen();
 	}
 }
+
+SizeVec kui::AnyContainer::AsSizeVec()
+{
+	if (Empty)
+		return 0;
+	try
+	{
+		return std::any_cast<SizeVec>(Value);
+	}
+	catch (std::bad_any_cast)
+	{
+		return SizeVec(std::any_cast<Vec2f>(Value), kui::SizeMode::ScreenRelative);
+	}
+}
+
+UISize kui::AnyContainer::AsSize()
+{
+	if (Empty)
+		return 0;
+	try
+	{
+		return std::any_cast<UISize>(Value);
+	}
+	catch (std::bad_any_cast)
+	{
+		return UISize((float)*this, SizeMode::ScreenRelative);
+	}
+}

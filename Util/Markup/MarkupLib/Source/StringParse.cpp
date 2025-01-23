@@ -565,7 +565,7 @@ std::string kui::stringParse::Size::SizeModeToKUISizeMode(std::string Mode)
 	{
 		return "kui::SizeMode::AspectRelative";
 	}
-	if (Mode == "pn")
+	if (Mode == "pn" || Mode == "%")
 	{
 		return "kui::SizeMode::ParentRelative";
 	}

@@ -22,6 +22,9 @@ file(
 option(KLEMMUI_WEB "Build the library with emscripten" OFF)
 option(KLEMMUI_WEB_RESOURCE_PATH "Resource and UI headers path for a web build" "")
 option(KLEMMUI_WEB_BUILD_AS_HTML "Build web projects as HTML" ON)
+option(KLEMMUI_DYNAMIC_MARKUP "Use DynamicMarkup library to load .kui files at rumtime" OFF)
+option(KLEMMUI_INCLUDE_EXAMPLES "Include example programs" ON)
+option(KLEMMUI_CUSTOM_SYSTEMWM "Implement custom systemWM functions" OFF)
 
 set(glew-cmake_BUILD_SHARED OFF)
 set(ONLY_LIBS ON)
@@ -33,9 +36,6 @@ add_library(
 	KlemmUI STATIC
 	${SRCS} ${INCLUDES}
 )
-
-option(KLEMMUI_INCLUDE_EXAMPLES "Include example programs" ON)
-option(KLEMMUI_CUSTOM_SYSTEMWM "Implement custom systemWM functions" OFF)
 
 if(KLEMMUI_CUSTOM_SYSTEMWM)
 	message(STATUS "Not including predefined kui::systemWM::* functions for platform.")
@@ -168,7 +168,14 @@ endmacro()
 
 klemmui_resources(KlemmUI "Resources/")
 
+if(KLEMMUI_DYNAMIC_MARKUP)
+	add_subdirectory("Util/DynamicMarkup")
+endif()
+
 if(KLEMMUI_INCLUDE_EXAMPLES)
+	if(KLEMMUI_DYNAMIC_MARKUP)
+		add_subdirectory("Examples/DynamicMarkup")
+	endif()
 	add_subdirectory("Examples/HelloWorld")
 	add_subdirectory("Examples/Translation")
 endif()

@@ -14,7 +14,7 @@ void markupVerify::Verify(MarkupStructure::ParseResult& Structure)
 	}
 }
 
-void markupVerify::VerifyElement(UIElement& Element, const MarkupElement& Root, MarkupStructure::ParseResult& Structure)
+void markupVerify::VerifyElement(UIElement& Element, MarkupElement& Root, MarkupStructure::ParseResult& Structure)
 {
 	PropElementType CurrentType = GetTypeFromString(Element.TypeName.Text);
 
@@ -87,7 +87,7 @@ void markupVerify::VerifyElement(UIElement& Element, const MarkupElement& Root, 
 
 		if (Root.Root.Variables.contains(Value))
 		{
-			auto& Variable = Element.Variables[Value];
+			auto& Variable = Root.Root.Variables[Value];
 
 			if (Variable.Type == VariableType::None)
 			{

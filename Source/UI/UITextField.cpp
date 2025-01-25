@@ -15,7 +15,16 @@ using namespace kui;
 
 void UITextField::Tick()
 {
-	TextObject->WrapDistance = UISize::Screen(Size.X - 0.01f);
+	if (Size.X > 0)
+	{
+		TextObject->WrapDistance = UISize::Screen(Size.X - 0.01f);
+		TextObject->Wrap = true;
+	}
+	else
+	{
+		TextObject->Wrap = false;
+	}
+
 	float CharSize = UIText::GetTextSizeAtScale(TextObject->GetTextSize(), TextObject->GetTextFont()).Y;
 	if (TextObject->GetUsedSize().GetScreen().Y > Size.Y)
 		TextScroll.MaxScroll = std::max(TextObject->GetUsedSize().GetScreen().Y - Size.Y + 0.025f, 0.0f);
@@ -255,8 +264,8 @@ UITextField::UITextField(Vec2f Position, Vec3f Color, Font* Renderer, std::funct
 	: UIBackground(true, Position, Color)
 {
 	TextFieldColor = Color;
-	TextObject = new UIText(UISize::Pixels(11), Vec3f(1), HintText, Renderer);
-	TextObject->SetPadding(UISize::Pixels(3));
+	TextObject = new UIText(11_px, Vec3f(1), HintText, Renderer);
+	TextObject->SetPadding(3_px);
 	TextObject->Wrap = true;
 	HasMouseCollision = true;
 	KeyboardFocusable = true;
@@ -319,7 +328,6 @@ void UITextField::DrawBackground()
 		TextRenderScroll.Scale = TextScroll.Scale;
 		TextRenderScroll.Percentage = TextScroll.Percentage;
 	}
-	TextObject->CurrentScrollObject = &this->TextRenderScroll;
 	BackgroundShader->Bind();
 	BoxVertexBuffer->Bind();
 	TextObject->IsVisible = true;

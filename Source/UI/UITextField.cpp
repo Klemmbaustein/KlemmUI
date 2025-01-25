@@ -22,6 +22,7 @@ void UITextField::Tick()
 	else
 		TextScroll.MaxScroll = 0;
 	TextObject->CurrentScrollObject = &this->TextRenderScroll;
+	TextObject->IsVisible = false;
 
 	Vec2f Offset;
 	if (CurrentScrollObject != nullptr)
@@ -318,10 +319,10 @@ void UITextField::DrawBackground()
 		TextRenderScroll.Scale = TextScroll.Scale;
 		TextRenderScroll.Percentage = TextScroll.Percentage;
 	}
+	TextObject->CurrentScrollObject = &this->TextRenderScroll;
 	BackgroundShader->Bind();
 	BoxVertexBuffer->Bind();
-
-
+	TextObject->IsVisible = true;
 
 	BackgroundShader->SetVec3("u_offset",
 		Vec3f(Percentage, Pos.X, Pos.Y));

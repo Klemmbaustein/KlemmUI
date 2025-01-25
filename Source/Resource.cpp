@@ -8,7 +8,7 @@
 const char* const RESOURCE_PREFIX = "res:";
 const char* const FILE_PREFIX = "file:";
 
-extern thread_local bool kui::resource::ErrorOnFail = true;
+thread_local bool kui::resource::ErrorOnFail = true;
 
 static bool IsResourcePath(const std::string& Path)
 {

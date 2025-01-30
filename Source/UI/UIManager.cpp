@@ -19,6 +19,7 @@ UIManager::UIManager()
 
 UIManager::~UIManager()
 {
+	UIBackground::FreeVertexBuffer();
 	ClearUI();
 	GLsizei NumBuffers = UseAlphaBuffer ? 2 : 1;
 	glDeleteFramebuffers(1, &UIBuffer);

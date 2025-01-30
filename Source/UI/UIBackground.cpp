@@ -8,6 +8,8 @@
 #include <iostream>
 using namespace kui;
 
+thread_local VertexBuffer* UIBackground::BoxVertexBuffer = nullptr;
+
 void UIBackground::ScrollTick(Shader* UsedShader)
 {
 	if (CurrentScrollObject != nullptr)
@@ -19,8 +21,6 @@ void UIBackground::ScrollTick(Shader* UsedShader)
 
 void UIBackground::MakeGLBuffers()
 {
-	if (BoxVertexBuffer)
-		delete BoxVertexBuffer;
 	BoxVertexBuffer = new VertexBuffer(
 		{
 			Vertex(Vec2f(0, 0), 0),
@@ -73,6 +73,12 @@ float kui::UIBackground::GetBorderSize(UISize InSize)
 	default:
 		return 0.0f;
 	}
+}
+
+void kui::UIBackground::FreeVertexBuffer()
+{
+	if (BoxVertexBuffer)
+		delete BoxVertexBuffer;
 }
 
 UIBackground* UIBackground::SetOpacity(float NewOpacity)
@@ -229,7 +235,6 @@ UIBackground::UIBackground(bool Horizontal, Vec2f Position, Vec3f Color, SizeVec
 
 UIBackground::~UIBackground()
 {
-	delete BoxVertexBuffer;
 	if (OwnsTexture)
 	{
 		ParentWindow->UI.UnloadReferenceTexture(TextureID);

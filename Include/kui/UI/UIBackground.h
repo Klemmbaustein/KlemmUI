@@ -25,13 +25,16 @@ namespace kui
 		uint8_t BorderFlags = 0b1111;
 		virtual void DrawBackground();
 		Vec3f Color;
-		VertexBuffer* BoxVertexBuffer = nullptr;
+		static thread_local VertexBuffer* BoxVertexBuffer;
 		unsigned int TextureID = 0;
 		float Opacity = 1;
 		Vec3f ColorMultiplier = 1;
 		static float GetBorderSize(UISize InSize);
 
 	public:
+
+		static void FreeVertexBuffer();
+
 		Shader* BackgroundShader = nullptr;
 		bool HasTexture() const
 		{

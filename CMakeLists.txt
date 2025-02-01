@@ -113,9 +113,9 @@ macro(klemmui_markup ProjectName MarkupDir)
 
 		add_dependencies(${ProjectName}_Headers KlemmUIHT)
 		add_dependencies(${ProjectName} ${ProjectName}_Headers)
-		target_include_directories(${ProjectName} PRIVATE ${OutDir})
+		target_include_directories(${ProjectName} PUBLIC ${OutDir})
 	else()
-		target_include_directories(${ProjectName} PRIVATE ${CMAKE_SOURCE_DIR}/${KLEMMUI_WEB_RESOURCE_PATH}/headers)
+		target_include_directories(${ProjectName} PUBLIC ${CMAKE_SOURCE_DIR}/${KLEMMUI_WEB_RESOURCE_PATH}/headers)
 	endif()
 endmacro()
 

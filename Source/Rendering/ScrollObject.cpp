@@ -5,7 +5,7 @@
 
 using namespace kui;
 
-std::set<ScrollObject*> ScrollObject::AllScrollObjects;
+thread_local std::set<ScrollObject*> ScrollObject::AllScrollObjects;
 
 float kui::ScrollObject::GetOffset() const
 {

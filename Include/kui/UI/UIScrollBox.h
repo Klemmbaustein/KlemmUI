@@ -8,7 +8,7 @@ namespace kui
 
 	class ScrollObject
 	{
-		static std::set<ScrollObject*> AllScrollObjects;
+		thread_local static std::set<ScrollObject*> AllScrollObjects;
 	public:
 		Vec2f Position;
 		Vec2f Scale;

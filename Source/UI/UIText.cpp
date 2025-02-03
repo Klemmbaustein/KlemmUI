@@ -1,8 +1,8 @@
 #include <kui/UI/UIText.h>
 #include <kui/App.h>
 #include <kui/Window.h>
-#include <kui/Rendering/ScrollObject.h>
 #include <iostream>
+#include <kui/UI/UIScrollBox.h>
 
 using namespace kui;
 
@@ -84,7 +84,7 @@ UISize UIText::GetTextSize() const
 
 Vec2f UIText::GetTextSizeAtScale(UISize Scale, Font* Renderer)
 {
-	return Renderer->GetTextSize({ TextSegment("A", 1) }, Scale.GetScreen().Y * 100, false, 999999);
+	return Renderer->GetTextSize({ TextSegment("A", 1) }, Scale.GetScreen().Y * 100, false, 999999, UINT32_MAX);
 }
 
 UIText* UIText::SetTextWidthOverride(float NewTextWidthOverride)
@@ -121,11 +121,11 @@ size_t UIText::GetNearestLetterAtLocation(Vec2f Location) const
 	
 	if (CurrentScrollObject)
 	{
-		Location.Y -= CurrentScrollObject->Percentage;
+		Location.Y -= CurrentScrollObject->GetOffset();
 	}
 
 	size_t Char = Renderer->GetCharacterAtPosition(RenderedText, Location - OffsetPosition - Vec2f(0, Size.Y),
-		GetRenderedSize(), Wrap, GetWrapDistance());
+		GetRenderedSize(), Wrap, GetWrapDistance(), MaxLines);
 	return Char;
 }
 
@@ -153,7 +153,8 @@ UIText::UIText(UISize Scale, std::vector<TextSegment> Text, Font* NewFont) : UIB
 
 UIText::~UIText()
 {
-	if (Text) delete Text;
+	if (Text)
+		delete Text;
 }
 
 Vec2f UIText::GetLetterLocation(size_t Index) const
@@ -161,9 +162,19 @@ Vec2f UIText::GetLetterLocation(size_t Index) const
 	if (!Renderer) return 0;
 	Vec2f EndLocation;
 
-	Renderer->GetTextSize(RenderedText, GetRenderedSize(), Wrap, GetWrapDistance(), &EndLocation, Index);
+	Renderer->GetTextSize(RenderedText, GetRenderedSize(), Wrap, GetWrapDistance(), MaxLines, &EndLocation, Index);
 	EndLocation.Y = Size.Y - EndLocation.Y;
 	return EndLocation + OffsetPosition;
+}
+
+UIText* kui::UIText::SetMaxWraps(uint32_t NewMaxLines)
+{
+	if (NewMaxLines != MaxLines)
+	{
+		TextChanged = true;
+		MaxLines = NewMaxLines;
+	}
+	return this;
 }
 
 UIText* UIText::SetWrapEnabled(bool WrapEnabled, UISize WrapDistance)
@@ -175,7 +186,8 @@ UIText* UIText::SetWrapEnabled(bool WrapEnabled, UISize WrapDistance)
 
 void UIText::Draw()
 {
-	if (!Renderer) return;
+	if (!Renderer)
+		return;
 	if (Text)
 	{
 		Text->Opacity = Opacity;
@@ -196,12 +208,12 @@ void UIText::Update()
 	if (Wrap)
 	{
 		Text = Renderer->MakeText(RenderedText, OffsetPosition + Vec2f(0, Size.Y - GetRenderedSize() / 600 * Renderer->CharacterSize),
-			GetRenderedSize(), Color, Opacity, GetWrapDistance());
+			GetRenderedSize(), Color, Opacity, GetWrapDistance(), MaxLines);
 	}
 	else
 	{
 		Text = Renderer->MakeText(RenderedText, OffsetPosition + Vec2f(0, Size.Y - GetRenderedSize() / 600 * Renderer->CharacterSize),
-			GetRenderedSize(), Color, Opacity, 999);
+			GetRenderedSize(), Color, Opacity, 999, MaxLines);
 	}
 }
 
@@ -229,7 +241,7 @@ SizeVec UIText::GetUsedSize()
 	}
 	else
 	{
-		Size = Renderer->GetTextSize(RenderedText, RenderSize, Wrap, WrapDistance);
+		Size = Renderer->GetTextSize(RenderedText, RenderSize, Wrap, WrapDistance, MaxLines);
 		LastSize = Size;
 		LastRenderSize = RenderSize;
 		LastWrapEnabled = Wrap;

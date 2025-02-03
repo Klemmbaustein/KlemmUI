@@ -16,6 +16,7 @@ namespace kui
 	{
 		Font* Renderer = nullptr;
 		Vec3f Color;
+		uint32_t MaxLines = UINT32_MAX;
 		std::vector<TextSegment> RenderedText;
 		UISize TextSize = UISize::Pixels(10);
 		DrawableText* Text = nullptr;
@@ -29,8 +30,8 @@ namespace kui
 		void Tick() override;
 		SizeMode WrapSizeMode = SizeMode::ScreenRelative;
 		SizeMode TextSizeMode = SizeMode::ScreenRelative;
-		bool Wrap = false;
 		UISize WrapDistance = 0.0f;
+		bool Wrap = false;
 		Vec3f GetColor() const;
 		/**
 		 * @brief
@@ -60,6 +61,8 @@ namespace kui
 
 		size_t GetNearestLetterAtLocation(Vec2f Location) const;
 		Vec2f GetLetterLocation(size_t Index) const;
+
+		UIText* SetMaxWraps(uint32_t NewMaxLines);
 
 		/**
 		 * @brief
@@ -127,12 +130,13 @@ namespace kui
 		void Update() override;
 		void OnAttached() override;
 		SizeVec GetUsedSize() override;
+
 	private:
-		float LastRenderSize = 0;
-		float LastWrapDistance = 0;
 		bool LastWrapEnabled = false;
 		bool TextChanged = false;
+		float LastRenderSize = 0;
 		float LastAspect = 0;
 		Vec2f LastSize;
+		float LastWrapDistance = 0;
 	};
 }

@@ -7,6 +7,35 @@ using namespace kui;
 
 std::set<ScrollObject*> ScrollObject::AllScrollObjects;
 
+float kui::ScrollObject::GetOffset() const
+{
+	if (Parent)
+		return Scrolled + Parent->GetOffset();
+	return Scrolled;
+}
+
+Vec2f kui::ScrollObject::GetPosition() const
+{
+	if (Parent)
+	{
+		auto Pos = Position + Vec2f(0, Parent->GetOffset());
+		Pos.Y = std::max(Pos.Y, Parent->GetPosition().Y);
+		return Pos;
+	}
+	return Position;
+}
+
+Vec2f kui::ScrollObject::GetScale() const
+{
+	if (Parent)
+	{
+		float Pos = GetPosition().Y + Scale.Y;
+		Pos = std::min(Pos, Parent->GetScale().Y);
+		return Vec2f(Scale.X, Pos);
+	}
+	return Vec2f(0, GetPosition().Y) + Scale;
+}
+
 std::set<ScrollObject*> ScrollObject::GetAllScrollObjects()
 {
 	return AllScrollObjects;
@@ -15,7 +44,7 @@ std::set<ScrollObject*> ScrollObject::GetAllScrollObjects()
 ScrollObject::ScrollObject(Vec2f Position, Vec2f Scale, float MaxScroll, bool Register)
 {
 	this->Position = Position;
-	this->Scale = Vec2f() - Scale;
+	this->Scale = Scale;
 	if (Register)
 		AllScrollObjects.insert(this);
 	this->MaxScroll = MaxScroll;
@@ -33,17 +62,16 @@ void ScrollObject::ScrollUp()
 	{
 		return;
 	}
-	if (internal::math::IsPointIn2DBox(Position - Scale, Position, Window::GetActiveWindow()->Input.MousePosition))
+	if (internal::math::IsPointIn2DBox(Position + Scale, Position, Window::GetActiveWindow()->Input.MousePosition))
 	{
-		Percentage += Speed / float(Window::GetActiveWindow()->GetSize().Y) * 5.0f;
+		Scrolled += Speed / float(Window::GetActiveWindow()->GetSize().Y) * 5.0f;
 	}
-	if (Percentage > MaxScroll)
-	{
-		Percentage = MaxScroll;
-	}
+
+	Scrolled = std::min(Scrolled, MaxScroll);
+
 	Window::GetActiveWindow()->UI.RedrawArea(UIManager::RedrawBox{
 		.Min = Position,
-		.Max = Position - Scale,
+		.Max = Position + Scale,
 		});
 }
 
@@ -53,15 +81,14 @@ void ScrollObject::ScrollDown()
 	{
 		return;
 	}
-	if (internal::math::IsPointIn2DBox(Position - Scale, Position, Window::GetActiveWindow()->Input.MousePosition))
+	if (internal::math::IsPointIn2DBox(Position + Scale, Position, Window::GetActiveWindow()->Input.MousePosition))
 	{
-		Percentage -= Speed / float(Window::GetActiveWindow()->GetSize().Y) * 5.0f;
+		Scrolled -= Speed / float(Window::GetActiveWindow()->GetSize().Y) * 5.0f;
 	}
-	if (Percentage < 0)
-		Percentage = 0;
+	Scrolled = std::max(Scrolled, 0.0f);
 
 	Window::GetActiveWindow()->UI.RedrawArea(UIManager::RedrawBox{
 		.Min = Position,
-		.Max = Position - Scale,
+		.Max = Position + Scale,
 		});
 }

@@ -110,6 +110,13 @@ std::vector<PropertyElement> kui::MarkupStructure::Properties
 		.VarType = VariableType::SizeNumber,
 	},
 	PropertyElement{
+		.Type = PropElementType::UIText,
+		.Name = "maxWraps",
+		.Description = "The number of times the text can wrap.",
+		.SetFormat = { "SetMaxWraps(int({val}))" },
+		.VarType = VariableType::Number,
+	},
+	PropertyElement{
 		.Type = PropElementType::UIButton,
 		.Name = "color",
 		.Description = "The color of the button. This sets normalColor, hoveredColor and pressedColor to reasonable values from the given color.",

@@ -4,7 +4,6 @@
 #include "../Rendering/VertexBuffer.h"
 #include "../Internal/OpenGL.h"
 #include <kui/App.h>
-#include <kui/Rendering/ScrollObject.h>
 #include <kui/UI/UIScrollBox.h>
 #include <kui/Rendering/Shader.h>
 #include <kui/Window.h>
@@ -30,13 +29,14 @@ void UITextField::Tick()
 		TextScroll.MaxScroll = std::max(TextObject->GetUsedSize().GetScreen().Y - Size.Y + 0.025f, 0.0f);
 	else
 		TextScroll.MaxScroll = 0;
-	TextObject->CurrentScrollObject = &this->TextRenderScroll;
+	TextObject->CurrentScrollObject = &this->TextScroll;
+	TextScroll.Parent = CurrentScrollObject;
 	TextObject->IsVisible = false;
 
 	Vec2f Offset;
 	if (CurrentScrollObject != nullptr)
 	{
-		Offset.Y = CurrentScrollObject->Percentage;
+		Offset.Y = CurrentScrollObject->GetOffset();
 	}
 	if (ParentWindow->UI.HoveredBox == this && !UIScrollBox::IsDraggingScrollBox)
 	{
@@ -136,8 +136,8 @@ void UITextField::Tick()
 	float CursorFraction = (OffsetPosition.Y - EditedTextPos.Y) / Size.Y + 1;
 
 	if (!Dragging && IsEdited && ParentWindow->Input.TextSelectionStart == ParentWindow->Input.TextIndex)
-		TextScroll.Percentage = std::max((CursorFraction - 1) * Size.Y + 0.025f, 0.0f);
-	TextScroll.Percentage = std::min(TextScroll.Percentage, TextScroll.MaxScroll);
+		TextScroll.Scrolled = std::max((CursorFraction - 1) * Size.Y + 0.025f, 0.0f);
+	TextScroll.Scrolled = std::min(TextScroll.Scrolled, TextScroll.MaxScroll);
 
 	if (EditedTextPos != IBeamPosition)
 	{
@@ -308,32 +308,17 @@ bool kui::UITextField::GetIsPressed() const
 
 void UITextField::DrawBackground()
 {
-	TextScroll.Position = GetPosition();
-	TextScroll.Scale = Vec2f(0) - Size;
+	TextScroll.Position = OffsetPosition;
+	TextScroll.Scale = Size;
 	
-	Vec2f Pos = Vec2f(TextScroll.Position.Y, TextScroll.Position.Y - TextScroll.Scale.Y);
-	float Percentage = -TextScroll.Percentage;
-
-	if (CurrentScrollObject)
-	{
-		Percentage -= CurrentScrollObject->Percentage;
-		TextRenderScroll.Position = CurrentScrollObject->Position;
-		TextRenderScroll.Scale = CurrentScrollObject->Scale;
-		TextRenderScroll.Percentage = -Percentage;
-		Pos = Vec2f(TextRenderScroll.Position.Y, TextRenderScroll.Position.Y - TextRenderScroll.Scale.Y);
-	}
-	else
-	{
-		TextRenderScroll.Position = TextScroll.Position;
-		TextRenderScroll.Scale = TextScroll.Scale;
-		TextRenderScroll.Percentage = TextScroll.Percentage;
-	}
 	BackgroundShader->Bind();
 	BoxVertexBuffer->Bind();
 	TextObject->IsVisible = true;
 
+	auto Pos = TextScroll.GetPosition();
+
 	BackgroundShader->SetVec3("u_offset",
-		Vec3f(Percentage, Pos.X, Pos.Y));
+		Vec3f(-TextScroll.GetOffset(), Pos.Y, TextScroll.GetScale().Y));
 
 	if (IsEdited && ParentWindow->Input.TextSelectionStart != ParentWindow->Input.TextIndex)
 	{

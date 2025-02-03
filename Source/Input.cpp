@@ -1,8 +1,8 @@
 #include <kui/Input.h>
 #include <kui/Window.h>
-#include <kui/Rendering/ScrollObject.h>
 #include "SystemWM/SystemWM.h"
 #include <kui/UI/UIBox.h>
+#include <kui/UI/UIScrollBox.h>
 #include <map>
 using namespace kui;
 

@@ -3,7 +3,7 @@
 #include "../Rendering/VertexBuffer.h"
 #include <kui/Rendering/Shader.h>
 #include <kui/App.h>
-#include <kui/Rendering/ScrollObject.h>
+#include <kui/UI/UIScrollBox.h>
 #include <kui/Window.h>
 #include <iostream>
 using namespace kui;
@@ -14,7 +14,7 @@ void UIBackground::ScrollTick(Shader* UsedShader)
 {
 	if (CurrentScrollObject != nullptr)
 		UsedShader->SetVec3("u_offset",
-			Vec3f(-CurrentScrollObject->Percentage, CurrentScrollObject->Position.Y, CurrentScrollObject->Position.Y - CurrentScrollObject->Scale.Y));
+			Vec3f(-CurrentScrollObject->GetOffset(), CurrentScrollObject->GetPosition().Y, CurrentScrollObject->GetScale().Y));
 	else
 		UsedShader->SetVec3("u_offset", Vec3f(0, -1000, 1000));
 }
@@ -262,7 +262,7 @@ void UIBackground::Draw()
 	{
 		if (DrawnBorderRadius.Value == 0)
 		{
-			DrawnBorderRadius = UISize::Pixels(2);
+			DrawnBorderRadius = 2_px;
 		}
 		else
 		{

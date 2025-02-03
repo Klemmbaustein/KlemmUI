@@ -5,7 +5,7 @@
 #include <cstdint>
 #include <vector>
 #include <kui/App.h>
-#include <kui/Rendering/ScrollObject.h>
+#include <kui/UI/UIScrollBox.h>
 #include <kui/Resource.h>
 #include "Internal/OpenGL.h"
 #include <kui/Window.h>
@@ -49,7 +49,7 @@ static void ReplaceTabs(std::vector<TextSegment>& Text, size_t TabSize, char Rep
 
 }
 
-size_t Font::GetCharacterAtPosition(std::vector<TextSegment> Text, Vec2f Position, float Scale, bool Wrapped, float LengthBeforeWrap)
+size_t Font::GetCharacterAtPosition(std::vector<TextSegment> Text, Vec2f Position, float Scale, bool Wrapped, float LengthBeforeWrap, uint32_t MaxLines)
 {
 	float MaxHeight = 0.0f;
 	float x = 0.f, y = 0;
@@ -59,6 +59,7 @@ size_t Font::GetCharacterAtPosition(std::vector<TextSegment> Text, Vec2f Positio
 	float NearestVerticalDist = INFINITY;
 	float LastVerticalDist = INFINITY;
 	LengthBeforeWrap = LengthBeforeWrap * Window::GetActiveWindow()->GetAspectRatio() / Scale;
+	uint32_t CurrentLine = 0;
 
 	for (auto& seg : Text)
 	{
@@ -68,6 +69,10 @@ size_t Font::GetCharacterAtPosition(std::vector<TextSegment> Text, Vec2f Positio
 		bool FoundInCurrentLine = false;
 		for (size_t i = 0; i < SegmentText.size(); i++, CharIndex++)
 		{
+			if (CurrentLine > MaxLines)
+			{
+				break;
+			}
 			float CharSize = 0;
 			bool IsTab = SegmentText[i] == int('\t');
 			if (IsTab)
@@ -82,6 +87,7 @@ size_t Font::GetCharacterAtPosition(std::vector<TextSegment> Text, Vec2f Positio
 					LastVerticalDist = -Position.Y - (y + CharacterSize / 2) / 450 * Scale;
 					x = 0;
 					y += CharacterSize;
+					CurrentLine++;
 
 					FoundInCurrentLine = false;
 				}
@@ -122,8 +128,13 @@ size_t Font::GetCharacterAtPosition(std::vector<TextSegment> Text, Vec2f Positio
 					LastVerticalDist = -Position.Y - (y + CharacterSize / 2) / 450 * Scale;
 					x = 0;
 					y += CharacterSize;
+					CurrentLine++;
 
 					FoundInCurrentLine = false;
+					if (CurrentLine > MaxLines)
+					{
+						break;
+					}
 				}
 
 				x += g.TotalSize.X;
@@ -299,7 +310,7 @@ Font::Font(std::string FileName)
 	delete[] GlypthBitmap;
 }
 
-Vec2f Font::GetTextSize(std::vector<TextSegment> Text, float Scale, bool Wrapped, float LengthBeforeWrap, Vec2f* EndPos, size_t EndIndex)
+Vec2f Font::GetTextSize(std::vector<TextSegment> Text, float Scale, bool Wrapped, float LengthBeforeWrap, uint32_t MaxLines, Vec2f* EndPos, size_t EndIndex)
 {
 	LengthBeforeWrap = LengthBeforeWrap * Window::GetActiveWindow()->GetAspectRatio() / Scale;
 	float x = 0.f, y = CharacterSize;
@@ -307,6 +318,7 @@ Vec2f Font::GetTextSize(std::vector<TextSegment> Text, float Scale, bool Wrapped
 	size_t CharIndex = 0;
 	size_t TabCharIndex = 0;
 	size_t LastWrapCharIndex = 0;
+	uint32_t CurrentLine = 0;
 	bool FoundEndPos = false;
 	for (auto& seg : Text)
 	{
@@ -315,6 +327,10 @@ Vec2f Font::GetTextSize(std::vector<TextSegment> Text, float Scale, bool Wrapped
 		std::u32string SegmentText = internal::GetUnicodeString(seg.Text, true);
 		for (size_t i = 0; i < SegmentText.size(); i++, CharIndex++, TabCharIndex++)
 		{
+			if (CurrentLine > MaxLines)
+			{
+				break;
+			}
 			bool IsTab = SegmentText[i] == '\t';
 			if (IsTab)
 			{
@@ -357,6 +373,11 @@ Vec2f Font::GetTextSize(std::vector<TextSegment> Text, float Scale, bool Wrapped
 					}
 					x = 0;
 					y += CharacterSize;
+					CurrentLine++;
+					if (CurrentLine > MaxLines)
+					{
+						break;
+					}
 				}
 
 				x += g.TotalSize.X;
@@ -373,6 +394,7 @@ Vec2f Font::GetTextSize(std::vector<TextSegment> Text, float Scale, bool Wrapped
 			{
 				x = 0;
 				y += CharacterSize;
+				CurrentLine++;
 			}
 		}
 	}
@@ -386,7 +408,7 @@ Vec2f Font::GetTextSize(std::vector<TextSegment> Text, float Scale, bool Wrapped
 }
 
 
-DrawableText* Font::MakeText(std::vector<TextSegment> Text, Vec2f Pos, float Scale, Vec3f Color, float opacity, float LengthBeforeWrap)
+DrawableText* Font::MakeText(std::vector<TextSegment> Text, Vec2f Pos, float Scale, Vec3f Color, float opacity, float LengthBeforeWrap, uint32_t MaxLines)
 {
 	ReplaceTabs(Text, TabSize);
 
@@ -421,6 +443,7 @@ DrawableText* Font::MakeText(std::vector<TextSegment> Text, Vec2f Pos, float Sca
 	float x = 0.f, y = 0.f;
 	FontVertex* vData = fontVertexBufferData;
 	uint32_t numVertices = 0;
+	uint32_t CurrentLine = 0;
 	for (auto& seg : Text)
 	{
 		size_t LastWordIndex = SIZE_MAX;
@@ -431,6 +454,10 @@ DrawableText* Font::MakeText(std::vector<TextSegment> Text, Vec2f Pos, float Sca
 
 		for (size_t i = 0; i < UTFString.size(); i++)
 		{
+			if (CurrentLine > MaxLines)
+			{
+				break;
+			}
 			int GlyphIndex = (int)UTFString[i] - 32;
 			if (GlyphIndex >= 0)
 			{
@@ -451,6 +478,11 @@ DrawableText* Font::MakeText(std::vector<TextSegment> Text, Vec2f Pos, float Sca
 					}
 					x = 0;
 					y += CharacterSize;
+					CurrentLine++;
+					if (CurrentLine > MaxLines)
+					{
+						break;
+					}
 				}
 
 				Vec2 StartPos = Vec2(x, y) + g.Offset;
@@ -481,6 +513,7 @@ DrawableText* Font::MakeText(std::vector<TextSegment> Text, Vec2f Pos, float Sca
 			{
 				x = 0;
 				y += CharacterSize;
+				CurrentLine++;
 			}
 		}
 	}
@@ -531,8 +564,10 @@ void DrawableText::Draw(ScrollObject* CurrentScrollObject) const
 	TextShader->SetFloat("u_opacity", Opacity);
 	if (CurrentScrollObject != nullptr)
 	{
+		auto Pos = CurrentScrollObject->GetPosition();
+
 		TextShader->SetVec3("u_offset",
-			Vec3f(-CurrentScrollObject->Percentage, CurrentScrollObject->Position.Y, CurrentScrollObject->Position.Y - CurrentScrollObject->Scale.Y));
+			Vec3f(-CurrentScrollObject->GetOffset(), Pos.Y, CurrentScrollObject->GetScale().Y));
 	}
 	else
 		TextShader->SetVec3("u_offset", Vec3f(0.0f, -1000.0f, 1000.0f));

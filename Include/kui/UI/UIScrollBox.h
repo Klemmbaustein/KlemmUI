@@ -1,11 +1,34 @@
 #pragma once
 #include "UIBox.h"
-#include "../Rendering/ScrollObject.h"
 
 namespace kui
 {
 	class UIBackground;
 	class UIButton;
+
+	class ScrollObject
+	{
+		static std::set<ScrollObject*> AllScrollObjects;
+	public:
+		Vec2f Position;
+		Vec2f Scale;
+		float Scrolled = 0;
+
+		float GetOffset() const;
+
+		Vec2f GetPosition() const;
+		Vec2f GetScale() const;
+
+		ScrollObject* Parent = nullptr;
+		static std::set<ScrollObject*> GetAllScrollObjects();
+		ScrollObject(Vec2f Position, Vec2f Scale, float MaxScroll, bool Register = true);
+		~ScrollObject();
+		void ScrollUp();
+		void ScrollDown();
+		float Speed = 12;
+		bool Active = true;
+		float MaxScroll = 10;
+	};
 
 	/**
 	 * @brief

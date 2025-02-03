@@ -1,7 +1,7 @@
 #pragma once
 #include "UIBackground.h"
 #include "../Vec3.h"
-#include "../Rendering/ScrollObject.h"
+#include <kui/UI/UIScrollBox.h>
 
 namespace kui
 {
@@ -36,7 +36,7 @@ namespace kui
 
 		Vec2f TextHighlightStart;
 		ScrollObject TextScroll = ScrollObject(0, 1, 1);
-		ScrollObject TextRenderScroll = ScrollObject(0, 1, 1, false);
+		//ScrollObject TextRenderScroll = ScrollObject(0, 1, 1, false);
 		Vec2f TextHighlightEnd;
 	public:
 		bool CanEdit = true;

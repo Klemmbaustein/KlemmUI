@@ -4,7 +4,6 @@
 #include <kui/App.h>
 #include <kui/Input.h>
 #include "../Internal/MathHelpers.h"
-#include <kui/Rendering/ScrollObject.h>
 #include <kui/UI/UIScrollBox.h>
 #include <cmath>
 #include <kui/Window.h>
@@ -139,7 +138,7 @@ SizeVec UIBox::GetUsedSize()
 Vec2f UIBox::GetScreenPosition() const
 {
 	if (CurrentScrollObject)
-		return OffsetPosition + Vec2f(0, CurrentScrollObject->Percentage);
+		return OffsetPosition + Vec2f(0, CurrentScrollObject->GetOffset());
 	return OffsetPosition;
 }
 
@@ -246,7 +245,7 @@ Vec2f UIBox::GetPosition() const
 {
 	if (CurrentScrollObject)
 	{
-		return OffsetPosition + Vec2f(0, CurrentScrollObject->Percentage);
+		return OffsetPosition + Vec2f(0, CurrentScrollObject->GetOffset());
 	}
 	else
 	{
@@ -687,11 +686,11 @@ bool UIBox::IsBeingHovered()
 	Vec2f MouseLocation = ParentWindow->Input.MousePosition;
 	if (CurrentScrollObject)
 	{
-		MouseLocation = MouseLocation - Vec2f(0, CurrentScrollObject->Percentage);
+		MouseLocation = MouseLocation - Vec2f(0, CurrentScrollObject->GetOffset());
 	}
 	return (internal::math::IsPointIn2DBox(OffsetPosition, OffsetPosition + Size, MouseLocation) // If the mouse is on top of the box
 		&& (!CurrentScrollObject || // Check if we have a scroll object
 			// If there is a scroll object, is the mouse on top of the box with it's scroll offset
-			internal::math::IsPointIn2DBox(CurrentScrollObject->Position - CurrentScrollObject->Scale,
+			internal::math::IsPointIn2DBox(CurrentScrollObject->Position + CurrentScrollObject->Scale,
 				CurrentScrollObject->Position, ParentWindow->Input.MousePosition)));
 }

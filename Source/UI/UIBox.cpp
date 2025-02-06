@@ -1,16 +1,13 @@
-#include <KlemmUI/UI/UIBox.h>
+#include <kui/UI/UIBox.h>
 #include <vector>
 #include <GL/glew.h>
-#include <KlemmUI/Application.h>
-#include <KlemmUI/Input.h>
-#include "../MathHelpers.h"
-#include <KlemmUI/Rendering/ScrollObject.h>
-#include <KlemmUI/UI/UIScrollBox.h>
+#include <kui/App.h>
+#include <kui/Input.h>
+#include "../Internal/MathHelpers.h"
+#include <kui/UI/UIScrollBox.h>
 #include <cmath>
-#include <KlemmUI/Window.h>
-#include <iostream>
-
-using namespace KlemmUI;
+#include <kui/Window.h>
+using namespace kui;
 
 bool UIBox::IsChildOf(UIBox* Parent)
 {
@@ -25,7 +22,7 @@ bool UIBox::IsChildOf(UIBox* Parent)
 	return this->Parent->IsChildOf(Parent);
 }
 
-void UIBox::GetPadding(Vector2f& UpDown, Vector2f& LeftRight) const
+void UIBox::GetPadding(SizeVec& UpDown, SizeVec& LeftRight) const
 {
 	UpDown.X = UpPadding;
 	UpDown.Y = DownPadding;
@@ -43,17 +40,7 @@ void UIBox::UpdateElement()
 	UpdateSelfAndChildren();
 }
 
-UIBox* UIBox::SetSizeMode(SizeMode NewMode)
-{
-	if (NewMode != BoxSizeMode)
-	{
-		BoxSizeMode = NewMode;
-		GetAbsoluteParent()->InvalidateLayout();
-	}
-	return this;
-}
-
-UIBox::UIBox(bool Horizontal, Vector2f Position)
+UIBox::UIBox(bool Horizontal, Vec2f Position)
 {
 	this->Position = Position;
 	this->ChildrenHorizontal = Horizontal;
@@ -72,6 +59,10 @@ UIBox::~UIBox()
 	if (ParentWindow->UI.NewHoveredBox == this)
 	{
 		ParentWindow->UI.NewHoveredBox = nullptr;
+	}
+	if (ParentWindow->UI.KeyboardFocusBox == this)
+	{
+		ParentWindow->UI.KeyboardFocusBox = nullptr;
 	}
 
 	for (unsigned int i = 0; i < ParentWindow->UI.UIElements.size(); i++)
@@ -126,21 +117,6 @@ Window* UIBox::GetParentWindow()
 	return ParentWindow;
 }
 
-void UIBox::OnChildClicked(int Index)
-{
-}
-
-UIBox* UIBox::SetBorder(BorderType Type, float Size)
-{
-	if (BoxBorder != Type || Size != BorderRadius)
-	{
-		BoxBorder = Type;
-		BorderRadius = Size;
-		GetAbsoluteParent()->InvalidateLayout();
-	}
-	return this;
-}
-
 void UIBox::MoveToFront()
 {
 	for (size_t i = 0; i < ParentWindow->UI.UIElements.size(); i++)
@@ -154,13 +130,15 @@ void UIBox::MoveToFront()
 	ParentWindow->UI.UIElements.push_back(this);
 }
 
-Vector2f UIBox::GetUsedSize()
+SizeVec UIBox::GetUsedSize()
 {
-	return Size;
+	return SizeVec(Size, SizeMode::ScreenRelative);
 }
 
-Vector2f UIBox::GetScreenPosition() const
+Vec2f UIBox::GetScreenPosition() const
 {
+	if (CurrentScrollObject)
+		return OffsetPosition + Vec2f(0, CurrentScrollObject->GetOffset());
 	return OffsetPosition;
 }
 
@@ -182,7 +160,7 @@ void UIBox::OnAttached()
 {
 }
 
-UIBox* UIBox::SetMaxSize(Vector2f NewMaxSize)
+UIBox* UIBox::SetMaxSize(SizeVec NewMaxSize)
 {
 	if (NewMaxSize != MaxSize)
 	{
@@ -192,12 +170,12 @@ UIBox* UIBox::SetMaxSize(Vector2f NewMaxSize)
 	return this;
 }
 
-Vector2f UIBox::GetMaxSize() const
+SizeVec UIBox::GetMaxSize() const
 {
 	return MaxSize;
 }
 
-UIBox* UIBox::SetMinSize(Vector2f NewMinSize)
+UIBox* UIBox::SetMinSize(SizeVec NewMinSize)
 {
 	if (NewMinSize != MinSize)
 	{
@@ -207,27 +185,67 @@ UIBox* UIBox::SetMinSize(Vector2f NewMinSize)
 	return this;
 }
 
-Vector2f UIBox::GetMinSize() const
+
+SizeVec UIBox::GetMinSize() const
 {
 	return MinSize;
 }
 
-UIBox* UIBox::SetPosition(Vector2f NewPosition)
+UIBox* kui::UIBox::SetMinWidth(UISize NewWidth)
+{
+	if (NewWidth != MinSize.X)
+	{
+		MinSize.X = NewWidth;
+		InvalidateLayout();
+	}
+	return this;
+}
+
+UIBox* kui::UIBox::SetMinHeight(UISize NewHeight)
+{
+	if (NewHeight != MinSize.Y)
+	{
+		MinSize.Y = NewHeight;
+		InvalidateLayout();
+	}
+	return this;
+}
+
+UIBox* kui::UIBox::SetMaxWidth(UISize NewWidth)
+{
+	if (NewWidth != MaxSize.X)
+	{
+		MaxSize.X = NewWidth;
+		InvalidateLayout();
+	}
+	return this;
+}
+
+UIBox* kui::UIBox::SetMaxHeight(UISize NewHeight)
+{
+	if (NewHeight != MaxSize.Y)
+	{
+		MaxSize.Y = NewHeight;
+		InvalidateLayout();
+	}
+	return this;
+}
+
+UIBox* UIBox::SetPosition(Vec2f NewPosition)
 {
 	if (NewPosition != Position)
 	{
 		Position = NewPosition;
 		InvalidateLayout();
-		ParentWindow->UI.RedrawUI();
 	}
 	return this;
 }
 
-Vector2f UIBox::GetPosition()
+Vec2f UIBox::GetPosition() const
 {
 	if (CurrentScrollObject)
 	{
-		return OffsetPosition + Vector2f(0, CurrentScrollObject->Percentage);
+		return OffsetPosition + Vec2f(0, CurrentScrollObject->GetOffset());
 	}
 	else
 	{
@@ -235,7 +253,7 @@ Vector2f UIBox::GetPosition()
 	}
 }
 
-UIBox* UIBox::SetPadding(float Up, float Down, float Left, float Right)
+UIBox* UIBox::SetPadding(UISize Up, UISize Down, UISize Left, UISize Right)
 {
 	if (Up != UpPadding || Down != DownPadding || Left != LeftPadding || Right != RightPadding)
 	{
@@ -248,7 +266,7 @@ UIBox* UIBox::SetPadding(float Up, float Down, float Left, float Right)
 	return this;
 }
 
-UIBox* UIBox::SetPadding(float AllDirs)
+UIBox* UIBox::SetPadding(UISize AllDirs)
 {
 	if (AllDirs != UpPadding || AllDirs != DownPadding || AllDirs != LeftPadding || AllDirs != RightPadding)
 	{
@@ -256,26 +274,6 @@ UIBox* UIBox::SetPadding(float AllDirs)
 		DownPadding = AllDirs;
 		LeftPadding = AllDirs;
 		RightPadding = AllDirs;
-		GetAbsoluteParent()->InvalidateLayout();
-	}
-	return this;
-}
-
-UIBox* UIBox::SetPaddingSizeMode(SizeMode NewSizeMode)
-{
-	if (NewSizeMode != PaddingSizeMode)
-	{
-		PaddingSizeMode = NewSizeMode;
-		InvalidateLayout();
-	}
-	return this;
-}
-
-UIBox* UIBox::SetTryFill(bool NewTryFill)
-{
-	if (TryFill != NewTryFill)
-	{
-		TryFill = NewTryFill;
 		GetAbsoluteParent()->InvalidateLayout();
 	}
 	return this;
@@ -303,11 +301,6 @@ UIBox* UIBox::SetHorizontal(bool IsHorizontal)
 	return this;
 }
 
-bool UIBox::GetTryFill() const
-{
-	return TryFill;
-}
-
 void UIBox::Update()
 {
 }
@@ -320,39 +313,38 @@ void UIBox::UpdateSelfAndChildren()
 	Update();
 }
 
-Vector2f UIBox::GetLeftRightPadding(const UIBox* Target) const
-{
-	if (Target->PaddingSizeMode != SizeMode::AspectRelative)
-	{
-		return Vector2f(Target->LeftPadding, Target->RightPadding);
-	}
-	return Vector2f(Target->LeftPadding, Target->RightPadding) / (float)ParentWindow->GetAspectRatio();
-}
-
-Vector2f UIBox::PixelSizeToScreenSize(Vector2f PixelSize, Window* TargetWindow)
+Vec2f UIBox::PixelSizeToScreenSize(Vec2f PixelSize, Window* TargetWindow)
 {
 	PixelSize.X = PixelSize.X / (float)TargetWindow->GetSize().X * 2 * TargetWindow->GetDPI();
 	PixelSize.Y = PixelSize.Y / (float)TargetWindow->GetSize().Y * 2 * TargetWindow->GetDPI();
 	return PixelSize;
 }
 
-void KlemmUI::UIBox::SetOffsetPosition(Vector2f NewPos)
+void kui::UIBox::SetOffsetPosition(Vec2f NewPos)
 {
 	if (NewPos != OffsetPosition)
 	{
-		Vector2f ScreenPos = GetPosition();
+		Vec2f ScreenPos = GetPosition();
 		OffsetPosition = NewPos;
-		Vector2f NewScreenPos = GetPosition();
+		Vec2f NewScreenPos = GetPosition();
 		ParentWindow->UI.RedrawArea(UIManager::RedrawBox{
-			.Min = Vector2f::Min(ScreenPos, NewScreenPos),
-			.Max = Vector2f::Max(ScreenPos, NewScreenPos) + GetUsedSize(),
+			.Min = Vec2f::Min(ScreenPos, NewScreenPos),
+			.Max = Vec2f::Max(ScreenPos, NewScreenPos) + GetUsedSize().GetScreen(),
 			});
 	}
 }
 
+UIManager::RedrawBox UIBox::GetRedrawBox() const
+{
+	return UIManager::RedrawBox{
+		.Min = GetScreenPosition(),
+		.Max = GetScreenPosition() + Size,
+	};
+}
+
 float UIBox::GetVerticalOffset()
 {
-	Vector2f UpDown, LeftRight;
+	Vec2f UpDown, LeftRight;
 	GetPaddingScreenSize(UpDown, LeftRight);
 
 	float VerticalOffset = UpDown.Y;
@@ -370,7 +362,7 @@ float UIBox::GetVerticalOffset()
 
 float UIBox::GetHorizontalOffset()
 {
-	Vector2f UpDown, LeftRight;
+	Vec2f UpDown, LeftRight;
 	GetPaddingScreenSize(UpDown, LeftRight);
 	float HorizontalOffset = LeftRight.X;
 
@@ -391,67 +383,70 @@ void UIBox::UpdateScale()
 	{
 		c->UpdateScale();
 	}
-	Vector2f NewSize = 0;
+	Vec2f NewSize = 0;
 	for (auto c : Children)
 	{
-		Vector2f UpDown, LeftRight;
+		Vec2f UpDown, LeftRight;
 		c->GetPaddingScreenSize(UpDown, LeftRight);
 
 		if (ChildrenHorizontal)
 		{
-			NewSize.X += c->Size.X + LeftRight.X + LeftRight.Y;
-			if (!c->TryFill)
+			if (c->MinSize.X.Mode != SizeMode::ParentRelative)
+			{
+				NewSize.X += c->Size.X + LeftRight.X + LeftRight.Y;
+			}
+			if (c->MinSize.Y.Mode != SizeMode::ParentRelative)
 			{
 				NewSize.Y = std::max(NewSize.Y, c->Size.Y + UpDown.X + UpDown.Y);
 			}
 		}
 		else
 		{
-			NewSize.Y += c->Size.Y + UpDown.X + UpDown.Y;
-			if (!c->TryFill)
+			if (c->MinSize.Y.Mode != SizeMode::ParentRelative)
+			{
+				NewSize.Y += c->Size.Y + UpDown.X + UpDown.Y;
+			}
+			if (c->MinSize.X.Mode != SizeMode::ParentRelative)
 			{
 				NewSize.X = std::max(NewSize.X, c->Size.X + LeftRight.X + LeftRight.Y);
 			}
 		}
 	}
 
-	if (TryFill && Parent)
-	{
-		Vector2f UpDown, LeftRight;
-		GetPaddingScreenSize(UpDown, LeftRight);
-		if (Parent->ChildrenHorizontal)
-		{
-			NewSize.Y = Parent->Size.Y - (UpDown.X + UpDown.Y);
-			MinSize.Y = 0;
-			MaxSize.Y = 999999;
-		}
-		else
-		{
-			NewSize.X = Parent->Size.X - (LeftRight.X + LeftRight.Y);
-			MinSize.X = 0;
-			MaxSize.X = 999999;
-		}
-	}
+	Vec2f ScreenMinSize = MinSize.GetScreen();
+	Vec2f ScreenMaxSize = MaxSize.GetScreen();
 
-	Vector2f AdjustedMinSize = MinSize;
-	Vector2f AdjustedMaxSize = MaxSize;
-	if (BoxSizeMode == SizeMode::AspectRelative)
+	if (Parent)
 	{
-		AdjustedMinSize.X /= ParentWindow->GetAspectRatio();
-		AdjustedMaxSize.X /= ParentWindow->GetAspectRatio();
+		Vec2f UpDown, LeftRight;
+		GetPaddingScreenSize(UpDown, LeftRight);
+		Vec2f AvailableParentSize = Parent->Size - Vec2f(LeftRight.X + LeftRight.Y, UpDown.X + UpDown.Y);
+
+		if (MinSize.X.Mode == SizeMode::ParentRelative)
+		{
+			ScreenMinSize.X = AvailableParentSize.X * MinSize.X.Value;
+		}
+		if (MinSize.Y.Mode == SizeMode::ParentRelative)
+		{
+			ScreenMinSize.Y = AvailableParentSize.Y * MinSize.Y.Value;
+		}
+		if (MaxSize.X.Mode == SizeMode::ParentRelative)
+		{
+			ScreenMaxSize.X = AvailableParentSize.X * MaxSize.X.Value;
+		}
+		if (MaxSize.Y.Mode == SizeMode::ParentRelative)
+		{
+			ScreenMaxSize.Y = AvailableParentSize.Y * MaxSize.Y.Value;
+		}
 	}
-	if (BoxSizeMode == SizeMode::PixelRelative)
-	{
-		AdjustedMinSize = PixelSizeToScreenSize(AdjustedMinSize, ParentWindow);
-		AdjustedMaxSize = PixelSizeToScreenSize(AdjustedMaxSize, ParentWindow);
-	}
-	NewSize = NewSize.Clamp(AdjustedMinSize, AdjustedMaxSize);
+	
+	NewSize = NewSize.Clamp(ScreenMinSize, ScreenMaxSize);
 
 	if (NewSize != Size)
 	{
 		ParentWindow->UI.RedrawArea(UIManager::RedrawBox{
 			.Min = GetPosition(),
-			.Max = GetPosition() + Vector2f::Max(Size, NewSize),
+			.Max = GetPosition() + Vec2f::Max(Size, NewSize),
 			});
 		Size = NewSize;
 	}
@@ -478,7 +473,7 @@ void UIBox::UpdatePosition()
 	{
 		for (auto c : Children)
 		{
-			Vector2f UpDown, LeftRight;
+			Vec2f UpDown, LeftRight;
 			c->GetPaddingScreenSize(UpDown, LeftRight);
 			ChildrenSize += ChildrenHorizontal ? (c->Size.X + LeftRight.X + LeftRight.Y) : (c->Size.Y + UpDown.X + UpDown.Y);
 		}
@@ -487,18 +482,18 @@ void UIBox::UpdatePosition()
 
 	for (auto c : Children)
 	{
-		Vector2f UpDown, LeftRight;
+		Vec2f UpDown, LeftRight;
 		c->GetPaddingScreenSize(UpDown, LeftRight);
 		if (PrimaryAlign == Align::Centered)
 		{
 			if (ChildrenHorizontal)
 			{
-				c->SetOffsetPosition(OffsetPosition + Vector2f(Size.X / 2 - ChildrenSize / 2 + LeftRight.X + Offset, c->GetVerticalOffset()));
+				c->SetOffsetPosition(OffsetPosition + Vec2f(Size.X / 2 - ChildrenSize / 2 + LeftRight.X + Offset, c->GetVerticalOffset()));
 				Offset += c->Size.X + LeftRight.X + LeftRight.Y;
 			}
 			else
 			{
-				c->SetOffsetPosition(OffsetPosition + Vector2f(c->GetHorizontalOffset(), Size.Y / 2 - ChildrenSize / 2 + UpDown.Y + Offset));
+				c->SetOffsetPosition(OffsetPosition + Vec2f(c->GetHorizontalOffset(), Size.Y / 2 - ChildrenSize / 2 + UpDown.Y + Offset));
 				Offset += c->Size.Y + UpDown.X + UpDown.Y;
 			}
 		}
@@ -508,11 +503,11 @@ void UIBox::UpdatePosition()
 			{
 				if (PrimaryAlign == Align::Reverse)
 				{
-					c->SetOffsetPosition(OffsetPosition + Vector2f(Size.X - Offset - c->Size.X - LeftRight.Y, c->GetVerticalOffset()));
+					c->SetOffsetPosition(OffsetPosition + Vec2f(Size.X - Offset - c->Size.X - LeftRight.Y, c->GetVerticalOffset()));
 				}
 				else
 				{
-					c->SetOffsetPosition(OffsetPosition + Vector2f(Offset + LeftRight.X, c->GetVerticalOffset()));
+					c->SetOffsetPosition(OffsetPosition + Vec2f(Offset + LeftRight.X, c->GetVerticalOffset()));
 				}
 				Offset += c->Size.X + LeftRight.X + LeftRight.Y;
 			}
@@ -520,11 +515,11 @@ void UIBox::UpdatePosition()
 			{
 				if (PrimaryAlign == Align::Reverse)
 				{
-					c->SetOffsetPosition(OffsetPosition + Vector2f(c->GetHorizontalOffset(), Size.Y - Offset - c->Size.Y - UpDown.X));
+					c->SetOffsetPosition(OffsetPosition + Vec2f(c->GetHorizontalOffset(), Size.Y - Offset - c->Size.Y - UpDown.X));
 				}
 				else
 				{
-					c->SetOffsetPosition(OffsetPosition + Vector2f(c->GetHorizontalOffset(), Offset + UpDown.Y));
+					c->SetOffsetPosition(OffsetPosition + Vec2f(c->GetHorizontalOffset(), Offset + UpDown.Y));
 				}
 				Offset += c->Size.Y + UpDown.X + UpDown.Y;
 			}
@@ -537,37 +532,27 @@ void UIBox::UpdatePosition()
 	}
 }
 
-void UIBox::GetPaddingScreenSize(Vector2f& UpDown, Vector2f& LeftRight) const
+void UIBox::GetPaddingScreenSize(Vec2f& UpDown, Vec2f& LeftRight) const
 {
-	UpDown.X = UpPadding;
-	UpDown.Y = DownPadding;
+	UpDown.X = UpPadding.GetScreen().Y;
+	UpDown.Y = DownPadding.GetScreen().Y;
 
-	if (PaddingSizeMode == SizeMode::PixelRelative)
-	{
-		UpDown = UpDown / (float)ParentWindow->GetSize().Y * ParentWindow->GetDPI() * 2;
-	}
-
-	LeftRight = GetLeftRightPadding(this);
-	if (PaddingSizeMode == SizeMode::PixelRelative)
-	{
-		LeftRight = LeftRight / (float)ParentWindow->GetSize().X * ParentWindow->GetDPI() * 2;
-	}
+	LeftRight.X = LeftPadding.GetScreen().X;
+	LeftRight.Y = RightPadding.GetScreen().X;
 }
 
 void UIBox::RedrawElement(bool Force)
 {
-	if (!IsVisibleInHierarchy() && !Force)
+	if ((!IsVisibleInHierarchy() || Redrawn) && !Force)
 	{
 		return;
 	}
 
-	ParentWindow->UI.RedrawArea(UIManager::RedrawBox{
-		.Min = GetPosition(),
-		.Max = GetPosition() + GetUsedSize(),
-		});
+	Redrawn = true;
+	ParentWindow->UI.RedrawArea(GetRedrawBox());
 }
 
-void KlemmUI::UIBox::SetUpPadding(float Value)
+void kui::UIBox::SetUpPadding(UISize Value)
 {
 	if (UpPadding != Value)
 	{
@@ -576,7 +561,7 @@ void KlemmUI::UIBox::SetUpPadding(float Value)
 	}
 }
 
-void KlemmUI::UIBox::SetDownPadding(float Value)
+void kui::UIBox::SetDownPadding(UISize Value)
 {
 	if (DownPadding != Value)
 	{
@@ -585,7 +570,7 @@ void KlemmUI::UIBox::SetDownPadding(float Value)
 	}
 }
 
-void KlemmUI::UIBox::SetLeftPadding(float Value)
+void kui::UIBox::SetLeftPadding(UISize Value)
 {
 	if (LeftPadding != Value)
 	{
@@ -594,7 +579,7 @@ void KlemmUI::UIBox::SetLeftPadding(float Value)
 	}
 }
 
-void KlemmUI::UIBox::SetRightPadding(float Value)
+void kui::UIBox::SetRightPadding(UISize Value)
 {
 	if (RightPadding != Value)
 	{
@@ -617,6 +602,11 @@ void UIBox::InvalidateLayout()
 
 UIBox* UIBox::AddChild(UIBox* NewChild)
 {
+	if (NewChild == this)
+	{
+		app::error::Error("Attached an UIBox to itself", true);
+	}
+
 	if (!NewChild->Parent)
 	{
 		NewChild->Parent = this;
@@ -626,7 +616,7 @@ UIBox* UIBox::AddChild(UIBox* NewChild)
 	}
 	else
 	{
-		Application::Error::Error("Attached an UIObject twice", true);
+		app::error::Error("Attached an UIBox twice", true);
 	}
 	return this;
 }
@@ -657,6 +647,7 @@ void UIBox::DrawThisAndChildren(const UIManager::RedrawBox& Box)
 	{
 		c->UpdateTickState();
 	}
+	LastDrawIndex++;
 	if (IsVisible)
 	{
 		if (UIManager::RedrawBox::IsBoxOverlapping(Box, UIManager::RedrawBox{
@@ -671,6 +662,7 @@ void UIBox::DrawThisAndChildren(const UIManager::RedrawBox& Box)
 			c->DrawThisAndChildren(Box);
 		}
 	}
+	Redrawn = false;
 }
 
 void UIBox::DeleteChildren()
@@ -691,14 +683,14 @@ bool UIBox::IsVisibleInHierarchy()
 
 bool UIBox::IsBeingHovered()
 {
-	Vector2f MouseLocation = ParentWindow->Input.MousePosition;
+	Vec2f MouseLocation = ParentWindow->Input.MousePosition;
 	if (CurrentScrollObject)
 	{
-		MouseLocation = MouseLocation - Vector2f(0, CurrentScrollObject->Percentage);
+		MouseLocation = MouseLocation - Vec2f(0, CurrentScrollObject->GetOffset());
 	}
-	return (Math::IsPointIn2DBox(OffsetPosition, OffsetPosition + Size, MouseLocation) // If the mouse is on top of the box
+	return (internal::math::IsPointIn2DBox(OffsetPosition, OffsetPosition + Size, MouseLocation) // If the mouse is on top of the box
 		&& (!CurrentScrollObject || // Check if we have a scroll object
 			// If there is a scroll object, is the mouse on top of the box with it's scroll offset
-			Math::IsPointIn2DBox(CurrentScrollObject->Position - CurrentScrollObject->Scale,
+			internal::math::IsPointIn2DBox(CurrentScrollObject->Position + CurrentScrollObject->Scale,
 				CurrentScrollObject->Position, ParentWindow->Input.MousePosition)));
 }

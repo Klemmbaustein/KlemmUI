@@ -1,0 +1,17 @@
+element DynamicMarkupExample
+{
+	var Color;
+	var Text = "Some text";
+
+	size = 2sr;
+	position = -1;
+
+	allAlign = centered;
+	
+	child UIText txt
+	{
+		size = 15px;
+		text = Text;
+		color = Color;
+	}
+}

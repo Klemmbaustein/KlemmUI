@@ -1,8 +1,9 @@
-#include <KlemmUI/Rendering/ShaderManager.h>
-#include <KlemmUI/Application.h>
-using namespace KlemmUI;
+#include <kui/Rendering/ShaderManager.h>
+#include <kui/App.h>
+#include <kui/Resource.h>
+using namespace kui;
 
-KlemmUI::ShaderManager::~ShaderManager()
+kui::ShaderManager::~ShaderManager()
 {
 	for (auto& i : Shaders)
 	{
@@ -11,13 +12,13 @@ KlemmUI::ShaderManager::~ShaderManager()
 	Shaders.clear();
 }
 
-Shader* KlemmUI::ShaderManager::LoadShader(std::string VertexName, std::string FragmentName, std::string Name)
+Shader* kui::ShaderManager::LoadShader(std::string VertexName, std::string FragmentName, std::string Name)
 {
 	auto LoadedShader = Shaders.find(Name);
 
 	if (LoadedShader == Shaders.end())
 	{
-		Shader* NewShader = new Shader(Application::GetShaderPath() + "/" + VertexName, Application::GetShaderPath() + "/" + FragmentName);
+		Shader* NewShader = new Shader(resource::GetStringFile(VertexName), resource::GetStringFile(FragmentName));
 		Shaders.insert(std::pair(Name, NewShader));
 		return NewShader;
 	}
@@ -27,7 +28,7 @@ Shader* KlemmUI::ShaderManager::LoadShader(std::string VertexName, std::string F
 	}
 }
 
-Shader* KlemmUI::ShaderManager::GetShader(std::string Name)
+Shader* kui::ShaderManager::GetShader(std::string Name)
 {
 	return Shaders.at(Name);
 }

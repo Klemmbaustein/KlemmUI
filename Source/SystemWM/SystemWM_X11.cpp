@@ -383,7 +383,6 @@ static std::string GetSelection(Display* display, Window window, const char* buf
 			&fmtid, &resbits, &ressize, &restail, (unsigned char**)&result);
 		if (fmtid != incrid)
 			Result = std::string(result, ressize);
-		std::cout << int(result[ressize - 1]) << std::endl;
 		XFree(result);
 
 		if (fmtid == incrid)
@@ -749,10 +748,20 @@ void kui::systemWM::X11Window::HandleEvent(XEvent ev)
 		return;
 	}
 	case ButtonPress:
+	{
 		if (Borderless)
 			X11Borderless::ProcessHitTest(this, &ev);
+
+		unsigned int btn = ev.xbutton.button;
+
+		if (btn == 4 || btn == 5)
+		{
+			Parent->Input.MoveMouseWheel(btn == 4 ? 1 : -1);
+		}
+
 		CursorPosition = Vec2i(ev.xbutton.x, ev.xbutton.y);
 		return;
+	}
 	case Expose:
 	{
 		Vec2ui NewSize = GetSize();

@@ -318,8 +318,8 @@ void UITextField::DrawBackground()
 
 	auto Pos = TextScroll.GetPosition();
 
-	//BackgroundShader->SetVec3("u_offset",
-	//	Vec3f(-TextScroll.GetOffset(), Pos.Y, TextScroll.GetScale().Y));
+	BackgroundShader->SetVec3("u_offset",
+		Vec3f(-TextScroll.GetOffset(), Pos.Y, TextScroll.GetScale().Y));
 
 	if (IsEdited && ParentWindow->Input.TextSelectionStart != ParentWindow->Input.TextIndex)
 	{

@@ -262,14 +262,6 @@ void kui::InputManager::AddTextInput(std::string Str)
 			TextIndex = (int)Text.size();
 		}
 		DeleteTextSelection();
-		std::cerr << Str << std::endl;
-		for (char c : Str)
-		{
-			if (c == 22)
-				abort();
-			std::cerr << int(c) << " ";
-		}
-		std::cerr << std::endl;
 		Text.insert(TextIndex, Str);
 		MoveTextIndex((int)Str.size(), false);
 	}

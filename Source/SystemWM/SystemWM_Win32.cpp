@@ -36,8 +36,9 @@ static bool IsMaximized(HWND hWnd)
 static std::wstring ToWstring(std::string utf8)
 {
 	int WideLength = MultiByteToWideChar(CP_UTF8, 0, utf8.c_str(), -1, NULL, 0);
-	wchar_t* wstr = new wchar_t[WideLength];
+	wchar_t* wstr = new wchar_t[WideLength + 1];
 	MultiByteToWideChar(CP_UTF8, 0, utf8.c_str(), -1, wstr, WideLength);
+	wstr[WideLength] = 0;
 	std::wstring str = wstr;
 	delete[] wstr;
 	return str;
@@ -47,10 +48,11 @@ static std::string FromWstring(std::wstring Wide)
 {
 	int MultiByteLength = WideCharToMultiByte(CP_UTF8, 0, Wide.c_str(), int(Wide.size()),
 		0, 0, NULL, NULL);
-	char* str = new char[MultiByteLength]();
+	char* str = new char[MultiByteLength + 1]();
 
 	WideCharToMultiByte(CP_UTF8, 0, Wide.c_str(), int(Wide.size()),
 		str, MultiByteLength, NULL, NULL);
+	str[MultiByteLength] = 0;
 
 	std::string Out;
 	Out = str;

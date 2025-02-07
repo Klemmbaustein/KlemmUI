@@ -28,6 +28,18 @@ void kui::InputManager::MoveTextIndex(int Amount, bool RespectShiftPress)
 	}
 }
 
+static std::string FilterString(std::string InString, std::string Forbidden)
+{
+	std::string Out;
+	Out.reserve(InString.size());
+	for (char i : InString)
+	{
+		if (Forbidden.find(i) == std::string::npos)
+			Out.push_back(i);
+	}
+	return Out;
+}
+
 kui::InputManager::InputManager(Window* Parent)
 {
 	ParentWindow = Parent;
@@ -145,8 +157,13 @@ kui::InputManager::InputManager(Window* Parent)
 		});
 
 	RegisterOnKeyDownCallback(Key::v, [](Window* Win) {
+		std::string Filter = "\n\r\a";
+		if (Win->Input.TextAllowNewLine)
+		{
+			std::string Filter = "\n\a";
+		}
 		if (Win->Input.IsKeyDown(Key::LCTRL) || Win->Input.IsKeyDown(Key::RCTRL))
-			Win->Input.AddTextInput(systemWM::GetClipboardText());
+			Win->Input.AddTextInput(FilterString(systemWM::GetClipboardText(), Filter));
 		});
 
 }

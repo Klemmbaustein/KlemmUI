@@ -4,6 +4,7 @@
 #include <kui/UI/UIBox.h>
 #include <kui/UI/UIScrollBox.h>
 #include <map>
+#include <iostream>
 using namespace kui;
 
 Window* kui::InputManager::GetWindowByPtr(void* Ptr)
@@ -34,6 +35,9 @@ static std::string FilterString(std::string InString, std::string Forbidden)
 	Out.reserve(InString.size());
 	for (char i : InString)
 	{
+		if (i < '\t' || (i > '\t' && i < ' '))
+			continue;
+
 		if (Forbidden.find(i) == std::string::npos)
 			Out.push_back(i);
 	}
@@ -160,10 +164,13 @@ kui::InputManager::InputManager(Window* Parent)
 		std::string Filter = "\n\r\a";
 		if (Win->Input.TextAllowNewLine)
 		{
-			std::string Filter = "\n\a";
+			std::string Filter = "\r\a";
 		}
+
+		auto str = FilterString(systemWM::GetClipboardText(), Filter);
+
 		if (Win->Input.IsKeyDown(Key::LCTRL) || Win->Input.IsKeyDown(Key::RCTRL))
-			Win->Input.AddTextInput(FilterString(systemWM::GetClipboardText(), Filter));
+			Win->Input.AddTextInput(str);
 		});
 
 }
@@ -255,6 +262,14 @@ void kui::InputManager::AddTextInput(std::string Str)
 			TextIndex = (int)Text.size();
 		}
 		DeleteTextSelection();
+		std::cerr << Str << std::endl;
+		for (char c : Str)
+		{
+			if (c == 22)
+				abort();
+			std::cerr << int(c) << " ";
+		}
+		std::cerr << std::endl;
 		Text.insert(TextIndex, Str);
 		MoveTextIndex((int)Str.size(), false);
 	}

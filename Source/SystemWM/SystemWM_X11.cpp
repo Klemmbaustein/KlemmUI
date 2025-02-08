@@ -17,6 +17,7 @@
 
 thread_local Display* kui::systemWM::X11Window::XDisplay = nullptr;
 thread_local ::Window kui::systemWM::X11Window::XRootWindow;
+thread_local uint32_t kui::systemWM::X11Window::OpenedWindows = 0;
 
 static std::string GetEnv(const std::string& var)
 {
@@ -49,7 +50,23 @@ static void CheckForDisplay()
 	{
 		Error("No root window found", true);
 		XCloseDisplay(X11Window::XDisplay);
+		X11Window::XDisplay = nullptr;
 		return;
+	}
+	std::cerr << "Opemned X11 display connection" << std::endl;
+}
+
+
+static void CheckDisplayUnloading()
+{
+	using namespace kui::systemWM;
+
+	if (X11Window::OpenedWindows <= 0)
+	{
+		XCloseDisplay(X11Window::XDisplay);
+		std::cerr << "Closed X11 display connection" << std::endl;
+		X11Window::XDisplay = nullptr;
+		X11Window::XRootWindow = 0;
 	}
 }
 
@@ -120,7 +137,7 @@ namespace kui::systemWM::X11Borderless
 
 	static void InitiateWindowMove(X11Window* Target, const Vec2ui& Point)
 	{
-		XEvent evt;
+		XEvent evt = {};
 
 		XUngrabPointer(Target->XDisplay, 0);
 		XFlush(Target->XDisplay);
@@ -142,7 +159,7 @@ namespace kui::systemWM::X11Borderless
 
 	static void InitiateWindowResize(X11Window* Target, const Vec2ui& Point, int direction)
 	{
-		XEvent evt;
+		XEvent evt = {};
 
 		if (direction < _NET_WM_MOVERESIZE_SIZE_TOPLEFT || direction > _NET_WM_MOVERESIZE_SIZE_LEFT)
 		{
@@ -275,7 +292,9 @@ namespace kui::systemWM::X11Borderless
 void kui::systemWM::X11Window::Create(Window* Parent, Vec2ui Size, Vec2ui Pos, std::string Title,
 	bool Borderless, bool Resizable, bool AlwaysOnTop)
 {
+	OpenedWindows++;
 	this->Borderless = Borderless;
+	this->WindowSize = Size;
 
 	CheckForDisplay();
 
@@ -342,8 +361,16 @@ void kui::systemWM::X11Window::Create(Window* Parent, Vec2ui Size, Vec2ui Pos, s
 
 void kui::systemWM::X11Window::Destroy()
 {
+	XDestroyIC(Input);
+	XCloseIM(InputMethod);
+	glXDestroyContext(XDisplay, GLContext);
 	XDestroyWindow(XDisplay, XWindow);
 	XFlush(XDisplay);
+
+	OpenedWindows--;
+
+	CheckDisplayUnloading();
+
 	XWindow = 0;
 }
 
@@ -534,7 +561,7 @@ void kui::systemWM::X11Window::Restore() const
 	XFlush(XDisplay);
 }
 
-void kui::systemWM::X11Window::SetIcon(uint8_t* TextureBytes, size_t Width, size_t Height)
+void kui::systemWM::X11Window::SetIcon(uint8_t* TextureBytes, size_t Width, size_t Height) const
 {
 	std::vector<long> ArgbFormat;
 
@@ -544,7 +571,7 @@ void kui::systemWM::X11Window::SetIcon(uint8_t* TextureBytes, size_t Width, size
 
 	for (size_t i = 0; i < Width * Height * 4; i += 4)
 	{
-		uint8_t Bytes[4];
+		uint8_t Bytes[4] = {};
 		Bytes[0] = TextureBytes[i + 2]; // B
 		Bytes[1] = TextureBytes[i + 1]; // G
 		Bytes[2] = TextureBytes[i + 0]; // R
@@ -650,12 +677,14 @@ kui::Vec2ui kui::systemWM::X11Window::GetMainScreenResolution()
 	Vec2ui Size = Vec2ui(info->width, info->height);
 	XRRFreeCrtcInfo(info);
 	XRRFreeScreenResources(screens);
-	return Size;
+	CheckDisplayUnloading();
 #else
 	int DefaultScreenIndex = DefaultScreen(XDisplay);
 	Screen* DefaultScreenPtr = ScreenOfDisplay(XDisplay, DefaultScreenIndex);
-	return Vec2ui(WidthOfScreen(DefaultScreenPtr), HeightOfScreen(DefaultScreenPtr));
+	Vec2ui Size = Vec2ui(WidthOfScreen(DefaultScreenPtr), HeightOfScreen(DefaultScreenPtr));
+	CheckDisplayUnloading();
 #endif
+	return Size;
 }
 
 uint32_t kui::systemWM::X11Window::GetMonitorRefreshRate() const
@@ -697,7 +726,7 @@ void kui::systemWM::X11Window::SetResizable(bool NewResizable)
 	Resizable = NewResizable;
 }
 
-void kui::systemWM::X11Window::SetAlwaysOnTop(bool NewAlwaysOnTop)
+void kui::systemWM::X11Window::SetAlwaysOnTop(bool NewAlwaysOnTop) const
 {
 	XClientMessageEvent xclient;
 	memset(&xclient, 0, sizeof(xclient));

@@ -79,6 +79,16 @@ static std::array<kui::Vec2ui, 2> AdjustWindowSize(kui::Vec2ui Pos, kui::Vec2ui 
 	};
 }
 
+static std::array<kui::Vec2ui, 2> AdjustWindowSize(kui::Vec2ui Pos, kui::Vec2ui InSize, kui::systemWM::SysWindow* From)
+{
+	if (From->Borderless)
+		return { Pos, InSize };
+
+	return AdjustWindowSize(Pos, InSize,
+		GetWindowLong(From->WindowHandle, GWL_STYLE),
+		GetWindowLong(From->WindowHandle, GWL_EXSTYLE));
+}
+
 namespace kui::systemWM::Borderless
 {
 	// Based on: https://github.com/melak47/BorderlessWindow/blob/main/src/BorderlessWindow.cpp
@@ -134,7 +144,7 @@ namespace kui::systemWM::Borderless
 		// Note: On Windows 10, windows behave differently and
 		// allow resizing outside the visible window frame.
 		// This implementation does not replicate that behavior.
-		const POINT border
+		POINT border
 		{
 			::GetSystemMetrics(SM_CXFRAME) + ::GetSystemMetrics(SM_CXPADDEDBORDER),
 			::GetSystemMetrics(SM_CYFRAME) + ::GetSystemMetrics(SM_CXPADDEDBORDER)
@@ -145,10 +155,6 @@ namespace kui::systemWM::Borderless
 			return HTNOWHERE;
 		}
 
-		if (Window->Parent->UI.HoveredBox && dynamic_cast<UIButton*>(Window->Parent->UI.HoveredBox))
-		{
-			return HTCLIENT;
-		}
 
 		Vec2ui Pos = systemWM::GetCursorPosition(Window);
 
@@ -158,9 +164,19 @@ namespace kui::systemWM::Borderless
 				1.0f - ((float)Pos.Y / (float)Window->Parent->GetSize().Y * 2.0f)
 			);
 
+		bool HoveringButton = Window->Parent->UI.HoveredBox && dynamic_cast<UIButton*>(Window->Parent->UI.HoveredBox);
+
 		const LRESULT drag = Window->Parent->Input.MousePosition != Vec2f(99)
+			&& !HoveringButton
 			&& Window->Parent->IsAreaGrabbableCallback
 			&& Window->Parent->IsAreaGrabbableCallback(Window->Parent) ? HTCAPTION : HTCLIENT;
+		
+		// Make it easier to press buttons near the screen corners
+		if (HoveringButton)
+		{
+			border.x /= 2;
+			border.y /= 2;
+		}
 
 		if (!Window->Resizable)
 		{
@@ -538,6 +554,12 @@ kui::systemWM::SysWindow* kui::systemWM::NewWindow(
 	std::pair Style = GetStyleFromFlags(Flags);
 	std::array<Vec2ui, 2> WindowSizes = AdjustWindowSize(Pos, Size, Style.first, Style.second);
 
+	if (OutWindow->Borderless)
+	{
+		WindowSizes[0] = Pos;
+		WindowSizes[1] = Size;
+	}
+
 	OutWindow->WindowHandle = CreateWindowExW(
 		Style.second,
 		ToWstring(KUI_WINDOW_CLASS_NAME).c_str(),
@@ -560,8 +582,10 @@ kui::systemWM::SysWindow* kui::systemWM::NewWindow(
 		return nullptr;
 	}
 
-	if (!CheckFlag(Flags, Window::WindowFlag::IgnoreDPI))
-		SetWindowSize(OutWindow, Vec2ui(Vec2f(Size) * GetDPIScale(OutWindow)));
+	float DpiScale = GetDPIScale(OutWindow);
+
+	if (!CheckFlag(Flags, Window::WindowFlag::IgnoreDPI) && DpiScale != 1)
+		SetWindowSize(OutWindow, Vec2ui(Vec2f(Size) * DpiScale));
 
 	static PIXELFORMATDESCRIPTOR PixelFormatDescr =
 	{
@@ -715,22 +739,22 @@ void kui::systemWM::SetWindowIcon(SysWindow* Target, uint8_t* Bytes, size_t Widt
 
 void kui::systemWM::UpdateWindow(SysWindow* Target)
 {
-	// TODO: Reimplement with a check for windows 11 (or when windows 10 reaches eol), this logs a lot of
-	// errors in the debug console right now.
-	//const Vec3f& Color = Target->Parent->BorderColor;
-	//if (Target->Borderless && Target->OldBorderColor != Color)
-	//{
-	//	COLORREF BorderColor = RGB(Color.X * 255.0f, Color.Y * 255.0f, Color.Z * 255.0f);
-	//	DwmSetWindowAttribute(Target->WindowHandle, DWMWA_BORDER_COLOR, &BorderColor, sizeof(BorderColor));
-	//	Target->OldBorderColor = Color;
-	//}
-	//else if (!Target->Borderless && Color != Vec3f(-1))
-	//{
-	//	// Value for the default border color. Only borderless windows should get a custom border color.
-	//	COLORREF BorderColor = 0xFFFFFFFF;
-	//	DwmSetWindowAttribute(Target->WindowHandle, DWMWA_BORDER_COLOR, &BorderColor, sizeof(BorderColor));
-	//	Target->OldBorderColor = -1;
-	//}
+	// TODO: Add a check for windows 10, because it doesn't have DWMWA_BORDER_COLOR.
+	// Because of that this produces log errors.
+	const Vec3f& Color = Target->Parent->BorderColor;
+	if (Target->Borderless && Target->OldBorderColor != Color)
+	{
+		COLORREF BorderColor = RGB(Color.X * 255.0f, Color.Y * 255.0f, Color.Z * 255.0f);
+		DwmSetWindowAttribute(Target->WindowHandle, DWMWA_BORDER_COLOR, &BorderColor, sizeof(BorderColor));
+		Target->OldBorderColor = Color;
+	}
+	else if (!Target->Borderless && Target->OldBorderColor != Vec3f(-1))
+	{
+		// Value for the default border color. Only borderless windows should get a custom border color.
+		COLORREF BorderColor = 0xFFFFFFFF;
+		DwmSetWindowAttribute(Target->WindowHandle, DWMWA_BORDER_COLOR, &BorderColor, sizeof(BorderColor));
+		Target->OldBorderColor = -1;
+	}
 
 
 	MSG msg;
@@ -873,10 +897,13 @@ void kui::systemWM::SysWindow::SetSize(Vec2ui NewSize) const
 		.bottom = LONG(WindowRect.top + NewSize.Y),
 	};
 
-	AdjustWindowRectEx(&NewSizeRect,
-		GetWindowLong(WindowHandle, GWL_STYLE),
-		false,
-		GetWindowLong(WindowHandle, GWL_EXSTYLE));
+	if (!Borderless)
+	{
+		AdjustWindowRectEx(&NewSizeRect,
+			GetWindowLong(WindowHandle, GWL_STYLE),
+			false,
+			GetWindowLong(WindowHandle, GWL_EXSTYLE));
+	}
 
 	MoveWindow(WindowHandle,
 		WindowRect.left, WindowRect.top,
@@ -890,9 +917,7 @@ void kui::systemWM::SetWindowSize(SysWindow* Target, Vec2ui Size)
 
 void kui::systemWM::SetWindowPosition(SysWindow* Target, Vec2ui NewPosition)
 {
-	NewPosition = AdjustWindowSize(NewPosition, 0,
-		GetWindowLong(Target->WindowHandle, GWL_STYLE),
-		GetWindowLong(Target->WindowHandle, GWL_EXSTYLE))[0];
+	NewPosition = AdjustWindowSize(NewPosition, 0, Target)[0];
 
 	RECT WindowRect = {};
 	GetWindowRect(Target->WindowHandle, &WindowRect);
@@ -913,16 +938,12 @@ bool kui::systemWM::IsWindowFullScreen(SysWindow* Target)
 
 void kui::systemWM::SetWindowMinSize(SysWindow* Target, Vec2ui MinSize)
 {
-	Target->MinSize = AdjustWindowSize(0, MinSize,
-		GetWindowLong(Target->WindowHandle, GWL_STYLE),
-		GetWindowLong(Target->WindowHandle, GWL_EXSTYLE))[1];
+	Target->MinSize = AdjustWindowSize(0, MinSize, Target)[1];
 }
 
 void kui::systemWM::SetWindowMaxSize(SysWindow* Target, Vec2ui MaxSize)
 {
-	Target->MaxSize = AdjustWindowSize(0, MaxSize,
-		GetWindowLong(Target->WindowHandle, GWL_STYLE),
-		GetWindowLong(Target->WindowHandle, GWL_EXSTYLE))[1];
+	Target->MaxSize = AdjustWindowSize(0, MaxSize, Target)[1];
 }
 
 void kui::systemWM::RestoreWindow(SysWindow* Target)

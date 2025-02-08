@@ -10,7 +10,6 @@
 #include "Internal/OpenGL.h"
 #include <kui/Window.h>
 #include "Internal/Internal.h"
-#include <iostream>
 using namespace kui;
 
 
@@ -113,8 +112,15 @@ size_t Font::GetCharacterAtPosition(std::vector<TextSegment> Text, Vec2f Positio
 					CharIndex += Multiplier - 1;
 				}
 
+				if (SegmentText[i] == ' ')
+				{
+					LastWordIndex = i;
+				}
+
 				if (((x + g.TotalSize.X) / 450 > LengthBeforeWrap && Wrapped))
 				{
+					x = 0;
+					y += CharacterSize;
 					if (LastWordIndex != SIZE_MAX && LastWordIndex != LastWrapIndex)
 					{
 						i = LastWordIndex;
@@ -126,8 +132,6 @@ size_t Font::GetCharacterAtPosition(std::vector<TextSegment> Text, Vec2f Positio
 						continue;
 					}
 					LastVerticalDist = -Position.Y - (y + CharacterSize / 2) / 450 * Scale;
-					x = 0;
-					y += CharacterSize;
 					CurrentLine++;
 
 					FoundInCurrentLine = false;
@@ -139,11 +143,6 @@ size_t Font::GetCharacterAtPosition(std::vector<TextSegment> Text, Vec2f Positio
 
 				x += g.TotalSize.X;
 				CharSize = g.TotalSize.X;
-
-				if (SegmentText[i] == ' ')
-				{
-					LastWordIndex = i;
-				}
 			}
 			float CurrentDistance = x / 450 / Window::GetActiveWindow()->GetAspectRatio() * Scale;
 			float VerticalDist = -Position.Y - (y + CharacterSize / 2) / 450 * Scale;
@@ -362,8 +361,21 @@ Vec2f Font::GetTextSize(std::vector<TextSegment> Text, float Scale, bool Wrapped
 					TabCharIndex += Multiplier - 1;
 				}
 
+				if (SegmentText[i] == ' ')
+				{
+					LastWordIndex = i;
+					LastWrapCharIndex = CharIndex;
+				}
+
 				if (((x + g.TotalSize.X) / 450 > LengthBeforeWrap && Wrapped))
 				{
+					CurrentLine++;
+					if (CurrentLine > MaxLines)
+					{
+						break;
+					}
+					x = 0;
+					y += CharacterSize;
 					if (LastWordIndex != SIZE_MAX && LastWordIndex != LastWrapIndex)
 					{
 						i = LastWordIndex;
@@ -371,22 +383,9 @@ Vec2f Font::GetTextSize(std::vector<TextSegment> Text, float Scale, bool Wrapped
 						CharIndex = LastWrapCharIndex;
 						continue;
 					}
-					x = 0;
-					y += CharacterSize;
-					CurrentLine++;
-					if (CurrentLine > MaxLines)
-					{
-						break;
-					}
 				}
 
 				x += g.TotalSize.X;
-
-				if (SegmentText[i] == ' ')
-				{
-					LastWordIndex = i;
-					LastWrapCharIndex = CharIndex;
-				}
 
 				MaxX = std::max(MaxX, x);
 			}
@@ -466,8 +465,23 @@ DrawableText* Font::MakeText(std::vector<TextSegment> Text, Vec2f Pos, float Sca
 					GlyphIndex = FONT_MAX_UNICODE_CHARS - 31;
 				}
 				Glyph g = LoadedGlyphs[GlyphIndex];
+
+				if (UTFString[i] == ' ')
+				{
+					LastWordIndex = i;
+					LastWordNumVertices = numVertices;
+					LastWordVDataPtr = vData;
+				}
+
 				if ((x + g.TotalSize.X) / 450 > LengthBeforeWrap)
 				{
+					CurrentLine++;
+					if (CurrentLine > MaxLines)
+					{
+						break;
+					}
+					x = 0;
+					y += CharacterSize;
 					if (LastWordIndex != SIZE_MAX && LastWordIndex != LastWrapIndex)
 					{
 						i = LastWordIndex;
@@ -475,13 +489,6 @@ DrawableText* Font::MakeText(std::vector<TextSegment> Text, Vec2f Pos, float Sca
 						vData = LastWordVDataPtr;
 						numVertices = LastWordNumVertices;
 						continue;
-					}
-					x = 0;
-					y += CharacterSize;
-					CurrentLine++;
-					if (CurrentLine > MaxLines)
-					{
-						break;
 					}
 				}
 
@@ -501,13 +508,6 @@ DrawableText* Font::MakeText(std::vector<TextSegment> Text, Vec2f Pos, float Sca
 					numVertices += 6;
 				}
 				x += g.TotalSize.X;
-
-				if (UTFString[i] == ' ')
-				{
-					LastWordIndex = i;
-					LastWordNumVertices = numVertices;
-					LastWordVDataPtr = vData;
-				}
 			}
 			if (UTFString[i] == (int)'\n')
 			{

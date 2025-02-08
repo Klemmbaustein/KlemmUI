@@ -27,6 +27,7 @@ namespace kui::systemWM
 		void Swap() const;
 		thread_local static Display* XDisplay;
 		thread_local static ::Window XRootWindow;
+		thread_local static uint32_t OpenedWindows;
 		::Window XWindow;
 		GLXContext GLContext;
 		XIC Input;
@@ -43,7 +44,7 @@ namespace kui::systemWM
 		void Minimize() const;
 		void Restore() const;
 
-		void SetIcon(uint8_t* TextureBytes, size_t Width, size_t Height);
+		void SetIcon(uint8_t* TextureBytes, size_t Width, size_t Height) const;
 
 		float GetDPIScale();
 
@@ -63,7 +64,7 @@ namespace kui::systemWM
 
 		void SetBorderless(bool NewBorderless);
 		void SetResizable(bool NewResizable);
-		void SetAlwaysOnTop(bool NewAlwaysOnTop);
+		void SetAlwaysOnTop(bool NewAlwaysOnTop) const;
 
 		Vec2i CursorPosition;
 		Vec2ui WindowSize;

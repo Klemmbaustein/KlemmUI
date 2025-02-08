@@ -15,6 +15,8 @@
 #define HAS_XRANDR 1
 #endif
 
+#define XA_CARDINAL ((Atom)6)
+
 thread_local Display* kui::systemWM::X11Window::XDisplay = nullptr;
 thread_local ::Window kui::systemWM::X11Window::XRootWindow;
 thread_local uint32_t kui::systemWM::X11Window::OpenedWindows = 0;
@@ -53,7 +55,7 @@ static void CheckForDisplay()
 		X11Window::XDisplay = nullptr;
 		return;
 	}
-	std::cerr << "Opemned X11 display connection" << std::endl;
+	std::cerr << "Opened X11 display connection" << std::endl;
 }
 
 
@@ -635,9 +637,27 @@ bool kui::systemWM::X11Window::IsMinimized()
 
 kui::Vec2ui kui::systemWM::X11Window::GetPosition() const
 {
+	int x, y;
+	::Window child;
 	XWindowAttributes xwa;
+	XTranslateCoordinates(XDisplay, XWindow, XRootWindow, 0, 0, &x, &y, &child);
 	XGetWindowAttributes(XDisplay, XWindow, &xwa);
-	return Vec2ui(xwa.x, xwa.y);
+	Atom type;
+	int format;
+	unsigned long nitems, bytes_after;
+	unsigned char* property;
+
+	if (XGetWindowProperty(XDisplay, XWindow, XInternAtom(XDisplay, "_NET_FRAME_EXTENTS", false), 0, 16, 0, XA_CARDINAL, &type, &format, &nitems, &bytes_after, &property) == Success)
+	{
+		if (type != None && nitems == 4)
+		{
+			x += (int)((long*)property)[0];
+			y += (int)((long*)property)[3];
+		}
+		XFree(property);
+	}
+
+	return Vec2ui(x - xwa.x, y - xwa.y);
 }
 
 kui::Vec2ui kui::systemWM::X11Window::GetSize() const

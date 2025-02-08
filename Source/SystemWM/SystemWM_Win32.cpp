@@ -739,6 +739,7 @@ void kui::systemWM::SetWindowIcon(SysWindow* Target, uint8_t* Bytes, size_t Widt
 
 void kui::systemWM::UpdateWindow(SysWindow* Target)
 {
+#ifdef NTDDI_WIN10_NI
 	// TODO: Add a check for windows 10, because it doesn't have DWMWA_BORDER_COLOR.
 	// Because of that this produces log errors.
 	const Vec3f& Color = Target->Parent->BorderColor;
@@ -755,6 +756,7 @@ void kui::systemWM::UpdateWindow(SysWindow* Target)
 		DwmSetWindowAttribute(Target->WindowHandle, DWMWA_BORDER_COLOR, &BorderColor, sizeof(BorderColor));
 		Target->OldBorderColor = -1;
 	}
+#endif
 
 
 	MSG msg;

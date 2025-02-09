@@ -950,6 +950,7 @@ void kui::systemWM::X11Window::HandleKeyPress(KeySym Symbol, bool NewValue)
 
 int kui::systemWM::X11Window::QueryPointer(Vec2ui* MousePos)
 {
+	CheckForDisplay();
 	::Window OutRoot;
 	::Window OutChild;
 	int RootX, RootY, WinX, WinY;
@@ -962,6 +963,7 @@ int kui::systemWM::X11Window::QueryPointer(Vec2ui* MousePos)
 		MousePos->X = RootX;
 		MousePos->Y = RootY;
 	}
+	CheckDisplayUnloading();
 
 	return Mask;
 }

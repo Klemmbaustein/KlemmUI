@@ -49,7 +49,7 @@ void main()
 	if (u_useTexture == 1)
 	{
 		vec4 sampled = vec4(0.0);
-		vec2 offset = (0.5 / scale) / u_screenRes;
+		vec2 offset = (0.5 / scale) / u_screenRes.y;
 		int samples = 0;
 		for (int x = -NUM_SAMPLES; x < NUM_SAMPLES; x++)
 		{

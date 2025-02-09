@@ -514,6 +514,10 @@ DrawableText* Font::MakeText(std::vector<TextSegment> Text, Vec2f Pos, float Sca
 				x = 0;
 				y += CharacterSize;
 				CurrentLine++;
+				if (CurrentLine > MaxLines)
+				{
+					break;
+				}
 			}
 		}
 	}

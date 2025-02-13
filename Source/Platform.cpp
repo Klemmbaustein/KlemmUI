@@ -1,7 +1,7 @@
 #include <kui/Platform.h>
 
 #ifdef KLEMMUI_WAYLAND
-static bool UseWayland = false;
+static bool UseWayland = true;
 
 bool kui::platform::linux::GetUseWayland()
 {

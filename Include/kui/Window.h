@@ -230,7 +230,7 @@ namespace kui
 		* For a borderless window, the window manager has to know which area is grabbable by the mouse cursor.
 		* This function should return true if the area currently hovered is grabbable and false if it's not.
 		*/
-		std::function<bool(Window*)> IsAreaGrabbableCallback;
+		std::function<bool(Window*)> IsAreaGrabbableCallback = nullptr;
 		/**
 		 * @brief
 		 * The resized callback.

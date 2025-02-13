@@ -1,4 +1,4 @@
-#if __linux__ && !KLEMMUI_CUSTOM_SYSTEMWM
+#if __linux__ && !KLEMMUI_CUSTOM_SYSTEMWM && !KLEMMUI_WITH_SDL
 #include "SystemWM.h"
 #include "SystemWM_Linux.h"
 #include <kui/Platform.h>
@@ -88,6 +88,8 @@ kui::Vec2i kui::systemWM::GetCursorPosition(SysWindow* Target)
 
 kui::Vec2ui kui::systemWM::GetScreenSize()
 {
+	if (GetUseWayland())
+		return Vec2ui(1920, 1080);
 	return X11Window::GetMainScreenResolution();
 }
 
@@ -110,6 +112,8 @@ void kui::systemWM::SetWindowCursor(SysWindow* Target, Window::Cursor NewCursor)
 
 float kui::systemWM::GetDPIScale(SysWindow* Target)
 {
+	if (GetUseWayland())
+		return 1;
 	return Target->X11.GetDPIScale();
 }
 

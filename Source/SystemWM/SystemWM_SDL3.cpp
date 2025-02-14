@@ -247,7 +247,6 @@ void kui::systemWM::DestroyWindow(SysWindow* Target)
 
 void kui::systemWM::SwapWindow(SysWindow* Target)
 {
-	SDL_ShowWindow(Target->SDLWindow);
 	SDL_GL_SetSwapInterval(1);
 	SDL_GL_SwapWindow(Target->SDLWindow);
 }
@@ -271,10 +270,6 @@ kui::Vec2ui kui::systemWM::GetWindowSize(SysWindow* Target)
 	int w, h;
 	SDL_GetWindowSize(Target->SDLWindow, &w, &h);
 	return Vec2ui(w, h);
-}
-
-void kui::systemWM::SetWindowIcon(SysWindow* Target, uint8_t* Bytes, size_t Width, size_t Height)
-{
 }
 
 void kui::systemWM::UpdateWindow(SysWindow* Target)
@@ -332,6 +327,17 @@ std::string kui::systemWM::GetTextInput(SysWindow* Target)
 	std::string Out = Target->TextInput;
 	Target->TextInput.clear();
 	return Out;
+}
+
+void kui::systemWM::SetWindowIcon(SysWindow* Target, uint8_t* Bytes, size_t Width, size_t Height)
+{
+	SDL_Surface* s = SDL_CreateSurfaceFrom(Width, Height, SDL_PIXELFORMAT_ABGR8888, Bytes, Width * 4);
+
+	if (!SDL_SetWindowIcon(Target->SDLWindow, s))
+	{
+		app::error::Error(SDL_GetError());
+	}
+	SDL_DestroySurface(s);
 }
 
 uint32_t kui::systemWM::GetDesiredRefreshRate(SysWindow* From)

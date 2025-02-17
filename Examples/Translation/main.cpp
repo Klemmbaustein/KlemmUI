@@ -2,21 +2,10 @@
 #include <kui/Platform.h>
 #include "Translate.kui.hpp"
 #include <map>
-#include <thread>
 using namespace kui;
 
 static const char* GermanTitle = "Übersetzungsbeispiel";
 static const char* EnglishTitle = "Translation Example";
-
-int win2()
-{
-	Window Test = Window("", Window::WindowFlag::Resizable);
-	while (Test.UpdateWindow())
-	{
-	}
-
-	return 0;
-}
 
 int main()
 {
@@ -71,15 +60,11 @@ int main()
 			MainWindow.Markup.OnTranslationChanged();
 		};
 
-	//std::thread t = std::thread(win2);
-
 	while (MainWindow.UpdateWindow())
 	{
 	}
 
 	delete Fnt;
-
-	//t.join();
 }
 
 int WinMain()

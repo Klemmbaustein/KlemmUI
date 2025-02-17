@@ -12,7 +12,7 @@
 #include <cstring>
 #include <kui/UI/UIButton.h>
 #include <algorithm>
-
+#include <cmath>
 using namespace kui::systemWM;
 using namespace kui;
 
@@ -654,7 +654,7 @@ WaylandConnection::ResizeCursor kui::systemWM::WaylandWindow::HandleHitTest(uint
 		Border.Y /= 2;
 	}
 
-	if (!Resizable)
+	if (!Resizable || Maximized)
 	{
 		if (Grabbable && Move)
 		{
@@ -974,6 +974,14 @@ static std::string TrimStr(std::string Input)
 	return Input;
 }
 
+static std::string Lower(std::string In)
+{
+	std::transform(In.begin(), In.end(), In.begin(), [](char c) -> char {
+		return std::tolower(c);
+	});
+	return In;
+}
+
 std::string kui::systemWM::WaylandConnection::GetIniFileValue(std::string FilePath, std::string Category, std::string Key)
 {
 	if (!std::filesystem::is_regular_file(FilePath))
@@ -981,6 +989,11 @@ std::string kui::systemWM::WaylandConnection::GetIniFileValue(std::string FilePa
 		return "";
 	}
 	std::ifstream FileStream = std::ifstream(FilePath);
+
+	// The capitalizaton of the category or key might be different
+	// on different distros
+	Category = Lower(Category);
+	Key = Lower(Key);
 
 	std::string CurrentCategory;
 
@@ -999,7 +1012,7 @@ std::string kui::systemWM::WaylandConnection::GetIniFileValue(std::string FilePa
 
 		if (LineString.size() > 2 && LineString[0] == '[' && LineString[LineString.size() - 1] == ']')
 		{
-			CurrentCategory = TrimStr(LineString.substr(1, LineString.size() - 2));
+			CurrentCategory = Lower(TrimStr(LineString.substr(1, LineString.size() - 2)));
 			continue;
 		}
 
@@ -1008,8 +1021,7 @@ std::string kui::systemWM::WaylandConnection::GetIniFileValue(std::string FilePa
 		if (Equals == std::string::npos)
 			continue;
 
-		std::string First = TrimStr(LineString.substr(0, Equals)), Last = (LineString.substr(Equals + 1));
-
+		std::string First = Lower(TrimStr(LineString.substr(0, Equals))), Last = (LineString.substr(Equals + 1));
 
 		if (First == Key && CurrentCategory == Category)
 		{

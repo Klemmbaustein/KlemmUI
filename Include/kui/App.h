@@ -21,6 +21,10 @@ namespace kui::app
 
 	void MessageBox(std::string Text, std::string Title, MessageBoxType Type);
 
+	bool YesNoBox(std::string Text, std::string Title);
+
+	std::string SelectFileDialog(bool PickFolders);
+
 	/**
 	 * @brief
 	 * Application error handling.

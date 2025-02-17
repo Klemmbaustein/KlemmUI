@@ -461,7 +461,7 @@ bool kui::systemWM::X11Window::IsRMBDown()
 
 void kui::systemWM::X11Window::SetCursor(Window::Cursor NewCursor)
 {
-	static std::map<Window::Cursor, Cursor> LoadedCursors;
+	thread_local static std::map<Window::Cursor, Cursor> LoadedCursors;
 
 	CurrentCursor = NewCursor;
 
@@ -550,7 +550,7 @@ void kui::systemWM::X11Window::Restore() const
 	XSendEvent(XDisplay, DefaultRootWindow(XDisplay), false, SubstructureNotifyMask, &xev);
 
 	XClientMessageEvent ev;
-	std::memset(&ev, 0, sizeof ev);
+	memset(&ev, 0, sizeof(ev));
 	ev.type = ClientMessage;
 	ev.window = XWindow;
 	ev.message_type = XInternAtom(XDisplay, "_NET_ACTIVE_WINDOW", True);
@@ -574,10 +574,10 @@ void kui::systemWM::X11Window::SetIcon(uint8_t* TextureBytes, size_t Width, size
 	for (size_t i = 0; i < Width * Height * 4; i += 4)
 	{
 		uint8_t Bytes[4] = {};
-		Bytes[0] = TextureBytes[i + 2]; // B
-		Bytes[1] = TextureBytes[i + 1]; // G
-		Bytes[2] = TextureBytes[i + 0]; // R
 		Bytes[3] = TextureBytes[i + 3]; // A
+		Bytes[2] = TextureBytes[i + 0]; // R
+		Bytes[1] = TextureBytes[i + 1]; // G
+		Bytes[0] = TextureBytes[i + 2]; // B
 
 		ArgbFormat.push_back(*reinterpret_cast<uint32_t*>(&Bytes));
 	}
@@ -684,7 +684,7 @@ std::string kui::systemWM::X11Window::GetClipboard()
 		return "";
 
 	SysWindow* CurrentWindow = static_cast<SysWindow*>(Current->GetSysWindow());
-	return GetSelection(XDisplay, CurrentWindow->X11.XWindow, "CLIPBOARD", "UTF8_STRING");
+	return GetSelection(XDisplay, CurrentWindow->X11->XWindow, "CLIPBOARD", "UTF8_STRING");
 }
 
 kui::Vec2ui kui::systemWM::X11Window::GetMainScreenResolution()

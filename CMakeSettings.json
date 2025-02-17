@@ -47,32 +47,34 @@
 	  "buildCommandArgs": "",
 	  "ctestCommandArgs": "",
 	  "inheritEnvironments": [ "linux_x64" ],
-	  "wslPath": "${defaultWSLPath}",
-	  "variables": [
+    "wslPath": "${defaultWSLPath}",
+    "variables": [
       {
         "name": "KLEMMUI_USE_XRANDR",
         "value": "ON",
         "type": "BOOL"
       }
-	  ]
+    ]
 	},
-	{
-	  "name": "WSL-GCC-Release",
-	  "generator": "Ninja",
-	  "configurationType": "Release",
-	  "buildRoot": "${projectDir}\\out\\build\\${name}",
-	  "installRoot": "${projectDir}\\out\\install\\${name}",
-	  "cmakeExecutable": "cmake",
-	  "cmakeCommandArgs": "",
-	  "buildCommandArgs": "",
-	  "ctestCommandArgs": "",
-	  "inheritEnvironments": [ "linux_x64" ],
-	  "wslPath": "${defaultWSLPath}"
-	},
-	{
-	  "name": "Emscripten",
-	  "cacheRoot": "C:/Users/janpa/source/repos/KlemmUI/out/build/emscripten",
-	  "inheritEnvironments": [ "linux_x64" ]
-	}
+    {
+      "name": "WSL-GCC-Release",
+      "generator": "Ninja",
+      "configurationType": "Release",
+      "buildRoot": "${projectDir}\\out\\build\\${name}",
+      "installRoot": "${projectDir}\\out\\install\\${name}",
+      "cmakeExecutable": "cmake",
+      "cmakeCommandArgs": "",
+      "buildCommandArgs": "",
+      "ctestCommandArgs": "",
+      "inheritEnvironments": [ "linux_x64" ],
+      "wslPath": "${defaultWSLPath}",
+      "variables": [
+        {
+          "name": "KLEMMUI_WITH_WAYLAND",
+          "value": "OFF",
+          "type": "BOOL"
+        }
+      ]
+    }
   ]
 }

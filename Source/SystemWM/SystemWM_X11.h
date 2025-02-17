@@ -73,13 +73,13 @@ namespace kui::systemWM
 		bool HasFocus = false;
 		bool Resizable = true;
 		bool Borderless = false;
+		bool HoveringCorner = false;
+		int LastResizeCorner = false;
 
 		Vec2ui MinSize;
 		Vec2ui MaxSize;
 
-		bool HoveringCorner = false;
 		Window::Cursor CurrentCursor = Window::Cursor::Default;
-		int LastResizeCorner = false;
 	private:
 		void HandleEvent(XEvent ev);
 		void HandleKeyPress(KeySym Symbol, bool NewValue);

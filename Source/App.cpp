@@ -4,7 +4,7 @@
 static std::function<void(std::string Message, bool IsFatal)> ErrorCallback = 
 	[](std::string Message, bool)
 	{
-		puts(Message.c_str());
+		std::fputs(Message.c_str(), stderr);
 	};
 
 void kui::app::MessageBox(std::string Text, std::string Title, MessageBoxType Type)
@@ -24,4 +24,14 @@ void kui::app::error::Error(std::string Message, bool Fatal)
 void kui::app::error::SetErrorCallback(std::function<void(std::string Message, bool IsFatal)> Callback)
 {
 	ErrorCallback = Callback;
+}
+
+bool kui::app::YesNoBox(std::string Text, std::string Title)
+{
+	return systemWM::YesNoBox(Text, Title);
+}
+
+std::string kui::app::SelectFileDialog(bool PickFolders)
+{
+	return systemWM::SelectFileDialog(PickFolders);
 }

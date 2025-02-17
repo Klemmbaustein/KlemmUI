@@ -13,6 +13,8 @@
 #include <kui/UI/UIButton.h>
 #include <array>
 #include <map>
+#include <Shlobj.h>
+#include <shobjidl.h>
 
 #undef IsMaximized
 
@@ -104,7 +106,7 @@ namespace kui::systemWM::Borderless
 	{
 		if (IsCompositionEnabled())
 		{
-			static const MARGINS shadow_state[2]{ { 0,0,0,0 },{ 1,1,1,1 } };
+			static const MARGINS shadow_state[2]{ { 0, 0, 0, 0 }, { 1, 1, 1, 1 } };
 			::DwmExtendFrameIntoClientArea(handle, &shadow_state[enabled]);
 		}
 	}
@@ -170,7 +172,7 @@ namespace kui::systemWM::Borderless
 			&& !HoveringButton
 			&& Window->Parent->IsAreaGrabbableCallback
 			&& Window->Parent->IsAreaGrabbableCallback(Window->Parent) ? HTCAPTION : HTCLIENT;
-		
+
 		// Make it easier to press buttons near the screen corners
 		if (HoveringButton)
 		{
@@ -239,63 +241,63 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
 	// Some vk codes do not have a #define, but why?
 	static std::map<int, kui::Key> Keys =
 	{
-		{VK_ESCAPE, Key::ESCAPE},
-		{VK_BACK, Key::BACKSPACE},
-		{VK_TAB, Key::TAB},
-		{VK_SPACE, Key::SPACE},
-		{VK_DELETE, Key::DELETE},
-		{VK_OEM_PLUS, Key::PLUS},
-		{VK_OEM_COMMA, Key::COMMA},
-		{VK_OEM_PERIOD, Key::PERIOD},
-		{VK_OEM_2, Key::SLASH},
-		{0x30, Key::k0},
-		{0x31, Key::k1},
-		{0x32, Key::k2},
-		{0x33, Key::k3},
-		{0x34, Key::k4},
-		{0x35, Key::k5},
-		{0x36, Key::k6},
-		{0x37, Key::k7},
-		{0x38, Key::k8},
-		{0x39, Key::k9},
-		{VK_OEM_1, Key::SEMICOLON},
-		{VK_OEM_102, Key::LESS},
-		{VK_RETURN, Key::RETURN},
-		{VK_OEM_4, Key::LEFTBRACKET},
-		{VK_OEM_6, Key::RIGHTBRACKET},
-		{VK_RIGHT, Key::RIGHT},
-		{VK_LEFT, Key::LEFT},
-		{VK_UP, Key::UP},
-		{VK_DOWN, Key::DOWN},
-		{VK_SHIFT, Key::LSHIFT},
-		{VK_CONTROL, Key::LCTRL},
-		{VK_MENU, Key::LALT},
-		{0x41, Key::a},
-		{0x42, Key::b},
-		{0x43, Key::c},
-		{0x44, Key::d},
-		{0x45, Key::e},
-		{0x46, Key::f},
-		{0x47, Key::g},
-		{0x48, Key::h},
-		{0x49, Key::i},
-		{0x4a, Key::j},
-		{0x4b, Key::k},
-		{0x4c, Key::l},
-		{0x4d, Key::m},
-		{0x4e, Key::n},
-		{0x4f, Key::o},
-		{0x50, Key::p},
-		{0x51, Key::q},
-		{0x52, Key::r},
-		{0x53, Key::s},
-		{0x54, Key::t},
-		{0x55, Key::u},
-		{0x56, Key::v},
-		{0x57, Key::w},
-		{0x58, Key::x},
-		{0x59, Key::y},
-		{0x5a, Key::z},
+		{ VK_ESCAPE, Key::ESCAPE },
+		{ VK_BACK, Key::BACKSPACE },
+		{ VK_TAB, Key::TAB },
+		{ VK_SPACE, Key::SPACE },
+		{ VK_DELETE, Key::DELETE },
+		{ VK_OEM_PLUS, Key::PLUS },
+		{ VK_OEM_COMMA, Key::COMMA },
+		{ VK_OEM_PERIOD, Key::PERIOD },
+		{ VK_OEM_2, Key::SLASH },
+		{ 0x30, Key::k0 },
+		{ 0x31, Key::k1 },
+		{ 0x32, Key::k2 },
+		{ 0x33, Key::k3 },
+		{ 0x34, Key::k4 },
+		{ 0x35, Key::k5 },
+		{ 0x36, Key::k6 },
+		{ 0x37, Key::k7 },
+		{ 0x38, Key::k8 },
+		{ 0x39, Key::k9 },
+		{ VK_OEM_1, Key::SEMICOLON },
+		{ VK_OEM_102, Key::LESS },
+		{ VK_RETURN, Key::RETURN },
+		{ VK_OEM_4, Key::LEFTBRACKET },
+		{ VK_OEM_6, Key::RIGHTBRACKET },
+		{ VK_RIGHT, Key::RIGHT },
+		{ VK_LEFT, Key::LEFT },
+		{ VK_UP, Key::UP },
+		{ VK_DOWN, Key::DOWN },
+		{ VK_SHIFT, Key::LSHIFT },
+		{ VK_CONTROL, Key::LCTRL },
+		{ VK_MENU, Key::LALT },
+		{ 0x41, Key::a },
+		{ 0x42, Key::b },
+		{ 0x43, Key::c },
+		{ 0x44, Key::d },
+		{ 0x45, Key::e },
+		{ 0x46, Key::f },
+		{ 0x47, Key::g },
+		{ 0x48, Key::h },
+		{ 0x49, Key::i },
+		{ 0x4a, Key::j },
+		{ 0x4b, Key::k },
+		{ 0x4c, Key::l },
+		{ 0x4d, Key::m },
+		{ 0x4e, Key::n },
+		{ 0x4f, Key::o },
+		{ 0x50, Key::p },
+		{ 0x51, Key::q },
+		{ 0x52, Key::r },
+		{ 0x53, Key::s },
+		{ 0x54, Key::t },
+		{ 0x55, Key::u },
+		{ 0x56, Key::v },
+		{ 0x57, Key::w },
+		{ 0x58, Key::x },
+		{ 0x59, Key::y },
+		{ 0x5a, Key::z },
 	};
 
 	systemWM::SysWindow* SysWindow =
@@ -996,6 +998,55 @@ bool kui::systemWM::IsWindowMinimized(SysWindow* Target)
 void kui::systemWM::HideWindow(SysWindow* Target)
 {
 	::ShowWindow(Target->WindowHandle, SW_HIDE);
+}
+
+std::string kui::systemWM::SelectFileDialog(bool PickFolders)
+{
+	std::string FilePath = "";
+	HRESULT hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
+	if (SUCCEEDED(hr))
+	{
+		IFileOpenDialog* pFileOpen;
+
+		// Create the FileOpenDialog object.
+		hr = CoCreateInstance(CLSID_FileOpenDialog, NULL, CLSCTX_ALL,
+			IID_IFileOpenDialog, reinterpret_cast<void**>(&pFileOpen));
+		if (PickFolders)
+			pFileOpen->SetOptions(FOS_PICKFOLDERS);
+
+		if (SUCCEEDED(hr))
+		{
+			// Show the Open dialog box.
+			hr = pFileOpen->Show(NULL);
+			// Get the file name from the dialog box.
+			if (SUCCEEDED(hr))
+			{
+				IShellItem* pItem;
+				hr = pFileOpen->GetResult(&pItem);
+				if (SUCCEEDED(hr))
+				{
+					PWSTR pszFilePath;
+					hr = pItem->GetDisplayName(SIGDN_FILESYSPATH, &pszFilePath);
+					// Display the file name to the user.
+					if (SUCCEEDED(hr))
+					{
+						FilePath = FromWstring(pszFilePath);
+						return FilePath;
+					}
+					pItem->Release();
+				}
+			}
+			pFileOpen->Release();
+		}
+		CoUninitialize();
+	}
+	return FilePath;
+
+}
+
+bool kui::systemWM::YesNoBox(std::string Text, std::string Title)
+{
+	return ::MessageBoxW(0, ToWstring(Text).c_str(), ToWstring(Title).c_str(), MB_YESNO);
 }
 
 void* kui::systemWM::GetPlatformHandle(SysWindow* Target)

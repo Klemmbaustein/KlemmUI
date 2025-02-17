@@ -22,10 +22,18 @@ namespace kui::platform
 
 	namespace linux
 	{
-#ifdef KLEMMUI_WAYLAND
+#if __linux__
 		bool GetUseWayland();
 
-		void SetUseWayland();
+		void AlwaysUseWayland();
+		void AlwaysUseX11();
+#else
+		constexpr bool GetUseWayland()
+		{
+			return false;
+		}
+		constexpr void AlwaysUseWayland() {}
+		constexpr void AlwaysUseX11() {}
 #endif
 	}
 }

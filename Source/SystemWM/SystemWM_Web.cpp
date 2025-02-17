@@ -287,7 +287,18 @@ void* kui::systemWM::GetPlatformHandle(SysWindow* Target)
 void kui::systemWM::MessageBox(std::string Text, std::string Title, int Type)
 {
 	// TODO: implemenent something better
-	std::cout << Title << Text << std::endl;
+	std::cout << Title << ": " << Text << std::endl;
+}
+
+bool kui::systemWM::YesNoBox(std::string Text, std::string Title)
+{
+	std::cout << Title << ": " << Text << std::endl;
+	return false;
+}
+
+std::string kui::systemWM::SelectFileDialog(bool PickFolders)
+{
+	return "";
 }
 
 void kui::systemWM::WaitFrame(SysWindow* Target, float RemainingTime)

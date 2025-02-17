@@ -2,10 +2,21 @@
 #include <kui/Platform.h>
 #include "Translate.kui.hpp"
 #include <map>
+#include <thread>
 using namespace kui;
 
 static const char* GermanTitle = "Übersetzungsbeispiel";
 static const char* EnglishTitle = "Translation Example";
+
+int win2()
+{
+	Window Test = Window("", Window::WindowFlag::Resizable);
+	while (Test.UpdateWindow())
+	{
+	}
+
+	return 0;
+}
 
 int main()
 {
@@ -14,7 +25,7 @@ int main()
 			app::MessageBox(Message, "Error", app::MessageBoxType::Error);
 		});
 
-	Window MainWindow = Window(EnglishTitle, Window::WindowFlag::Resizable | platform::win32::WindowFlag::DarkTitleBar, Window::POSITION_CENTERED, Vec2ui(800, 600));
+	Window MainWindow = Window(EnglishTitle, Window::WindowFlag::Resizable | platform::win32::WindowFlag::DarkTitleBar, Window::POSITION_CENTERED);
 
 	bool IsGerman = false;
 
@@ -60,11 +71,15 @@ int main()
 			MainWindow.Markup.OnTranslationChanged();
 		};
 
+	//std::thread t = std::thread(win2);
+
 	while (MainWindow.UpdateWindow())
 	{
 	}
 
 	delete Fnt;
+
+	//t.join();
 }
 
 int WinMain()

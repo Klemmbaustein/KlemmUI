@@ -47,7 +47,7 @@ static std::string FilterString(std::string InString, std::string Forbidden)
 kui::InputManager::InputManager(Window* Parent)
 {
 	ParentWindow = Parent;
-	
+
 	// Text input callbacks
 	RegisterOnKeyDownCallback(Key::LEFT, [](Window* Win) {
 		Win->Input.MoveTextIndex(-1);
@@ -161,6 +161,11 @@ kui::InputManager::InputManager(Window* Parent)
 		});
 
 	RegisterOnKeyDownCallback(Key::v, [](Window* Win) {
+
+		if (!Win->Input.IsKeyDown(Key::LCTRL) && !Win->Input.IsKeyDown(Key::RCTRL))
+		{
+			return;
+		}
 		std::string Filter = "\n\r\a";
 		if (Win->Input.TextAllowNewLine)
 		{
@@ -168,9 +173,7 @@ kui::InputManager::InputManager(Window* Parent)
 		}
 
 		auto str = FilterString(systemWM::GetClipboardText(), Filter);
-
-		if (Win->Input.IsKeyDown(Key::LCTRL) || Win->Input.IsKeyDown(Key::RCTRL))
-			Win->Input.AddTextInput(str);
+		Win->Input.AddTextInput(str);
 		});
 
 }
@@ -299,11 +302,15 @@ void InputManager::SetKeyDown(Key PressedKey, bool KeyDown)
 	{
 		Key->second = KeyDown;
 	}
-	if (ButtonPressedCallbacks.contains(PressedKey) && KeyDown)
+
+	if (ParentWindow->HasFocus())
 	{
-		for (auto Function : ButtonPressedCallbacks[PressedKey])
+		if (ButtonPressedCallbacks.contains(PressedKey) && KeyDown)
 		{
-			Function(ParentWindow);
+			for (auto Function : ButtonPressedCallbacks[PressedKey])
+			{
+				Function(ParentWindow);
+			}
 		}
 	}
 }

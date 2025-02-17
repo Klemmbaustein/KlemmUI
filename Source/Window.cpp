@@ -6,6 +6,7 @@
 #include <kui/UI/UIScrollBox.h>
 #include <kui/UI/UITextField.h>
 #include <kui/Image.h>
+#include <kui/Platform.h>
 #include <mutex>
 #include <cstring>
 #include <iostream>
@@ -129,7 +130,7 @@ void kui::Window::WaitFrame()
 	}
 
 #if __linux__
-	if (!RedrawnWindow)
+	if (!RedrawnWindow && !platform::linux::GetUseWayland())
 #endif
 	{
 #if __linux__

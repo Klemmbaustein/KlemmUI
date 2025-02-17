@@ -49,22 +49,20 @@ if(KLEMMUI_WEB)
 	target_compile_definitions(KlemmUI PUBLIC KLEMMUI_WEB_BUILD=1)
 elseif(NOT DEFINED WIN32)
 	option(KLEMMUI_USE_XRANDR "Use the Xrandr X11 extension if available" ON)
-	option(KLEMMUI_LINUX_WITH_SDL "Use SDL3 instead of custom X11 windowing code" OFF)
+	option(KLEMMUI_WITH_WAYLAND "Include wayland support" ON)
 
-	# Very much not completed
-	if(KLEMMUI_LINUX_WITH_SDL)
-		find_package(SDL3 REQUIRED CONFIG REQUIRED COMPONENTS SDL3-shared)
-		target_compile_definitions(KlemmUI PUBLIC KLEMMUI_WITH_SDL)
-		target_link_libraries(KlemmUI PRIVATE SDL3::SDL3)
-	else()
-		message(STATUS "Checking for X11 extensions")
-	
-		find_library(KLEMMUI_XRANDR_LIB Xrandr)
-		if(KLEMMUI_USE_XRANDR AND KLEMMUI_XRANDR_LIB)
-			target_compile_definitions(KlemmUI PRIVATE KLEMMUI_USE_XRANDR)
-			target_link_libraries(KlemmUI PUBLIC ${KLEMMUI_XRANDR_LIB})
-			message(STATUS "Using Xrandr X11 extension")
-		endif()
+	message(STATUS "Checking for X11 extensions")
+		
+	if(KLEMMUI_WITH_WAYLAND)
+		target_link_libraries(KlemmUI PUBLIC decor-0 wayland-client wayland-cursor wayland-egl EGL xkbcommon)
+		target_compile_definitions(KlemmUI PUBLIC KLEMMUI_WITH_WAYLAND)
+	endif()
+
+	find_library(KLEMMUI_XRANDR_LIB Xrandr)
+	if(KLEMMUI_USE_XRANDR AND KLEMMUI_XRANDR_LIB)
+		target_compile_definitions(KlemmUI PRIVATE KLEMMUI_USE_XRANDR)
+		target_link_libraries(KlemmUI PUBLIC ${KLEMMUI_XRANDR_LIB})
+		message(STATUS "Using Xrandr X11 extension")
 	endif()
 
 	# GCC defines 'linux' as a macro by default (what?), which conflicts with 'kui::platform::linux'

@@ -55,4 +55,6 @@ namespace kui::systemWM
 	void RestoreWindow(SysWindow* Target);
 
 	void MessageBox(std::string Text, std::string Title, int Type);
+	bool YesNoBox(std::string Text, std::string Title);
+	std::string SelectFileDialog(bool PickFolders);
 }

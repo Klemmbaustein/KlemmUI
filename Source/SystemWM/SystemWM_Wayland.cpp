@@ -496,7 +496,7 @@ void kui::systemWM::WaylandWindow::UpdateWindow()
 	std::unique_lock g{ WindowUpdateMutex };
 	if (Connection->PointerWindow == this)
 	{
-		Connection->SetCursor(ActiveCursor);
+		Connection->SetCursor(Parent->HasFocus() ? ActiveCursor : Window::Cursor::Default);
 		Connection->UpdateCursor();
 		Parent->Input.MoveMouseWheel(Connection->Scrolled);
 		Connection->Scrolled = 0;

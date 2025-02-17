@@ -79,6 +79,7 @@ namespace kui::systemWM
 
 		uint32_t Serial = 0;
 		uint32_t PointerScale = -1;
+		int Scrolled = 0;
 		bool IsLMBDown = false;
 		bool IsRMBDown = false;
 
@@ -135,6 +136,8 @@ namespace kui::systemWM
 		void SetSize(Vec2ui NewSize);
 
 		void HandleKey(int Symbol, bool NewValue);
+		void SetBorderless(bool NewBorderless);
+		void SetResizable(bool NewResizable) const;
 
 		WaylandConnection* Connection;
 		EGLSurface GLSurface;

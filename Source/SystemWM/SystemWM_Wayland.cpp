@@ -51,9 +51,7 @@ static void HandleConfigureFrame(libdecor_frame* frame, libdecor_configuration* 
 	SysWin->ContentSize = Vec2ui(width, height);
 	SysWin->Parent->OnResized();
 
-	wl_egl_window_resize(SysWin->WaylandGLWindow,
-		width, height,
-		0, 0);
+	wl_egl_window_resize(SysWin->WaylandGLWindow, width, height, 0, 0);
 
 	DecorState = libdecor_state_new(width, height);
 	libdecor_frame_commit(frame, DecorState, configuration);
@@ -171,6 +169,13 @@ static void HandlePointerButton(void* data, wl_pointer* wl_pointer, uint32_t ser
 
 static void HandlePointerAxis(void* data, wl_pointer* wl_pointer, uint32_t time, uint32_t axis, wl_fixed_t value)
 {
+	WaylandConnection* c = (WaylandConnection*)data;
+	if (axis == WL_POINTER_AXIS_VERTICAL_SCROLL)
+	{
+		std::unique_lock g{ WindowMutex };
+
+		c->Scrolled -= int(round(wl_fixed_to_double(value) / 5.0));
+	}
 }
 
 static const wl_pointer_listener PointerListener = {
@@ -353,7 +358,7 @@ static void HandleSeatCapabilities(void* data, wl_seat* seat, uint32_t caps)
 {
 	WaylandConnection* c = (WaylandConnection*)data;
 
-	if (caps & WL_SEAT_CAPABILITY_POINTER)
+	if (caps & WL_SEAT_CAPABILITY_POINTER && !c->Cursor.Pointer)
 	{
 		c->Cursor.Pointer = wl_seat_get_pointer(seat);
 		c->Cursor.CursorSurface = wl_compositor_create_surface(c->WaylandCompositor);
@@ -438,8 +443,7 @@ void kui::systemWM::WaylandWindow::Create(Window* Parent, Vec2ui Size, Vec2ui Po
 
 	WaylandGLWindow = wl_egl_window_create(WaylandSurface, Size.X, Size.Y);
 
-	GLSurface = eglCreateWindowSurface(GLDisplay, GLConfig,
-		(EGLNativeWindowType)WaylandGLWindow, NULL);
+	GLSurface = eglCreateWindowSurface(GLDisplay, GLConfig, (EGLNativeWindowType)WaylandGLWindow, NULL);
 
 	MakeContextCurrent();
 
@@ -457,6 +461,7 @@ void kui::systemWM::WaylandWindow::Create(Window* Parent, Vec2ui Size, Vec2ui Po
 	{
 		libdecor_frame_set_min_content_size(DecorFrame, Size.X, Size.Y);
 		libdecor_frame_set_max_content_size(DecorFrame, Size.X, Size.Y);
+		libdecor_frame_unset_capabilities(DecorFrame, LIBDECOR_ACTION_RESIZE);
 	}
 
 	libdecor_frame_map(DecorFrame);
@@ -482,8 +487,7 @@ void kui::systemWM::WaylandWindow::MakeContextCurrent() const
 {
 	if (eglGetCurrentContext() != GLContext)
 	{
-		eglMakeCurrent(GLDisplay, GLSurface,
-			GLSurface, GLContext);
+		eglMakeCurrent(GLDisplay, GLSurface, GLSurface, GLContext);
 	}
 }
 
@@ -494,6 +498,14 @@ void kui::systemWM::WaylandWindow::UpdateWindow()
 	{
 		Connection->SetCursor(ActiveCursor);
 		Connection->UpdateCursor();
+		Parent->Input.MoveMouseWheel(Connection->Scrolled);
+		Connection->Scrolled = 0;
+	}
+	else if (!Connection->PointerWindow)
+	{
+		Connection->SetCursor(Window::Cursor::Default);
+		Connection->UpdateCursor();
+		Connection->Scrolled = 0;
 	}
 	if (Connection->KeyboardWindow == this)
 	{
@@ -529,19 +541,28 @@ void kui::systemWM::WaylandWindow::Destroy()
 		wl_surface_destroy(WaylandSurface);
 		WaylandSurface = nullptr;
 	}
-
 	if (GLContext)
 	{
 		eglDestroyContext(GLDisplay, GLContext);
 	}
+
 	wl_display_roundtrip(Connection->WaylandDisplay);
 
 	if (DecorContext)
 	{
+		libdecor_frame_close(DecorFrame);
 		libdecor_unref(DecorContext);
 	}
 
 	std::unique_lock g{ WindowMutex };
+
+
+	if (Connection->PointerWindow == this)
+	{
+		Connection->PointerFocus = nullptr;
+		Connection->PointerWindow = nullptr;
+	}
+
 	for (auto i = ActiveWindows.begin(); i < ActiveWindows.end(); i++)
 	{
 		if (*i == this)
@@ -904,8 +925,6 @@ void kui::systemWM::WaylandWindow::InitEGL()
 		app::error::Error("Cannot initialise EGL!", true);
 	}
 
-	std::cerr << "Using EGL " << Major << "." << Minor << std::endl;
-
 	if (!eglBindAPI(EGL_OPENGL_API))
 	{
 		app::error::Error("Cannot bind EGL API!", true);
@@ -1102,6 +1121,31 @@ void kui::systemWM::WaylandWindow::HandleKey(int Symbol, bool NewValue)
 	if (!Keys.contains(Symbol))
 		return;
 	Parent->Input.SetKeyDown(Keys[Symbol], NewValue);
+}
+
+void kui::systemWM::WaylandWindow::SetBorderless(bool NewBorderless)
+{
+	if (Borderless != NewBorderless)
+	{
+		Borderless = NewBorderless;
+		libdecor_frame_set_visibility(DecorFrame, !NewBorderless);
+	}
+}
+
+void kui::systemWM::WaylandWindow::SetResizable(bool NewResizable) const
+{
+	if (NewResizable)
+	{
+		libdecor_frame_set_min_content_size(DecorFrame, MinSize.X, MinSize.Y);
+		libdecor_frame_set_max_content_size(DecorFrame, MaxSize.X, MaxSize.Y);
+		libdecor_frame_set_capabilities(DecorFrame, LIBDECOR_ACTION_RESIZE);
+	}
+	else
+	{
+		libdecor_frame_set_min_content_size(DecorFrame, ContentSize.X, ContentSize.Y);
+		libdecor_frame_set_max_content_size(DecorFrame, ContentSize.X, ContentSize.Y);
+		libdecor_frame_unset_capabilities(DecorFrame, LIBDECOR_ACTION_RESIZE);
+	}
 }
 
 void kui::systemWM::WaylandKeyboardInfo::SetRepeated(std::string RepeatedString, int Code, int Symbol)

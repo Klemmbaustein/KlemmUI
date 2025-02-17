@@ -82,14 +82,27 @@ void kui::systemWM::SwapWindow(SysWindow* Target)
 }
 void kui::systemWM::UpdateWindowFlags(SysWindow* Target, Window::WindowFlag NewFlags)
 {
-	Target->X11->SetBorderless(CheckFlag(NewFlags, Window::WindowFlag::Borderless));
-	Target->X11->SetResizable(CheckFlag(NewFlags, Window::WindowFlag::Resizable));
-	Target->X11->SetAlwaysOnTop(CheckFlag(NewFlags, Window::WindowFlag::AlwaysOnTop));
+	if (GetUseWayland())
+	{
+#if KLEMMUI_WITH_WAYLAND
+		Target->Wayland->SetBorderless(CheckFlag(NewFlags, Window::WindowFlag::Borderless));
+		Target->Wayland->SetResizable(CheckFlag(NewFlags, Window::WindowFlag::Resizable));
+#endif
+	}
+	else
+	{
+		Target->X11->SetBorderless(CheckFlag(NewFlags, Window::WindowFlag::Borderless));
+		Target->X11->SetResizable(CheckFlag(NewFlags, Window::WindowFlag::Resizable));
+		Target->X11->SetAlwaysOnTop(CheckFlag(NewFlags, Window::WindowFlag::AlwaysOnTop));
+	}
 }
 
 void kui::systemWM::ActivateContext(SysWindow* Target)
 {
-	Target->X11->MakeContextCurrent();
+	if (GetUseWayland())
+		WAYLAND_FN(Target->Wayland->MakeContextCurrent());
+	else
+		Target->X11->MakeContextCurrent();
 }
 
 kui::Vec2ui kui::systemWM::GetWindowSize(SysWindow* Target)
@@ -123,7 +136,6 @@ kui::Vec2i kui::systemWM::GetCursorPosition(SysWindow* Target)
 
 kui::Vec2ui kui::systemWM::GetScreenSize()
 {
-	std::cerr << WaylandConnection::GetConnection()->PrimarySize.ToString() << std::endl;
 	if (GetUseWayland())
 		WAYLAND_FN(return WaylandConnection::GetConnection()->PrimarySize);
 	return X11Window::GetMainScreenResolution();
@@ -331,7 +343,7 @@ void kui::systemWM::MessageBox(std::string Text, std::string Title, int Type)
 	// If kdialog and zenity don't exist, there's no good way of creating a message box.
 	// TODO: Maybe create a KlemmUI window containing the message?
 	// Making GUI apps for Linux is great!
-	std::cout << Title << ": " << Text << std::endl;
+	std::cerr << Title << ": " << Text << std::endl;
 }
 
 bool kui::systemWM::YesNoBox(std::string Text, std::string Title)

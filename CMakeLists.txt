@@ -54,8 +54,23 @@ elseif(NOT DEFINED WIN32)
 	message(STATUS "Checking for X11 extensions")
 		
 	if(KLEMMUI_WITH_WAYLAND)
-		target_link_libraries(KlemmUI PUBLIC decor-0 wayland-client wayland-cursor wayland-egl EGL xkbcommon)
+
+		find_library(KLEMMUI_WAYLAND_DBUS dbus-1)
+		find_package(PkgConfig) 
+		pkg_check_modules(KLEMMUI_DBUS IMPORTED_TARGET GLOBAL dbus-1)
+
+		target_link_libraries(KlemmUI PRIVATE decor-0 wayland-client wayland-cursor wayland-egl EGL xkbcommon)
 		target_compile_definitions(KlemmUI PUBLIC KLEMMUI_WITH_WAYLAND)
+
+		if(PkgConfig_FOUND AND KLEMMUI_DBUS_FOUND)
+			message(STATUS "With dbus")
+			target_link_libraries(KlemmUI PRIVATE PkgConfig::KLEMMUI_DBUS)
+			target_compile_definitions(KlemmUI PRIVATE HAS_DBUS=1)
+		else()
+			message(STATUS "Without dbus, PkgConfig or libdbus-1 could not be found")
+		endif()
+
+		target_sources(KlemmUI PRIVATE "Source/SystemWM/libdecor/desktop-settings.c")
 	endif()
 
 	find_library(KLEMMUI_XRANDR_LIB Xrandr)

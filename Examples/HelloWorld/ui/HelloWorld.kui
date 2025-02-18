@@ -13,12 +13,4 @@ element HelloWorld
 		text = "Hello World!";
 		size = 18px;
 	}
-	child UITextField
-	{
-		text = "Some editable text";
-		width = 200px;
-		textSize = 13px;
-		allowNewLine = true;
-		textColor = 0;
-	}
 }

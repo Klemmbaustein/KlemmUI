@@ -11,6 +11,7 @@
 #include <xkbcommon/xkbcommon.h>
 #include <kui/Timer.h>
 #include <string>
+#include <condition_variable>
 
 namespace kui::systemWM
 {
@@ -82,6 +83,7 @@ namespace kui::systemWM
 		int Scrolled = 0;
 		bool IsLMBDown = false;
 		bool IsRMBDown = false;
+		libdecor* DecorContext = nullptr;
 
 		WaylandConnection();
 
@@ -139,7 +141,7 @@ namespace kui::systemWM
 		void SetBorderless(bool NewBorderless);
 		void SetResizable(bool NewResizable) const;
 
-		WaylandConnection* Connection;
+		WaylandConnection* Connection = nullptr;
 		EGLSurface GLSurface;
 		EGLContext GLContext;
 		EGLDisplay GLDisplay = nullptr;
@@ -148,8 +150,7 @@ namespace kui::systemWM
 		wl_surface* WaylandSurface;
 		wl_egl_window* WaylandGLWindow;
 
-		libdecor* DecorContext;
-		libdecor_frame* DecorFrame;
+		libdecor_frame* DecorFrame = nullptr;
 
 		Vec2ui FloatingSize;
 		Vec2ui ContentSize;
@@ -158,6 +159,8 @@ namespace kui::systemWM
 		Vec2ui MaxSize = 999999;
 
 		std::string TextInput;
+
+		std::condition_variable ThreadCondition;
 
 		Window::Cursor ActiveCursor = Window::Cursor::Default;
 

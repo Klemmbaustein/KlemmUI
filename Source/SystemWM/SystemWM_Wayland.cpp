@@ -13,6 +13,9 @@
 #include <kui/UI/UIButton.h>
 #include <algorithm>
 #include <cmath>
+extern "C" {
+#include "libdecor/desktop-settings.h"
+}
 #include "SystemWM_WaylandThreading.h"
 using namespace kui::systemWM;
 using namespace kui;
@@ -782,10 +785,17 @@ kui::systemWM::WaylandConnection::WaylandConnection()
 
 wl_cursor* kui::systemWM::WaylandConnection::CreateCursor(Window::Cursor New)
 {
+
 	if (!Cursor.CursorTheme)
 	{
 		std::string Theme = GetDefaultCursor();
-		Cursor.CursorTheme = wl_cursor_theme_load(Theme.empty() ? NULL : Theme.c_str(), 24, SharedMemory);
+		char* ThemeStr;
+		int Size = 24;
+		if (libdecor_get_cursor_settings(&ThemeStr, &Size))
+		{
+			Theme = ThemeStr;
+		}
+		Cursor.CursorTheme = wl_cursor_theme_load(Theme.empty() ? NULL : Theme.c_str(), Size, SharedMemory);
 	}
 
 	std::vector<std::string> NamesToTry;

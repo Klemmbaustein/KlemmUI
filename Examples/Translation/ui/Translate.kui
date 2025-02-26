@@ -28,12 +28,6 @@ element TranslationExample
 		}
 	}
 
-//	child UITextField
-//	{
-//		width = 200px;
-//		textColor = 0;
-//	}
-
 	child UIText
 	{
 		text = $"hello_world";

@@ -12,14 +12,18 @@
 */
 namespace kui::app
 {
-	enum class MessageBoxType
+	enum class MessageType
 	{
 		Info,
 		Warn,
 		Error,
 	};
 
-	void MessageBox(std::string Text, std::string Title, MessageBoxType Type);
+
+	// Backwards compatability
+	using MessageBoxType = MessageType;
+
+	void MessageBox(std::string Text, std::string Title, MessageType Type);
 
 	bool YesNoBox(std::string Text, std::string Title);
 

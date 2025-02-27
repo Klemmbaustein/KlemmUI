@@ -157,7 +157,7 @@ namespace kui
 		*/
 		Window(std::string Name, WindowFlag Flags, Vec2ui WindowPos = POSITION_CENTERED, Vec2ui WindowSize = SIZE_DEFAULT);
 		Window(const Window&) = delete;
-		virtual ~Window();
+		~Window();
 
 		/**
 		 * @brief

@@ -21,17 +21,20 @@ void UIBackground::ScrollTick(Shader* UsedShader)
 
 void UIBackground::MakeGLBuffers()
 {
-	BoxVertexBuffer = new VertexBuffer(
-		{
-			Vertex(Vec2f(0, 0), 0),
-			Vertex(Vec2f(0, 1), 1),
-			Vertex(Vec2f(1, 0), 2),
-			Vertex(Vec2f(1, 1), 3)
-		},
+	if (!BoxVertexBuffer)
+	{
+		BoxVertexBuffer = new VertexBuffer(
+			{
+				Vertex(Vec2f(0, 0), 0),
+				Vertex(Vec2f(0, 1), 1),
+				Vertex(Vec2f(1, 0), 2),
+				Vertex(Vec2f(1, 1), 3)
+			},
 		{
 			0u, 1u, 2u,
 			1u, 2u, 3u
 		});
+	}
 }
 
 void UIBackground::DrawBackground()
@@ -79,6 +82,7 @@ void kui::UIBackground::FreeVertexBuffer()
 {
 	if (BoxVertexBuffer)
 		delete BoxVertexBuffer;
+	BoxVertexBuffer = nullptr;
 }
 
 UIBackground* UIBackground::SetOpacity(float NewOpacity)
@@ -165,7 +169,7 @@ UIBackground* UIBackground::SetCornerVisible(int Index, bool Value)
 
 	if (Value)
 		NewFlags |= 1 << Index;
-		
+
 	if (NewFlags != CornerFlags)
 	{
 		CornerFlags = NewFlags;

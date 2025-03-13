@@ -416,30 +416,27 @@ void UIBox::UpdateScale()
 	Vec2f ScreenMinSize = MinSize.GetScreen();
 	Vec2f ScreenMaxSize = MaxSize.GetScreen();
 
-	if (Parent)
-	{
-		Vec2f UpDown, LeftRight;
-		GetPaddingScreenSize(UpDown, LeftRight);
-		Vec2f AvailableParentSize = Parent->Size - Vec2f(LeftRight.X + LeftRight.Y, UpDown.X + UpDown.Y);
+	Vec2f UpDown, LeftRight;
+	GetPaddingScreenSize(UpDown, LeftRight);
+	Vec2f AvailableParentSize = (Parent ? Parent->Size : Vec2f(2)) - Vec2f(LeftRight.X + LeftRight.Y, UpDown.X + UpDown.Y);
 
-		if (MinSize.X.Mode == SizeMode::ParentRelative)
-		{
-			ScreenMinSize.X = AvailableParentSize.X * MinSize.X.Value;
-		}
-		if (MinSize.Y.Mode == SizeMode::ParentRelative)
-		{
-			ScreenMinSize.Y = AvailableParentSize.Y * MinSize.Y.Value;
-		}
-		if (MaxSize.X.Mode == SizeMode::ParentRelative)
-		{
-			ScreenMaxSize.X = AvailableParentSize.X * MaxSize.X.Value;
-		}
-		if (MaxSize.Y.Mode == SizeMode::ParentRelative)
-		{
-			ScreenMaxSize.Y = AvailableParentSize.Y * MaxSize.Y.Value;
-		}
+	if (MinSize.X.Mode == SizeMode::ParentRelative)
+	{
+		ScreenMinSize.X = AvailableParentSize.X * MinSize.X.Value;
 	}
-	
+	if (MinSize.Y.Mode == SizeMode::ParentRelative)
+	{
+		ScreenMinSize.Y = AvailableParentSize.Y * MinSize.Y.Value;
+	}
+	if (MaxSize.X.Mode == SizeMode::ParentRelative)
+	{
+		ScreenMaxSize.X = AvailableParentSize.X * MaxSize.X.Value;
+	}
+	if (MaxSize.Y.Mode == SizeMode::ParentRelative)
+	{
+		ScreenMaxSize.Y = AvailableParentSize.Y * MaxSize.Y.Value;
+	}
+
 	NewSize = NewSize.Clamp(ScreenMinSize, ScreenMaxSize);
 
 	if (NewSize != Size)

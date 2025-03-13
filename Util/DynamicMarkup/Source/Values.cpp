@@ -334,9 +334,9 @@ void kui::markup::SetUIBoxValue(UIBox* Target, std::string Name, std::string Val
 		{
 			Found->SetValue(Target, ValueAny);
 		}
-		catch (std::bad_any_cast)
+		catch (std::bad_any_cast& ce)
 		{
-
+			std::cerr << ce.what() << std::endl;
 		}
 		return;
 	}
@@ -375,6 +375,9 @@ kui::AnyContainer kui::markup::ToAny(std::string Value, std::function<std::strin
 	kui::AnyContainer ValueAny;
 	switch (Type)
 	{
+	case  VariableType::Number:
+		ValueAny = std::stof(Value);
+		break;
 	case VariableType::SizeNumber:
 	{
 		auto Size = stringParse::Size(Value, true);

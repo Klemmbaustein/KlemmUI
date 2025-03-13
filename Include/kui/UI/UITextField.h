@@ -60,7 +60,7 @@ namespace kui
 		UITextField* SetTextColor(Vec3f NewColor);
 		Vec3f GetTextColor();
 		UISize GetTextSize() const;
-		std::string GetText();
+		const std::string& GetText();
 		bool GetIsHovered() const;
 		bool GetIsPressed() const;
 		void Edit();
@@ -70,16 +70,16 @@ namespace kui
 		/**
 		 * @brief
 		 * UITextField constructor.
-		 * 
+		 *
 		 * @param Position
 		 * The position of the text field.
-		 * 
+		 *
 		 * @param Color
 		 * The background color of the text field.
-		 * 
+		 *
 		 * @param Renderer
 		 * The font used in the text field.
-		 * 
+		 *
 		 * @param OnChanged
 		 * Function called when a new text has been entered.
 		 */

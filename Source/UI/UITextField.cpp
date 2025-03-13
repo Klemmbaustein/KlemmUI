@@ -251,7 +251,7 @@ UISize UITextField::GetTextSize() const
 	return TextObject->GetTextSize();
 }
 
-std::string UITextField::GetText()
+const std::string& UITextField::GetText()
 {
 	return EnteredText;
 }
@@ -311,7 +311,7 @@ void UITextField::DrawBackground()
 {
 	TextScroll.Position = OffsetPosition;
 	TextScroll.Scale = Size;
-	
+
 	BackgroundShader->Bind();
 	BoxVertexBuffer->Bind();
 	TextObject->IsVisible = true;
@@ -355,7 +355,7 @@ void UITextField::DrawBackground()
 			{
 				DrawHighlight(TextHighlightEnd, Vec2f(OffsetPosition.X + Size.X, TextHighlightEnd.Y));
 				DrawHighlight(
-					Vec2f(OffsetPosition.X, TextHighlightStart.Y + CharSize), 
+					Vec2f(OffsetPosition.X, TextHighlightStart.Y + CharSize),
 					Vec2f(OffsetPosition.X + Size.X, TextHighlightEnd.Y - CharSize)
 				);
 				DrawHighlight(TextHighlightStart, Vec2f(OffsetPosition.X, TextHighlightStart.Y));

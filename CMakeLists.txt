@@ -52,11 +52,11 @@ elseif(NOT DEFINED WIN32)
 	option(KLEMMUI_WITH_WAYLAND "Include wayland support" ON)
 
 	message(STATUS "Checking for X11 extensions")
-		
+
 	if(KLEMMUI_WITH_WAYLAND)
 
 		find_library(KLEMMUI_WAYLAND_DBUS dbus-1)
-		find_package(PkgConfig) 
+		find_package(PkgConfig)
 		pkg_check_modules(KLEMMUI_DBUS IMPORTED_TARGET GLOBAL dbus-1)
 
 		target_link_libraries(KlemmUI PRIVATE decor-0 wayland-client wayland-cursor wayland-egl EGL xkbcommon)

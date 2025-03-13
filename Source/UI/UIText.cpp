@@ -118,7 +118,7 @@ size_t UIText::GetNearestLetterAtLocation(Vec2f Location) const
 {
 	if (Renderer == nullptr)
 		return 0;
-	
+
 	if (CurrentScrollObject)
 	{
 		Location.Y -= CurrentScrollObject->GetOffset();

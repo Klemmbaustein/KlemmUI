@@ -53,12 +53,11 @@ namespace kui
 		unsigned int Texture = 0;
 		Vec3f Color = 0;
 		float Scale = 0;
-		Vec2f Position;
 		unsigned int NumVerts = 0;
-		DrawableText(unsigned int VAO, unsigned int VBO, unsigned int NumVerts, unsigned int Texture, Vec2f Position, float Scale, Vec3f Color, float opacity);
+		DrawableText(unsigned int VAO, unsigned int VBO, unsigned int NumVerts, unsigned int Texture, float Scale, Vec3f Color, float opacity);
 	public:
 		float Opacity = 1.0f;
-		void Draw(ScrollObject* CurrentScrollObject) const;
+		void Draw(ScrollObject* CurrentScrollObject, Vec2f Pos) const;
 		~DrawableText();
 	};
 
@@ -92,7 +91,7 @@ namespace kui
 		size_t GetCharacterAtPosition(std::vector<TextSegment> Text, Vec2f Position, float Scale, bool Wrapped, float LengthBeforeWrap, uint32_t MaxLines);
 		Font(std::string filename);
 		Vec2f GetTextSize(std::vector<TextSegment> Text, float Scale, bool Wrapped, float LengthBeforeWrap, uint32_t MaxLines, Vec2f* EndPos = nullptr, size_t EndIndex = SIZE_MAX);
-		DrawableText* MakeText(std::vector<TextSegment> Text, Vec2f Pos, float Scale, Vec3f Color, float opacity, float LengthBeforeWrap, uint32_t MaxLines);
+		DrawableText* MakeText(std::vector<TextSegment> Text, float Scale, Vec3f Color, float opacity, float LengthBeforeWrap, uint32_t MaxLines);
 		~Font();
 
 	};

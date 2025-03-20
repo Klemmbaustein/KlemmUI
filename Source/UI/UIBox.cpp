@@ -37,6 +37,9 @@ const std::vector<UIBox*>& UIBox::GetChildren()
 
 void UIBox::UpdateElement()
 {
+	UpdateScale();
+	UpdatePosition();
+	
 	UpdateSelfAndChildren();
 }
 
@@ -307,10 +310,12 @@ void UIBox::Update()
 
 void UIBox::UpdateSelfAndChildren()
 {
-	UpdateScale();
-	UpdatePosition();
-
 	Update();
+
+	for (auto& i : Children)
+	{
+		i->UpdateSelfAndChildren();
+	}
 }
 
 Vec2f UIBox::PixelSizeToScreenSize(Vec2f PixelSize, Window* TargetWindow)
@@ -525,7 +530,6 @@ void UIBox::UpdatePosition()
 	for (auto c : Children)
 	{
 		c->UpdatePosition();
-		c->Update();
 	}
 }
 

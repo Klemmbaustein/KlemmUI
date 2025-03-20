@@ -95,6 +95,13 @@ std::vector<PropertyElement> kui::MarkupStructure::Properties
 	},
 	PropertyElement{
 		.Type = PropElementType::UIText,
+		.Name = "widthOverride",
+		.Description = "Text width override.",
+		.SetFormat = { "SetTextWidthOverride({val})" },
+		.VarType = VariableType::SizeNumber,
+	},
+	PropertyElement{
+		.Type = PropElementType::UIText,
 		.Name = "font",
 		.Description = "The name of the font used by the text.",
 		.SetFormat = {"SetFont(kui::MarkupLanguageManager::GetActive()->GetFont({val}))"},

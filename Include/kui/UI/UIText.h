@@ -20,7 +20,7 @@ namespace kui
 		std::vector<TextSegment> RenderedText;
 		UISize TextSize = UISize::Pixels(10);
 		DrawableText* Text = nullptr;
-		float TextWidthOverride = 0;
+		UISize TextWidthOverride = 0;
 		float Opacity = 1.0f;
 		float GetRenderedSize() const;
 		float GetWrapDistance() const;
@@ -57,7 +57,7 @@ namespace kui
 
 		UISize GetTextSize() const;
 		static Vec2f GetTextSizeAtScale(UISize Scale, Font* Renderer);
-		UIText* SetTextWidthOverride(float NewTextWidthOverride);
+		UIText* SetTextWidthOverride(UISize NewTextWidthOverride);
 
 		size_t GetNearestLetterAtLocation(Vec2f Location) const;
 		Vec2f GetLetterLocation(size_t Index) const;
@@ -132,6 +132,7 @@ namespace kui
 		SizeVec GetUsedSize() override;
 
 	private:
+		float PosOffset = 0;
 		bool LastWrapEnabled = false;
 		bool TextChanged = false;
 		float LastRenderSize = 0;

@@ -144,7 +144,7 @@ bool UIManager::DrawElements()
 	{
 		for (UIBox* Element : ElementsToUpdate)
 		{
-			Element->UpdateSelfAndChildren();
+			Element->UpdateElement();
 		}
 		ElementsToUpdate.clear();
 	}

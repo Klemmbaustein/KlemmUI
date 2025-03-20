@@ -119,9 +119,9 @@ void UIScrollBox::Tick()
 		}
 		else
 		{
-			ScrollBar->SetMinSize(SizeVec(Vec2f((ScrollBarWidth - 4) * Pixel.X, Size.Y / (DesiredMaxScroll / Size.Y)), SizeMode::ScreenRelative));
+			ScrollBar->SetMinSize(SizeVec(Vec2f((ScrollBarWidth - 4) * Pixel.X, std::max(Size.Y / (DesiredMaxScroll / Size.Y), (30_px).GetScreen().Y)), SizeMode::ScreenRelative));
 
-			ScrollBar->SetPadding(UISize::Screen(std::max((ScrollPercentage * Size.Y) - (ScrollPercentage * ScrollBar->GetUsedSize().GetScreen().Y) - 4 * Pixel.Y, 2 * Pixel.Y)),
+			ScrollBar->SetPadding(UISize::Screen(std::max((ScrollPercentage * Size.Y) - (ScrollPercentage * ScrollBar->GetMinSize().GetScreen().Y) - 4 * Pixel.Y, 2 * Pixel.Y)),
 				UISize::Pixels(2),
 				UISize::Pixels(2),
 				UISize::Pixels(2));

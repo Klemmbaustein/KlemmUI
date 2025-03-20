@@ -27,10 +27,17 @@ const kui::Vec2ui kui::Window::POSITION_CENTERED = Vec2ui(UINT64_MAX, UINT64_MAX
 const kui::Vec2ui kui::Window::SIZE_DEFAULT = Vec2ui(UINT64_MAX, UINT64_MAX);
 std::vector<kui::Window*> kui::Window::ActiveWindows;
 
-void kui::Window::UpdateSize()
+bool kui::Window::UpdateSize()
 {
 	SYS_WINDOW_PTR(SysWindow);
-	WindowSize = systemWM::GetWindowSize(SysWindow);
+
+	Vec2ui NewSize = systemWM::GetWindowSize(SysWindow);
+
+	if (NewSize == WindowSize)
+		return false;
+
+	WindowSize = NewSize;
+	return true;
 }
 
 std::mutex WindowMutex;
@@ -155,12 +162,14 @@ void kui::Window::RedrawInternal()
 
 	if (ShouldUpdateSize)
 	{
-		UpdateSize();
-		UI.ForceUpdateUI();
-		ShouldUpdateSize = false;
-		if (OnResizedCallback)
+		if (UpdateSize())
 		{
-			OnResizedCallback(this);
+			UI.ForceUpdateUI();
+			ShouldUpdateSize = false;
+			if (OnResizedCallback)
+			{
+				OnResizedCallback(this);
+			}
 		}
 	}
 

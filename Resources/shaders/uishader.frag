@@ -51,9 +51,9 @@ void main()
 		vec4 sampled = vec4(0.0);
 		vec2 offset = (0.5 / scale) / u_screenRes.y;
 		int samples = 0;
-		for (int x = -NUM_SAMPLES; x < NUM_SAMPLES; x++)
+		for (int x = -NUM_SAMPLES; x <= NUM_SAMPLES; x++)
 		{
-			for (int y = -NUM_SAMPLES; y < NUM_SAMPLES; y++)
+			for (int y = -NUM_SAMPLES; y <= NUM_SAMPLES; y++)
 			{
 				vec4 newS = texture(u_texture, v_texcoords + offset * vec2(x, y));
 				if (newS.a > 0.0)
@@ -65,7 +65,7 @@ void main()
 			}
 		}
 		sampled.xyz /= float(samples);
-		sampled.w /= float(NUM_SAMPLES * NUM_SAMPLES) * 2.0 * 2.0;
+		sampled.w = clamp(sampled.w / (pow(float(NUM_SAMPLES) + 1.0, 2.0) * 2.0), 0.0, 1.0);
 		f_color = vec4(clamp(u_color * sampled.rgb, vec3(0.0), vec3(1.0)), u_opacity);
 		f_color.a *= sampled.w;
 	}

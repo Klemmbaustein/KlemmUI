@@ -30,7 +30,7 @@ namespace kui
 
 		Vec2ui WindowSize;
 
-		void UpdateSize();
+		bool UpdateSize();
 		Timer WindowDeltaTimer;
 
 		float FrameDelta = 0;

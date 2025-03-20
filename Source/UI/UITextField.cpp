@@ -24,7 +24,6 @@ void UITextField::Tick()
 		TextObject->Wrap = false;
 	}
 
-	float CharSize = UIText::GetTextSizeAtScale(TextObject->GetTextSize(), TextObject->GetTextFont()).Y;
 	if (TextObject->GetUsedSize().GetScreen().Y > Size.Y)
 		TextScroll.MaxScroll = std::max(TextObject->GetUsedSize().GetScreen().Y - Size.Y + 0.025f, 0.0f);
 	else
@@ -142,6 +141,7 @@ void UITextField::Tick()
 
 	if (EditedTextPos != IBeamPosition)
 	{
+		float CharSize = UIText::GetTextSizeAtScale(TextObject->GetTextSize(), TextObject->GetTextFont()).Y;
 		TextTimer = 0;
 		IBeamPosition = EditedTextPos;
 		IBeamScale = Vec2f(2.0f / ParentWindow->GetSize().X, CharSize);

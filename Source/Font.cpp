@@ -15,7 +15,7 @@ using namespace kui;
 
 constexpr int FONT_BITMAP_WIDTH = 3000;
 constexpr int FONT_BITMAP_PADDING = 32;
-constexpr int FONT_MAX_UNICODE_CHARS = 800;
+constexpr int FONT_MAX_UNICODE_CHARS = 1600;
 
 const std::string TextShaderName = "TextShader";
 
@@ -50,6 +50,7 @@ static void ReplaceTabs(std::vector<TextSegment>& Text, size_t TabSize, char Rep
 
 size_t Font::GetCharacterAtPosition(std::vector<TextSegment> Text, Vec2f Position, float Scale, bool Wrapped, float LengthBeforeWrap, uint32_t MaxLines)
 {
+	Scale /= CharacterSize / 6.0f;
 	float MaxHeight = 0.0f;
 	float x = 0.f, y = 0;
 	size_t i = 0;
@@ -199,6 +200,11 @@ Font::Font(std::string FileName)
 	int maxH = 0;
 
 	LoadedGlyphs.clear();
+	int ascent, descent, lineGap;
+	stbtt_GetFontVMetrics(&finf, &ascent, &descent, &lineGap);
+	ascent = int(float(ascent) * 0.025f);
+	descent = int(float(descent) * 0.025f);
+	lineGap = int(float(lineGap) * 0.025f);
 
 	for (int i = 32; i <= FONT_MAX_UNICODE_CHARS + 1; i++)
 	{
@@ -206,13 +212,15 @@ Font::Font(std::string FileName)
 		int glyph = i;
 		int w, h, xoff, yoff;
 		auto bmp = stbtt_GetCodepointBitmap(&finf,
-			0.05f,
-			0.05f,
+			0.025f,
+			0.025f,
 			glyph,
 			&w,
 			&h,
 			&xoff,
 			&yoff);
+
+		yoff += (12 + descent) * 2;
 
 		int advW, leftB;
 		stbtt_GetCodepointHMetrics(&finf, glyph, &advW, &leftB);
@@ -234,15 +242,15 @@ Font::Font(std::string FileName)
 			(float)(w + 3) / FONT_BITMAP_WIDTH,
 			(float)(h + 3) / FONT_BITMAP_WIDTH);
 
-		New.Offset = Vec2f((float)xoff, (float)yoff) / 20.0;
-		New.Size = Vec2f((float)w, (float)h) / 20.0;
+		New.Offset = Vec2f((float)xoff, (float)yoff) / 10.0;
+		New.Size = Vec2f((float)w, (float)h) / 10.0;
 
 		CharacterSize = std::max(New.Size.Y + std::max(New.Offset.Y, 0.0f), CharacterSize);
 
 		if (New.Size != 0)
 		{
 			// Give some additional space for better anti aliasing
-			New.Size += Vec2(3.0f / 20.0f, 3.0f / 20.0f);
+			New.Size += Vec2(3.0f / 10.0f, 3.0f / 10.0f);
 		}
 
 		if (w == 0 || h == 0 || i == ' ')
@@ -311,6 +319,7 @@ Font::Font(std::string FileName)
 
 Vec2f Font::GetTextSize(std::vector<TextSegment> Text, float Scale, bool Wrapped, float LengthBeforeWrap, uint32_t MaxLines, Vec2f* EndPos, size_t EndIndex)
 {
+	Scale /= CharacterSize / 6.0f;
 	LengthBeforeWrap = LengthBeforeWrap * Window::GetActiveWindow()->GetAspectRatio() / Scale;
 	float x = 0.f, y = CharacterSize;
 	float MaxX = 0.0f;
@@ -407,8 +416,9 @@ Vec2f Font::GetTextSize(std::vector<TextSegment> Text, float Scale, bool Wrapped
 }
 
 
-DrawableText* Font::MakeText(std::vector<TextSegment> Text, Vec2f Pos, float Scale, Vec3f Color, float opacity, float LengthBeforeWrap, uint32_t MaxLines)
+DrawableText* Font::MakeText(std::vector<TextSegment> Text, float Scale, Vec3f Color, float opacity, float LengthBeforeWrap, uint32_t MaxLines)
 {
+	Scale /= CharacterSize / 6.0f;
 	ReplaceTabs(Text, TabSize);
 
 	GLuint newVAO = 0, newVBO = 0;
@@ -427,8 +437,6 @@ DrawableText* Font::MakeText(std::vector<TextSegment> Text, Vec2f Pos, float Sca
 	glBindVertexArray(0);
 
 	LengthBeforeWrap = LengthBeforeWrap * Window::GetActiveWindow()->GetAspectRatio() / Scale;
-	Pos.X = Pos.X * 450 * Window::GetActiveWindow()->GetAspectRatio();
-	Pos.Y = Pos.Y * -450;
 	glBindVertexArray(newVAO);
 	glBindBuffer(GL_ARRAY_BUFFER, newVBO);
 	uint32_t len = (uint32_t)TextSegment::CombineToString(Text).size();
@@ -522,7 +530,7 @@ DrawableText* Font::MakeText(std::vector<TextSegment> Text, Vec2f Pos, float Sca
 		}
 	}
 	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(FontVertex) * numVertices, fontVertexBufferData);
-	return new DrawableText(newVAO, newVBO, numVertices, fontTexture, Pos, Scale, Color, opacity);
+	return new DrawableText(newVAO, newVBO, numVertices, fontTexture, Scale, Color, opacity);
 }
 
 Font::~Font()
@@ -540,10 +548,8 @@ void OnWindowResized()
 {
 }
 
-DrawableText::DrawableText(unsigned int VAO, unsigned int VBO, unsigned int NumVerts, unsigned int Texture,
-	Vec2f Position, float Scale, Vec3f Color, float opacity)
+DrawableText::DrawableText(unsigned int VAO, unsigned int VBO, unsigned int NumVerts, unsigned int Texture, float Scale, Vec3f Color, float opacity)
 {
-	this->Position = Position;
 	this->Scale = Scale;
 	this->NumVerts = NumVerts;
 	this->VAO = VAO;
@@ -553,8 +559,11 @@ DrawableText::DrawableText(unsigned int VAO, unsigned int VBO, unsigned int NumV
 	this->Color = Color;
 }
 
-void DrawableText::Draw(ScrollObject* CurrentScrollObject) const
+void kui::DrawableText::Draw(ScrollObject* CurrentScrollObject, Vec2f Pos) const
 {
+	Pos.X = Pos.X * 450 * Window::GetActiveWindow()->GetAspectRatio();
+	Pos.Y = Pos.Y * -450;
+
 	Shader* TextShader = Font::GetTextShader();
 	glBindVertexArray(VAO);
 	TextShader->Bind();
@@ -563,7 +572,7 @@ void DrawableText::Draw(ScrollObject* CurrentScrollObject) const
 	TextShader->SetInt("u_texture", 0);
 	TextShader->SetVec3("textColor", Vec3f(Color.X, Color.Y, Color.Z));
 	TextShader->SetFloat("u_aspectratio", Window::GetActiveWindow()->GetAspectRatio());
-	TextShader->SetVec3("transform", Vec3f(Position.X, Position.Y, Scale));
+	TextShader->SetVec3("transform", Vec3f(Pos.X, Pos.Y, Scale));
 	TextShader->SetVec2("u_screenRes", Vec2f(Window::GetActiveWindow()->GetSize().Y * 1.5f));
 	TextShader->SetFloat("u_opacity", Opacity);
 	if (CurrentScrollObject != nullptr)

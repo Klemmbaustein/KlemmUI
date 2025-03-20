@@ -650,6 +650,7 @@ kui::systemWM::SysWindow* kui::systemWM::NewWindow(
 	ShowWindow(OutWindow->WindowHandle, SW_SHOW);
 
 	OutWindow->MakeContextActive();
+	OutWindow->HasFocus = GetForegroundWindow() == OutWindow->WindowHandle;
 
 	return OutWindow;
 }
@@ -760,6 +761,7 @@ void kui::systemWM::UpdateWindow(SysWindow* Target)
 	}
 #endif
 
+	Target->HasFocus = GetForegroundWindow() == Target->WindowHandle;
 
 	MSG msg;
 	if (LeftClickOverride > 0)
@@ -773,7 +775,7 @@ void kui::systemWM::UpdateWindow(SysWindow* Target)
 
 bool kui::systemWM::WindowHasFocus(SysWindow* Target)
 {
-	return GetForegroundWindow() == Target->WindowHandle;
+	return Target->HasFocus;
 }
 
 kui::Vec2i kui::systemWM::GetCursorPosition(SysWindow* Target)

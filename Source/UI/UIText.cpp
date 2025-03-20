@@ -30,6 +30,7 @@ UIText* UIText::SetFont(Font* NewFont)
 void UIText::Tick()
 {
 	SetMinSize(GetUsedSize());
+	SetMaxSize(GetMinSize());
 }
 
 Vec3f UIText::GetColor() const
@@ -87,7 +88,7 @@ Vec2f UIText::GetTextSizeAtScale(UISize Scale, Font* Renderer)
 	return Renderer->GetTextSize({ TextSegment("A", 1) }, Scale.GetScreen().Y * 100, false, 999999, UINT32_MAX);
 }
 
-UIText* UIText::SetTextWidthOverride(float NewTextWidthOverride)
+UIText* UIText::SetTextWidthOverride(UISize NewTextWidthOverride)
 {
 	if (TextWidthOverride != NewTextWidthOverride)
 	{
@@ -191,7 +192,7 @@ void UIText::Draw()
 	if (Text)
 	{
 		Text->Opacity = Opacity;
-		Text->Draw(CurrentScrollObject);
+		Text->Draw(CurrentScrollObject, OffsetPosition + Vec2f(0, PosOffset));
 	}
 }
 
@@ -205,14 +206,15 @@ void UIText::Update()
 	{
 		delete Text;
 	}
+	PosOffset = Size.Y - GetRenderedSize() / 600 * Renderer->CharacterSize;
 	if (Wrap)
 	{
-		Text = Renderer->MakeText(RenderedText, OffsetPosition + Vec2f(0, Size.Y - GetRenderedSize() / 600 * Renderer->CharacterSize),
+		Text = Renderer->MakeText(RenderedText,
 			GetRenderedSize(), Color, Opacity, GetWrapDistance(), MaxLines);
 	}
 	else
 	{
-		Text = Renderer->MakeText(RenderedText, OffsetPosition + Vec2f(0, Size.Y - GetRenderedSize() / 600 * Renderer->CharacterSize),
+		Text = Renderer->MakeText(RenderedText,
 			GetRenderedSize(), Color, Opacity, 999, MaxLines);
 	}
 }
@@ -252,7 +254,7 @@ SizeVec UIText::GetUsedSize()
 
 	if (TextWidthOverride != 0)
 	{
-		return SizeVec(Vec2f(TextWidthOverride, Size.Y), SizeMode::ScreenRelative);
+		return SizeVec(TextWidthOverride, UISize(Size.Y, SizeMode::ScreenRelative));
 	}
 	return SizeVec(Size, SizeMode::ScreenRelative);
 }

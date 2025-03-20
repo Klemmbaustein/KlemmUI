@@ -23,7 +23,7 @@ void main()
 		discard;
 	}
 	float sampled = 0.0;
-	vec2 offset = (1.5 / transform.z) / u_screenRes;
+	vec2 offset = (0.8 / transform.z) / u_screenRes;
 	for (int x = -NUM_SAMPLES; x < NUM_SAMPLES; x++)
 	{
 		for (int y = -NUM_SAMPLES; y < NUM_SAMPLES; y++)

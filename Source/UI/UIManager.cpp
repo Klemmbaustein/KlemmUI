@@ -174,8 +174,8 @@ bool UIManager::DrawElements()
 				}
 			}
 
-			i.Max += Vec2f(3) / Vec2f(WindowSize);
-			i.Min = i.Min - Vec2f(3) / Vec2f(WindowSize);
+			i.Max += Vec2f(5) / Vec2f(WindowSize);
+			i.Min = i.Min - Vec2f(5) / Vec2f(WindowSize);
 
 			i.Min = i.Min.Clamp(-1, 1);
 			i.Max = i.Max.Clamp(-1, 1);

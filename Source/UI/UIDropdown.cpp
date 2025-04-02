@@ -6,7 +6,7 @@
 using namespace kui;
 
 UIDropdown::UIDropdown(Vec2f Position,
-	float Size,
+	UISize Size,
 	Vec3f Color,
 	Vec3f TextColor,
 	std::vector<Option> Options,
@@ -27,9 +27,9 @@ UIDropdown::UIDropdown(Vec2f Position,
 	}
 	SelectedOption = Options.at(0);
 	SelectedText = new UIText(TextSize, TextColor, this->Options.at(0).Name, Renderer);
-	//SelectedText->SetPadding(TextPadding);
+	SelectedText->SetPadding(TextPadding);
 	AddChild(SelectedText);
-	SetMinSize(SizeVec(Vec2f(Size, 0), SizeMode::AspectRelative));
+	SetMinSize(SizeVec(Size, 0));
 
 	OptionsBox = new UIBox(false, Position + Vec2(0, -1));
 	OptionsBox->SetMinSize(SizeVec(Vec2f(0, 1), SizeMode::AspectRelative));
@@ -37,10 +37,15 @@ UIDropdown::UIDropdown(Vec2f Position,
 	GenerateOptions();
 }
 
+kui::UIDropdown::~UIDropdown()
+{
+	delete OptionsBox;
+}
+
 UIDropdown* UIDropdown::SetTextSize(UISize Size, UISize Padding)
 {
 	SelectedText->SetTextSize(Size);
-	//SelectedText->SetPadding(Padding);
+	SelectedText->SetPadding(Padding);
 	this->TextSize = Size;
 	this->TextPadding = Padding;
 	return this;
@@ -70,13 +75,13 @@ void UIDropdown::GenerateOptions()
 	for (size_t i = 0; i < Options.size(); i++)
 	{
 		UIButton* NewButton = new UIButton(true, 0, Vec3f::Lerp(DropdownColor, ButtonColor, (i == SelectedIndex) ? 0.5f : 0), nullptr, (int)i);
-		NewButton->SetMinSize(SizeVec(Vec2f(Size, 0), SizeMode::AspectRelative));
+		NewButton->SetMinSize(SizeVec(Size, 0));
 		NewButton->OnClickedIndex = [this](int Index) {
 			OnChildClicked(Index);
 			};
 
-		UIText* NewText = new UIText(TextSize, DropdownTextColor, Options[i].Name, Renderer);
-		//NewText->SetPadding(TextPadding);
+		UIText* NewText = new UIText(11_px, DropdownTextColor, Options[i].Name, Renderer);
+		NewText->SetPadding(TextPadding);
 		NewButton->AddChild(NewText);
 
 		OptionsBox->AddChild(NewButton);
@@ -114,11 +119,11 @@ void UIDropdown::Tick()
 void UIDropdown::OnButtonClicked()
 {
 	OptionsBox->IsVisible = !OptionsBox->IsVisible;
+	OptionsBox->MoveToFront();
 }
 
 void UIDropdown::OnChildClicked(int Index)
 {
 	SelectOption((size_t)Index);
 	OptionsBox->IsVisible = false;
-	ParentWindow->UI.KeyboardFocusBox = this;
 }

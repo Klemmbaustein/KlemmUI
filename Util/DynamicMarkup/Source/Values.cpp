@@ -11,6 +11,7 @@
 #include <kui/UI/UIText.h>
 #include <kui/UI/UISpinner.h>
 #include <kui/UI/UIScrollBox.h>
+#include <typeinfo>
 using namespace kui;
 
 struct DynamicProperty
@@ -218,7 +219,7 @@ static MarkupStructure::PropElementType GetTypeFromBox(UIBox* Target)
 {
 	using namespace MarkupStructure;
 
-	const type_info& TypeId = typeid(*Target);
+	const std::type_info& TypeId = typeid(*Target);
 
 
 	if (TypeId == typeid(UIBlurBackground))

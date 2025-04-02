@@ -15,7 +15,7 @@ namespace kui
 		Font* Renderer;
 		UIText* SelectedText = nullptr;
 		UIBox* OptionsBox = nullptr;
-		float Size = 0.0f;
+		UISize Size = 0.0f;
 		UISize TextSize, TextPadding;
 		std::vector<UIButton*> DropdownButtons;
 		std::vector<UIText*> DropdownTexts;
@@ -78,7 +78,8 @@ namespace kui
 		 * @param TextFont
 		 * The font of the dropdown text.
 		 */
-		UIDropdown(Vec2f Position, float Size, Vec3f Color, Vec3f TextColor, std::vector<Option> Options, std::function<void(int OptionIndex)> OnClickedFunction, Font* TextFont);
+		UIDropdown(Vec2f Position, UISize Size, Vec3f Color, Vec3f TextColor, std::vector<Option> Options, std::function<void(int OptionIndex)> OnClickedFunction, Font* TextFont);
+		~UIDropdown() override;
 
 		/// Sets the size and padding of the dropdown text.
 		UIDropdown* SetTextSize(UISize Size, UISize Padding);

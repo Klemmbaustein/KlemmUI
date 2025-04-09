@@ -19,6 +19,7 @@ namespace kui::systemWM
 		bool Resizable = false;
 		bool Popup = false;
 		bool HasFocus = false;
+		bool HasMouseFocus = false;
 		int ActiveCursor = -1;
 
 		Vec3f OldBorderColor = 0;

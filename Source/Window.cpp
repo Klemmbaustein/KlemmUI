@@ -208,6 +208,12 @@ bool kui::Window::HasFocus()
 	return systemWM::WindowHasFocus(SysWindow);
 }
 
+bool kui::Window::HasMouseFocus()
+{
+	SYS_WINDOW_PTR(SysWindow);
+	return systemWM::WindowHasMouseFocus(SysWindow);
+}
+
 kui::Vec2ui kui::Window::GetSize() const
 {
 	return WindowSize;
@@ -286,7 +292,7 @@ void kui::Window::UpdateDPI()
 
 void kui::Window::HandleCursor()
 {
-	if (!HasFocus())
+	if (!HasMouseFocus())
 	{
 		return;
 	}

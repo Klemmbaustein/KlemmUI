@@ -399,6 +399,23 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
 		break;
 	}
 
+	case WM_MOUSEMOVE:
+		if (!SysWindow->HasMouseFocus)
+		{
+			TRACKMOUSEEVENT MouseEventData;
+			MouseEventData.cbSize = sizeof(MouseEventData);
+			MouseEventData.hwndTrack = SysWindow->WindowHandle;
+			MouseEventData.dwFlags = TME_LEAVE;
+			MouseEventData.dwHoverTime = HOVER_DEFAULT;
+			TrackMouseEvent(&MouseEventData);
+
+			SysWindow->HasMouseFocus = true;
+		}
+		return 0;
+	case WM_MOUSELEAVE:
+		SysWindow->HasMouseFocus = false;
+		return 0;
+
 	case WM_CLOSE:
 	case WM_QUIT:
 	{
@@ -762,10 +779,12 @@ void kui::systemWM::UpdateWindow(SysWindow* Target)
 #endif
 
 	Target->HasFocus = GetForegroundWindow() == Target->WindowHandle;
+	Target->HasFocus = GetForegroundWindow() == Target->WindowHandle;
 
 	MSG msg;
 	if (LeftClickOverride > 0)
 		LeftClickOverride--;
+
 	while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
 	{
 		TranslateMessage(&msg);
@@ -776,6 +795,11 @@ void kui::systemWM::UpdateWindow(SysWindow* Target)
 bool kui::systemWM::WindowHasFocus(SysWindow* Target)
 {
 	return Target->HasFocus;
+}
+
+bool kui::systemWM::WindowHasMouseFocus(SysWindow* Target)
+{
+	return Target->HasMouseFocus;
 }
 
 kui::Vec2i kui::systemWM::GetCursorPosition(SysWindow* Target)

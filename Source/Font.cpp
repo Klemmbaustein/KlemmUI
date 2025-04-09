@@ -13,8 +13,8 @@
 using namespace kui;
 
 
-constexpr int FONT_BITMAP_WIDTH = 3000;
-constexpr int FONT_BITMAP_PADDING = 32;
+constexpr int FONT_BITMAP_WIDTH = 2000;
+constexpr int FONT_BITMAP_PADDING = 16;
 constexpr int FONT_MAX_UNICODE_CHARS = 1600;
 
 const std::string TextShaderName = "TextShader";
@@ -261,7 +261,7 @@ Font::Font(std::string FileName)
 			continue;
 		}
 
-		if (ycoord + h > 3000)
+		if (ycoord + h > FONT_BITMAP_WIDTH)
 		{
 			break;
 		}

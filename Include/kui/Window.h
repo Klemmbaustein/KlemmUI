@@ -199,6 +199,7 @@ namespace kui
 		float GetAspectRatio() const;
 
 		bool HasFocus();
+		bool HasMouseFocus();
 
 		/**
 		* @brief

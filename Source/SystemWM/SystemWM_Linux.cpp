@@ -120,6 +120,15 @@ void kui::systemWM::UpdateWindow(SysWindow* Target)
 		Target->X11->UpdateWindow();
 }
 
+bool kui::systemWM::WindowHasMouseFocus(SysWindow* Target)
+{
+	// Thanks, xlib
+#undef PointerWindow
+	if (GetUseWayland())
+		WAYLAND_FN(return Target->Wayland == WaylandConnection::GetConnection()->PointerWindow);
+	return Target->X11->HasFocus;
+}
+
 bool kui::systemWM::WindowHasFocus(SysWindow* Target)
 {
 	if (GetUseWayland())

@@ -11,12 +11,7 @@ void UIButton::Tick()
 		return;
 	}
 
-	if (!ParentWindow->HasFocus())
-	{
-		return;
-	}
-
-	bool Hovered = ParentWindow->UI.HoveredBox == this && !UIScrollBox::IsDraggingScrollBox;
+	bool Hovered = ParentWindow->HasMouseFocus() && ParentWindow->UI.HoveredBox == this && !UIScrollBox::IsDraggingScrollBox;
 
 	CurrentButtonState = ButtonState::Normal;
 	if (Hovered && !this->IsHovered)

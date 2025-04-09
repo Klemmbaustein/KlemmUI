@@ -128,14 +128,19 @@ void UIScrollBox::Tick()
 		}
 		if (((ScrollBarBackground->GetIsPressed() && !IsDraggingScrollBox) || IsDragging) && ScrollClass.MaxScroll)
 		{
+			if (ParentWindow->Input.MousePosition == 99)
+			{
+				return;
+			}
+
 			if (!IsDragging && ScrollBar->IsBeingHovered())
 			{
 				InitialScrollPosition = ScrollClass.Scrolled;
-				InitialDragPosition = Window::GetActiveWindow()->Input.MousePosition.Y;
+				InitialDragPosition = ParentWindow->Input.MousePosition.Y;
 			}
 			else if (IsDragging)
 			{
-				float Fraction = (Window::GetActiveWindow()->Input.MousePosition.Y - InitialDragPosition) / (Size.Y - ScrollBar->GetUsedSize().GetScreen().Y);
+				float Fraction = (ParentWindow->Input.MousePosition.Y - InitialDragPosition) / (Size.Y - ScrollBar->GetUsedSize().GetScreen().Y);
 
 				float NewPercentage = std::max(
 					std::min(
@@ -158,7 +163,7 @@ void UIScrollBox::Tick()
 			IsDraggingScrollBox = true;
 		}
 	}
-	if (!Window::GetActiveWindow()->Input.IsLMBDown)
+	if (!ParentWindow->Input.IsLMBDown)
 	{
 		IsDraggingScrollBox = false;
 		IsDragging = false;

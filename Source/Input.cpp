@@ -182,7 +182,7 @@ void kui::InputManager::UpdateCursorPosition()
 {
 	systemWM::SysWindow* SysWindow = static_cast<systemWM::SysWindow*>(ParentWindow->GetSysWindow());
 
-	if (!ParentWindow->HasFocus())
+	if (!ParentWindow->HasMouseFocus())
 	{
 		ParentWindow->Input.MousePosition = 99;
 		return;

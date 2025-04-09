@@ -21,6 +21,7 @@ namespace kui::systemWM
 
 	void UpdateWindow(SysWindow* Target);
 	bool WindowHasFocus(SysWindow* Target);
+	bool WindowHasMouseFocus(SysWindow* Target);
 
 	Vec2i GetCursorPosition(SysWindow* Target);
 	Vec2ui GetScreenSize();

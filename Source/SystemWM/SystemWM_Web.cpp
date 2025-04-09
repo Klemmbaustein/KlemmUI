@@ -173,6 +173,11 @@ bool kui::systemWM::WindowHasFocus(SysWindow* Target)
 	return true;
 }
 
+bool kui::systemWM::WindowHasMouseFocus(SysWindow* Target)
+{
+	return true;
+}
+
 kui::Vec2i kui::systemWM::GetCursorPosition(SysWindow* Target)
 {
 	double X, Y;

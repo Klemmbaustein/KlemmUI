@@ -9,6 +9,9 @@
 using namespace kui;
 
 bool UIScrollBox::IsDraggingScrollBox = false;
+Vec3f UIScrollBox::BackgroundColor = 0.25f;
+Vec3f UIScrollBox::ScrollBarColor = 0.75f;
+Vec3f UIScrollBox::BackgroundBorderColor = 0.15f;
 
 float UIScrollBox::GetDesiredChildrenSize()
 {
@@ -62,13 +65,14 @@ UIScrollBox* UIScrollBox::SetDisplayScrollBar(bool NewDisplay)
 		DisplayScrollBar = NewDisplay;
 		if (DisplayScrollBar)
 		{
-			ScrollBarBackground = new UIButton(false, 0, 0.3f, nullptr, 0);
-			ScrollBarBackground->SetBorder(1_px, 0.1f);
-			ScrollBarBackground->SetVerticalAlign(UIBox::Align::Reverse);
+			ScrollBarBackground = new UIButton(false, 0, BackgroundColor, nullptr, 0);
+			ScrollBarBackground
+				->SetHoveredColor(BackgroundColor)
+				->SetPressedColor(BackgroundColor);
+			ScrollBarBackground->SetBorder(1_px, BackgroundBorderColor);
 			ScrollBarBackground->SetPosition(OffsetPosition + Vec2f(Size.X - ScrollBarBackground->GetUsedSize().GetScreen().Y, 0));
-			ScrollBar = new UIBackground(true, 0, 0.75);
+			ScrollBar = new UIBackground(true, 0, ScrollBarColor);
 			ScrollBarBackground->AddChild(ScrollBar);
-			ScrollBar->SetCorner(3_px);
 		}
 		else if (ScrollBar)
 		{

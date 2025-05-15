@@ -1,5 +1,6 @@
 #pragma once
 #include "UIBox.h"
+#include <kui/Vec3.h>
 
 namespace kui
 {
@@ -38,20 +39,11 @@ namespace kui
 	 */
 	class UIScrollBox : public UIBox
 	{
-		ScrollObject ScrollClass = ScrollObject(OffsetPosition, Size, 15);
-		UIButton* ScrollBarBackground = nullptr;
-		UIBackground* ScrollBar = nullptr;
-		float MaxScroll = -1;
-		bool IsDragging = false;
-		float InitialDragPosition = 0;
-		float InitialScrollPosition = 0;
-		bool DisplayScrollBar = false;
-
-		float OldPercentage = 0;
-		float DesiredMaxScroll = 0;
-		float GetDesiredChildrenSize();
-		void UpdateScrollObjectOfObject(UIBox* o);
 	public:
+		static Vec3f BackgroundColor;
+		static Vec3f BackgroundBorderColor;
+		static Vec3f ScrollBarColor;
+
 		std::function<void(UIScrollBox* This)> OnScroll;
 		
 		uint32_t ScrollBarWidth = 10;
@@ -73,6 +65,23 @@ namespace kui
 		void Tick() override;
 		UIScrollBox(bool Horizontal, Vec2f Position, bool DisplayScrollBar);
 		~UIScrollBox();
+
+	private:
+
+		ScrollObject ScrollClass = ScrollObject(OffsetPosition, Size, 15);
+		UIButton* ScrollBarBackground = nullptr;
+		UIBackground* ScrollBar = nullptr;
+		float MaxScroll = -1;
+		bool IsDragging = false;
+		float InitialDragPosition = 0;
+		float InitialScrollPosition = 0;
+		bool DisplayScrollBar = false;
+
+		float OldPercentage = 0;
+		float DesiredMaxScroll = 0;
+		float GetDesiredChildrenSize();
+		void UpdateScrollObjectOfObject(UIBox* o);
+
 	};
 
 }

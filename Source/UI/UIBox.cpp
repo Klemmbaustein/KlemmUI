@@ -39,7 +39,7 @@ void UIBox::UpdateElement()
 {
 	UpdateScale();
 	UpdatePosition();
-	
+
 	UpdateSelfAndChildren();
 }
 

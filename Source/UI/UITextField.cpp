@@ -256,11 +256,6 @@ const std::string& UITextField::GetText()
 	return EnteredText;
 }
 
-kui::UITextField* kui::UITextField::SetTextSizeMode(SizeMode Mode)
-{
-	return this;
-}
-
 UITextField::UITextField(Vec2f Position, Vec3f Color, Font* Renderer, std::function<void()> OnChanged)
 	: UIBackground(true, Position, Color)
 {
@@ -282,6 +277,18 @@ void UITextField::Edit()
 	IsPressed = false;
 	ParentWindow->Input.SetTextIndex((int)EnteredText.size(), true);
 	RedrawElement();
+}
+
+UITextField* kui::UITextField::SetInnerPadding(UISize Size)
+{
+	TextObject->SetPadding(Size);
+	return this;
+}
+
+UITextField* kui::UITextField::SetInnerPadding(UISize Up, UISize Down, UISize Left, UISize Right)
+{
+	TextObject->SetPadding(Up, Down, Left, Right);
+	return this;
 }
 
 UITextField::~UITextField()

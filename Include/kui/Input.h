@@ -3,6 +3,7 @@
 #include <vector>
 #include <unordered_map>
 #include <map>
+#include <functional>
 #include <atomic>
 
 /**
@@ -120,14 +121,14 @@ namespace kui
 	/**
 	 * @brief
 	 * An input manager, handling input for a window.
-	 * 
+	 *
 	 * See kui::Window::Input.
 	 */
 	class InputManager
 	{
 
 		static Window* GetWindowByPtr(void* ID);
-		std::map<Key, std::vector<void(*)(Window*)>> ButtonPressedCallbacks;
+		std::map<Key, std::map<void*, std::function<void()>>> ButtonPressedCallbacks;
 		Window* ParentWindow = nullptr;
 
 		void MoveTextIndex(int Amount, bool RespectShiftPress = true);
@@ -149,10 +150,10 @@ namespace kui
 		/**
 		 * @brief
 		 * Checks if the given key is pressed.
-		 * 
+		 *
 		 * @param PressedKey
 		 * The key that should be checked.
-		 * 
+		 *
 		 * @return
 		 * True if the key is pressed, false if not.
 		 */
@@ -166,11 +167,17 @@ namespace kui
 		 * Adds a callback that will be run of the given key is pressed.
 		 */
 		void RegisterOnKeyDownCallback(Key PressedKey, void (*Callback)(Window*));
+		void RegisterOnKeyDownCallback(Key PressedKey, void* Object, std::function<void()> Function);
+
+		void SetClipboard(std::string NewClipboardText);
+		std::string GetClipboard();
+
 		/**
 		 * @brief
 		 * Removes a callback registered with RegisterOnKeyDownCallback().
 		 */
 		void RemoveOnKeyDownCallback(Key PressedKey, void (*Callback)(Window*));
+		void RemoveOnKeyDownCallback(Key PressedKey, void* Object);
 
 		/// True if the left mouse button is pressed.
 		bool IsLMBDown = false;
@@ -189,7 +196,7 @@ namespace kui
 		/**
 		 * @brief
 		 * The position of the moue cursor relative to the window.
-		 * 
+		 *
 		 * -1, -1 is the bottom left corner of the screen and 1, 1 is the top right corner.
 		 */
 		Vec2f MousePosition = 100;

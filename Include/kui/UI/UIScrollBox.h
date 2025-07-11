@@ -34,7 +34,7 @@ namespace kui
 	/**
 	 * @brief
 	 * A scroll box.
-	 * 
+	 *
 	 * All children of this box can be scrolled through if their combined size exceeds this box's maximum size.
 	 */
 	class UIScrollBox : public UIBox
@@ -45,7 +45,7 @@ namespace kui
 		static Vec3f ScrollBarColor;
 
 		std::function<void(UIScrollBox* This)> OnScroll;
-		
+
 		uint32_t ScrollBarWidth = 10;
 
 		static bool IsDraggingScrollBox;

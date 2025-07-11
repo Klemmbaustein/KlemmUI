@@ -14,8 +14,13 @@ namespace kui::platform
 {
 	namespace win32
 	{
+		/**
+		 * @brief
+		 * Extended window flags for the windows platform.
+		 */
 		enum class WindowFlag : int
 		{
+			/// The window should have a dark title bar.
 			DarkTitleBar = 1 << 16,
 		};
 	}

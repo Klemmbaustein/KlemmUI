@@ -4,6 +4,12 @@
 
 namespace kui
 {
+	/**
+	 * @brief
+	 * A half transparent backgroudn that displays everything behind it using a blur effect.
+	 *
+	 * It functions like a regular UIBackground otherwise
+	 */
 	class UIBlurBackground : public UIBackground
 	{
 	protected:

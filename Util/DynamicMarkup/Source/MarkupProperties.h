@@ -58,6 +58,14 @@ std::vector<DynamicProperty> DynamicProperties
 		return dynamic_cast<UITextField*>(Text);
 	} },
 
+	DynamicProperty{.Name = "innerPadding",
+	.SetValue = [](kui::UIBox* Target, kui::AnyContainer Value) {
+		((UITextField*)Target)->SetInnerPadding(Value.AsSize());
+	},
+	.IsTarget = [](kui::UIBox* Text) {
+		return dynamic_cast<UITextField*>(Text);
+	} },
+
 	DynamicProperty{ .Name = "allowNewLine",
 	.SetValue = [](kui::UIBox* Target, kui::AnyContainer Value) {
 		((UITextField*)Target)->SetAllowNewLine(Value);

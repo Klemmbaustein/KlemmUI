@@ -66,6 +66,13 @@ std::vector<PropertyElement> kui::MarkupStructure::Properties
 		.VarType = VariableType::Bool,
 	},
 	PropertyElement{
+		.Type = PropElementType::UITextField,
+		.Name = "innerPadding",
+		.Description = "The inner padding of the text field between the border and the text.",
+		.SetFormat = { "SetInnerPadding({val})" },
+		.VarType = VariableType::SizeNumber,
+	},
+	PropertyElement{
 		.Type = PropElementType::UIScrollBox,
 		.Name = "displayScrollBar",
 		.Description = "True if the scroll box should have a scroll bar.",

@@ -127,12 +127,7 @@ void kui::UIBlurBackground::Draw()
 	BackgroundShader->SetVec3("u_color", Color);
 	BackgroundShader->SetVec3("u_borderColor", BorderColor);
 
-	WindowSize = WindowSize / 2;
-
-	const Vec2f Pos = Vec2f(Vec2i(OffsetPosition * WindowSize)) / WindowSize;
-	const Vec2f Res = Vec2f(Vec2i(Size * WindowSize)) / WindowSize;
-
-	glUniform4f(glGetUniformLocation(BackgroundShader->GetShaderID(), "u_transform"), Pos.X, Pos.Y, Res.X, Res.Y);
+	glUniform4f(BackgroundShader->GetUniformLocation("u_transform"), OffsetPosition.X, OffsetPosition.Y, Size.X, Size.Y);
 	BackgroundShader->SetFloat("u_opacity", Opacity);
 	BackgroundShader->SetInt("u_drawBorder", BorderRadius.Value != 0);
 	BackgroundShader->SetInt("u_drawCorner", CornerRadius.Value != 0);

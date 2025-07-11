@@ -78,7 +78,7 @@ namespace kui
 		/**
 		 * @brief
 		 * UIButton constructor.
-		 * 
+		 *
 		 * @param Horizontal
 		 * True if should the children be laid out horizontally, false if vertically.
 		 *
@@ -87,7 +87,7 @@ namespace kui
 		 *
 		 * @param Color
 		 * The color of the UIButton. The hovered and pressed colors will be derived from this.
-		 * 
+		 *
 		 * @param OnClicked
 		 * This function will be called when the button has been pressed.
 		 */
@@ -108,7 +108,7 @@ namespace kui
 		 *
 		 * @param OnClicked
 		 * This function will be called when the button has been pressed.
-		 * 
+		 *
 		 * @param ButtonIndex
 		 * An index for the button. Will be passed to OnClicked.
 		 */

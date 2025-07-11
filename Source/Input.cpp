@@ -35,7 +35,7 @@ static std::string FilterString(std::string InString, std::string Forbidden)
 	Out.reserve(InString.size());
 	for (char i : InString)
 	{
-		if (i < '\t' || (i > '\t' && i < ' '))
+		if (i < '\t' || (i > '\n' && i < ' '))
 			continue;
 
 		if (Forbidden.find(i) == std::string::npos)
@@ -153,7 +153,7 @@ kui::InputManager::InputManager(Window* Parent)
 		});
 
 	RegisterOnKeyDownCallback(Key::x, [](Window* Win) {
-		if (Win->Input.IsKeyDown(Key::LCTRL) || Win->Input.IsKeyDown(Key::RCTRL))
+		if (!Win->Input.Text.empty() && (Win->Input.IsKeyDown(Key::LCTRL) || Win->Input.IsKeyDown(Key::RCTRL)))
 		{
 			systemWM::SetClipboardText(Win->Input.GetSelectedTextString());
 			Win->Input.DeleteTextSelection();
@@ -169,7 +169,7 @@ kui::InputManager::InputManager(Window* Parent)
 		std::string Filter = "\n\r\a";
 		if (Win->Input.TextAllowNewLine)
 		{
-			std::string Filter = "\r\a";
+			Filter = "\r\a";
 		}
 
 		auto str = FilterString(systemWM::GetClipboardText(), Filter);
@@ -272,8 +272,9 @@ void kui::InputManager::AddTextInput(std::string Str)
 
 void kui::InputManager::DeleteTextSelection()
 {
-	if (!CanEditText)
+	if (!CanEditText || Text.empty())
 		return;
+
 	int Difference = std::abs(TextSelectionStart - TextIndex);
 	Text.erase(std::min(TextIndex, TextSelectionStart), Difference);
 	SetTextIndex(std::min(TextIndex, TextSelectionStart), true);
@@ -307,12 +308,21 @@ void InputManager::SetKeyDown(Key PressedKey, bool KeyDown)
 	{
 		if (ButtonPressedCallbacks.contains(PressedKey) && KeyDown)
 		{
-			for (auto Function : ButtonPressedCallbacks[PressedKey])
+			for (auto& Function : ButtonPressedCallbacks[PressedKey])
 			{
-				Function(ParentWindow);
+				Function.second();
 			}
 		}
 	}
+}
+
+void kui::InputManager::SetClipboard(std::string NewClipboardText)
+{
+	systemWM::SetClipboardText(NewClipboardText);
+}
+std::string kui::InputManager::GetClipboard()
+{
+	return systemWM::GetClipboardText();
 }
 
 Vec2ui kui::InputManager::GetMouseScreenPosition()
@@ -322,29 +332,31 @@ Vec2ui kui::InputManager::GetMouseScreenPosition()
 
 void InputManager::RegisterOnKeyDownCallback(Key PressedKey, void(*Callback)(Window*))
 {
-	if (!ButtonPressedCallbacks.contains(PressedKey))
-	{
-		ButtonPressedCallbacks.insert(std::pair<Key, std::vector<void(*)(Window*)>>(PressedKey, { Callback }));
-	}
-	else
-	{
-		ButtonPressedCallbacks[PressedKey].push_back(Callback);
-	}
+	RegisterOnKeyDownCallback(PressedKey, (void*)Callback, [Callback]()
+		{
+			Callback(Window::GetActiveWindow());
+		});
+}
+
+void kui::InputManager::RegisterOnKeyDownCallback(Key PressedKey, void* Object, std::function<void()> Function)
+{
+	ButtonPressedCallbacks[PressedKey].insert({Object, Function});
 }
 
 void kui::InputManager::RemoveOnKeyDownCallback(Key PressedKey, void(*Callback)(Window*))
+{
+	RemoveOnKeyDownCallback(PressedKey, (void*)Callback);
+}
+
+void kui::InputManager::RemoveOnKeyDownCallback(Key PressedKey, void* Object)
 {
 	if (ButtonPressedCallbacks.contains(PressedKey))
 	{
 		auto& Keys = ButtonPressedCallbacks[PressedKey];
 
-		for (size_t i = 0; i < Keys.size(); i++)
+		if (Keys.contains(Object))
 		{
-			if (Keys[i] == Callback)
-			{
-				Keys.erase(Keys.begin() + i);
-				return;
-			}
+			Keys.erase(Object);
 		}
 	}
 }
@@ -352,6 +364,10 @@ void kui::InputManager::RemoveOnKeyDownCallback(Key PressedKey, void(*Callback)(
 std::string kui::InputManager::GetSelectedTextString() const
 {
 	int Start = std::min(TextIndex, TextSelectionStart), End = std::max(TextIndex, TextSelectionStart);
+
+	if (Start > Text.size())
+		return "";
+
 	return Text.substr(Start, End - Start);
 }
 

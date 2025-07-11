@@ -77,6 +77,12 @@ namespace kui
 		 * A pointer to this UIBox.
 		 */
 		UIBox* AddChild(UIBox* NewChild);
+		/**
+		 * @brief
+		 * Gets the root parent of this UIBox.
+		 * @return
+		 * A pointer to the root parent of this UIBox, or a pointer to this if this UIBox doesn't have a parent.
+		 */
 		UIBox* GetAbsoluteParent();
 		void DrawThisAndChildren(const UIManager::RedrawBox& Box);
 
@@ -119,7 +125,7 @@ namespace kui
 		 * Sets the minimum size this UIBox can occupy.
 		 *
 		 * @param NewMinSize
-		 * The new minimum size the UIBox should occupy.
+		 * The new minimum size the UIBox can occupy.
 		 *
 		 * @return
 		 * A pointer to this UIBox.
@@ -127,10 +133,50 @@ namespace kui
 		UIBox* SetMinSize(SizeVec NewMinSize);
 		SizeVec GetMinSize() const;
 
+		/**
+		 * @brief
+		 * Sets the minimum width this UIBox can occupy.
+		 *
+		 * @param NewWidth
+		 * The new minimum width the UIBox can occupy.
+		 *
+		 * @return
+		 * A pointer to this UIBox.
+		 */
 		UIBox* SetMinWidth(UISize NewWidth);
+		/**
+		 * @brief
+		 * Sets the minimum height this UIBox can occupy.
+		 *
+		 * @param NewWidth
+		 * The new minimum height the UIBox can occupy.
+		 *
+		 * @return
+		 * A pointer to this UIBox.
+		 */
 		UIBox* SetMinHeight(UISize NewHeight);
 
+		/**
+		 * @brief
+		 * Sets the maximum width this UIBox can occupy.
+		 *
+		 * @param NewWidth
+		 * The new maximum width the UIBox can occupy.
+		 *
+		 * @return
+		 * A pointer to this UIBox.
+		 */
 		UIBox* SetMaxWidth(UISize NewWidth);
+		/**
+		 * @brief
+		 * Sets the maximum height this UIBox can occupy.
+		 *
+		 * @param NewWidth
+		 * The new maximum height the UIBox can occupy.
+		 *
+		 * @return
+		 * A pointer to this UIBox.
+		 */
 		UIBox* SetMaxHeight(UISize NewHeight);
 
 		/**
@@ -138,7 +184,8 @@ namespace kui
 		 * Sets the position of the UIBox.
 		 *
 		 * @param NewPosition
-		 * The new position of the box, where -1, -1 is the bottom left corner of the screen and 1, 1 is the top right corner.
+		 * The new position of the box, where -1, -1 is the bottom left corner
+		 * of the screen and 1, 1 is the top right corner.
 		 * The position is ignored if this UIBox is a child of another UIBox.
 		 *
 		 * @return
@@ -279,6 +326,8 @@ namespace kui
 		 */
 		UIBox* SetVerticalAlign(Align NewAlign);
 
+		ScrollObject* CurrentScrollObject = nullptr;
+
 		/**
 		 * @brief
 		 * Boolean controlling the collision of the UIBox.
@@ -294,9 +343,13 @@ namespace kui
 		 */
 		bool IsVisible = true;
 
+		/**
+		 * @brief
+		 * Controls if this element can have keyboard focus.
+		 *
+		 * An element that can have keyboard focus can be selected by pressing the tab key.
+		 */
 		bool KeyboardFocusable = false;
-
-		ScrollObject* CurrentScrollObject = nullptr;
 
 		void GetPadding(SizeVec& UpDown, SizeVec& LeftRight) const;
 
@@ -306,6 +359,12 @@ namespace kui
 		 */
 		const std::vector<UIBox*>& GetChildren();
 
+		/**
+		 * @brief
+		 * Updates the sizing and position of this element and all it's children.
+		 *
+		 * Call this if you need the position or size of this element right after it has been created.
+		 */
 		void UpdateElement();
 		virtual void UpdateTickState();
 

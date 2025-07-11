@@ -35,9 +35,9 @@ void main()
 	vec2 scaledTexCoords = v_texcoords * scale + (0.025 / u_screenRes);
 	vec2 nonAbsCenteredTexCoords = (scaledTexCoords - scale / 2.0) * 2.0;
 	vec2 centeredTexCoords = abs(nonAbsCenteredTexCoords);
-	
+
 	int cornerIndex = int(round(v_cornerIndex));
-	
+
 	if (u_offset.y > v_position.y)
 	{
 		discard;

@@ -10,8 +10,8 @@
 #include "Internal/OpenGL.h"
 #include <kui/Window.h>
 #include "Internal/Internal.h"
+#include <iostream>
 using namespace kui;
-
 
 constexpr int FONT_BITMAP_WIDTH = 2000;
 constexpr int FONT_BITMAP_PADDING = 16;
@@ -38,6 +38,10 @@ static void ReplaceTabs(std::vector<TextSegment>& Text, size_t TabSize, char Rep
 				{
 					i.Text.insert(i.Text.begin() + it++, ' ');
 				}
+			}
+			else if (i.Text[it] == '\n')
+			{
+				CharIndex = 0;
 			}
 			else
 			{
@@ -384,7 +388,7 @@ Vec2f Font::GetTextSize(std::vector<TextSegment> Text, float Scale, bool Wrapped
 						break;
 					}
 					x = 0;
-					y += CharacterSize;
+					y = CharacterSize * CurrentLine + CharacterSize;
 					if (LastWordIndex != SIZE_MAX && LastWordIndex != LastWrapIndex)
 					{
 						i = LastWordIndex;
@@ -401,8 +405,8 @@ Vec2f Font::GetTextSize(std::vector<TextSegment> Text, float Scale, bool Wrapped
 			if (SegmentText[i] == (int)'\n')
 			{
 				x = 0;
-				y += CharacterSize;
 				CurrentLine++;
+				y = CharacterSize * CurrentLine + CharacterSize;
 			}
 		}
 	}
@@ -468,9 +472,9 @@ DrawableText* Font::MakeText(std::vector<TextSegment> Text, float Scale, Vec3f C
 			int GlyphIndex = (int)UTFString[i] - 32;
 			if (GlyphIndex >= 0)
 			{
-				if (GlyphIndex > FONT_MAX_UNICODE_CHARS)
+				if (GlyphIndex > LoadedGlyphs.size())
 				{
-					GlyphIndex = FONT_MAX_UNICODE_CHARS - 31;
+					GlyphIndex = int(LoadedGlyphs.size() - 31);
 				}
 				Glyph g = LoadedGlyphs[GlyphIndex];
 
@@ -489,7 +493,7 @@ DrawableText* Font::MakeText(std::vector<TextSegment> Text, float Scale, Vec3f C
 						break;
 					}
 					x = 0;
-					y += CharacterSize;
+					y = CharacterSize * CurrentLine;
 					if (LastWordIndex != SIZE_MAX && LastWordIndex != LastWrapIndex)
 					{
 						i = LastWordIndex;
@@ -520,8 +524,8 @@ DrawableText* Font::MakeText(std::vector<TextSegment> Text, float Scale, Vec3f C
 			if (UTFString[i] == (int)'\n')
 			{
 				x = 0;
-				y += CharacterSize;
 				CurrentLine++;
+				y = CharacterSize * CurrentLine;
 				if (CurrentLine > MaxLines)
 				{
 					break;
@@ -529,6 +533,7 @@ DrawableText* Font::MakeText(std::vector<TextSegment> Text, float Scale, Vec3f C
 			}
 		}
 	}
+
 	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(FontVertex) * numVertices, fontVertexBufferData);
 	return new DrawableText(newVAO, newVBO, numVertices, fontTexture, Scale, Color, opacity);
 }
@@ -542,10 +547,6 @@ Font::~Font()
 	{
 		delete[] fontVertexBufferData;
 	}
-}
-
-void OnWindowResized()
-{
 }
 
 DrawableText::DrawableText(unsigned int VAO, unsigned int VBO, unsigned int NumVerts, unsigned int Texture, float Scale, Vec3f Color, float opacity)

@@ -13,7 +13,7 @@ uniform vec3 transform;
 #define NUM_SAMPLES 3
 
 void main()
-{   
+{
 	if(u_offset.y > v_position.y)
 	{
 		discard;

@@ -47,6 +47,11 @@ namespace kui
 		UIBox* ParentOverride = nullptr;
 		bool GetIsEdited() const { return IsEdited; }
 		UITextField* SetText(std::string NewText);
+
+		/**
+		* @brief
+		* Sets the size of the text in this text field.
+		*/
 		UITextField* SetTextSize(UISize NewTextSize);
 
 		/**
@@ -54,18 +59,32 @@ namespace kui
 		 * Sets the font used by the text field to the given font.
 		 */
 		UITextField* SetFont(Font* NewFont);
+		/**
+		* @brief
+		* Sets the text displayed when the text field is empty.
+		*/
 		UITextField* SetHintText(std::string NewHintText);
 		UITextField* SetColor(Vec3f NewColor) override;
 		Vec3f GetColor() const override;
+		/**
+		* @brief
+		* Sets the color of the text in the text field.
+		*/
 		UITextField* SetTextColor(Vec3f NewColor);
 		Vec3f GetTextColor();
 		UISize GetTextSize() const;
 		const std::string& GetText();
 		bool GetIsHovered() const;
 		bool GetIsPressed() const;
+
+		/**
+		* @brief
+		* Pulls keyboard focus to this text field and starts editing it.
+		*/
 		void Edit();
 
-		kui::UITextField* SetTextSizeMode(SizeMode Mode);
+		UITextField* SetInnerPadding(UISize Size);
+		UITextField* SetInnerPadding(UISize Up, UISize Down, UISize Left, UISize Right);
 
 		/**
 		 * @brief

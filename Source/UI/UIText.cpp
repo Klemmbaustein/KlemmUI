@@ -100,7 +100,7 @@ UIText* UIText::SetTextWidthOverride(UISize NewTextWidthOverride)
 
 void UIText::SetText(std::string NewText)
 {
-	SetText({TextSegment(NewText, Color)});
+	SetText({ TextSegment(NewText, Color) });
 }
 
 UIText* UIText::SetText(std::vector<TextSegment> NewText)
@@ -198,25 +198,7 @@ void UIText::Draw()
 
 void UIText::Update()
 {
-	if (!Renderer)
-	{
-		return;
-	}
-	if (Text)
-	{
-		delete Text;
-	}
-	PosOffset = Size.Y - GetRenderedSize() / 600 * Renderer->CharacterSize;
-	if (Wrap)
-	{
-		Text = Renderer->MakeText(RenderedText,
-			GetRenderedSize(), Color, Opacity, GetWrapDistance(), MaxLines);
-	}
-	else
-	{
-		Text = Renderer->MakeText(RenderedText,
-			GetRenderedSize(), Color, Opacity, 999, MaxLines);
-	}
+	GetUsedSize();
 }
 
 void UIText::OnAttached()
@@ -250,6 +232,25 @@ SizeVec UIText::GetUsedSize()
 		LastWrapDistance = WrapDistance;
 		LastAspect = ParentWindow->GetAspectRatio();
 		TextChanged = false;
+
+		if (Renderer)
+		{
+			if (Text)
+			{
+				delete Text;
+			}
+			PosOffset = Size.Y - GetRenderedSize() / 600 * Renderer->CharacterSize;
+			if (Wrap)
+			{
+				Text = Renderer->MakeText(RenderedText,
+					GetRenderedSize(), Color, Opacity, GetWrapDistance(), MaxLines);
+			}
+			else
+			{
+				Text = Renderer->MakeText(RenderedText,
+					GetRenderedSize(), Color, Opacity, 999, MaxLines);
+			}
+		}
 	}
 
 	if (TextWidthOverride != 0)

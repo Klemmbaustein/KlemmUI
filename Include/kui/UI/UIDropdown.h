@@ -24,7 +24,7 @@ namespace kui
 	public:
 		SizeMode TextSizeMode = SizeMode::AspectRelative;
 		size_t SelectedIndex = 0;
-		
+
 		/// A dropdown option.
 		struct Option
 		{
@@ -44,10 +44,10 @@ namespace kui
 		/**
 		 * @brief
 		 * Selects the given option.
-		 * 
+		 *
 		 * @param Index
 		 * The index of the option in the Options array.
-		 * 
+		 *
 		 * @param CallEvent
 		 * Should the OnClicked callback be called.
 		 */
@@ -56,25 +56,25 @@ namespace kui
 		/**
 		 * @brief
 		 * UIDropdown constructor.
-		 * 
+		 *
 		 * @param Position
 		 * The position of the UIDropdown. If it has a parent, this will be ignored.
-		 * 
+		 *
 		 * @param Size
 		 * The horizontal size of the dropdown.
-		 * 
+		 *
 		 * @param Color
 		 * The background color of the dropdown.
-		 * 
+		 *
 		 * @param TextColor
 		 * The text color of the dropdown.
-		 * 
+		 *
 		 * @param Options
 		 * The dropdown options.
-		 * 
+		 *
 		 * @param OnClickedFunction
 		 * The function called when an option is selected. The index of the selected option will be given.
-		 * 
+		 *
 		 * @param TextFont
 		 * The font of the dropdown text.
 		 */

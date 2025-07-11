@@ -1,12 +1,10 @@
-#include <Markup/MarkupStructure.h>
-#include <fstream>
-#include <filesystem>
-#include <iostream>
 #include "Markup/Format.h"
 #include "Markup/StringParse.h"
-#include <sstream>
+#include <iostream>
 #include <map>
+#include <Markup/MarkupStructure.h>
 #include <Markup/ParseError.h>
+#include <sstream>
 using namespace kui::MarkupStructure;
 
 bool kui::MarkupStructure::IsSubclassOf(PropElementType Class, PropElementType Parent)
@@ -133,7 +131,7 @@ std::string MarkupElement::WriteCode(ParseResult& MarkupElements)
 
 			std::string Value = stringParse::ToCppCode(i.second.Value);
 
-			Out << " = " << TypeName << "(" << Value << ")";
+			Out << " = " << Value;
 		}
 		Out << ";\n";
 	}
@@ -165,7 +163,7 @@ std::string MarkupElement::WriteCode(ParseResult& MarkupElements)
 	for (auto& i : Root.GlobalProperties)
 	{
 		Global* ValueGlobal = MarkupElements.GetGlobal(i.Value);
-		
+
 		Out << "\t\t" << Format::FormatString(i.Name, { Format::FormatArg("val", i.Value.Text) }) << "\n";
 	}
 	Out << "\t}\n";
@@ -343,6 +341,14 @@ static ConvertInfo ConvertValue(UIElement* Target, UIElement* Root, kui::stringP
 			{
 				GetValue = GetValue + ".AsVec2()";
 			}
+			if (Type == VariableType::SizeNumber)
+			{
+				GetValue = GetValue + ".AsSize()";
+			}
+			if (Type == VariableType::Size)
+			{
+				GetValue = GetValue + ".AsSizeVec()";
+			}
 			Value.Text = GetValue;
 		}
 	}
@@ -429,6 +435,10 @@ static std::string WriteElementProperty(UIElement* Target, UIElement* Root,
 		{
 			SetValue = Result.Value.Text;
 		}
+		else if (Result.Variable)
+		{
+			SetValue = Result.Value.Text;
+		}
 		else if (i.VarType == VariableType::Size || i.VarType == VariableType::SizeNumber)
 		{
 			auto val = Size(p.Value);
@@ -454,7 +464,7 @@ static std::string WriteElementProperty(UIElement* Target, UIElement* Root,
 std::string UIElement::MakeCode(std::string Parent, UIElement* Root, size_t& Depth, ParseResult& MarkupElements)
 {
 	using namespace kui::stringParse;
-	
+
 	bool HasName = !ElementName.Empty();
 	std::stringstream OutStream;
 	std::string ElemName = ElementName.Empty() ? ("e_" + std::to_string(Depth)) : ElementName;

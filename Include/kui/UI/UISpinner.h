@@ -3,6 +3,10 @@
 
 namespace kui
 {
+	/**
+	 * @brief
+	 * A spinner element that shows an operation is going on in the background.
+	 */
 	class UISpinner : public UIBackground
 	{
 	protected:
@@ -13,7 +17,25 @@ namespace kui
 
 		float Speed = 1;
 		Vec3f BackgroundColor = 0;
+
+		/**
+		 * @brief
+		 * Sets the speed of the spinner animation
+		 * @param NewSpeed
+		 * The new speed of the animation
+		 * @return
+		 * A pointer to this.
+		 */
 		UISpinner* SetSpeed(float NewSpeed);
+
+		/**
+		 * @brief
+		 * Sets the color of the spinner's background
+		 * @param NewColor
+		 * The color of the spinner's background.
+		 * @return
+		 * A pointer to this.
+		 */
 		UISpinner* SetBackgroundColor(Vec3f NewColor);
 
 		void Tick() override;

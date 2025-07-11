@@ -25,6 +25,14 @@ namespace kui
 		float GetRenderedSize() const;
 		float GetWrapDistance() const;
 	public:
+		/**
+		 * @brief
+		 * Sets the font this text should use.
+		 * @param NewFont
+		 * The new font to use.
+		 * @return
+		 * A pointer to this UIText.
+		 */
 		UIText* SetFont(Font* NewFont);
 		Font* GetTextFont() const;
 		void Tick() override;
@@ -62,6 +70,16 @@ namespace kui
 		size_t GetNearestLetterAtLocation(Vec2f Location) const;
 		Vec2f GetLetterLocation(size_t Index) const;
 
+		/**
+		 * @brief
+		 * Sets the number of times this text can wrap around.
+		 *
+		 * Any text after this limit will be cut off.
+		 * @param NewMaxLines
+		 * The number of lines to display, or 0 if infinite.
+		 * @return
+		 * A pointer to this UIText.
+		 */
 		UIText* SetMaxWraps(uint32_t NewMaxLines);
 
 		/**

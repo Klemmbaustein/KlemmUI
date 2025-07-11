@@ -274,7 +274,7 @@ void UIBackground::Draw()
 		}
 	}
 
-	glUniform4f(glGetUniformLocation(BackgroundShader->GetShaderID(), "u_transform"), OffsetPosition.X, OffsetPosition.Y, Size.X, Size.Y);
+	glUniform4f(BackgroundShader->GetUniformLocation("u_transform"), OffsetPosition.X, OffsetPosition.Y, Size.X, Size.Y);
 	BackgroundShader->SetFloat("u_opacity", Opacity);
 	BackgroundShader->SetInt("u_drawBorder", DrawnBorderRadius.Value != 0);
 	BackgroundShader->SetInt("u_drawCorner", CornerRadius.Value != 0);

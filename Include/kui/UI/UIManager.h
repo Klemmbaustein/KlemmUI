@@ -60,7 +60,7 @@ namespace kui
 		/**
 		 * @brief
 		 * Loads a reference-counted texture.
-		 * 
+		 *
 		 * If the same texture file has already been loaded and hasn't been unloaded with UnloadReferenceTexture(),
 		 * it will return the ID of that texture.
 		 */
@@ -68,7 +68,7 @@ namespace kui
 		/**
 		 * @brief
 		 * Unloads a texture loaded with LoadReferenceTexture().
-		 * 
+		 *
 		 * If the texture has been loaded multiple times
 		 */
 		void UnloadReferenceTexture(unsigned int TextureID);

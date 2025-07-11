@@ -45,25 +45,23 @@ namespace kui
 		ParentRelative = 3,
 	};
 
-
-
 	struct UISize
 	{
 		static Window* GetActiveWindow();
 
 		float Value = 0;
 		SizeMode Mode = SizeMode::ScreenRelative;
-		
+
 		UISize()
 		{
-			
+
 		}
-		
+
 		UISize(float Val)
 		{
 			Value = Val;
 		}
-		
+
 		UISize(float Val, SizeMode Mode)
 		{
 			Value = Val;

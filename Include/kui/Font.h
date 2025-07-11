@@ -32,6 +32,16 @@ namespace kui
 			}
 			return ret;
 		}
+		static size_t Length(const std::vector<TextSegment>& TextSegments)
+		{
+			size_t Length = 0;
+			for (const auto& i : TextSegments)
+			{
+				Length += i.Text.size();
+			}
+			return Length;
+		}
+
 		bool operator==(const TextSegment& b) const
 		{
 			return (Text == b.Text) && (Color.X == b.Color.X) && (Color.Y == b.Color.Y) && (Color.Z == b.Color.Z);
@@ -77,6 +87,7 @@ namespace kui
 		uint32_t fontVertexBufferCapacity = 0;
 	public:
 		float CharacterSize = 0;
+
 		struct Glyph
 		{
 			Vec2f Size;
@@ -88,6 +99,7 @@ namespace kui
 		std::vector<Glyph> LoadedGlyphs;
 
 		uint8_t TabSize = 4;
+
 		size_t GetCharacterAtPosition(std::vector<TextSegment> Text, Vec2f Position, float Scale, bool Wrapped, float LengthBeforeWrap, uint32_t MaxLines);
 		Font(std::string filename);
 		Vec2f GetTextSize(std::vector<TextSegment> Text, float Scale, bool Wrapped, float LengthBeforeWrap, uint32_t MaxLines, Vec2f* EndPos = nullptr, size_t EndIndex = SIZE_MAX);

@@ -284,9 +284,17 @@ void kui::Window::UpdateDPI()
 	if (NewDPI != DPI && UI.UIElements.size())
 	{
 		// Resize the window so it still has the same visual scale.
-		Window::SetSize(Vec2f(Window::GetSize()) * (NewDPI / DPI));
+		if ((this->CurrentWindowFlags & WindowFlag::Resizable) != WindowFlag::Resizable)
+		{
+			Window::SetSize(Vec2f(Window::GetSize()) * (NewDPI / DPI));
+		}
 		UI.ForceUpdateUI();
 		DPI = NewDPI;
+		ShouldUpdateSize = false;
+		if (OnResizedCallback)
+		{
+			OnResizedCallback(this);
+		}
 	}
 }
 

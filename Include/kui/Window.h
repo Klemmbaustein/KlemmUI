@@ -13,15 +13,15 @@
 namespace kui
 {
 	class UIBox;
-	
+
 	/**
 	* @brief
 	* A KlemmUI window.
-	* 
+	*
 	* Every new UI element will be added to the active window. By default, the active window is the window that was last updated or created.
 	* The active window can be set using the kui::Window::SetWindowActive() function.
 	* The active window is thread local. On a different thread, another window might be active.
-	* 
+	*
 	* Everything related to a window should be done on the thread it was created on.
 	*/
 	class Window
@@ -51,7 +51,7 @@ namespace kui
 		/**
 		 * @brief
 		 * Sets this window as the active window.
-		 * 
+		 *
 		 * Any new UI elements will be added to the active window.
 		 */
 		void SetWindowActive();
@@ -103,7 +103,7 @@ namespace kui
 		/**
 		* @brief
 		* Closes the window.
-		* 
+		*
 		* This function can be called from any thread.
 		*/
 		void Close();
@@ -162,7 +162,7 @@ namespace kui
 		/**
 		 * @brief
 		 * Gets the currently active window.
-		 * 
+		 *
 		 * The active window is thread-local. Each thread can have a different active window.
 		 */
 		static Window* GetActiveWindow();
@@ -176,7 +176,7 @@ namespace kui
 		/**
 		* @brief
 		* Updates the current window, re-draws it if necessary.
-		* 
+		*
 		* Usage example:
 		* ```cpp
 		* while (MyWindow.UpdateWindow())
@@ -184,7 +184,7 @@ namespace kui
 		*     // ...
 		* }
 		* ```
-		* 
+		*
 		* @return
 		* Returns true if the window should continue being shown, false if not.
 		*/
@@ -193,12 +193,30 @@ namespace kui
 		/**
 		* @brief
 		* Gets the window's aspect ratio.
-		* 
+		*
 		* Aspect ratio = Width / Height.
 		*/
 		float GetAspectRatio() const;
 
+		/**
+		 * @brief
+		 * Checks if the window has focus.
+		 *
+		 * On Windows, the focused window is usually highlighted in some way (like a title bar with higher contrast)
+		 *
+		 * @return
+		 * Returns true if the window is focused, false if not.
+		 */
 		bool HasFocus();
+		/**
+		 * @brief
+		 * Checks if the window has mouse focus.
+		 *
+		 * The mouse focused window is the window which the mouse cursor is hovering.
+		 *
+		 * @return
+		 * Returns true of the mouse cursor is on top of this window, false if not.
+		 */
 		bool HasMouseFocus();
 
 		/**
@@ -212,7 +230,7 @@ namespace kui
 		/**
 		 * @brief
 		 * Sets the position of the window.
-		 * 
+		 *
 		 * @param Pos
 		 * The position relative to the desktop, in pixels.
 		 */
@@ -227,7 +245,7 @@ namespace kui
 		/**
 		* @brief
 		* The grabbable callback.
-		* 
+		*
 		* For a borderless window, the window manager has to know which area is grabbable by the mouse cursor.
 		* This function should return true if the area currently hovered is grabbable and false if it's not.
 		*/
@@ -235,7 +253,7 @@ namespace kui
 		/**
 		 * @brief
 		 * The resized callback.
-		 * 
+		 *
 		 * This function is called once the window has been resized.
 		 */
 		std::function<void(Window*)> OnResizedCallback = nullptr;
@@ -256,7 +274,7 @@ namespace kui
 		/**
 		 * @brief
 		 * Cancels the close operation of this window.
-		 * 
+		 *
 		 * If the window has previously received a close message (From the Window::Close() function or if the user closed the window), it will be discarded.
 		 */
 		void CancelClose();
@@ -284,8 +302,8 @@ namespace kui
 			/// Cursor end index. Not an actual cursor.
 			End
 		};
-		
-		/// The active cursor for this window. 
+
+		/// The active cursor for this window.
 		Cursor CurrentCursor = Cursor::Default;
 
 		/**
@@ -293,11 +311,11 @@ namespace kui
 		 * Sets the window's title.
 		 */
 		void SetTitle(std::string NewTitle);
-		
+
 		/**
 		 * @brief
 		 * The multiplier value of the DPI.
-		 * 
+		 *
 		 * The value returned by GetDPI() is multiplied with this. If the actual DPI scale is 1.5 and the DPI multiplier is 2, GetDPI() returns 3.
 		 */
 		float DPIMultiplier = 1;
@@ -305,13 +323,19 @@ namespace kui
 		/**
 		 * @brief
 		 * Gets the DPI scale of the window.
-		 * 
+		 *
 		 * The DPI scale is 1 by default (if the display scale in Windows is 100%, for example).
 		 * If the screen DPI is larger, this value will increase as well.
 		 * (On Windows: 150% display scale -> 1.5 DPI scale, 200% display scale -> 2.0 DPI)
 		 */
 		float GetDPI() const;
 
+		/**
+		 * @brief
+		 * Currently, this function returns a HWND on Windows and is broken on Linux.
+		 * @return
+		 * The Window HWND on Windows, or either an XLib window if using X11 or possibly garbage data if using Wayland.
+		 */
 		void* GetPlatformHandle() const;
 
 	private:

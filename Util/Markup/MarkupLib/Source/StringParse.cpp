@@ -405,7 +405,8 @@ std::string kui::stringParse::ToCppCode(std::string Value)
 	}
 	if (IsSizeValue(Value))
 	{
-		return ToCppCode(Size(Value).SizeValue);
+		auto ValueSize = Size(Value);
+		return "kui::UISize(" + ValueSize.SizeValue + ", " + Size::SizeModeToKUISizeMode(ValueSize.SizeMode) + ")";
 	}
 	if (IsStringToken(Value))
 	{

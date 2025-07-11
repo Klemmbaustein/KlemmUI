@@ -7,7 +7,7 @@ namespace kui
 	* @brief
 	* A timer class that accurately measures time since it's creation.
 	*
-	* This class uses SDL_GetPerformanceCounter() to accurately measure time.
+	* This class uses the CPU performance counter to accurately measure time.
 	*/
 	struct Timer
 	{

@@ -198,7 +198,7 @@ void UIText::Draw()
 
 void UIText::Update()
 {
-	GetUsedSize();
+	this->Size = GetUsedSize().GetScreen();
 }
 
 void UIText::OnAttached()

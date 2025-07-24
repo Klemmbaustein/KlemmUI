@@ -2,6 +2,7 @@
 #include "SystemWM_Wayland.h"
 #include <wayland-cursor.h>
 #include <kui/App.h>
+#include <kui/Platform.h>
 #include <libdecor-0/libdecor.h>
 #include <iostream>
 #include <vector>
@@ -16,7 +17,6 @@
 extern "C" {
 #include "libdecor/desktop-settings.h"
 }
-#include "SystemWM_WaylandThreading.h"
 using namespace kui::systemWM;
 using namespace kui;
 
@@ -24,7 +24,7 @@ using namespace kui;
 * Who thought any of this was a good idea? These listeners and many callbacks make the code unreadable.
 */
 
-WaylandConnection* WaylandConnection::Current = nullptr;
+thread_local WaylandConnection* WaylandConnection::Current = nullptr;
 
 static std::mutex WindowUpdateMutex;
 static std::mutex WindowMutex;
@@ -345,7 +345,7 @@ static void HandleOutputScale(void* data, wl_output* output, int32_t factor)
 	// TODO: read scale factor from the surface directly.
 }
 
-static const struct wl_output_listener output_listener = {
+static const struct wl_output_listener OutputListener = {
 	HandleOutputGeometry,
 	HandleOutputMode,
 	HandleOutputDone,
@@ -406,7 +406,7 @@ static void HandleRegistryAddGlobal(void* data, wl_registry* wl_registry, uint32
 	if (InterfaceString == wl_output_interface.name)
 	{
 		auto Output = (wl_output*)wl_registry_bind(wl_registry, name, &wl_output_interface, 1);
-		wl_output_add_listener(Output, &output_listener, c);
+		wl_output_add_listener(Output, &OutputListener, c);
 	}
 	if (InterfaceString == wl_data_device_manager_interface.name)
 	{
@@ -432,51 +432,48 @@ void kui::systemWM::WaylandWindow::Create(Window* Parent, Vec2ui Size, Vec2ui Po
 	Configured = false;
 	FloatingSize = Size;
 
-	wlThreading::AwaitRunOnMainThread([this, Title, Size]()
+	Connection = WaylandConnection::GetConnection();
+
+	InitEGL();
+
+	WaylandSurface = wl_compositor_create_surface(Connection->WaylandCompositor);
+
+	WaylandGLWindow = wl_egl_window_create(WaylandSurface, Size.X, Size.Y);
+
+	wl_display_roundtrip(Connection->WaylandDisplay);
+
+	Connection->Clipboard.LoadDeviceManager(Connection->Clipboard.DataDeviceManager);
+
+	if (!Connection->DecorContext)
+	{
+		Connection->DecorContext = libdecor_new(Connection->WaylandDisplay, &LibDecorInterface);
+	}
+	DecorFrame = libdecor_decorate(Connection->DecorContext, WaylandSurface, &DecorFrameInterface, this);
+	libdecor_frame_set_app_id(DecorFrame, platform::GetAppId().c_str());
+	libdecor_frame_set_title(DecorFrame, Title.c_str());
+
+	if (!this->Resizable)
+	{
+		libdecor_frame_set_min_content_size(DecorFrame, Size.X, Size.Y);
+		libdecor_frame_set_max_content_size(DecorFrame, Size.X, Size.Y);
+		libdecor_frame_unset_capabilities(DecorFrame, LIBDECOR_ACTION_RESIZE);
+	}
+
+	libdecor_frame_map(DecorFrame);
+
+	while (!Configured)
+	{
+		int err = libdecor_dispatch(Connection->DecorContext, 0);
+		if (err < 0)
 		{
-			Connection = WaylandConnection::GetConnection();
+			app::error::Error("init libdecor_dispatch failed: " + std::string(strerror(-err)), true);
+		}
+	}
 
-			InitEGL();
-
-			WaylandSurface = wl_compositor_create_surface(Connection->WaylandCompositor);
-
-			WaylandGLWindow = wl_egl_window_create(WaylandSurface, Size.X, Size.Y);
-
-			wl_display_roundtrip(Connection->WaylandDisplay);
-
-			Connection->Clipboard.LoadDeviceManager(Connection->Clipboard.DataDeviceManager);
-
-			if (!Connection->DecorContext)
-			{
-				Connection->DecorContext = libdecor_new(Connection->WaylandDisplay, &LibDecorInterface);
-			}
-			DecorFrame = libdecor_decorate(Connection->DecorContext, WaylandSurface, &DecorFrameInterface, this);
-			libdecor_frame_set_app_id(DecorFrame, "kui-3-egl-wl-window");
-			libdecor_frame_set_title(DecorFrame, Title.c_str());
-
-			if (this->Borderless)
-			{
-				//libdecor_frame_set_visibility(DecorFrame, false);
-			}
-
-			if (!this->Resizable)
-			{
-				libdecor_frame_set_min_content_size(DecorFrame, Size.X, Size.Y);
-				libdecor_frame_set_max_content_size(DecorFrame, Size.X, Size.Y);
-				libdecor_frame_unset_capabilities(DecorFrame, LIBDECOR_ACTION_RESIZE);
-			}
-
-			libdecor_frame_map(DecorFrame);
-
-			while (!Configured)
-			{
-				int err = libdecor_dispatch(Connection->DecorContext, 0);
-				if (err < 0)
-				{
-					app::error::Error("init libdecor_dispatch failed: " + std::string(strerror(-err)), true);
-				}
-			}
-		});
+	if (this->Borderless)
+	{
+		libdecor_frame_set_visibility(DecorFrame, false);
+	}
 
 	std::unique_lock g{ WindowMutex };
 
@@ -496,36 +493,31 @@ void kui::systemWM::WaylandWindow::MakeContextCurrent() const
 
 void kui::systemWM::WaylandWindow::UpdateWindow()
 {
+	std::unique_lock g{ WindowUpdateMutex };
+
+	wl_surface_commit(this->WaylandSurface);
+	int err = libdecor_dispatch(Connection->DecorContext, 0);
+	if (err < 0)
 	{
-		std::unique_lock g{ WindowUpdateMutex };
+		app::error::Error("libdecor_dispatch failed: " + std::string(strerror(-err)), true);
+	}
 
-		if (wlThreading::IsMainThread())
-		{
-			int err = libdecor_dispatch(Connection->DecorContext, 0);
-			if (err < 0)
-			{
-				app::error::Error("libdecor_dispatch failed: " + std::string(strerror(-err)), true);
-			}
-			wlThreading::UpdateMainThread();
-		}
-
-		if (Connection->PointerWindow == this)
-		{
-			Connection->SetCursor(Parent->HasFocus() ? ActiveCursor : Window::Cursor::Default);
-			Connection->UpdateCursor();
-			Parent->Input.MoveMouseWheel(Connection->Scrolled);
-			Connection->Scrolled = 0;
-		}
-		else if (!Connection->PointerWindow)
-		{
-			Connection->SetCursor(Window::Cursor::Default);
-			Connection->UpdateCursor();
-			Connection->Scrolled = 0;
-		}
-		if (Connection->KeyboardWindow == this)
-		{
-			TextInput += Connection->Keyboard.UpdateRepeated(Connection);
-		}
+	if (Connection->PointerWindow == this)
+	{
+		Connection->SetCursor(Parent->HasMouseFocus() ? ActiveCursor : Window::Cursor::Default);
+		Connection->UpdateCursor();
+		Parent->Input.MoveMouseWheel(Connection->Scrolled);
+		Connection->Scrolled = 0;
+	}
+	else if (!Connection->PointerWindow)
+	{
+		Connection->SetCursor(Window::Cursor::Default);
+		Connection->UpdateCursor();
+		Connection->Scrolled = 0;
+	}
+	if (Connection->KeyboardWindow == this)
+	{
+		TextInput += Connection->Keyboard.UpdateRepeated(Connection);
 	}
 }
 
@@ -536,80 +528,60 @@ void kui::systemWM::WaylandWindow::Swap() const
 
 void kui::systemWM::WaylandWindow::Destroy()
 {
-	wlThreading::AwaitRunOnMainThread([this]()
+	{
+		std::unique_lock g{ WindowMutex };
+		if (GLSurface)
 		{
-			if (GLSurface)
-			{
-				eglDestroySurface(GLDisplay, GLSurface);
-				GLSurface = nullptr;
-			}
-			if (WaylandGLWindow)
-			{
-				wl_egl_window_destroy(WaylandGLWindow);
-				WaylandGLWindow = nullptr;
-			}
-			if (WaylandSurface)
-			{
-				wl_surface_destroy(WaylandSurface);
-				WaylandSurface = nullptr;
-			}
-			if (GLContext)
-			{
-				eglDestroyContext(GLDisplay, GLContext);
-			}
+			eglDestroySurface(GLDisplay, GLSurface);
+			GLSurface = nullptr;
+		}
+		if (WaylandGLWindow)
+		{
+			wl_egl_window_destroy(WaylandGLWindow);
+			WaylandGLWindow = nullptr;
+		}
+		if (WaylandSurface)
+		{
+			wl_surface_destroy(WaylandSurface);
+			WaylandSurface = nullptr;
+		}
+		if (GLContext)
+		{
+			eglDestroyContext(GLDisplay, GLContext);
+		}
+	}
+	wl_display_roundtrip(Connection->WaylandDisplay);
 
-			wl_display_roundtrip(Connection->WaylandDisplay);
+	std::unique_lock g{ WindowMutex };
+	if (DecorFrame)
+	{
+		libdecor_frame_close(DecorFrame);
+	}
 
-			if (DecorFrame)
-			{
-				libdecor_frame_close(DecorFrame);
-			}
+	if (Connection->PointerWindow == this)
+	{
+		Connection->PointerFocus = nullptr;
+		Connection->PointerWindow = nullptr;
+	}
 
-			std::unique_lock g{ WindowMutex };
-
+	for (auto i = ActiveWindows.begin(); i < ActiveWindows.end(); i++)
+	{
+		if (*i == this)
+		{
 			if (Connection->PointerWindow == this)
 			{
-				Connection->PointerFocus = nullptr;
 				Connection->PointerWindow = nullptr;
+				Connection->PointerFocus = nullptr;
 			}
-
-			for (auto i = ActiveWindows.begin(); i < ActiveWindows.end(); i++)
-			{
-				if (*i == this)
-				{
-					if (Connection->PointerWindow == this)
-					{
-						Connection->PointerWindow = nullptr;
-						Connection->PointerFocus = nullptr;
-					}
-					ActiveWindows.erase(i);
-					break;
-				}
-			}
-		});
-
-	if (!wlThreading::IsMainThread())
-		return;
-
-	while (ActiveWindows.size())
-	{
-		if (wlThreading::IsMainThread())
-		{
-			int err = libdecor_dispatch(Connection->DecorContext, 0);
-			if (err < 0)
-			{
-				app::error::Error("libdecor_dispatch failed: " + std::string(strerror(-err)), true);
-			}
-			wlThreading::UpdateMainThread();
+			ActiveWindows.erase(i);
+			break;
 		}
 	}
 }
 
 void kui::systemWM::WaylandWindow::SetTitle(std::string NewTitle) const
 {
-	wlThreading::AwaitRunOnMainThread([this, NewTitle]() {
-		libdecor_frame_set_title(DecorFrame, NewTitle.c_str());
-		});
+	libdecor_frame_set_title(DecorFrame, NewTitle.c_str());
 }
 
 void kui::systemWM::WaylandWindow::Minimize() const
@@ -800,6 +772,7 @@ wl_cursor* kui::systemWM::WaylandConnection::CreateCursor(Window::Cursor New)
 
 	std::vector<std::string> NamesToTry;
 
+	// Try a bunch of various names that will hopefully result in a good cursor
 	// This is sane
 	switch (New)
 	{
@@ -898,6 +871,10 @@ void kui::systemWM::WaylandConnection::UpdateCursor()
 
 void kui::systemWM::WaylandConnection::NextCursorFrame()
 {
+	if (Cursor.CurrentCursorAnimation->image_count <= 1)
+	{
+		return;
+	}
 	Cursor.AnimationFrame++;
 	Cursor.AnimationTimer.Reset();
 	if (Cursor.AnimationFrame >= Cursor.CurrentCursorAnimation->image_count)
@@ -958,7 +935,7 @@ void kui::systemWM::WaylandWindow::InitEGL()
 	EGLint Major, Minor;
 	if (!eglInitialize(GLDisplay, &Major, &Minor))
 	{
-		app::error::Error("Cannot initialise EGL!", true);
+		app::error::Error("Cannot initialize EGL!", true);
 	}
 
 	if (!eglBindAPI(EGL_OPENGL_API))
@@ -1061,7 +1038,6 @@ std::string kui::systemWM::WaylandConnection::GetIniFileValue(std::string FilePa
 
 		if (First == Key && CurrentCategory == Category)
 		{
-			std::cerr << "Found '[" << Category << "]." << Key << "' in '" << FilePath << "': '" << Last << "'" << std::endl;
 			return Last;
 		}
 	}
@@ -1176,28 +1152,24 @@ void kui::systemWM::WaylandWindow::SetBorderless(bool NewBorderless)
 	if (Borderless != NewBorderless)
 	{
 		Borderless = NewBorderless;
-		wlThreading::RunOnMainThread([this, NewBorderless]() {
-			//libdecor_frame_set_visibility(DecorFrame, !NewBorderless);
-			});
+		libdecor_frame_set_visibility(DecorFrame, !NewBorderless);
 	}
 }
 
 void kui::systemWM::WaylandWindow::SetResizable(bool NewResizable) const
 {
-	wlThreading::RunOnMainThread([this, NewResizable]() {
-		if (NewResizable)
-		{
-			libdecor_frame_set_min_content_size(DecorFrame, MinSize.X, MinSize.Y);
-			libdecor_frame_set_max_content_size(DecorFrame, MaxSize.X, MaxSize.Y);
-			libdecor_frame_set_capabilities(DecorFrame, LIBDECOR_ACTION_RESIZE);
-		}
-		else
-		{
-			libdecor_frame_set_min_content_size(DecorFrame, ContentSize.X, ContentSize.Y);
-			libdecor_frame_set_max_content_size(DecorFrame, ContentSize.X, ContentSize.Y);
-			libdecor_frame_unset_capabilities(DecorFrame, LIBDECOR_ACTION_RESIZE);
-		}
-		});
+	if (NewResizable)
+	{
+		libdecor_frame_set_min_content_size(DecorFrame, MinSize.X, MinSize.Y);
+		libdecor_frame_set_max_content_size(DecorFrame, MaxSize.X, MaxSize.Y);
+		libdecor_frame_set_capabilities(DecorFrame, LIBDECOR_ACTION_RESIZE);
+	}
+	else
+	{
+		libdecor_frame_set_min_content_size(DecorFrame, ContentSize.X, ContentSize.Y);
+		libdecor_frame_set_max_content_size(DecorFrame, ContentSize.X, ContentSize.Y);
+		libdecor_frame_unset_capabilities(DecorFrame, LIBDECOR_ACTION_RESIZE);
+	}
 }
 
 void kui::systemWM::WaylandKeyboardInfo::SetRepeated(std::string RepeatedString, int Code, int Symbol)

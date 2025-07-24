@@ -1,4 +1,4 @@
-#if KLEMMUI_WITH_WAYLAND && !KLEMMUI_CUSTOM_SYSTEMWM
+#if KLEMMUI_WITH_WAYLAND && !KLEMMUI_CUSTOM_SYSTEMWM && __linux__
 #pragma once
 #include "SystemWM.h"
 #include "SystemWM_WaylandClipboard.h"
@@ -55,7 +55,7 @@ namespace kui::systemWM
 
 	struct WaylandConnection
 	{
-		static WaylandConnection* Current;
+		static thread_local WaylandConnection* Current;
 
 		Vec2ui PrimarySize = Vec2ui(1920, 1080);
 		bool HasSize = false;

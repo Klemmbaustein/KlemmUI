@@ -26,3 +26,15 @@ void kui::platform::linux::AlwaysUseWayland()
 #endif
 }
 #endif
+
+static std::string AppIdString = "generic-kui-app";
+
+void kui::platform::SetAppId(std::string NewAppId)
+{
+	AppIdString = NewAppId;
+}
+
+std::string kui::platform::GetAppId()
+{
+	return AppIdString;
+}

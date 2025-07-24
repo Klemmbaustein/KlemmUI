@@ -22,6 +22,7 @@ namespace kui
 		void GetHighlightsForRange(size_t Begin, size_t Length) override;
 
 		void DumpContent();
+		std::string GetContent();
 
 		HighlightedArea Area;
 

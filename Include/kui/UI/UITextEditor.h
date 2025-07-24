@@ -7,6 +7,7 @@
 #include <kui/UI/UIText.h>
 #include <kui/Timer.h>
 #include <set>
+#include <mutex>
 
 namespace kui
 {
@@ -37,6 +38,8 @@ namespace kui
 		void NewLine();
 		void EraseLine();
 
+		void Edit();
+
 		void DeleteChar();
 
 		void DeleteSelection();
@@ -53,8 +56,12 @@ namespace kui
 		void ScrollTo(EditorPosition Position);
 		std::string GetSelectedText();
 
+		void ColorizeLine(size_t Line, std::vector<EditorColorizeSegment> Segments);
+
 		EditorPosition SelectionStart;
 		EditorPosition SelectionEnd;
+
+		std::mutex LinesMutex;
 
 		friend struct HighlightedArea;
 
@@ -72,8 +79,6 @@ namespace kui
 		Timer CursorTimer;
 
 		void UpdateSelectionBeam();
-
-		bool SelectingWords = false;
 
 		void ClearEmptyLineEntries(size_t Index);
 		bool IsLineLoaded(size_t Index);
@@ -107,7 +112,7 @@ namespace kui
 		};
 		LineEntry& GetLine(size_t Index);
 
-		Vec2ui SizeInPixels;
+		Vec2f OldSize;
 		std::vector<LineEntry> Lines;
 		UIBackground* SelectorBeam = nullptr;
 	};

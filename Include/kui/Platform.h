@@ -25,9 +25,13 @@ namespace kui::platform
 		};
 	}
 
+	void SetAppId(std::string NewAppId);
+	std::string GetAppId();
+
 	namespace linux
 	{
 #if __linux__
+
 		bool GetUseWayland();
 
 		void AlwaysUseWayland();

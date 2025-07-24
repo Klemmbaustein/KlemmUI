@@ -57,19 +57,28 @@ kui::FileEditorProvider::FileEditorProvider(std::string Path)
 	{
 		auto Open = i.find_first_of("[{");
 		auto Close = i.find_first_of("]}");
+		if (Open != std::string::npos && Close != std::string::npos)
+		{
+			Index++;
+			continue;
+		}
 		if (Open != std::string::npos)
 		{
 			FoundBracketAreas.push({ EditorPosition(Open, Index) , EditorPosition() });
 		}
 		if (Close != std::string::npos)
 		{
-			auto& Top = FoundBracketAreas.top();
-			Top.second = EditorPosition(Close, Index);
-			if (Top.first != Top.second)
+			if (!FoundBracketAreas.empty())
 			{
-				this->BracketAreas.push_back(Top);
+
+				auto& Top = FoundBracketAreas.top();
+				Top.second = EditorPosition(Close, Index);
+				if (Top.first != Top.second)
+				{
+					this->BracketAreas.push_back(Top);
+				}
+				FoundBracketAreas.pop();
 			}
-			FoundBracketAreas.pop();
 		}
 
 		Index++;
@@ -93,13 +102,65 @@ void kui::FileEditorProvider::GetLine(size_t LineIndex, std::vector<TextSegment>
 		"int",
 		"float",
 		"bool",
+		"double",
+		"long",
 		"vec3",
 		"vec2",
 		"obj",
 		"array",
-		"str",
-		"byte"
+		"string",
+		"byte",
+		"await",
+		"if",
+		"else",
+		"async",
+		"foreach",
+		"for",
+		"while",
+		"is",
+		"null",
+		"true",
+		"false",
+		"new",
+		"throw",
+		"break",
+		"continue",
+		"switch",
+		"using",
+		"namespace",
+		"get",
+		"set",
+		"_",
+		"public",
+		"private",
+		"protected",
+		"var",
+		"class",
+		"struct",
+		"case",
+		"return",
+		"as",
+		"is",
+		"in",
+		"const",
+		"readonly",
+		"static"
 	};
+
+	static std::set<char> SpecialChars = {
+		'<', '>',
+		'[', ']',
+		'{', '}',
+		'(', ')',
+		'=', '^',
+		'+', '-',
+		'*', '/',
+		'$', '%',
+		'?', '!',
+		';', ',',
+		':',
+	};
+
 	const std::string& Highlighted = this->Lines[LineIndex];
 
 	if (Highlighted.empty())
@@ -111,16 +172,8 @@ void kui::FileEditorProvider::GetLine(size_t LineIndex, std::vector<TextSegment>
 	std::string CurrentWord;
 	bool IsString = false;
 
-	for (char c : Highlighted)
-	{
-		if ((IsString && c == '"')
-			|| (!IsString && (c == ' ' || c == '\t' || c == '<' || c == '>' || c == ':' || c == '=' || c == ';')))
+	auto ProcessWord = [&CurrentWord, &IsString, &Current, &To]()
 		{
-			if (IsString)
-			{
-				CurrentWord.push_back(c);
-			}
-
 			if (!CurrentWord.empty())
 			{
 				Vec3f NewColor = 1;
@@ -155,6 +208,20 @@ void kui::FileEditorProvider::GetLine(size_t LineIndex, std::vector<TextSegment>
 					Current.Color = NewColor;
 				}
 			}
+		};
+
+	for (char c : Highlighted)
+	{
+		if ((IsString && c == '"')
+			|| (!IsString && (c == ' ' || c == '\t' || SpecialChars.contains(c))))
+		{
+			if (IsString)
+			{
+				CurrentWord.push_back(c);
+			}
+
+			ProcessWord();
+			
 			Current.Text.append(CurrentWord);
 			CurrentWord.clear();
 			if (!IsString)
@@ -179,6 +246,7 @@ void kui::FileEditorProvider::GetLine(size_t LineIndex, std::vector<TextSegment>
 		}
 	}
 
+	ProcessWord();
 	Current.Text.append(CurrentWord);
 	To.push_back(Current);
 }
@@ -202,18 +270,18 @@ void kui::FileEditorProvider::SetLine(size_t Index, const std::vector<TextSegmen
 {
 	this->Lines[Index] = TextSegment::CombineToString(NewLine);
 
-	std::vector<TextSegment> Segments;
-	GetLine(Index, Segments);
-	UpdateLine(Index, Segments);
+	//std::vector<TextSegment> Segments;
+	//GetLine(Index, Segments);
+	//UpdateLine(Index, Segments);
 }
 
 void kui::FileEditorProvider::InsertLine(size_t Index, const std::vector<TextSegment>& Content)
 {
 	this->Lines.insert(this->Lines.begin() + Index, TextSegment::CombineToString(Content));
 
-	std::vector<TextSegment> Segments;
-	GetLine(Index, Segments);
-	UpdateLine(Index, Segments);
+	//std::vector<TextSegment> Segments;
+	//GetLine(Index, Segments);
+	//UpdateLine(Index, Segments);
 }
 
 void kui::FileEditorProvider::GetHighlightsForRange(size_t Begin, size_t Length)
@@ -235,5 +303,19 @@ void kui::FileEditorProvider::DumpContent()
 	{
 		std::cerr << i << std::endl;
 	}
+}
+std::string kui::FileEditorProvider::GetContent()
+{
+	std::string Out;
+	for (auto& i : this->Lines)
+	{
+		Out.append(i);
+		Out.push_back('\n');
+	}
+	if (!Out.empty())
+	{
+		Out.pop_back();
+	}
+	return Out;
 }
 #endif

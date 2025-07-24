@@ -310,12 +310,14 @@ void UIBox::Update()
 
 void UIBox::UpdateSelfAndChildren()
 {
+	UpdatePosition();
 	Update();
 
 	for (auto& i : Children)
 	{
 		i->UpdateSelfAndChildren();
 	}
+	UpdateScale();
 }
 
 Vec2f UIBox::PixelSizeToScreenSize(Vec2f PixelSize, Window* TargetWindow)
@@ -613,6 +615,7 @@ UIBox* UIBox::AddChild(UIBox* NewChild)
 		NewChild->Parent = this;
 		Children.push_back(NewChild);
 		NewChild->OnAttached();
+		RedrawElement();
 		InvalidateLayout();
 	}
 	else
@@ -653,7 +656,7 @@ void UIBox::DrawThisAndChildren(const UIManager::RedrawBox& Box)
 	{
 		if (UIManager::RedrawBox::IsBoxOverlapping(Box, UIManager::RedrawBox{
 			.Min = GetPosition(),
-			.Max = GetPosition() + Size
+			.Max = GetPosition() + GetUsedSize().GetScreen()
 			}))
 		{
 			Draw();

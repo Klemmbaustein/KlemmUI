@@ -9,6 +9,9 @@ namespace kui
 	class ITextEditorProvider
 	{
 	public:
+
+		virtual ~ITextEditorProvider() {};
+
 		virtual void GetPreLine(size_t LineIndex, std::vector<TextSegment>& To) = 0;
 		virtual void GetLine(size_t LineIndex, std::vector<TextSegment>& To) = 0;
 		virtual size_t GetLineCount() = 0;
@@ -31,6 +34,13 @@ namespace kui
 		{
 			return Line == other.Line && Column == other.Column;
 		}
+	};
+
+	struct EditorColorizeSegment
+	{
+		size_t Offset = 0;
+		size_t Length = 0;
+		Vec3f Color = 1;
 	};
 }
 #endif

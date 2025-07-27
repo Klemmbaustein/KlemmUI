@@ -137,7 +137,7 @@ void kui::Window::WaitFrame()
 	}
 
 #if __linux__
-	if (!RedrawnWindow && !platform::linux::GetUseWayland())
+	if (!RedrawnWindow)
 #endif
 	{
 #if __linux__

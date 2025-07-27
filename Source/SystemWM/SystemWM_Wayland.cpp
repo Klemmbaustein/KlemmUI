@@ -79,6 +79,7 @@ static void HandleCloseFrame(libdecor_frame* frame, void* user_data)
 static void HandleCommitFrame(libdecor_frame* frame, void* user_data)
 {
 	WaylandWindow* w = (WaylandWindow*)user_data;
+	wl_surface_commit(w->WaylandSurface);
 }
 
 static libdecor_frame_interface DecorFrameInterface = {
@@ -495,7 +496,6 @@ void kui::systemWM::WaylandWindow::UpdateWindow()
 {
 	std::unique_lock g{ WindowUpdateMutex };
 
-	wl_surface_commit(this->WaylandSurface);
 	int err = libdecor_dispatch(Connection->DecorContext, 0);
 	if (err < 0)
 	{

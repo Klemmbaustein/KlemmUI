@@ -1,10 +1,11 @@
 #include <kui/App.h>
 #include "SystemWM/SystemWM.h"
+#include <iostream>
 
 static std::function<void(std::string Message, bool IsFatal)> ErrorCallback = 
 	[](std::string Message, bool)
 	{
-		std::fputs(Message.c_str(), stderr);
+		std::cerr << Message << std::endl;
 	};
 
 void kui::app::MessageBox(std::string Text, std::string Title, MessageType Type)

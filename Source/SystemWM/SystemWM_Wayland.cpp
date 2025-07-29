@@ -774,55 +774,56 @@ wl_cursor* kui::systemWM::WaylandConnection::CreateCursor(Window::Cursor New)
 
 	// Try a bunch of various names that will hopefully result in a good cursor
 	// This is sane
-	switch (New)
+	// Cast so clang doesn't complain about the extra enum types.
+	switch (int(New))
 	{
-	case Window::Cursor::Default:
+	case int(Window::Cursor::Default):
 		NamesToTry = { "default", "left_ptr", "right_ptr" };
 		break;
-	case Window::Cursor::Hand:
+	case int(Window::Cursor::Hand):
 		NamesToTry = { "hand2", "hand1", "hand" };
 		break;
-	case Window::Cursor::Text:
+	case int(Window::Cursor::Text):
 		NamesToTry = { "ibeam", "xterm" };
 		break;
 
-	case Window::Cursor::ResizeLeftRight:
+	case int(Window::Cursor::ResizeLeftRight):
 		NamesToTry = { "ew-resize", "col-resize" };
 		break;
 
-	case Window::Cursor::ResizeUpDown:
+	case int(Window::Cursor::ResizeUpDown):
 		NamesToTry = { "ns-resize", "row-resize" };
 		break;
 
-	case Window::Cursor(ResizeCursor::ResizeTopRight):
+	case int(ResizeCursor::ResizeTopRight):
 		NamesToTry = { "ne-resize" };
 		break;
 
-	case Window::Cursor(ResizeCursor::ResizeUp):
+	case int(ResizeCursor::ResizeUp):
 		NamesToTry = { "n-resize", "ns-resize" };
 		break;
 
-	case Window::Cursor(ResizeCursor::ResizeTopLeft):
+	case int(ResizeCursor::ResizeTopLeft):
 		NamesToTry = { "nw-resize" };
 		break;
 
-	case Window::Cursor(ResizeCursor::ResizeLeft):
+	case int(ResizeCursor::ResizeLeft):
 		NamesToTry = { "w-resize", "ew-resize" };
 		break;
 
-	case Window::Cursor(ResizeCursor::ResizeBottomLeft):
+	case int(ResizeCursor::ResizeBottomLeft):
 		NamesToTry = { "sw-resize" };
 		break;
 
-	case Window::Cursor(ResizeCursor::ResizeDown):
+	case int(ResizeCursor::ResizeDown):
 		NamesToTry = { "s-resize", "ns-resize" };
 		break;
 
-	case Window::Cursor(ResizeCursor::ResizeBottomRight):
+	case int(ResizeCursor::ResizeBottomRight):
 		NamesToTry = { "se-resize" };
 		break;
 
-	case Window::Cursor(ResizeCursor::ResizeRight):
+	case int(ResizeCursor::ResizeRight):
 		NamesToTry = { "e-resize", "ew-resize" };
 		break;
 

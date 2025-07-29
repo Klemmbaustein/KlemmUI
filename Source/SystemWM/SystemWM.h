@@ -1,5 +1,8 @@
 #pragma once
 #include <kui/Window.h>
+#include <cstddef>
+
+using std::size_t;
 
 namespace kui::systemWM
 {

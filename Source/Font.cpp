@@ -7,11 +7,13 @@
 #include <kui/App.h>
 #include <kui/UI/UIScrollBox.h>
 #include <kui/Resource.h>
-#include "Internal/OpenGL.h"
+#include "Rendering/OpenGL.h"
 #include <kui/Window.h>
 #include "Internal/Internal.h"
 #include <iostream>
 using namespace kui;
+
+using std::size_t;
 
 constexpr int FONT_BITMAP_WIDTH = 2000;
 constexpr int FONT_BITMAP_PADDING = 16;
@@ -294,27 +296,11 @@ Font::Font(std::string FileName)
 		GL_ALPHA,
 		GL_UNSIGNED_BYTE,
 		GlypthBitmap);
-	// can free temp_bitmap at this point
+
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glGenerateMipmap(GL_TEXTURE_2D);
 
-	glGenVertexArrays(1, &fontVao);
-	glBindVertexArray(fontVao);
-	glGenBuffers(1, &fontVertexBufferId);
-	glBindBuffer(GL_ARRAY_BUFFER, fontVertexBufferId);
-
-	fontVertexBufferCapacity = 35;
-	fontVertexBufferData = new FontVertex[fontVertexBufferCapacity * 6];
-
-	glBufferData(GL_ARRAY_BUFFER, sizeof(FontVertex) * 6 * fontVertexBufferCapacity, 0, GL_STATIC_DRAW);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(FontVertex), 0);
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(FontVertex), (const void*)offsetof(FontVertex, texCoords));
-	glEnableVertexAttribArray(2);
-	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(FontVertex), (const void*)offsetof(FontVertex, color));
-	glBindVertexArray(0);
+	glBindTexture(GL_TEXTURE_2D, 0);
 
 	resource::FreeBinaryFile(TextData);
 
@@ -438,11 +424,9 @@ DrawableText* Font::MakeText(std::vector<TextSegment> Text, float Scale, Vec3f C
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(FontVertex), (const void*)offsetof(FontVertex, texCoords));
 	glEnableVertexAttribArray(2);
 	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(FontVertex), (const void*)offsetof(FontVertex, color));
-	glBindVertexArray(0);
+	glEnableVertexAttribArray(0);
 
 	LengthBeforeWrap = LengthBeforeWrap * Window::GetActiveWindow()->GetAspectRatio() / Scale;
-	glBindVertexArray(newVAO);
-	glBindBuffer(GL_ARRAY_BUFFER, newVBO);
 	uint32_t len = (uint32_t)TextSegment::CombineToString(Text).size();
 	if (fontVertexBufferCapacity < len)
 	{
@@ -535,6 +519,8 @@ DrawableText* Font::MakeText(std::vector<TextSegment> Text, float Scale, Vec3f C
 	}
 
 	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(FontVertex) * numVertices, fontVertexBufferData);
+	glBindVertexArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	return new DrawableText(newVAO, newVBO, numVertices, fontTexture, Scale, Color, opacity);
 }
 
@@ -542,7 +528,6 @@ Font::~Font()
 {
 	glDeleteTextures(1, &fontTexture);
 	glDeleteBuffers(1, &fontVertexBufferId);
-	glDeleteBuffers(1, &fontVao);
 	if (fontVertexBufferData)
 	{
 		delete[] fontVertexBufferData;
@@ -586,6 +571,7 @@ void kui::DrawableText::Draw(ScrollObject* CurrentScrollObject, Vec2f Pos) const
 	else
 		TextShader->SetVec3("u_offset", Vec3f(0.0f, -1000.0f, 1000.0f));
 	glDrawArrays(GL_TRIANGLES, 0, NumVerts);
+	glBindVertexArray(0);
 }
 
 DrawableText::~DrawableText()

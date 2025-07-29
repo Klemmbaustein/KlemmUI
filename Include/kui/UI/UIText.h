@@ -67,8 +67,8 @@ namespace kui
 		static Vec2f GetTextSizeAtScale(UISize Scale, Font* Renderer);
 		UIText* SetTextWidthOverride(UISize NewTextWidthOverride);
 
-		size_t GetNearestLetterAtLocation(Vec2f Location) const;
-		Vec2f GetLetterLocation(size_t Index) const;
+		std::size_t GetNearestLetterAtLocation(Vec2f Location) const;
+		Vec2f GetLetterLocation(std::size_t Index) const;
 
 		/**
 		 * @brief
@@ -144,7 +144,7 @@ namespace kui
 		 */
 		UIText(UISize Scale, std::vector<TextSegment> Text, Font* Renderer);
 		virtual ~UIText();
-		void Draw() override;
+		void Draw(render::RenderBackend* Backend) override;
 		void Update() override;
 		void OnAttached() override;
 		SizeVec GetUsedSize() override;

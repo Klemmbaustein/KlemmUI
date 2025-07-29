@@ -115,7 +115,7 @@ UIText* UIText::SetText(std::vector<TextSegment> NewText)
 	return this;
 }
 
-size_t UIText::GetNearestLetterAtLocation(Vec2f Location) const
+std::size_t UIText::GetNearestLetterAtLocation(Vec2f Location) const
 {
 	if (Renderer == nullptr)
 		return 0;
@@ -125,7 +125,7 @@ size_t UIText::GetNearestLetterAtLocation(Vec2f Location) const
 		Location.Y -= CurrentScrollObject->GetOffset();
 	}
 
-	size_t Char = Renderer->GetCharacterAtPosition(RenderedText, Location - OffsetPosition - Vec2f(0, Size.Y),
+	std::size_t Char = Renderer->GetCharacterAtPosition(RenderedText, Location - OffsetPosition - Vec2f(0, Size.Y),
 		GetRenderedSize(), Wrap, GetWrapDistance(), MaxLines);
 	return Char;
 }
@@ -158,7 +158,7 @@ UIText::~UIText()
 		delete Text;
 }
 
-Vec2f UIText::GetLetterLocation(size_t Index) const
+Vec2f UIText::GetLetterLocation(std::size_t Index) const
 {
 	if (!Renderer) return 0;
 	Vec2f EndLocation;
@@ -185,7 +185,7 @@ UIText* UIText::SetWrapEnabled(bool WrapEnabled, UISize WrapDistance)
 	return this;
 }
 
-void UIText::Draw()
+void UIText::Draw(render::RenderBackend* Backend)
 {
 	if (!Renderer)
 		return;

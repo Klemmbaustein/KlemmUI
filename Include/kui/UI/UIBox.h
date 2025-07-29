@@ -13,6 +13,11 @@ namespace kui
 	class UIScrollBox;
 	class Window;
 
+	namespace render
+	{
+		class RenderBackend;
+	}
+
 	/**
 	* @brief
 	* UIBox class. Parent class for all UI elements.
@@ -84,7 +89,7 @@ namespace kui
 		 * A pointer to the root parent of this UIBox, or a pointer to this if this UIBox doesn't have a parent.
 		 */
 		UIBox* GetAbsoluteParent();
-		void DrawThisAndChildren(const UIManager::RedrawBox& Box);
+		void DrawThisAndChildren(render::RenderBackend* Backend, const render::RedrawBox& Box);
 
 		/**
 		 * @brief
@@ -396,7 +401,7 @@ namespace kui
 		void SetLeftPadding(UISize Value);
 		void SetRightPadding(UISize Value);
 
-		UIManager::RedrawBox GetRedrawBox() const;
+		render::RedrawBox GetRedrawBox() const;
 
 	protected:
 		bool ShouldBeTicked = true;
@@ -406,14 +411,13 @@ namespace kui
 		bool ChildrenHorizontal = true;
 	protected:
 		virtual void Update();
-		virtual void Draw();
+		virtual void Draw(render::RenderBackend* Backend);
 		virtual void Tick();
 		void UpdateHoveredState();
 		Vec2f Position;
 		Vec2f OffsetPosition = NAN;
 		SizeVec MaxSize = UISize::Largest();
 		SizeVec MinSize = UISize::Smallest();
-		size_t LastDrawIndex = 0;
 		UISize UpPadding;
 		UISize DownPadding;
 		UISize RightPadding;

@@ -25,7 +25,7 @@ namespace kui
 		UIBlurBackground(bool Horizontal, Vec2f Position, Vec3f Color, float Opacity = 0.5f, SizeVec MinScale = SizeVec::Smallest());
 		virtual ~UIBlurBackground() override;
 
-		void Draw() override;
+		void Draw(render::RenderBackend* Backend) override;
 
 	};
 }

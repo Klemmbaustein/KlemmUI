@@ -6,7 +6,26 @@
 namespace kui
 {
 	class Shader;
-	struct VertexBuffer;
+
+	class UIBackgroundState
+	{
+	public:
+		Vec3f Color;
+		Vec3f BorderColor = 1;
+		UISize BorderRadius = 0;
+		UISize CornerRadius = 0;
+		float Opacity = 1;
+		uint8_t CornerFlags = 0b1111;
+		uint8_t BorderFlags = 0b1111;
+		bool OwnsTexture = false;
+		bool UseTexture = false;
+		unsigned int TextureID = 0;
+
+		virtual ~UIBackgroundState() = default;
+
+		virtual void Draw(render::RenderBackend* With, Vec2f Position, Vec2f Size, ScrollObject* Scroll) = 0;
+
+	};
 
 	/**
 	 * @brief
@@ -20,21 +39,12 @@ namespace kui
 	class UIBackground : public UIBox
 	{
 	protected:
-		void ScrollTick(Shader* UsedShader);
 		void MakeGLBuffers();
-		bool OwnsTexture = false;
-		bool UseTexture = false;
-		uint8_t CornerFlags = 0b1111;
-		uint8_t BorderFlags = 0b1111;
-		virtual void DrawBackground();
-		Vec3f Color;
-		static thread_local VertexBuffer* BoxVertexBuffer;
-		unsigned int TextureID = 0;
-		float Opacity = 1;
-		Vec3f ColorMultiplier = 1;
-		static float GetBorderSize(UISize InSize);
+		virtual void DrawBackground(render::RenderBackend* Backend);
+		UIBackgroundState* State = nullptr;
 
 	public:
+		static float GetBorderSize(UISize InSize);
 
 		static void FreeVertexBuffer();
 
@@ -48,12 +58,9 @@ namespace kui
 		 */
 		bool HasImage() const
 		{
-			return UseTexture;
+			return State->UseTexture;
 		}
 
-		Vec3f BorderColor = 1;
-		UISize BorderRadius = 0;
-		UISize CornerRadius = 0;
 		Shader* BackgroundShader = nullptr;
 
 		/**
@@ -86,7 +93,7 @@ namespace kui
 
 		/**
 		 * @brief
-		 * Same as SetUseImage, but with a different name for backwards compatability.
+		 * Same as SetUseImage, but with a different name for backwards compatibility.
 		 */
 		UIBackground* SetUseTexture(bool UseTexture, unsigned int TextureID = 0);
 		UIBackground* SetUseTexture(bool UseTexture, std::string TextureFile);
@@ -147,13 +154,13 @@ namespace kui
 		 * @brief
 		 * Sets which edges of the background should have their border visible.
 		 * @param Top
-		 * Controls if the top border should be visibile.
+		 * Controls if the top border should be visible.
 		 * @param Down
-		 * Controls if the bottom border should be visibile.
+		 * Controls if the bottom border should be visible.
 		 * @param Left
-		 * Controls if the left border should be visibile.
+		 * Controls if the left border should be visible.
 		 * @param Right
-		 * Controls if the right border should be visibile.
+		 * Controls if the right border should be visible.
 		 * @return
 		 * A pointer to this UIBackground, for chaining method calls.
 		 */
@@ -163,6 +170,11 @@ namespace kui
 		UIBackground* SetCorner(UISize CornerSize);
 		UIBackground* SetCorners(bool TopLeft, bool TopRight, bool BottomLeft, bool BottomRight);
 		UIBackground* SetCornerVisible(int Index, bool Value);
+
+		UIBackgroundState* GetRenderState() const
+		{
+			return this->State;
+		}
 
 		/**
 		 * @brief
@@ -185,7 +197,7 @@ namespace kui
 		 */
 		UIBackground(bool Horizontal, Vec2f Position, Vec3f Color, SizeVec MinScale = SizeVec::Smallest(), Shader* UsedShader = nullptr);
 		virtual ~UIBackground();
-		virtual void Draw() override;
+		virtual void Draw(render::RenderBackend* Backend) override;
 		void Update() override;
 		void OnAttached() override;
 	};

@@ -39,7 +39,7 @@ namespace kui
 		UISpinner* SetBackgroundColor(Vec3f NewColor);
 
 		void Tick() override;
-		virtual void Draw() override;
+		virtual void Draw(render::RenderBackend* Backend) override;
 
 		bool Active = true;
 	};

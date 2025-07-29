@@ -22,9 +22,9 @@ static void DataOfferHandleOffer(void* Data, wl_data_offer* offer, const char* M
 			continue;
 		}
 		std::string MimeTypeStr = MimeType;
-		if (MimeTypeStr, "text/plain;charset=utf-8")
+		if (MimeTypeStr == "text/plain;charset=utf-8")
 			i.Utf8Text = true;
-		else if (MimeTypeStr, "text/uri-list")
+		else if (MimeTypeStr == "text/uri-list")
 			i.UriListText = true;
 
 		break;

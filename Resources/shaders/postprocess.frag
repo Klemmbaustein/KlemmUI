@@ -8,7 +8,7 @@ uniform vec3 u_borderColor;
 
 void main()
 {
-	f_color.xyz = texture(u_ui, v_texcoords).xyz;
+	f_color.xyz = texture(u_ui, vec2(v_texcoords.x, v_texcoords.y)).xyz;
 	f_color.w = 1.0;
 
 	if (u_hasWindowBorder)

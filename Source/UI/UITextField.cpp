@@ -1,8 +1,8 @@
 #include <kui/UI/UITextField.h>
 #include <kui/UI/UIText.h>
 #include <kui/Input.h>
-#include "../Rendering/VertexBuffer.h"
-#include "../Internal/OpenGL.h"
+#include <kui/Rendering/OpenGLBackend.h>
+#include "../Rendering/OpenGL.h"
 #include <kui/App.h>
 #include <kui/UI/UIScrollBox.h>
 #include <kui/Rendering/Shader.h>
@@ -45,7 +45,7 @@ void UITextField::Tick()
 			ClickStartedOnField = true;
 		}
 
-		size_t Nearest = TextObject->GetNearestLetterAtLocation(ParentWindow->Input.MousePosition);
+		std::size_t Nearest = TextObject->GetNearestLetterAtLocation(ParentWindow->Input.MousePosition);
 		if (!IsHovered)
 		{
 			RedrawElement();
@@ -122,7 +122,7 @@ void UITextField::Tick()
 
 	std::string NewText = EnteredText.empty() && !IsEdited ? HintText : EnteredText;
 
-	TextObject->SetColor(EnteredText.empty() && !IsEdited ? Vec3f::Lerp(TextColor, Color, 0.25f) : TextColor);
+	TextObject->SetColor(EnteredText.empty() && !IsEdited ? Vec3f::Lerp(TextColor, State->Color, 0.25f) : TextColor);
 
 	if (NewText != TextObject->GetText())
 	{
@@ -222,9 +222,9 @@ UITextField* UITextField::SetHintText(std::string NewHintText)
 
 UITextField* UITextField::SetColor(Vec3f NewColor)
 {
-	if (NewColor != Color)
+	if (NewColor != State->Color)
 	{
-		Color = NewColor;
+		State->Color = NewColor;
 		ParentWindow->UI.RedrawUI();
 	}
 	return this;
@@ -232,7 +232,7 @@ UITextField* UITextField::SetColor(Vec3f NewColor)
 
 Vec3f UITextField::GetColor() const
 {
-	return Color;
+	return State->Color;
 }
 
 UITextField* UITextField::SetTextColor(Vec3f NewColor)
@@ -314,13 +314,12 @@ bool kui::UITextField::GetIsPressed() const
 	return IsPressed;
 }
 
-void UITextField::DrawBackground()
+void UITextField::DrawBackground(render::RenderBackend* Backend)
 {
 	TextScroll.Position = OffsetPosition;
 	TextScroll.Scale = Size;
 
 	BackgroundShader->Bind();
-	BoxVertexBuffer->Bind();
 	TextObject->IsVisible = true;
 
 	auto Pos = TextScroll.GetPosition();
@@ -331,18 +330,10 @@ void UITextField::DrawBackground()
 	if (IsEdited && ParentWindow->Input.TextSelectionStart != ParentWindow->Input.TextIndex)
 	{
 		float CharSize = IBeamScale.Y;
-		auto DrawHighlight = [this, CharSize](Vec2f Start, Vec2f End)
+		auto DrawHighlight = [Backend, this, CharSize](Vec2f Start, Vec2f End)
 			{
-				BackgroundShader->SetVec3("u_color", Vec3f(0.25f, 1, 1));
-				BackgroundShader->SetInt("u_drawCorner", 0);
-				BackgroundShader->SetInt("u_drawBorder", 0);
-				BackgroundShader->SetFloat("u_opacity", 0.5f);
-				Vec2f Size = End - Start;
-				glUniform4f(glGetUniformLocation(BackgroundShader->GetShaderID(), "u_transform"),
-					Start.X, Start.Y, Size.X, Size.Y + CharSize
-				);
-
-				BoxVertexBuffer->Draw();
+				Vec2f BoxSize = End - Start;
+				Backend->DrawSimpleBox(Start, BoxSize + Vec2f(0, CharSize), Vec3f(0.25f, 1, 1));
 			};
 
 		if (TextHighlightStart.Y == TextHighlightEnd.Y)
@@ -351,7 +342,7 @@ void UITextField::DrawBackground()
 		}
 		else
 		{
-			size_t Difference = size_t(std::round((TextHighlightEnd.Y - TextHighlightStart.Y) / CharSize));
+			std::size_t Difference = std::size_t(std::round((TextHighlightEnd.Y - TextHighlightStart.Y) / CharSize));
 
 			if (Difference == 1)
 			{
@@ -372,15 +363,6 @@ void UITextField::DrawBackground()
 
 	if (ShowIBeam)
 	{
-		BackgroundShader->SetVec3("u_color", TextColor);
-		BackgroundShader->SetInt("u_drawCorner", 0);
-		BackgroundShader->SetInt("u_drawBorder", 0);
-		BackgroundShader->SetFloat("u_opacity", 1);
-		glUniform4f(glGetUniformLocation(BackgroundShader->GetShaderID(), "u_transform"),
-			IBeamPosition.X, IBeamPosition.Y, IBeamScale.X, IBeamScale.Y);
-		BoxVertexBuffer->Draw();
+		Backend->DrawSimpleBox(IBeamPosition, IBeamScale, TextColor);
 	}
-
-	BoxVertexBuffer->Unbind();
-
 }

@@ -69,7 +69,7 @@ void ScrollObject::ScrollUp()
 
 	Scrolled = std::min(Scrolled, MaxScroll);
 
-	Window::GetActiveWindow()->UI.RedrawArea(UIManager::RedrawBox{
+	Window::GetActiveWindow()->UI.RedrawArea(render::RedrawBox{
 		.Min = Position,
 		.Max = Position + Scale,
 		});
@@ -87,7 +87,7 @@ void ScrollObject::ScrollDown()
 	}
 	Scrolled = std::max(Scrolled, 0.0f);
 
-	Window::GetActiveWindow()->UI.RedrawArea(UIManager::RedrawBox{
+	Window::GetActiveWindow()->UI.RedrawArea(render::RedrawBox{
 		.Min = Position,
 		.Max = Position + Scale,
 		});

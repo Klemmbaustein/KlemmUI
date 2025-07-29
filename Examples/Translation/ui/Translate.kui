@@ -12,10 +12,10 @@ element TranslationExample
 	{
 		padding = 10px;
 
-		corners = 8px;
+		//corners = 8px;
 
-		border = 1px;
-		borderColor = 1;
+		//border = 1px;
+		//borderColor = 1;
 
 		color = (0.15, 0.1, 0.2);
 

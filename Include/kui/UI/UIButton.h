@@ -117,6 +117,5 @@ namespace kui
 		~UIButton();
 
 		void Update() override;
-		void DrawBackground() override;
 	};
 }

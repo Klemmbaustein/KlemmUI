@@ -2,7 +2,7 @@
 #include <kui/Rendering/Shader.h>
 #include <kui/Window.h>
 #include "../Rendering/VertexBuffer.h"
-#include "../Internal/OpenGL.h"
+#include "../Rendering/OpenGL.h"
 
 const float BlurScale = 0.2f;
 const int BlurAmount = 15;
@@ -34,7 +34,7 @@ void kui::UIBlurBackground::CreateBlurBuffers()
 		glBindFramebuffer(GL_FRAMEBUFFER, BackgroundBuffers[i]);
 		glBindTexture(GL_TEXTURE_2D, BackgroundTextures[i]);
 		glTexImage2D(
-			GL_TEXTURE_2D, 0, GL_RGBA16F, GLsizei(Size.X), GLsizei(Size.Y), 0, GL_RGBA, GL_FLOAT, NULL
+			GL_TEXTURE_2D, 0, GL_RGBA16F, GLsizei(Size.X), GLsizei(Size.Y), 0, GL_RGBA, GL_FLOAT, nullptr
 		);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -57,7 +57,7 @@ kui::UIBlurBackground::UIBlurBackground(bool Horizontal, Vec2f Position, Vec3f C
 	BackgroundBuffers[1] = 0;
 	BackgroundTextures[0] = 0;
 	BackgroundTextures[1] = 0;
-	this->Opacity = Opacity;
+	this->State->Opacity = Opacity;
 	BlurShader = Window::GetActiveWindow()->Shaders.LoadShader(
 		"res:shaders/uiblur.vert",
 		"res:shaders/uiblur.frag",
@@ -76,73 +76,69 @@ kui::UIBlurBackground::~UIBlurBackground()
 	BlurBackgrounds.erase(this);
 }
 
-void kui::UIBlurBackground::Draw()
+void kui::UIBlurBackground::Draw(render::RenderBackend* Backend)
 {
-	if (!BoxVertexBuffer)
-	{
-		return;
-	}
-	Vec2ui WindowSize = ParentWindow->GetSize();
-	const Vec2ui PixelSize = GetPixelSize();
+	//Vec2ui WindowSize = ParentWindow->GetSize();
+	//const Vec2ui PixelSize = GetPixelSize();
 
-	if (OldSize != PixelSize)
-	{
-		OldSize = PixelSize;
-		CreateBlurBuffers();
-	}
-	glViewport(0, 0, (GLsizei)PixelSize.X, (GLsizei)PixelSize.Y);
-	glDisable(GL_SCISSOR_TEST);
-	glActiveTexture(GL_TEXTURE0);
+	//if (OldSize != PixelSize)
+	//{
+	//	OldSize = PixelSize;
+	//	CreateBlurBuffers();
+	//}
+	//glViewport(0, 0, (GLsizei)PixelSize.X, (GLsizei)PixelSize.Y);
+	//glDisable(GL_SCISSOR_TEST);
+	//glActiveTexture(GL_TEXTURE0);
 
-	bool Horizontal = true, FirstIteration = true;
-	BlurShader->Bind();
-	BlurShader->SetVec2("u_scale", Size / 2);
-	BlurShader->SetVec2("u_position", (OffsetPosition + 1) / 2);
+	//bool Horizontal = true, FirstIteration = true;
+	//BlurShader->Bind();
+	//BlurShader->SetVec2("u_scale", Size / 2);
+	//BlurShader->SetVec2("u_position", (OffsetPosition + 1) / 2);
 
-	for (unsigned int i = 0; i < BlurAmount; i++)
-	{
-		glBindFramebuffer(GL_FRAMEBUFFER, BackgroundBuffers[Horizontal]);
-		BlurShader->SetInt("u_horizontal", Horizontal);
-		glClear(GL_COLOR_BUFFER_BIT);
-		glBindTexture(
-			GL_TEXTURE_2D, FirstIteration ? ParentWindow->UI.UITextures[0] : BackgroundTextures[!Horizontal]
-		);
-		BoxVertexBuffer->Draw();
-		BlurShader->SetVec2("u_scale", 1);
-		BlurShader->SetVec2("u_position", 0);
-		Horizontal = !Horizontal;
-		if (FirstIteration)
-			FirstIteration = false;
-	}
-	BlurShader->Unbind();
-	glViewport(0, 0, (GLsizei)WindowSize.X, (GLsizei)WindowSize.Y);
-	glBindFramebuffer(GL_FRAMEBUFFER, ParentWindow->UI.UIBuffer);
-	glEnable(GL_SCISSOR_TEST);
+	//for (unsigned int i = 0; i < BlurAmount; i++)
+	//{
+	//	glBindFramebuffer(GL_FRAMEBUFFER, BackgroundBuffers[Horizontal]);
+	//	BlurShader->SetInt("u_horizontal", Horizontal);
+	//	glClear(GL_COLOR_BUFFER_BIT);
+	//	glBindTexture(
+	//		GL_TEXTURE_2D, FirstIteration ? ParentWindow->UI.UITextures[0] : BackgroundTextures[!Horizontal]
+	//	);
+	//	BoxVertexBuffer->Draw();
+	//	BlurShader->SetVec2("u_scale", 1);
+	//	BlurShader->SetVec2("u_position", 0);
+	//	Horizontal = !Horizontal;
+	//	if (FirstIteration)
+	//		FirstIteration = false;
+	//}
+	//BlurShader->Unbind();
+	//glViewport(0, 0, (GLsizei)WindowSize.X, (GLsizei)WindowSize.Y);
+	//glBindFramebuffer(GL_FRAMEBUFFER, ParentWindow->UI.UIBuffer);
+	//glEnable(GL_SCISSOR_TEST);
 
-	BackgroundShader->Bind();
+	//BackgroundShader->Bind();
 
-	glBindTexture(GL_TEXTURE_2D, BackgroundTextures[0]);
-	BoxVertexBuffer->Bind();
-	ScrollTick(BackgroundShader);
-	BackgroundShader->SetVec3("u_color", Color);
-	BackgroundShader->SetVec3("u_borderColor", BorderColor);
+	//glBindTexture(GL_TEXTURE_2D, BackgroundTextures[0]);
+	//BoxVertexBuffer->Bind();
+	//ScrollTick(BackgroundShader);
+	//BackgroundShader->SetVec3("u_color", Color);
+	//BackgroundShader->SetVec3("u_borderColor", BorderColor);
 
-	glUniform4f(BackgroundShader->GetUniformLocation("u_transform"), OffsetPosition.X, OffsetPosition.Y, Size.X, Size.Y);
-	BackgroundShader->SetFloat("u_opacity", Opacity);
-	BackgroundShader->SetInt("u_drawBorder", BorderRadius.Value != 0);
-	BackgroundShader->SetInt("u_drawCorner", CornerRadius.Value != 0);
-	BackgroundShader->SetFloat("u_borderScale", GetBorderSize(BorderRadius));
-	BackgroundShader->SetFloat("u_cornerScale", GetBorderSize(CornerRadius));
-	BackgroundShader->SetInt("u_cornerFlags", int(CornerFlags));
-	BackgroundShader->SetInt("u_borderFlags", int(BorderFlags));
-	BackgroundShader->SetFloat("u_aspectRatio", Window::GetActiveWindow()->GetAspectRatio());
-	BackgroundShader->SetVec2("u_screenRes", Vec2f(
-		(float)Window::GetActiveWindow()->GetSize().X,
-		(float)Window::GetActiveWindow()->GetSize().Y));
+	//glUniform4f(BackgroundShader->GetUniformLocation("u_transform"), OffsetPosition.X, OffsetPosition.Y, Size.X, Size.Y);
+	//BackgroundShader->SetFloat("u_opacity", Opacity);
+	//BackgroundShader->SetInt("u_drawBorder", BorderRadius.Value != 0);
+	//BackgroundShader->SetInt("u_drawCorner", CornerRadius.Value != 0);
+	//BackgroundShader->SetFloat("u_borderScale", GetBorderSize(BorderRadius));
+	//BackgroundShader->SetFloat("u_cornerScale", GetBorderSize(CornerRadius));
+	//BackgroundShader->SetInt("u_cornerFlags", int(CornerFlags));
+	//BackgroundShader->SetInt("u_borderFlags", int(BorderFlags));
+	//BackgroundShader->SetFloat("u_aspectRatio", Window::GetActiveWindow()->GetAspectRatio());
+	//BackgroundShader->SetVec2("u_screenRes", Vec2f(
+	//	(float)Window::GetActiveWindow()->GetSize().X,
+	//	(float)Window::GetActiveWindow()->GetSize().Y));
 
-	BoxVertexBuffer->Draw();
-	DrawBackground();
-	BoxVertexBuffer->Unbind();
-	BackgroundShader->Unbind();
+	//BoxVertexBuffer->Draw();
+	//DrawBackground();
+	//BoxVertexBuffer->Unbind();
+	//BackgroundShader->Unbind();
 
 }

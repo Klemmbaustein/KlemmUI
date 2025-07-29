@@ -42,10 +42,10 @@ void UISpinner::Tick()
 	}
 }
 
-void UISpinner::Draw()
+void UISpinner::Draw(render::RenderBackend* Backend)
 {
 	BackgroundShader->Bind();
 	BackgroundShader->SetFloat("u_time", ParentWindow->Time);
 	BackgroundShader->SetVec3("u_backgroundColor", BackgroundColor);
-	UIBackground::Draw();
+	UIBackground::Draw(Backend);
 }

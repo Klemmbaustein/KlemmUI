@@ -319,7 +319,7 @@ void kui::systemWM::X11Window::Create(Window* Parent, Vec2ui Size, Vec2ui Pos, s
 	XVisualInfo* GlxVisual = glXChooseVisual(XDisplay, ScreenID, GlxAttributus);
 
 	XSetWindowAttributes WindowAttributes;
-	memset(&WindowAttributes, sizeof(WindowAttributes), 0);
+	memset(&WindowAttributes, 0, sizeof(WindowAttributes));
 	WindowAttributes.border_pixel = BlackPixel(XDisplay, ScreenID);
 	WindowAttributes.override_redirect = True;
 	WindowAttributes.colormap = XCreateColormap(XDisplay, RootWindow(XDisplay, ScreenID), GlxVisual->visual, AllocNone);
@@ -340,8 +340,8 @@ void kui::systemWM::X11Window::Create(Window* Parent, Vec2ui Size, Vec2ui Pos, s
 		XCloseDisplay(XDisplay);
 		return;
 	}
-	InputMethod = XOpenIM(XDisplay, NULL, NULL, NULL);
-	Input = XCreateIC(InputMethod, XNInputStyle, XIMStatusNothing | XIMPreeditNothing, XNClientWindow, XWindow, NULL);
+	InputMethod = XOpenIM(XDisplay, nullptr, nullptr, nullptr);
+	Input = XCreateIC(InputMethod, XNInputStyle, XIMStatusNothing | XIMPreeditNothing, XNClientWindow, XWindow, nullptr);
 
 	X11Borderless::MakeWindowBorderless(this, !Borderless);
 	SetResizable(Resizable);

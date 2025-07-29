@@ -1,52 +1,27 @@
 #include <kui/UI/UIBackground.h>
-#include "../Internal/OpenGL.h"
 #include "../Rendering/VertexBuffer.h"
 #include <kui/Rendering/Shader.h>
 #include <kui/App.h>
 #include <kui/UI/UIScrollBox.h>
 #include <kui/Window.h>
+#include <kui/Rendering/RenderBackend.h>
 #include <iostream>
 using namespace kui;
 
-thread_local VertexBuffer* UIBackground::BoxVertexBuffer = nullptr;
-
-void UIBackground::ScrollTick(Shader* UsedShader)
-{
-	if (CurrentScrollObject != nullptr)
-		UsedShader->SetVec3("u_offset",
-			Vec3f(-CurrentScrollObject->GetOffset(), CurrentScrollObject->GetPosition().Y, CurrentScrollObject->GetScale().Y));
-	else
-		UsedShader->SetVec3("u_offset", Vec3f(0, -1000, 1000));
-}
-
 void UIBackground::MakeGLBuffers()
 {
-	if (!BoxVertexBuffer)
-	{
-		BoxVertexBuffer = new VertexBuffer(
-			{
-				Vertex(Vec2f(0, 0), 0),
-				Vertex(Vec2f(0, 1), 1),
-				Vertex(Vec2f(1, 0), 2),
-				Vertex(Vec2f(1, 1), 3)
-			},
-		{
-			0u, 1u, 2u,
-			1u, 2u, 3u
-		});
-	}
 }
 
-void UIBackground::DrawBackground()
+void UIBackground::DrawBackground(render::RenderBackend* Backend)
 {
 }
 
 UIBackground* UIBackground::SetBorderEdges(bool Top, bool Down, bool Left, bool Right)
 {
 	int NewFlags = uint8_t(Right) | uint8_t(Left) << 1 | uint8_t(Top) << 2 | uint8_t(Down) << 3;
-	if (NewFlags != BorderFlags)
+	if (NewFlags != State->BorderFlags)
 	{
-		BorderFlags = NewFlags;
+		State->BorderFlags = NewFlags;
 		RedrawElement();
 	}
 	return this;
@@ -55,9 +30,9 @@ UIBackground* UIBackground::SetBorderEdges(bool Top, bool Down, bool Left, bool 
 UIBackground* UIBackground::SetCorners(bool TopLeft, bool TopRight, bool BottomLeft, bool BottomRight)
 {
 	int NewFlags = uint8_t(BottomLeft) | uint8_t(TopLeft) << 1 | uint8_t(BottomRight) << 2 | uint8_t(TopRight) << 3;
-	if (NewFlags != CornerFlags)
+	if (NewFlags != State->CornerFlags)
 	{
-		CornerFlags = NewFlags;
+		State->CornerFlags = NewFlags;
 		RedrawElement();
 	}
 	return this;
@@ -80,16 +55,13 @@ float kui::UIBackground::GetBorderSize(UISize InSize)
 
 void kui::UIBackground::FreeVertexBuffer()
 {
-	if (BoxVertexBuffer)
-		delete BoxVertexBuffer;
-	BoxVertexBuffer = nullptr;
 }
 
 UIBackground* UIBackground::SetOpacity(float NewOpacity)
 {
-	if (NewOpacity != Opacity)
+	if (NewOpacity != State->Opacity)
 	{
-		Opacity = NewOpacity;
+		State->Opacity = NewOpacity;
 		RedrawElement();
 	}
 	return this;
@@ -97,9 +69,9 @@ UIBackground* UIBackground::SetOpacity(float NewOpacity)
 
 UIBackground* kui::UIBackground::SetBorderColor(Vec3f NewColor)
 {
-	if (NewColor != BorderColor)
+	if (NewColor != State->BorderColor)
 	{
-		BorderColor = NewColor;
+		State->BorderColor = NewColor;
 		RedrawElement();
 	}
 	return this;
@@ -107,14 +79,14 @@ UIBackground* kui::UIBackground::SetBorderColor(Vec3f NewColor)
 
 float UIBackground::GetOpacity() const
 {
-	return Opacity;
+	return State->Opacity;
 }
 
 UIBackground* UIBackground::SetColor(Vec3f NewColor)
 {
-	if (NewColor != Color)
+	if (NewColor != State->Color)
 	{
-		Color = NewColor;
+		State->Color = NewColor;
 		RedrawElement();
 	}
 	return this;
@@ -122,21 +94,21 @@ UIBackground* UIBackground::SetColor(Vec3f NewColor)
 
 Vec3f UIBackground::GetColor() const
 {
-	return Color;
+	return State->Color;
 }
 
 UIBackground* UIBackground::SetUseTexture(bool UseTexture, unsigned int TextureID)
 {
-	if (OwnsTexture)
+	if (State->OwnsTexture)
 	{
 		ParentWindow->UI.UnloadReferenceTexture(TextureID);
-		OwnsTexture = false;
+		State->OwnsTexture = false;
 	}
 
-	if (this->UseTexture != UseTexture || TextureID != this->TextureID)
+	if (State->UseTexture != UseTexture || TextureID != State->TextureID)
 	{
-		this->UseTexture = UseTexture;
-		this->TextureID = TextureID;
+		State->UseTexture = UseTexture;
+		State->TextureID = TextureID;
 		RedrawElement();
 	}
 	return this;
@@ -144,9 +116,9 @@ UIBackground* UIBackground::SetUseTexture(bool UseTexture, unsigned int TextureI
 
 UIBackground* UIBackground::SetBorder(UISize BorderSize, Vec3f Color)
 {
-	if (BorderSize != this->BorderRadius)
+	if (BorderSize != State->BorderRadius)
 	{
-		this->BorderRadius = BorderSize;
+		State->BorderRadius = BorderSize;
 		RedrawElement();
 	}
 	SetBorderColor(Color);
@@ -155,9 +127,9 @@ UIBackground* UIBackground::SetBorder(UISize BorderSize, Vec3f Color)
 
 UIBackground* UIBackground::SetCorner(UISize CornerSize)
 {
-	if (CornerSize != CornerRadius)
+	if (CornerSize != State->CornerRadius)
 	{
-		CornerRadius = CornerSize;
+		State->CornerRadius = CornerSize;
 		RedrawElement();
 	}
 	return this;
@@ -165,14 +137,14 @@ UIBackground* UIBackground::SetCorner(UISize CornerSize)
 
 UIBackground* UIBackground::SetCornerVisible(int Index, bool Value)
 {
-	int NewFlags = CornerFlags & ~(1 << Index);
+	int NewFlags = State->CornerFlags & ~(1 << Index);
 
 	if (Value)
 		NewFlags |= 1 << Index;
 
-	if (NewFlags != CornerFlags)
+	if (NewFlags != State->CornerFlags)
 	{
-		CornerFlags = NewFlags;
+		State->CornerFlags = NewFlags;
 		RedrawElement();
 	}
 	return this;
@@ -180,14 +152,14 @@ UIBackground* UIBackground::SetCornerVisible(int Index, bool Value)
 
 UIBackground* UIBackground::SetBorderVisible(int Index, bool Value)
 {
-	int NewFlags = BorderFlags & ~(1 << Index);
+	int NewFlags = State->BorderFlags & ~(1 << Index);
 
 	if (Value)
 		NewFlags |= 1 << Index;
 
-	if (NewFlags != BorderFlags)
+	if (NewFlags != State->BorderFlags)
 	{
-		BorderFlags = NewFlags;
+		State->BorderFlags = NewFlags;
 		RedrawElement();
 	}
 	return this;
@@ -195,10 +167,10 @@ UIBackground* UIBackground::SetBorderVisible(int Index, bool Value)
 
 UIBackground* kui::UIBackground::SetUseTexture(bool UseTexture, std::string TextureFile)
 {
-	if (OwnsTexture)
+	if (State->OwnsTexture)
 	{
-		ParentWindow->UI.UnloadReferenceTexture(TextureID);
-		OwnsTexture = false;
+		ParentWindow->UI.UnloadReferenceTexture(State->TextureID);
+		State->OwnsTexture = false;
 	}
 
 	if (TextureFile.empty())
@@ -210,12 +182,12 @@ UIBackground* kui::UIBackground::SetUseTexture(bool UseTexture, std::string Text
 	if (UseTexture)
 	{
 		NewTextureID = ParentWindow->UI.LoadReferenceTexture(TextureFile);
-		OwnsTexture = true;
+		State->OwnsTexture = true;
 	}
-	if (this->UseTexture != UseTexture || NewTextureID != this->TextureID)
+	if (State->UseTexture != UseTexture || NewTextureID != State->TextureID)
 	{
-		this->UseTexture = UseTexture;
-		this->TextureID = NewTextureID;
+		State->UseTexture = UseTexture;
+		State->TextureID = NewTextureID;
 		RedrawElement();
 	}
 
@@ -224,8 +196,9 @@ UIBackground* kui::UIBackground::SetUseTexture(bool UseTexture, std::string Text
 
 UIBackground::UIBackground(bool Horizontal, Vec2f Position, Vec3f Color, SizeVec MinScale, Shader* UsedShader) : UIBox(Horizontal, Position)
 {
+	State = Window::GetActiveWindow()->UI.Render->MakeBackground();
 	SetMinSize(MinScale);
-	this->Color = Color;
+	State->Color = Color;
 	if (!UsedShader)
 	{
 		this->BackgroundShader = Window::GetActiveWindow()->Shaders.LoadShader("res:shaders/uishader.vert", "res:shaders/uishader.frag", "UI Shader");
@@ -234,63 +207,25 @@ UIBackground::UIBackground(bool Horizontal, Vec2f Position, Vec3f Color, SizeVec
 	{
 		this->BackgroundShader = UsedShader;
 	}
-	MakeGLBuffers();
 }
 
 UIBackground::~UIBackground()
 {
-	if (OwnsTexture)
+	delete State;
+	if (State->OwnsTexture)
 	{
-		ParentWindow->UI.UnloadReferenceTexture(TextureID);
-		OwnsTexture = false;
+		ParentWindow->UI.UnloadReferenceTexture(State->TextureID);
+		State->OwnsTexture = false;
 	}
 }
 
-void UIBackground::Draw()
+void UIBackground::Draw(render::RenderBackend* Backend)
 {
-	if (!BoxVertexBuffer)
+	if (State)
 	{
-		return;
+		State->Draw(Backend, OffsetPosition, Size, CurrentScrollObject);
 	}
-	BackgroundShader->Bind();
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, TextureID);
-	BoxVertexBuffer->Bind();
-	ScrollTick(BackgroundShader);
-	BackgroundShader->SetVec3("u_color", Color);
-	BackgroundShader->SetVec3("u_borderColor", BorderColor);
-
-	UISize DrawnBorderRadius = BorderRadius;
-
-	if (this == ParentWindow->UI.KeyboardFocusBox)
-	{
-		if (DrawnBorderRadius.Value == 0)
-		{
-			DrawnBorderRadius = 2_px;
-		}
-		else
-		{
-			DrawnBorderRadius.Value *= 2;
-		}
-	}
-
-	glUniform4f(BackgroundShader->GetUniformLocation("u_transform"), OffsetPosition.X, OffsetPosition.Y, Size.X, Size.Y);
-	BackgroundShader->SetFloat("u_opacity", Opacity);
-	BackgroundShader->SetInt("u_drawBorder", DrawnBorderRadius.Value != 0);
-	BackgroundShader->SetInt("u_drawCorner", CornerRadius.Value != 0);
-	BackgroundShader->SetFloat("u_borderScale", GetBorderSize(DrawnBorderRadius));
-	BackgroundShader->SetFloat("u_cornerScale", GetBorderSize(CornerRadius));
-	BackgroundShader->SetInt("u_cornerFlags", int(CornerFlags));
-	BackgroundShader->SetInt("u_borderFlags", int(BorderFlags));
-	BackgroundShader->SetFloat("u_aspectRatio", Window::GetActiveWindow()->GetAspectRatio());
-	BackgroundShader->SetVec2("u_screenRes", Vec2f(
-		(float)Window::GetActiveWindow()->GetSize().X,
-		(float)Window::GetActiveWindow()->GetSize().Y));
-
-	BackgroundShader->SetInt("u_useTexture", (int)UseTexture);
-	BoxVertexBuffer->Draw();
-	DrawBackground();
-	BoxVertexBuffer->Unbind();
+	DrawBackground(Backend);
 }
 
 void UIBackground::Update()

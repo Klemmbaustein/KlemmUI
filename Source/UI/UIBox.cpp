@@ -93,7 +93,7 @@ UIBox::~UIBox()
 	}
 }
 
-void UIBox::Draw()
+void UIBox::Draw(render::RenderBackend* Backend)
 {
 }
 
@@ -122,7 +122,7 @@ Window* UIBox::GetParentWindow()
 
 void UIBox::MoveToFront()
 {
-	for (size_t i = 0; i < ParentWindow->UI.UIElements.size(); i++)
+	for (std::size_t i = 0; i < ParentWindow->UI.UIElements.size(); i++)
 	{
 		if (ParentWindow->UI.UIElements[i] == this)
 		{
@@ -334,16 +334,16 @@ void kui::UIBox::SetOffsetPosition(Vec2f NewPos)
 		Vec2f ScreenPos = GetPosition();
 		OffsetPosition = NewPos;
 		Vec2f NewScreenPos = GetPosition();
-		ParentWindow->UI.RedrawArea(UIManager::RedrawBox{
+		ParentWindow->UI.RedrawArea(render::RedrawBox{
 			.Min = Vec2f::Min(ScreenPos, NewScreenPos),
 			.Max = Vec2f::Max(ScreenPos, NewScreenPos) + GetUsedSize().GetScreen(),
 			});
 	}
 }
 
-UIManager::RedrawBox UIBox::GetRedrawBox() const
+render::RedrawBox UIBox::GetRedrawBox() const
 {
-	return UIManager::RedrawBox{
+	return render::RedrawBox{
 		.Min = GetScreenPosition(),
 		.Max = GetScreenPosition() + Size,
 	};
@@ -448,7 +448,7 @@ void UIBox::UpdateScale()
 
 	if (NewSize != Size)
 	{
-		ParentWindow->UI.RedrawArea(UIManager::RedrawBox{
+		ParentWindow->UI.RedrawArea(render::RedrawBox{
 			.Min = GetPosition(),
 			.Max = GetPosition() + Vec2f::Max(Size, NewSize),
 			});
@@ -645,25 +645,21 @@ void UIBox::UpdateHoveredState()
 	}
 }
 
-void UIBox::DrawThisAndChildren(const UIManager::RedrawBox& Box)
+void UIBox::DrawThisAndChildren(render::RenderBackend* Backend, const render::RedrawBox& Box)
 {
 	for (auto c : Children)
 	{
 		c->UpdateTickState();
 	}
-	LastDrawIndex++;
 	if (IsVisible)
 	{
-		if (UIManager::RedrawBox::IsBoxOverlapping(Box, UIManager::RedrawBox{
-			.Min = GetPosition(),
-			.Max = GetPosition() + GetUsedSize().GetScreen()
-			}))
+		if (render::RedrawBox::IsBoxOverlapping(Box, GetRedrawBox()))
 		{
-			Draw();
+			Draw(Backend);
 		}
 		for (auto c : Children)
 		{
-			c->DrawThisAndChildren(Box);
+			c->DrawThisAndChildren(Backend, Box);
 		}
 	}
 	Redrawn = false;

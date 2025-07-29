@@ -159,21 +159,20 @@ void kui::Window::RedrawInternal()
 	{
 		return;
 	}
-
 	if (ShouldUpdateSize)
 	{
 		if (UpdateSize())
 		{
 			UI.ForceUpdateUI();
-			ShouldUpdateSize = false;
 			if (OnResizedCallback)
 			{
 				OnResizedCallback(this);
 			}
 		}
+		ShouldUpdateSize = false;
 	}
 
-	if (UI.DrawElements())
+	if (UI.DrawElements() || true)
 	{
 #if __linux__
 		RedrawnWindow = true;

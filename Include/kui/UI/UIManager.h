@@ -4,22 +4,27 @@
 #include <vector>
 #include <functional>
 #include "../Vec2.h"
+#include <cstdint>
+#include <kui/Rendering/RedrawArea.h>
 
 namespace kui
 {
 	class UIBox;
+	namespace render
+	{
+		class RenderBackend;
+	}
+
 	class UIManager
 	{
 		struct ReferenceTexture
 		{
 			std::string Name;
-			size_t RefCount = 0;
+			std::size_t RefCount = 0;
 		};
 
 		std::map<unsigned int, ReferenceTexture> ReferencedTextures;
 		std::string TexturePath;
-
-		Vec2ui ScissorXY, ScissorWH;
 
 		UIBox* GetNextKeyboardBox(UIBox* From, bool Reverse);
 		UIBox* FindKeyboardBox(UIBox* From, bool Reverse);
@@ -27,8 +32,6 @@ namespace kui
 	public:
 		UIManager();
 		~UIManager();
-
-		thread_local static bool UseAlphaBuffer;
 
 		/**
 		* @brief
@@ -41,9 +44,7 @@ namespace kui
 		std::set<UIBox*> ElementsToUpdate;
 		std::vector<UIBox*> UIElements;
 		bool RequiresRedraw = true;
-		bool DrawToWindow = true;
-		unsigned int UIBuffer = 0;
-		unsigned int UITextures[2];
+		render::RenderBackend* Render = nullptr;
 
 		void ForceUpdateUI();
 		void InitUI();
@@ -93,15 +94,7 @@ namespace kui
 		};
 		std::vector<ButtonEvent> ButtonEvents;
 
-		struct RedrawBox
-		{
-			Vec2f Min;
-			Vec2f Max;
-
-			static bool IsBoxOverlapping(const UIManager::RedrawBox& BoxA, const UIManager::RedrawBox& BoxB);
-		};
-
-		std::vector<RedrawBox> RedrawBoxes;
-		void RedrawArea(RedrawBox Box);
+		std::vector<render::RedrawBox> RedrawBoxes;
+		void RedrawArea(render::RedrawBox Box);
 	};
 }

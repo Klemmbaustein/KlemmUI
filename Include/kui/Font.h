@@ -32,9 +32,9 @@ namespace kui
 			}
 			return ret;
 		}
-		static size_t Length(const std::vector<TextSegment>& TextSegments)
+		static std::size_t Length(const std::vector<TextSegment>& TextSegments)
 		{
-			size_t Length = 0;
+			std::size_t Length = 0;
 			for (const auto& i : TextSegments)
 			{
 				Length += i.Text.size();
@@ -81,7 +81,6 @@ namespace kui
 	private:
 		static Shader* GetTextShader();
 		unsigned int fontTexture = 0;
-		unsigned int fontVao = 0;
 		unsigned int fontVertexBufferId = 0;
 		FontVertex* fontVertexBufferData = 0;
 		uint32_t fontVertexBufferCapacity = 0;
@@ -100,10 +99,13 @@ namespace kui
 
 		uint8_t TabSize = 4;
 
-		size_t GetCharacterAtPosition(std::vector<TextSegment> Text, Vec2f Position, float Scale, bool Wrapped, float LengthBeforeWrap, uint32_t MaxLines);
+		std::size_t GetCharacterAtPosition(std::vector<TextSegment> Text, Vec2f Position, float Scale,
+			bool Wrapped, float LengthBeforeWrap, uint32_t MaxLines);
 		Font(std::string filename);
-		Vec2f GetTextSize(std::vector<TextSegment> Text, float Scale, bool Wrapped, float LengthBeforeWrap, uint32_t MaxLines, Vec2f* EndPos = nullptr, size_t EndIndex = SIZE_MAX);
-		DrawableText* MakeText(std::vector<TextSegment> Text, float Scale, Vec3f Color, float opacity, float LengthBeforeWrap, uint32_t MaxLines);
+		Vec2f GetTextSize(std::vector<TextSegment> Text, float Scale, bool Wrapped,
+			float LengthBeforeWrap, uint32_t MaxLines, Vec2f* EndPos = nullptr, std::size_t EndIndex = SIZE_MAX);
+		DrawableText* MakeText(std::vector<TextSegment> Text, float Scale, Vec3f Color,
+			float opacity, float LengthBeforeWrap, uint32_t MaxLines);
 		~Font();
 
 	};

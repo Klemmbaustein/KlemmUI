@@ -1,5 +1,4 @@
 #include <kui/UI/UIManager.h>
-#include "../Internal/OpenGL.h"
 #include <kui/Window.h>
 #include <kui/UI/UIBox.h>
 #include <kui/UI/UIBlurBackground.h>
@@ -7,23 +6,18 @@
 #include <kui/Resource.h>
 #include <algorithm>
 #include <iostream>
+#include <kui/Rendering/OpenGLBackend.h>
 using namespace kui;
-
-thread_local bool UIManager::UseAlphaBuffer = false;
 
 UIManager::UIManager()
 {
-	UITextures[0] = 0;
-	UITextures[1] = 0;
 }
 
 UIManager::~UIManager()
 {
 	UIBackground::FreeVertexBuffer();
 	ClearUI();
-	GLsizei NumBuffers = UseAlphaBuffer ? 2 : 1;
-	glDeleteFramebuffers(1, &UIBuffer);
-	glDeleteTextures(NumBuffers, UITextures);
+	delete Render;
 
 	for (auto& i : ReferencedTextures)
 	{
@@ -34,13 +28,6 @@ UIManager::~UIManager()
 
 void UIManager::ForceUpdateUI()
 {
-	if (UIBuffer)
-	{
-		glDeleteFramebuffers(1, &UIBuffer);
-		GLsizei NumBuffers = UseAlphaBuffer ? 2 : 1;
-		glDeleteTextures(NumBuffers, UITextures);
-	}
-	UIBuffer = 0;
 	InitUI();
 	for (UIBox* i : UIElements)
 	{
@@ -53,60 +40,23 @@ void UIManager::ForceUpdateUI()
 
 void UIManager::InitUI()
 {
-	glGenFramebuffers(1, &UIBuffer);
-
-	GLsizei NumBuffers = UseAlphaBuffer ? 2 : 1;
-
-	glGenTextures(NumBuffers, UITextures);
-	glBindTexture(GL_TEXTURE_2D, UITextures[0]);
-
-	GLsizei x = (GLsizei)Window::GetActiveWindow()->GetSize().X, y = (GLsizei)Window::GetActiveWindow()->GetSize().Y;
-	glTexImage2D(GL_TEXTURE_2D,
-		0,
-		GL_RGBA16F,
-		x,
-		y,
-		0,
-		GL_RGBA,
-		GL_FLOAT,
-		NULL);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-	glBindFramebuffer(GL_FRAMEBUFFER, UIBuffer);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, UITextures[0], 0);
-
-	if (UseAlphaBuffer)
+	Window* win = Window::GetActiveWindow();
+	if (!Render)
 	{
-		glBindTexture(GL_TEXTURE_2D, UITextures[1]);
-		glTexImage2D(GL_TEXTURE_2D,
-			0,
-			GL_RGBA8,
-			x,
-			y,
-			0,
-			GL_RGBA,
-			GL_FLOAT,
-			NULL);
-
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, UITextures[1], 0);
+		Render = new render::OpenGLBackend(win);
 	}
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	Render->CreateBuffer(win->GetSize());
 	RedrawUI();
 }
 
 unsigned int UIManager::GetUIFramebuffer() const
 {
-	return UITextures[0];
+	return 0;
 }
 
 void UIManager::RedrawUI()
 {
-	RedrawArea(RedrawBox{
+	RedrawArea(render::RedrawBox{
 			.Min = -1,
 			.Max = 1,
 		});
@@ -128,14 +78,6 @@ bool UIManager::GetShouldRedrawUI() const
 	return RequiresRedraw;
 }
 
-static UIManager::RedrawBox CombineBoxes(const UIManager::RedrawBox& BoxA, const UIManager::RedrawBox& BoxB)
-{
-	return UIManager::RedrawBox{
-		.Min = Vec2f::Min(BoxA.Min, BoxB.Min),
-		.Max = Vec2f::Max(BoxA.Max, BoxB.Max),
-	};
-}
-
 bool UIManager::DrawElements()
 {
 	TickElements();
@@ -151,61 +93,29 @@ bool UIManager::DrawElements()
 
 	if (!RedrawBoxes.empty())
 	{
-		glBindFramebuffer(GL_FRAMEBUFFER, UIBuffer);
-		glClearColor(0, 0, 0, 0);
-		glEnable(GL_SCISSOR_TEST);
-		if (UseAlphaBuffer)
-		{
-			unsigned int attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
-			glDrawBuffers(2, attachments);
-		}
-		Vec2ui WindowSize = Window::GetActiveWindow()->GetSize();
-
-		glViewport(0, 0, (GLint)WindowSize.X, (GLint)WindowSize.Y);
+		Window* Target = Window::GetActiveWindow();
+		Render->BeginFrame(Target);
 		for (auto& i : RedrawBoxes)
 		{
 			for (UIBlurBackground* bg : UIBlurBackground::BlurBackgrounds)
 			{
-				RedrawBox BackgroundBox = bg->GetRedrawBox();
+				render::RedrawBox BackgroundBox = bg->GetRedrawBox();
 
-				if (RedrawBox::IsBoxOverlapping(i, BackgroundBox))
+				if (render::RedrawBox::IsBoxOverlapping(i, BackgroundBox))
 				{
-					i = CombineBoxes(i, BackgroundBox);
+					i = render::RedrawBox::CombineBoxes(i, BackgroundBox);
 				}
 			}
 
-			i.Max += Vec2f(5) / Vec2f(WindowSize);
-			i.Min = i.Min - Vec2f(5) / Vec2f(WindowSize);
+			Render->BeginArea(Target, i);
 
-			i.Min = i.Min.Clamp(-1, 1);
-			i.Max = i.Max.Clamp(-1, 1);
-
-			Vec2f Pos = (i.Min / 2 + 0.5f) * Vec2f(WindowSize);
-			Vec2f Res = (i.Max - i.Min) / 2 * Vec2f(WindowSize);
-
-			ScissorXY = Vec2ui(uint64_t(Pos.X), uint64_t(Pos.Y));
-			ScissorWH = Vec2ui(
-				std::clamp((GLsizei)Res.X + 1, 0, (GLsizei)WindowSize.X),
-				std::clamp((GLsizei)Res.Y + 1, 0, (GLsizei)WindowSize.Y)
-			);
-
-			glScissor(
-				GLint(ScissorXY.X),
-				GLint(ScissorXY.Y),
-				GLsizei(ScissorWH.X),
-				GLsizei(ScissorWH.Y)
-			);
-
-			glClear(GL_COLOR_BUFFER_BIT);
 			for (UIBox* elem : UIElements)
 			{
 				if (elem->Parent == nullptr)
-					elem->DrawThisAndChildren(i);
+					elem->DrawThisAndChildren(Render, i);
 			}
 		}
-		glDisable(GL_SCISSOR_TEST);
-		glScissor(0, 0, (GLsizei)Window::GetActiveWindow()->GetSize().X, (GLsizei)Window::GetActiveWindow()->GetSize().Y);
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		Render->EndFrame(Target);
 		RedrawBoxes.clear();
 		return true;
 	}
@@ -215,7 +125,7 @@ bool UIManager::DrawElements()
 void kui::UIManager::TickElements()
 {
 	NewHoveredBox = nullptr;
-	for (size_t i = 0; i < UIElements.size(); i++)
+	for (std::size_t i = 0; i < UIElements.size(); i++)
 	{
 		UIBox* elem = UIElements[i];
 		if (elem->IsVisible != elem->PrevIsVisible)
@@ -441,7 +351,7 @@ UIBox* kui::UIManager::GetNextFocusableBox(UIBox* From, bool Reverse)
 	return nullptr;
 }
 
-void UIManager::RedrawArea(RedrawBox Box)
+void UIManager::RedrawArea(render::RedrawBox Box)
 {
 	// Do not redraw the element if it's position has not yet been initialized.
 	// It will be redrawn once the position has been set anyways.
@@ -451,8 +361,8 @@ void UIManager::RedrawArea(RedrawBox Box)
 		return;
 	}
 
-	RedrawBox* CurrentBox = &Box;
-	size_t CurrentBoxIndex = SIZE_MAX;
+	render::RedrawBox* CurrentBox = &Box;
+	std::size_t CurrentBoxIndex = SIZE_MAX;
 
 	if (RedrawBoxes.size() > 8)
 	{
@@ -460,19 +370,19 @@ void UIManager::RedrawArea(RedrawBox Box)
 		RedrawUI();
 	}
 
-	for (size_t i = 0; i < RedrawBoxes.size(); i++)
+	for (std::size_t i = 0; i < RedrawBoxes.size(); i++)
 	{
-		RedrawBox& IteratedBox = RedrawBoxes[i];
+		render::RedrawBox& IteratedBox = RedrawBoxes[i];
 
 		if (IteratedBox.Min == Box.Min && IteratedBox.Max == Box.Max)
 		{
 			return;
 		}
 
-		if (RedrawBox::IsBoxOverlapping(*CurrentBox, IteratedBox))
+		if (render::RedrawBox::IsBoxOverlapping(*CurrentBox, IteratedBox))
 		{
 			// If 2 overlapping redraw areas are given, we combine them to avoid redrawing the same area twice.
-			IteratedBox = CombineBoxes(*CurrentBox, IteratedBox);
+			IteratedBox = render::RedrawBox::CombineBoxes(*CurrentBox, IteratedBox);
 			CurrentBox = &IteratedBox;
 			CurrentBoxIndex = i;
 		}
@@ -482,10 +392,4 @@ void UIManager::RedrawArea(RedrawBox Box)
 	{
 		RedrawBoxes.push_back(Box);
 	}
-}
-
-bool UIManager::RedrawBox::IsBoxOverlapping(const UIManager::RedrawBox& BoxA, const UIManager::RedrawBox& BoxB)
-{
-	return (BoxA.Min.X <= BoxB.Max.X && BoxA.Max.X >= BoxB.Min.X) &&
-		(BoxA.Min.Y <= BoxB.Max.Y && BoxA.Max.Y >= BoxB.Min.Y);
 }

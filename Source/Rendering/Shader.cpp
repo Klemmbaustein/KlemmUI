@@ -1,5 +1,5 @@
 #include <kui/Rendering/Shader.h>
-#include "../Internal/OpenGL.h"
+#include "OpenGL.h"
 #include <fstream>
 #include <sstream>
 #include <kui/App.h>
@@ -16,7 +16,7 @@ void Shader::CheckCompileErrors(unsigned int ShaderID, std::string Type)
 		glGetShaderiv(ShaderID, GL_COMPILE_STATUS, &success);
 		if (!success)
 		{
-			glGetShaderInfoLog(ShaderID, 1024, NULL, infoLog);
+			glGetShaderInfoLog(ShaderID, 1024, nullptr, infoLog);
 			app::error::Error("Shader compilation error of type: "
 				+ Type 
 				+ "\n"
@@ -29,7 +29,7 @@ void Shader::CheckCompileErrors(unsigned int ShaderID, std::string Type)
 		glGetProgramiv(ShaderID, GL_LINK_STATUS, &success);
 		if (!success)
 		{
-			glGetProgramInfoLog(ShaderID, 1024, NULL, infoLog);
+			glGetProgramInfoLog(ShaderID, 1024, nullptr, infoLog);
 			app::error::Error("Shader linking error of type: "
 				+ Type 
 				+ "\n"
@@ -46,13 +46,13 @@ unsigned int Shader::GetShaderID()
 
 Shader::Shader(std::string VertexSource, std::string FragmentSource)
 {
-#if KLEMMUI_WEB_BUILD
+//#if KLEMMUI_WEB_BUILD
 	VertexSource = "#version 300 es\nprecision mediump float;\n" + VertexSource;
 	FragmentSource = "#version 300 es\nprecision mediump float;\n" + FragmentSource;
-#else
-	VertexSource = "#version 330\n" + VertexSource;
-	FragmentSource = "#version 330\n" + FragmentSource;
-#endif
+//#else
+//	VertexSource = "#version 330\n" + VertexSource;
+//	FragmentSource = "#version 330\n" + FragmentSource;
+//#endif
 
 	const char* vShaderCode = VertexSource.c_str();
 	const char* fShaderCode = FragmentSource.c_str();
@@ -61,12 +61,12 @@ Shader::Shader(std::string VertexSource, std::string FragmentSource)
 
 	// vertex shader
 	vertex = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vertex, 1, &vShaderCode, NULL);
+	glShaderSource(vertex, 1, &vShaderCode, nullptr);
 	glCompileShader(vertex);
 	CheckCompileErrors(vertex, "VERTEX");
 	// fragment Shader
 	fragment = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragment, 1, &fShaderCode, NULL);
+	glShaderSource(fragment, 1, &fShaderCode, nullptr);
 	glCompileShader(fragment);
 	CheckCompileErrors(fragment, "FRAGMENT");
 	// if geometry shader is given, compile geometry shader

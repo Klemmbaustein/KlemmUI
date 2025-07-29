@@ -105,6 +105,6 @@ namespace kui
 		UITextField(Vec2f Position, Vec3f Color, Font* Renderer, std::function<void()> OnChanged);
 		~UITextField() override;
 		void Update() override;
-		void DrawBackground() override;
+		void DrawBackground(render::RenderBackend* Backend) override;
 	};
 }

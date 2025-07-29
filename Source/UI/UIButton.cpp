@@ -88,16 +88,16 @@ void UIButton::Tick()
 	switch (CurrentButtonState)
 	{
 	case UIButton::ButtonState::Normal:
-		UIBackground::Color = ButtonColor;
+		State->Color = ButtonColor;
 		break;
 	case UIButton::ButtonState::Hovered:
-		UIBackground::Color = HoveredColor;
+		State->Color = HoveredColor;
 		break;
 	case UIButton::ButtonState::KeyboardHovered:
-		UIBackground::Color = KeyboardHoveredColor;
+		State->Color = KeyboardHoveredColor;
 		break;
 	case UIButton::ButtonState::Pressed:
-		UIBackground::Color = PressedColor;
+		State->Color = PressedColor;
 		break;
 	default:
 		break;
@@ -142,7 +142,7 @@ UIBackground* UIButton::SetColor(Vec3f NewColor)
 		ButtonColor = NewColor;
 		if (!IsHovered && !IsPressed)
 		{
-			Color = ButtonColor;
+			State->Color = ButtonColor;
 		}
 		RedrawElement();
 	}
@@ -156,7 +156,7 @@ UIButton* UIButton::SetHoveredColor(Vec3f NewColor)
 		HoveredColor = NewColor;
 		if (IsHovered)
 		{
-			Color = ButtonColor;
+			State->Color = ButtonColor;
 			RedrawElement();
 		}
 	}
@@ -170,7 +170,7 @@ UIButton* UIButton::SetKeyboardHoveredColor(Vec3f NewColor)
 		KeyboardHoveredColor = NewColor;
 		if (IsHovered)
 		{
-			Color = KeyboardHoveredColor;
+			State->Color = KeyboardHoveredColor;
 			RedrawElement();
 		}
 	}
@@ -184,7 +184,7 @@ UIButton* UIButton::SetPressedColor(Vec3f NewColor)
 		PressedColor = NewColor;
 		if (IsPressed)
 		{
-			Color = NewColor;
+			State->Color = NewColor;
 			RedrawElement();
 		}
 	}
@@ -225,9 +225,5 @@ UIButton::~UIButton()
 }
 
 void UIButton::Update()
-{
-}
-
-void UIButton::DrawBackground()
 {
 }

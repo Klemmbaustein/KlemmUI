@@ -79,9 +79,12 @@ static void HandleCloseFrame(libdecor_frame* frame, void* user_data)
 static void HandleCommitFrame(libdecor_frame* frame, void* user_data)
 {
 	WaylandWindow* w = (WaylandWindow*)user_data;
-	wl_surface_commit(w->WaylandSurface);
-}
 
+	if (w->WaylandSurface)
+	{
+		wl_surface_commit(w->WaylandSurface);
+	}
+}
 static libdecor_frame_interface DecorFrameInterface = {
 	HandleConfigureFrame,
 	HandleCloseFrame,

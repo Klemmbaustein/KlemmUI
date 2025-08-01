@@ -56,19 +56,22 @@ namespace kui
 	};
 
 	class Shader;
+	class FontRenderData
+	{
+	public:
+		virtual ~FontRenderData() = default;
+	};
+
 	class DrawableText
 	{
 		friend class Font;
-		unsigned int VAO = 0, VBO = 0;
-		unsigned int Texture = 0;
+	public:
+		DrawableText(float Scale, Vec3f Color, float Opacity);
 		Vec3f Color = 0;
 		float Scale = 0;
-		unsigned int NumVerts = 0;
-		DrawableText(unsigned int VAO, unsigned int VBO, unsigned int NumVerts, unsigned int Texture, float Scale, Vec3f Color, float opacity);
-	public:
 		float Opacity = 1.0f;
-		void Draw(ScrollObject* CurrentScrollObject, Vec2f Pos) const;
-		~DrawableText();
+		virtual void Draw(ScrollObject* CurrentScrollObject, Vec2f Pos);
+		virtual ~DrawableText();
 	};
 
 	/**
@@ -77,15 +80,9 @@ namespace kui
 	*/
 	class Font
 	{
-		friend class DrawableText;
-	private:
-		static Shader* GetTextShader();
-		unsigned int fontTexture = 0;
-		unsigned int fontVertexBufferId = 0;
-		FontVertex* fontVertexBufferData = 0;
-		uint32_t fontVertexBufferCapacity = 0;
 	public:
 		float CharacterSize = 0;
+		friend class DrawableText;
 
 		struct Glyph
 		{
@@ -95,9 +92,18 @@ namespace kui
 			Vec2f TexCoordStart;
 			Vec2f TexCoordOffset;
 		};
+
+		struct RenderGlyph
+		{
+			Glyph* Target = nullptr;
+			Vec3f Color;
+			Vec2f Position;
+		};
+
 		std::vector<Glyph> LoadedGlyphs;
 
 		uint8_t TabSize = 4;
+		FontRenderData* RenderData = nullptr;
 
 		std::size_t GetCharacterAtPosition(std::vector<TextSegment> Text, Vec2f Position, float Scale,
 			bool Wrapped, float LengthBeforeWrap, uint32_t MaxLines);

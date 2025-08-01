@@ -196,6 +196,15 @@ Vec3f UIButton::GetColor() const
 	return ButtonColor;
 }
 
+void kui::UIButton::Draw(render::RenderBackend* Backend)
+{
+	if (this->OnlyDrawWhenHovered && int(this->CurrentButtonState) < int(ButtonState::Hovered))
+	{
+		return;
+	}
+	UIBackground::Draw(Backend);
+}
+
 UIButton::UIButton(bool Horizontal, Vec2f Position, Vec3f Color, std::function<void()> OnClickedFunction) 
 	: UIBackground(Horizontal, Position, Color)
 {

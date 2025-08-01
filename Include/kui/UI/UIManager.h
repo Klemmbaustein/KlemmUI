@@ -44,6 +44,7 @@ namespace kui
 		std::set<UIBox*> ElementsToUpdate;
 		std::vector<UIBox*> UIElements;
 		bool RequiresRedraw = true;
+		bool RenderInitialized = false;
 		render::RenderBackend* Render = nullptr;
 
 		void ForceUpdateUI();

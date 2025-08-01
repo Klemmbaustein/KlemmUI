@@ -6,7 +6,7 @@ namespace kui
 {
 	/**
 	 * @brief
-	 * A half transparent backgroudn that displays everything behind it using a blur effect.
+	 * A half transparent background that displays everything behind it using a blur effect.
 	 *
 	 * It functions like a regular UIBackground otherwise
 	 */

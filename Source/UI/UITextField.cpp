@@ -25,7 +25,7 @@ void UITextField::Tick()
 	}
 
 	if (TextObject->GetUsedSize().GetScreen().Y > Size.Y)
-		TextScroll.MaxScroll = std::max(TextObject->GetUsedSize().GetScreen().Y - Size.Y + 0.025f, 0.0f);
+		TextScroll.MaxScroll = std::max(TextObject->GetUsedSize().GetScreen().Y - Size.Y + 0.025, 0.0);
 	else
 		TextScroll.MaxScroll = 0;
 	TextObject->CurrentScrollObject = &this->TextScroll;
@@ -333,7 +333,7 @@ void UITextField::DrawBackground(render::RenderBackend* Backend)
 		auto DrawHighlight = [Backend, this, CharSize](Vec2f Start, Vec2f End)
 			{
 				Vec2f BoxSize = End - Start;
-				Backend->DrawSimpleBox(Start, BoxSize + Vec2f(0, CharSize), Vec3f(0.25f, 1, 1));
+				Backend->DrawSimpleBox(Start, BoxSize + Vec2f(0, CharSize), Vec3f(0.25f, 1, 1), 0);
 			};
 
 		if (TextHighlightStart.Y == TextHighlightEnd.Y)
@@ -363,6 +363,6 @@ void UITextField::DrawBackground(render::RenderBackend* Backend)
 
 	if (ShowIBeam)
 	{
-		Backend->DrawSimpleBox(IBeamPosition, IBeamScale, TextColor);
+		Backend->DrawSimpleBox(IBeamPosition, IBeamScale, TextColor, 0);
 	}
 }

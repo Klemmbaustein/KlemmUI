@@ -155,7 +155,7 @@ namespace kui
 		* @brief
 		* Constructs a window with the given parameters
 		*/
-		Window(std::string Name, WindowFlag Flags, Vec2ui WindowPos = POSITION_CENTERED, Vec2ui WindowSize = SIZE_DEFAULT);
+		Window(std::string Name, WindowFlag Flags, Vec2ui WindowPos = POSITION_CENTERED, Vec2ui WindowSize = SIZE_DEFAULT, render::RenderBackend* Backend = nullptr);
 		Window(const Window&) = delete;
 		~Window();
 

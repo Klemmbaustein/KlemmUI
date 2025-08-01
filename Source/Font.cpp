@@ -2,12 +2,12 @@
 #define STB_TRUETYPE_IMPLEMENTATION
 #include "Util/stb_truetype.hpp"
 #include <kui/Rendering/Shader.h>
+#include <kui/Rendering/RenderBackend.h>
 #include <cstdint>
 #include <vector>
 #include <kui/App.h>
 #include <kui/UI/UIScrollBox.h>
 #include <kui/Resource.h>
-#include "Rendering/OpenGL.h"
 #include <kui/Window.h>
 #include "Internal/Internal.h"
 #include <iostream>
@@ -18,13 +18,6 @@ using std::size_t;
 constexpr int FONT_BITMAP_WIDTH = 2000;
 constexpr int FONT_BITMAP_PADDING = 16;
 constexpr int FONT_MAX_UNICODE_CHARS = 1600;
-
-const std::string TextShaderName = "TextShader";
-
-Shader* Font::GetTextShader()
-{
-	return Window::GetActiveWindow()->Shaders.GetShader(TextShaderName);
-}
 
 static void ReplaceTabs(std::vector<TextSegment>& Text, size_t TabSize, char ReplaceWith = ' ')
 {
@@ -186,8 +179,6 @@ size_t Font::GetCharacterAtPosition(std::vector<TextSegment> Text, Vec2f Positio
 
 Font::Font(std::string FileName)
 {
-	Window::GetActiveWindow()->Shaders.LoadShader("res:shaders/text.vert", "res:shaders/text.frag", TextShaderName);
-
 	if (!resource::FileExists(FileName))
 	{
 		app::error::Error("Failed to find font resource: " + FileName);
@@ -200,7 +191,7 @@ Font::Font(std::string FileName)
 	stbtt_InitFont(&finf, TextData.Data, stbtt_GetFontOffsetForIndex(TextData.Data, 0));
 
 
-	uint8_t* GlypthBitmap = new uint8_t[FONT_BITMAP_WIDTH * FONT_BITMAP_WIDTH]();
+	uint8_t* GlyphBitmap = new uint8_t[FONT_BITMAP_WIDTH * FONT_BITMAP_WIDTH]();
 	int xcoord = 0;
 	int ycoord = 0;
 	int maxH = 0;
@@ -276,7 +267,7 @@ Font::Font(std::string FileName)
 		{
 			for (int itw = 0; itw < w; itw++)
 			{
-				GlypthBitmap[(ith + ycoord) * FONT_BITMAP_WIDTH + (xcoord + itw)] = bmp[ith * w + itw];
+				GlyphBitmap[(ith + ycoord) * FONT_BITMAP_WIDTH + (xcoord + itw)] = bmp[ith * w + itw];
 			}
 		}
 		maxH = std::max(maxH, h);
@@ -285,26 +276,11 @@ Font::Font(std::string FileName)
 		free(bmp);
 	}
 
-	glGenTextures(1, &fontTexture);
-	glBindTexture(GL_TEXTURE_2D, fontTexture);
-	glTexImage2D(GL_TEXTURE_2D,
-		0,
-		GL_ALPHA,
-		FONT_BITMAP_WIDTH,
-		FONT_BITMAP_WIDTH,
-		0,
-		GL_ALPHA,
-		GL_UNSIGNED_BYTE,
-		GlypthBitmap);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-	glBindTexture(GL_TEXTURE_2D, 0);
+	this->RenderData = Window::GetActiveWindow()->UI.Render->MakeFont(GlyphBitmap, FONT_BITMAP_WIDTH, FONT_BITMAP_WIDTH, CharacterSize);
 
 	resource::FreeBinaryFile(TextData);
 
-	delete[] GlypthBitmap;
+	delete[] GlyphBitmap;
 }
 
 Vec2f Font::GetTextSize(std::vector<TextSegment> Text, float Scale, bool Wrapped, float LengthBeforeWrap, uint32_t MaxLines, Vec2f* EndPos, size_t EndIndex)
@@ -410,40 +386,18 @@ DrawableText* Font::MakeText(std::vector<TextSegment> Text, float Scale, Vec3f C
 {
 	Scale /= CharacterSize / 6.0f;
 	ReplaceTabs(Text, TabSize);
-
-	GLuint newVAO = 0, newVBO = 0;
-	glGenVertexArrays(1, &newVAO);
-	glBindVertexArray(newVAO);
-	glGenBuffers(1, &newVBO);
-	glBindBuffer(GL_ARRAY_BUFFER, newVBO);
-
-	glBufferData(GL_ARRAY_BUFFER, sizeof(FontVertex) * 6 * fontVertexBufferCapacity, 0, GL_STATIC_DRAW);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(FontVertex), 0);
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(FontVertex), (const void*)offsetof(FontVertex, texCoords));
-	glEnableVertexAttribArray(2);
-	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(FontVertex), (const void*)offsetof(FontVertex, color));
-	glEnableVertexAttribArray(0);
-
 	LengthBeforeWrap = LengthBeforeWrap * Window::GetActiveWindow()->GetAspectRatio() / Scale;
-	uint32_t len = (uint32_t)TextSegment::CombineToString(Text).size();
-	if (fontVertexBufferCapacity < len)
-	{
-		fontVertexBufferCapacity = len;
-		glBufferData(GL_ARRAY_BUFFER, sizeof(FontVertex) * 6 * fontVertexBufferCapacity, 0, GL_STATIC_DRAW);
-		delete[] fontVertexBufferData;
-		fontVertexBufferData = new FontVertex[fontVertexBufferCapacity * 6];
-	}
-	float x = 0.f, y = 0.f;
-	FontVertex* vData = fontVertexBufferData;
-	uint32_t numVertices = 0;
+
+	std::vector<RenderGlyph> GlyphData;
+
+	std::size_t LastGlyphLength = 0;
 	uint32_t CurrentLine = 0;
+	float x = 0.f, y = 0.f;
+
 	for (auto& seg : Text)
 	{
 		size_t LastWordIndex = SIZE_MAX;
 		size_t LastWrapIndex = 0;
-		uint32_t LastWordNumVertices = 0;
 		FontVertex* LastWordVDataPtr = nullptr;
 		std::u32string UTFString = internal::GetUnicodeString(seg.Text);
 
@@ -460,13 +414,12 @@ DrawableText* Font::MakeText(std::vector<TextSegment> Text, float Scale, Vec3f C
 				{
 					GlyphIndex = int(LoadedGlyphs.size() - 31);
 				}
-				Glyph g = LoadedGlyphs[GlyphIndex];
+				Glyph& g = LoadedGlyphs[GlyphIndex];
 
 				if (UTFString[i] == ' ')
 				{
+					LastGlyphLength = GlyphData.size();
 					LastWordIndex = i;
-					LastWordNumVertices = numVertices;
-					LastWordVDataPtr = vData;
 				}
 
 				if ((x + g.TotalSize.X) / 450 > LengthBeforeWrap)
@@ -482,8 +435,7 @@ DrawableText* Font::MakeText(std::vector<TextSegment> Text, float Scale, Vec3f C
 					{
 						i = LastWordIndex;
 						LastWrapIndex = i;
-						vData = LastWordVDataPtr;
-						numVertices = LastWordNumVertices;
+						GlyphData.resize(LastGlyphLength);
 						continue;
 					}
 				}
@@ -491,17 +443,11 @@ DrawableText* Font::MakeText(std::vector<TextSegment> Text, float Scale, Vec3f C
 				Vec2 StartPos = Vec2(x, y) + g.Offset;
 				if (g.Size != 0)
 				{
-					vData[0].position = StartPos + Vec2f(0, g.Size.Y); vData[0].texCoords = g.TexCoordStart + Vec2f(0, g.TexCoordOffset.Y);
-					vData[1].position = StartPos + g.Size;             vData[1].texCoords = g.TexCoordStart + g.TexCoordOffset;
-					vData[2].position = StartPos + Vec2f(g.Size.X, 0); vData[2].texCoords = g.TexCoordStart + Vec2f(g.TexCoordOffset.X, 0);
-					vData[3].position = StartPos;                      vData[3].texCoords = g.TexCoordStart;
-					vData[4].position = StartPos + Vec2f(0, g.Size.Y); vData[4].texCoords = g.TexCoordStart + Vec2f(0, g.TexCoordOffset.Y);
-					vData[5].position = StartPos + Vec2f(g.Size.X, 0); vData[5].texCoords = g.TexCoordStart + Vec2f(g.TexCoordOffset.X, 0);
-					vData[0].color = seg.Color;		vData[1].color = seg.Color;
-					vData[2].color = seg.Color;		vData[3].color = seg.Color;
-					vData[4].color = seg.Color;		vData[5].color = seg.Color;
-					vData += 6;
-					numVertices += 6;
+					GlyphData.push_back(RenderGlyph{
+							.Target = &g,
+							.Color = Color,
+							.Position = StartPos,
+						});
 				}
 				x += g.TotalSize.X;
 			}
@@ -517,65 +463,29 @@ DrawableText* Font::MakeText(std::vector<TextSegment> Text, float Scale, Vec3f C
 			}
 		}
 	}
-
-	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(FontVertex) * numVertices, fontVertexBufferData);
-	glBindVertexArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	return new DrawableText(newVAO, newVBO, numVertices, fontTexture, Scale, Color, opacity);
+	return Window::GetActiveWindow()->UI.Render->MakeText(RenderData, GlyphData, Scale, Color, opacity);
 }
 
 Font::~Font()
 {
-	glDeleteTextures(1, &fontTexture);
-	glDeleteBuffers(1, &fontVertexBufferId);
-	if (fontVertexBufferData)
+	if (RenderData)
 	{
-		delete[] fontVertexBufferData;
+		delete RenderData;
 	}
 }
 
-DrawableText::DrawableText(unsigned int VAO, unsigned int VBO, unsigned int NumVerts, unsigned int Texture, float Scale, Vec3f Color, float opacity)
+DrawableText::DrawableText(float Scale, Vec3f Color, float Opacity)
 {
 	this->Scale = Scale;
-	this->NumVerts = NumVerts;
-	this->VAO = VAO;
-	this->VBO = VBO;
-	this->Opacity = opacity;
-	this->Texture = Texture;
+	this->Opacity = Opacity;
 	this->Color = Color;
 }
 
-void kui::DrawableText::Draw(ScrollObject* CurrentScrollObject, Vec2f Pos) const
+void kui::DrawableText::Draw(ScrollObject* CurrentScrollObject, Vec2f Pos)
 {
-	Pos.X = Pos.X * 450 * Window::GetActiveWindow()->GetAspectRatio();
-	Pos.Y = Pos.Y * -450;
 
-	Shader* TextShader = Font::GetTextShader();
-	glBindVertexArray(VAO);
-	TextShader->Bind();
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, Texture);
-	TextShader->SetInt("u_texture", 0);
-	TextShader->SetVec3("textColor", Vec3f(Color.X, Color.Y, Color.Z));
-	TextShader->SetFloat("u_aspectratio", Window::GetActiveWindow()->GetAspectRatio());
-	TextShader->SetVec3("transform", Vec3f(Pos.X, Pos.Y, Scale));
-	TextShader->SetVec2("u_screenRes", Vec2f(Window::GetActiveWindow()->GetSize().Y * 1.5f));
-	TextShader->SetFloat("u_opacity", Opacity);
-	if (CurrentScrollObject != nullptr)
-	{
-		auto Pos = CurrentScrollObject->GetPosition();
-
-		TextShader->SetVec3("u_offset",
-			Vec3f(-CurrentScrollObject->GetOffset(), Pos.Y, CurrentScrollObject->GetScale().Y));
-	}
-	else
-		TextShader->SetVec3("u_offset", Vec3f(0.0f, -1000.0f, 1000.0f));
-	glDrawArrays(GL_TRIANGLES, 0, NumVerts);
-	glBindVertexArray(0);
 }
 
 DrawableText::~DrawableText()
 {
-	glDeleteBuffers(1, &VBO);
-	glDeleteVertexArrays(1, &VAO);
 }

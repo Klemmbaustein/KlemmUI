@@ -48,7 +48,7 @@ void* kui::Window::GetPlatformHandle() const
 	return systemWM::GetPlatformHandle(SysWindow);
 }
 
-kui::Window::Window(std::string Name, WindowFlag Flags, Vec2ui WindowPos, Vec2ui WindowSize)
+kui::Window::Window(std::string Name, WindowFlag Flags, Vec2ui WindowPos, Vec2ui WindowSize, render::RenderBackend* Backend)
 {
 	if (WindowSize == SIZE_DEFAULT)
 	{
@@ -79,6 +79,7 @@ kui::Window::Window(std::string Name, WindowFlag Flags, Vec2ui WindowPos, Vec2ui
 	UpdateSize();
 	SetWindowActive();
 	internal::InitGLContext(this);
+	UI.Render = Backend;
 	UI.InitUI();
 
 	ActiveWindows.push_back(this);
@@ -172,7 +173,7 @@ void kui::Window::RedrawInternal()
 		ShouldUpdateSize = false;
 	}
 
-	if (UI.DrawElements() || true)
+	if (UI.DrawElements())
 	{
 #if __linux__
 		RedrawnWindow = true;

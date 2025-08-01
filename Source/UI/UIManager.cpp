@@ -40,12 +40,16 @@ void UIManager::ForceUpdateUI()
 
 void UIManager::InitUI()
 {
-	Window* win = Window::GetActiveWindow();
 	if (!Render)
 	{
-		Render = new render::OpenGLBackend(win);
+		Render = new render::OpenGLBackend();
 	}
-	Render->CreateBuffer(win->GetSize());
+	if (!RenderInitialized)
+	{
+		Render->Initialize(Window::GetActiveWindow());
+		RenderInitialized = true;
+	}
+	Render->CreateBuffer(Window::GetActiveWindow()->GetSize());
 	RedrawUI();
 }
 

@@ -1,8 +1,9 @@
 #include <kui/Image.h>
-#include "Rendering/OpenGL.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include "Util/stb_image.hpp"
 #include <kui/Resource.h>
+#include <kui/Window.h>
+#include <kui/Rendering/RenderBackend.h>
 #include <iostream>
 using namespace kui;
 
@@ -44,20 +45,7 @@ unsigned int image::LoadImage(std::string File)
 
 unsigned int kui::image::LoadImage(uint8_t* Bytes, size_t Width, size_t Height)
 {
-	GLuint TextureID;
-	glGenTextures(1, &TextureID);
-	glBindTexture(GL_TEXTURE_2D, TextureID);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, Width < 64 ? GL_NEAREST : GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, Width < 64 ? GL_NEAREST : GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-	// sizeof(GLsizei) != sizeof(size_t)
-	// That's annoying...
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, (GLsizei)Width, (GLsizei)Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, Bytes);
-
-	return TextureID;
+	return Window::GetActiveWindow()->UI.Render->CreateTexture(Bytes, Width, Height);
 }
 
 image::ImageInfo image::LoadImageWithInfo(std::string File)
@@ -71,5 +59,5 @@ image::ImageInfo image::LoadImageWithInfo(std::string File)
 
 void image::UnloadImage(unsigned int ID)
 {
-	glDeleteTextures(1, &ID);
+	Window::GetActiveWindow()->UI.Render->FreeTexture(ID);
 }

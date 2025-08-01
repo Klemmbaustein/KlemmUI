@@ -43,6 +43,8 @@ namespace kui
 		std::function<void(int)> OnClickedIndex = nullptr;
 		int ButtonIndex = 0;
 
+		bool OnlyDrawWhenHovered = false;
+
 		std::function<void(int)> OnDragged = nullptr;
 
 		bool GetIsSelected() const;
@@ -74,6 +76,8 @@ namespace kui
 		 */
 		UIButton* SetPressedColor(Vec3f NewColor);
 		virtual Vec3f GetColor() const override;
+
+		virtual void Draw(render::RenderBackend* Backend) override;
 
 		/**
 		 * @brief

@@ -199,24 +199,16 @@ UIBackground::UIBackground(bool Horizontal, Vec2f Position, Vec3f Color, SizeVec
 	State = Window::GetActiveWindow()->UI.Render->MakeBackground();
 	SetMinSize(MinScale);
 	State->Color = Color;
-	if (!UsedShader)
-	{
-		this->BackgroundShader = Window::GetActiveWindow()->Shaders.LoadShader("res:shaders/uishader.vert", "res:shaders/uishader.frag", "UI Shader");
-	}
-	else
-	{
-		this->BackgroundShader = UsedShader;
-	}
 }
 
 UIBackground::~UIBackground()
 {
-	delete State;
 	if (State->OwnsTexture)
 	{
 		ParentWindow->UI.UnloadReferenceTexture(State->TextureID);
 		State->OwnsTexture = false;
 	}
+	delete State;
 }
 
 void UIBackground::Draw(render::RenderBackend* Backend)

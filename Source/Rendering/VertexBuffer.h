@@ -13,7 +13,6 @@ namespace kui::render
 	struct GLVertexBuffer
 	{
 		unsigned int VAO = 0u, VBO = 0u, EBO = 0u, IndicesSize = 0u;
-		std::vector<GLVertex> Vertices; std::vector<unsigned int> Indices;
 	public:
 
 		GLVertexBuffer(std::vector<GLVertex> Vertices, std::vector<unsigned int> Indices);

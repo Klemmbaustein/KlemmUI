@@ -1,5 +1,4 @@
 #include <kui/Window.h>
-
 #include "Internal/Internal.h"
 #include "SystemWM/SystemWM.h"
 #include <kui/UI/UIButton.h>
@@ -340,9 +339,6 @@ bool kui::Window::UpdateWindow()
 	{
 		WaitFrame();
 	}
-	FrameDelta = WindowDeltaTimer.Get();
-	Time += FrameDelta;
-	WindowDeltaTimer.Reset();
 
 	Input.UpdateCursorPosition();
 	systemWM::UpdateWindow(SysWindow);
@@ -425,6 +421,13 @@ void kui::Window::SetMinimized(bool NewIsMinimized)
 void kui::Window::Close()
 {
 	ShouldClose = true;
+}
+
+void kui::Window::UpdateDeltaInternal()
+{
+	FrameDelta = WindowDeltaTimer.Get();
+	Time += FrameDelta;
+	WindowDeltaTimer.Reset();
 }
 
 float kui::Window::GetDeltaTime() const

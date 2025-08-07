@@ -108,6 +108,8 @@ namespace kui
 		*/
 		void Close();
 
+		void UpdateDeltaInternal();
+
 		/**
 		* @brief
 		* Returns the time between the last two calls to UpdateWindow.

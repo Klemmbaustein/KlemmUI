@@ -18,12 +18,6 @@ UIManager::~UIManager()
 	UIBackground::FreeVertexBuffer();
 	ClearUI();
 	delete Render;
-
-	for (auto& i : ReferencedTextures)
-	{
-		image::UnloadImage(i.first);
-	}
-	ReferencedTextures.clear();
 }
 
 void UIManager::ForceUpdateUI()
@@ -75,6 +69,13 @@ void UIManager::ClearUI()
 	}
 	UIElements.clear();
 	RedrawUI();
+
+	for (auto& i : ReferencedTextures)
+	{
+		image::UnloadImage(i.first);
+	}
+	ReferencedTextures.clear();
+
 }
 
 bool UIManager::GetShouldRedrawUI() const

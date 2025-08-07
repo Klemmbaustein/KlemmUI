@@ -319,14 +319,16 @@ void UITextField::DrawBackground(render::RenderBackend* Backend)
 	TextScroll.Position = OffsetPosition;
 	TextScroll.Scale = Size;
 
-	BackgroundShader->Bind();
 	TextObject->IsVisible = true;
 
 	auto Pos = TextScroll.GetPosition();
 
-	BackgroundShader->SetVec3("u_offset",
-		Vec3f(-TextScroll.GetOffset(), Pos.Y, TextScroll.GetScale().Y));
-
+	if (BackgroundShader)
+	{
+		BackgroundShader->Bind();
+		BackgroundShader->SetVec3("u_offset",
+			Vec3f(-TextScroll.GetOffset(), Pos.Y, TextScroll.GetScale().Y));
+	}
 	if (IsEdited && ParentWindow->Input.TextSelectionStart != ParentWindow->Input.TextIndex)
 	{
 		float CharSize = IBeamScale.Y;

@@ -47,8 +47,8 @@ unsigned int Shader::GetShaderID()
 Shader::Shader(std::string VertexSource, std::string FragmentSource)
 {
 //#if KLEMMUI_WEB_BUILD
-	VertexSource = "#version 300 es\nprecision mediump float;\n" + VertexSource;
-	FragmentSource = "#version 300 es\nprecision mediump float;\n" + FragmentSource;
+	VertexSource = "#version 300 es\nprecision highp float;\n" + VertexSource;
+	FragmentSource = "#version 300 es\nprecision highp float;\n" + FragmentSource;
 //#else
 //	VertexSource = "#version 330\n" + VertexSource;
 //	FragmentSource = "#version 330\n" + FragmentSource;

@@ -50,7 +50,7 @@ namespace kui
 
 		void SetLine(size_t Index, const std::vector<TextSegment>& NewContent);
 
-		void Draw() override;
+		void Draw(render::RenderBackend* With) override;
 
 		void MoveCursor(int64_t Column, int64_t Line, bool DragSelection, bool SnapToWord);
 		void ScrollTo(EditorPosition Position);

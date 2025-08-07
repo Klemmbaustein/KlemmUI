@@ -13,4 +13,9 @@ element HelloWorld
 		text = "Hello World!";
 		size = 18px;
 	}
+
+	child UISpinner
+	{
+
+	}
 }

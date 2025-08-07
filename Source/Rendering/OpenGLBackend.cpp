@@ -7,6 +7,7 @@
 #include <algorithm>
 
 using namespace kui;
+bool render::OpenGLBackend::UseAlphaBuffer = false;
 
 kui::render::OpenGLBackend::OpenGLBackend()
 {

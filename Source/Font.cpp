@@ -445,7 +445,7 @@ DrawableText* Font::MakeText(std::vector<TextSegment> Text, float Scale, Vec3f C
 				{
 					GlyphData.push_back(RenderGlyph{
 							.Target = &g,
-							.Color = Color,
+							.Color = seg.Color,
 							.Position = StartPos,
 						});
 				}

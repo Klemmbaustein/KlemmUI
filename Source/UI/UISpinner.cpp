@@ -4,12 +4,13 @@
 using namespace kui;
 
 UISpinner::UISpinner(Vec2f Position, Vec3f Color, SizeVec Size)
-	: UIBackground(true, Position, Color, Size, Window::GetActiveWindow()->Shaders.LoadShader(
+	: UIBackground(true, Position, Color, Size)
+{
+	this->BackgroundShader = Window::GetActiveWindow()->Shaders.LoadShader(
 		"res:shaders/uishader.vert",
 		"res:shaders/spinner.frag",
 		"Spinner shader"
-	))
-{
+	);
 	SetMaxSize(Size);
 }
 

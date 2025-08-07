@@ -2,8 +2,9 @@
 #include <kui/UI/UITextEditor.h>
 #include <kui/UI/UIBackground.h>
 #include <kui/Window.h>
+#include <kui/Rendering/OpenGLBackend.h>
 #include "../Rendering/VertexBuffer.h"
-#include "../Internal/OpenGL.h"
+#include "../Rendering/OpenGL.h"
 #include <iostream>
 #include <algorithm>
 
@@ -401,14 +402,24 @@ UITextEditor::LineEntry& kui::UITextEditor::GetLine(size_t Index)
 	return Lines[Index - LinesStart];
 }
 
-void kui::UITextEditor::Draw()
+void kui::UITextEditor::Draw(render::RenderBackend* With)
 {
+	auto GLBackend = dynamic_cast<render::OpenGLBackend*>(With);
+
+	if (!GLBackend)
+	{
+		return;
+	}
+
 	if (Highlighted.empty())
 	{
 		return;
 	}
+
+	BackgroundShader = static_cast<render::GLUIBackgroundState*>(State)->UsedShader;
+
 	BackgroundShader->Bind();
-	ScrollTick(BackgroundShader);
+	GLBackend->UpdateScroll(this->CurrentScrollObject, BackgroundShader, this->State);
 
 	BackgroundShader->SetFloat("u_opacity", 1);
 	BackgroundShader->SetInt("u_drawBorder", 0);
@@ -433,7 +444,7 @@ void kui::UITextEditor::Draw()
 			glUniform4f(BackgroundShader->GetUniformLocation("u_transform"),
 				Segment.Position.X, Segment.Position.Y,
 				Segment.Size.X, Segment.Size.Y);
-			BoxVertexBuffer->Draw();
+			GLBackend->BoxVertexBuffer->Draw();
 		}
 	}
 }

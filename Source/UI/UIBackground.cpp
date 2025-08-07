@@ -3,6 +3,7 @@
 #include <kui/Rendering/Shader.h>
 #include <kui/App.h>
 #include <kui/UI/UIScrollBox.h>
+#include <kui/Rendering/OpenGLBackend.h>
 #include <kui/Window.h>
 #include <kui/Rendering/RenderBackend.h>
 #include <iostream>
@@ -196,6 +197,7 @@ UIBackground* kui::UIBackground::SetUseTexture(bool UseTexture, std::string Text
 
 UIBackground::UIBackground(bool Horizontal, Vec2f Position, Vec3f Color, SizeVec MinScale, Shader* UsedShader) : UIBox(Horizontal, Position)
 {
+	this->BackgroundShader = UsedShader;
 	State = Window::GetActiveWindow()->UI.Render->MakeBackground();
 	SetMinSize(MinScale);
 	State->Color = Color;
@@ -215,6 +217,11 @@ void UIBackground::Draw(render::RenderBackend* Backend)
 {
 	if (State)
 	{
+		auto GLBackend = dynamic_cast<render::OpenGLBackend*>(Backend);
+		if (GLBackend && this->BackgroundShader)
+		{
+			static_cast<render::GLUIBackgroundState*>(State)->UsedShader = BackgroundShader;
+		}
 		State->Draw(Backend, OffsetPosition, Size, CurrentScrollObject);
 	}
 	DrawBackground(Backend);

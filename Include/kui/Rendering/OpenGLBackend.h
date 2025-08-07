@@ -33,11 +33,11 @@ namespace kui::render
 
 		bool CanDrawToWindow = true;
 		bool FlipImage = false;
-		bool UseAlphaBuffer = false;
+		static bool UseAlphaBuffer;
 		unsigned int TargetBuffer = 0;
 		unsigned int UIBuffer = 0;
 		unsigned int UITextures[2];
-		GLVertexBuffer* BoxVertexBuffer;
+		GLVertexBuffer* BoxVertexBuffer = nullptr;
 		Shader* BackgroundShader = nullptr;
 		Shader* TextShader = nullptr;
 		Shader* WindowShader = nullptr;

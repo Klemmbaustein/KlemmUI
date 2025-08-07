@@ -88,6 +88,9 @@ kui::Window::Window(std::string Name, WindowFlag Flags, Vec2ui WindowPos, Vec2ui
 kui::Window::~Window()
 {
 	SYS_WINDOW_PTR(SysWindow);
+
+	UI.ClearUI();
+
 	systemWM::DestroyWindow(SysWindow);
 
 	std::unique_lock Guard = std::unique_lock(internal::WindowCreationMutex);

@@ -200,7 +200,7 @@ std::vector<DynamicProperty> DynamicProperties
 
 	DynamicProperty{ .Name = "corners",
 	.SetValue = [](kui::UIBox* Target, kui::AnyContainer Value) {
-		((UIBackground*)Target)->CornerRadius = Value.AsSize();
+		((UIBackground*)Target)->GetRenderState()->CornerRadius = Value.AsSize();
 	},
 	.IsTarget = [](kui::UIBox* Text) {
 		return dynamic_cast<UIBackground*>(Text);
@@ -208,7 +208,7 @@ std::vector<DynamicProperty> DynamicProperties
 
 	DynamicProperty{ .Name = "border",
 	.SetValue = [](kui::UIBox* Target, kui::AnyContainer Value) {
-		((UIBackground*)Target)->BorderRadius = Value.AsSize();
+		((UIBackground*)Target)->GetRenderState()->BorderRadius = Value.AsSize();
 	},
 	.IsTarget = [](kui::UIBox* Text) {
 		return dynamic_cast<UIBackground*>(Text);

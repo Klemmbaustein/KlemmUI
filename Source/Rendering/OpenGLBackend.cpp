@@ -178,11 +178,6 @@ void kui::render::OpenGLBackend::DrawSimpleBox(Vec2f Position, Vec2f Size, Vec3f
 void kui::render::OpenGLBackend::BeginArea(Window* Target, RedrawBox Box)
 {
 	Vec2ui WindowSize = Target->GetSize();
-	Box.Max += Vec2f(5) / Vec2f(WindowSize);
-	Box.Min = Box.Min - Vec2f(5) / Vec2f(WindowSize);
-
-	Box.Min = Box.Min.Clamp(-1, 1);
-	Box.Max = Box.Max.Clamp(-1, 1);
 
 	Vec2f Pos = (Box.Min / 2 + 0.5f) * Vec2f(WindowSize);
 	Vec2f Res = (Box.Max - Box.Min) / 2 * Vec2f(WindowSize);
@@ -272,7 +267,7 @@ DrawableText* kui::render::OpenGLBackend::MakeText(FontRenderData* Data, const s
 
 	if (GLData->FontVertexBufferCapacity < Glyphs.size())
 	{
-		GLData->FontVertexBufferCapacity = Glyphs.size();
+		GLData->FontVertexBufferCapacity = uint32_t(Glyphs.size());
 		glBufferData(GL_ARRAY_BUFFER, sizeof(FontVertex) * 6 * GLData->FontVertexBufferCapacity, 0, GL_STATIC_DRAW);
 		delete[] GLData->FontVertexBufferData;
 		GLData->FontVertexBufferData = new FontVertex[GLData->FontVertexBufferCapacity * 6];

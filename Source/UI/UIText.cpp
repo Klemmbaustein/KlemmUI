@@ -22,6 +22,7 @@ UIText* UIText::SetFont(Font* NewFont)
 	if (NewFont != Renderer)
 	{
 		Renderer = NewFont;
+		TextChanged = true;
 		InvalidateLayout();
 	}
 	return this;
@@ -47,6 +48,7 @@ UIText* UIText::SetColor(Vec3f NewColor)
 		{
 			i.Color = Color;
 		}
+		TextChanged = true;
 		Update();
 		RedrawElement();
 	}
@@ -58,6 +60,7 @@ UIText* UIText::SetOpacity(float NewOpacity)
 	if (Opacity != NewOpacity)
 	{
 		Opacity = NewOpacity;
+		TextChanged = true;
 		RedrawElement();
 	}
 	return this;
@@ -93,6 +96,7 @@ UIText* UIText::SetTextWidthOverride(UISize NewTextWidthOverride)
 	if (TextWidthOverride != NewTextWidthOverride)
 	{
 		TextWidthOverride = NewTextWidthOverride;
+		TextChanged = true;
 		InvalidateLayout();
 	}
 	return this;
@@ -182,6 +186,7 @@ UIText* UIText::SetWrapEnabled(bool WrapEnabled, UISize WrapDistance)
 {
 	this->Wrap = WrapEnabled;
 	this->WrapDistance = WrapDistance;
+	TextChanged = true;
 	return this;
 }
 

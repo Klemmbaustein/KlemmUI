@@ -1072,7 +1072,7 @@ std::string kui::systemWM::SelectFileDialog(bool PickFolders)
 
 bool kui::systemWM::YesNoBox(std::string Text, std::string Title)
 {
-	return ::MessageBoxW(0, ToWstring(Text).c_str(), ToWstring(Title).c_str(), MB_YESNO);
+	return ::MessageBoxW(0, ToWstring(Text).c_str(), ToWstring(Title).c_str(), MB_YESNO) == IDYES;
 }
 
 void* kui::systemWM::GetPlatformHandle(SysWindow* Target)

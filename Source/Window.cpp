@@ -334,6 +334,7 @@ bool kui::Window::UpdateWindow()
 
 	SetWindowActive();
 	RedrawInternal();
+	UpdateDeltaInternal();
 	UI.UpdateEvents();
 	HandleCursor();
 	UpdateDPI();

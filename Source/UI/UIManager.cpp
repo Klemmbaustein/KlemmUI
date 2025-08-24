@@ -95,7 +95,7 @@ bool UIManager::DrawElements()
 		}
 		ElementsToUpdate.clear();
 	}
-
+	Vec2ui WindowSize = Window::GetActiveWindow()->GetSize();
 	if (!RedrawBoxes.empty())
 	{
 		Window* Target = Window::GetActiveWindow();
@@ -111,6 +111,12 @@ bool UIManager::DrawElements()
 					i = render::RedrawBox::CombineBoxes(i, BackgroundBox);
 				}
 			}
+
+			i.Max += Vec2f(5) / Vec2f(WindowSize);
+			i.Min = i.Min - Vec2f(5) / Vec2f(WindowSize);
+
+			i.Min = i.Min.Clamp(-1, 1);
+			i.Max = i.Max.Clamp(-1, 1);
 
 			Render->BeginArea(Target, i);
 

@@ -10,7 +10,7 @@ namespace kui::render
 		float CornerIndex = 0;
 	};
 
-	struct GLVertexBuffer
+	class GLVertexBuffer
 	{
 		unsigned int VAO = 0u, VBO = 0u, EBO = 0u, IndicesSize = 0u;
 	public:

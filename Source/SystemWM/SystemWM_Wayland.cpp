@@ -52,6 +52,11 @@ static void HandleConfigureFrame(libdecor_frame* frame, libdecor_configuration* 
 		SysWin->Maximized = st & LIBDECOR_WINDOW_STATE_MAXIMIZED;
 	}
 
+	if (SysWin->ContentSize == Vec2ui(width, height))
+	{
+		return;
+	}
+
 	SysWin->ContentSize = Vec2ui(width, height);
 	SysWin->Parent->OnResized();
 
@@ -474,12 +479,11 @@ void kui::systemWM::WaylandWindow::Create(Window* Parent, Vec2ui Size, Vec2ui Po
 		}
 	}
 
+	std::unique_lock g{ WindowMutex };
 	if (this->Borderless)
 	{
 		libdecor_frame_set_visibility(DecorFrame, false);
 	}
-
-	std::unique_lock g{ WindowMutex };
 
 	GLSurface = eglCreateWindowSurface(GLDisplay, GLConfig, (EGLNativeWindowType)WaylandGLWindow, NULL);
 	MakeContextCurrent();

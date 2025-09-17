@@ -347,6 +347,7 @@ bool kui::Window::UpdateWindow()
 	Input.UpdateCursorPosition();
 	systemWM::UpdateWindow(SysWindow);
 	Input.Poll();
+	UpdateDeltaInternal();
 
 	return !ShouldClose;
 }

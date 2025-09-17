@@ -198,6 +198,7 @@ void UIText::Draw(render::RenderBackend* Backend)
 
 void UIText::Update()
 {
+	Tick();
 	this->Size = GetUsedSize().GetScreen();
 }
 

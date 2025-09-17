@@ -50,6 +50,23 @@ kui::FileEditorProvider::FileEditorProvider(std::string Path)
 		}
 	}
 
+	Keywords = {
+	"int",
+	"float",
+	"bool",
+	"obj",
+	"array",
+	"vec3",
+	"vec2",
+	"obj",
+	"str"
+	};
+	UpdateBracketAreas();
+}
+
+void kui::FileEditorProvider::UpdateBracketAreas()
+{
+	this->BracketAreas.clear();
 	std::stack<std::pair<EditorPosition, EditorPosition>> FoundBracketAreas;
 
 	size_t Index = 0;
@@ -98,55 +115,6 @@ void kui::FileEditorProvider::GetPreLine(size_t LineIndex, std::vector<TextSegme
 
 void kui::FileEditorProvider::GetLine(size_t LineIndex, std::vector<TextSegment>& To)
 {
-	static std::set<std::string> Keywords = {
-		"int",
-		"float",
-		"bool",
-		"double",
-		"long",
-		"vec3",
-		"vec2",
-		"obj",
-		"array",
-		"string",
-		"byte",
-		"await",
-		"if",
-		"else",
-		"async",
-		"foreach",
-		"for",
-		"while",
-		"is",
-		"null",
-		"true",
-		"false",
-		"new",
-		"throw",
-		"break",
-		"continue",
-		"switch",
-		"using",
-		"namespace",
-		"get",
-		"set",
-		"_",
-		"public",
-		"private",
-		"protected",
-		"var",
-		"class",
-		"struct",
-		"case",
-		"return",
-		"as",
-		"is",
-		"in",
-		"const",
-		"readonly",
-		"static"
-	};
-
 	static std::set<char> SpecialChars = {
 		'<', '>',
 		'[', ']',
@@ -172,7 +140,7 @@ void kui::FileEditorProvider::GetLine(size_t LineIndex, std::vector<TextSegment>
 	std::string CurrentWord;
 	bool IsString = false;
 
-	auto ProcessWord = [&CurrentWord, &IsString, &Current, &To]()
+	auto ProcessWord = [this, &CurrentWord, &IsString, &Current, &To]()
 		{
 			if (!CurrentWord.empty())
 			{
@@ -190,7 +158,7 @@ void kui::FileEditorProvider::GetLine(size_t LineIndex, std::vector<TextSegment>
 					bool IsDigit = true;
 					for (auto& i : CurrentWord)
 					{
-						if (!std::isdigit(i) && i != '.' && i != '-')
+						if (uint8_t(i) > 127 || (!std::isdigit(i) && i != '.' && i != '-'))
 						{
 							IsDigit = false;
 						}
@@ -221,7 +189,7 @@ void kui::FileEditorProvider::GetLine(size_t LineIndex, std::vector<TextSegment>
 			}
 
 			ProcessWord();
-			
+
 			Current.Text.append(CurrentWord);
 			CurrentWord.clear();
 			if (!IsString)
@@ -264,24 +232,29 @@ size_t kui::FileEditorProvider::GetPreLineSize()
 void kui::FileEditorProvider::RemoveLines(size_t Start, size_t Length)
 {
 	this->Lines.erase(this->Lines.begin() + Start, this->Lines.begin() + Start + Length);
+	UpdateBracketAreas();
+	this->ParentEditor->UpdateHighlights = true;
 }
 
 void kui::FileEditorProvider::SetLine(size_t Index, const std::vector<TextSegment>& NewLine)
 {
 	this->Lines[Index] = TextSegment::CombineToString(NewLine);
-
-	//std::vector<TextSegment> Segments;
-	//GetLine(Index, Segments);
-	//UpdateLine(Index, Segments);
+	UpdateBracketAreas();
+	this->ParentEditor->UpdateHighlights = true;
+	std::vector<TextSegment> Segments;
+	GetLine(Index, Segments);
+	UpdateLine(Index, Segments);
 }
 
 void kui::FileEditorProvider::InsertLine(size_t Index, const std::vector<TextSegment>& Content)
 {
 	this->Lines.insert(this->Lines.begin() + Index, TextSegment::CombineToString(Content));
 
-	//std::vector<TextSegment> Segments;
-	//GetLine(Index, Segments);
-	//UpdateLine(Index, Segments);
+	UpdateBracketAreas();
+	this->ParentEditor->UpdateHighlights = true;
+	std::vector<TextSegment> Segments;
+	GetLine(Index, Segments);
+	UpdateLine(Index, Segments);
 }
 
 void kui::FileEditorProvider::GetHighlightsForRange(size_t Begin, size_t Length)
@@ -318,4 +291,12 @@ std::string kui::FileEditorProvider::GetContent()
 	}
 	return Out;
 }
+void kui::FileEditorProvider::OnLoaded()
+{
+}
+
+void kui::FileEditorProvider::Update()
+{
+}
+
 #endif

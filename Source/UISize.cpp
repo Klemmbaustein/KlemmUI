@@ -46,7 +46,7 @@ Vec2f kui::UISize::GetScreen(Window* With) const
 	case kui::SizeMode::AspectRelative:
 		return Vec2f(Value) / Vec2f(With->GetAspectRatio(), 1);
 	case kui::SizeMode::PixelRelative:
-		return Vec2f(Value * 2) / Vec2f(With->GetSize()) * With->GetDPI();
+		return Vec2f(std::floor(Value * With->GetDPI()) * 2) / Vec2f(With->GetSize());
 	case kui::SizeMode::ParentRelative:
 	default:
 		break;

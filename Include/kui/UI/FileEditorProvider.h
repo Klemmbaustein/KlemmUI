@@ -3,6 +3,7 @@
 #include "TextEditor.h"
 #include "TextEditorHighlight.h"
 #include <utility>
+#include <set>
 
 namespace kui
 {
@@ -20,11 +21,17 @@ namespace kui
 		void SetLine(size_t Index, const std::vector<TextSegment>& NewLine) override;
 		void InsertLine(size_t Index, const std::vector<TextSegment>& Content) override;
 		void GetHighlightsForRange(size_t Begin, size_t Length) override;
+		void OnLoaded() override;
+		void Update() override;
+
+		void UpdateBracketAreas();
 
 		void DumpContent();
 		std::string GetContent();
 
 		HighlightedArea Area;
+
+		std::set<std::string> Keywords;
 
 		std::vector<std::pair<EditorPosition, EditorPosition>> BracketAreas;
 

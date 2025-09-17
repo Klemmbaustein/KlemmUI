@@ -53,13 +53,17 @@ namespace kui
 		void Draw(render::RenderBackend* With) override;
 
 		void MoveCursor(int64_t Column, int64_t Line, bool DragSelection, bool SnapToWord);
+		void SetCursorPosition(EditorPosition Position);
+		EditorPosition GetCursorPosition() const;
 		void ScrollTo(EditorPosition Position);
 		std::string GetSelectedText();
 
-		void ColorizeLine(size_t Line, std::vector<EditorColorizeSegment> Segments);
+		void ColorizeLine(size_t Line, const std::vector<EditorColorizeSegment>& Segments);
 
 		EditorPosition SelectionStart;
 		EditorPosition SelectionEnd;
+
+		bool UpdateHighlights = false;
 
 		std::mutex LinesMutex;
 
@@ -112,7 +116,6 @@ namespace kui
 		};
 		LineEntry& GetLine(size_t Index);
 
-		Vec2f OldSize;
 		std::vector<LineEntry> Lines;
 		UIBackground* SelectorBeam = nullptr;
 	};

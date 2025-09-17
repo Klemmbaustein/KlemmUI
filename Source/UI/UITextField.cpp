@@ -335,7 +335,7 @@ void UITextField::DrawBackground(render::RenderBackend* Backend)
 		auto DrawHighlight = [Backend, this, CharSize](Vec2f Start, Vec2f End)
 			{
 				Vec2f BoxSize = End - Start;
-				Backend->DrawSimpleBox(Start, BoxSize + Vec2f(0, CharSize), Vec3f(0.25f, 1, 1), 0);
+				Backend->DrawSimpleBox(Start, BoxSize + Vec2f(0, CharSize), Vec3f(0, 0.25f, 0.75f), 0);
 			};
 
 		if (TextHighlightStart.Y == TextHighlightEnd.Y)

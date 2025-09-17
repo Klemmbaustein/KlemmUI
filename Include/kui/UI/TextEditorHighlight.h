@@ -4,6 +4,7 @@
 #include <kui/Vec2.h>
 #include <kui/Vec3.h>
 #include <kui/UI/UIManager.h>
+#include <kui/UISize.h>
 
 namespace kui
 {
@@ -29,6 +30,7 @@ namespace kui
 		std::vector<HighlightSegment> Segments;
 		Vec3f Color = 1;
 		int32_t Priority = 1;
+		UISize Size = 0;
 
 		void GenerateSegments(UITextEditor* Editor);
 	};

@@ -18,7 +18,7 @@ void Shader::CheckCompileErrors(unsigned int ShaderID, std::string Type)
 		{
 			glGetShaderInfoLog(ShaderID, 1024, nullptr, infoLog);
 			app::error::Error("Shader compilation error of type: "
-				+ Type 
+				+ Type
 				+ "\n"
 				+ std::string(infoLog)
 				+ "\n -- --------------------------------------------------- -- ", true);
@@ -31,7 +31,7 @@ void Shader::CheckCompileErrors(unsigned int ShaderID, std::string Type)
 		{
 			glGetProgramInfoLog(ShaderID, 1024, nullptr, infoLog);
 			app::error::Error("Shader linking error of type: "
-				+ Type 
+				+ Type
 				+ "\n"
 				+ std::string(infoLog)
 				+ "\n -- --------------------------------------------------- -- ", true);

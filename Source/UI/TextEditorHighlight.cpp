@@ -6,6 +6,7 @@
 void kui::HighlightedArea::GenerateSegments(UITextEditor* Editor)
 {
 	Segments.clear();
+	float LineSize = this->Size.Value == 0 ? Editor->CharSize.Y : this->Size.GetScreen().Y;
 
 	if (Start.Line == End.Line)
 	{
@@ -18,7 +19,7 @@ void kui::HighlightedArea::GenerateSegments(UITextEditor* Editor)
 
 		Segments.push_back(HighlightSegment{
 			.Position = Position,
-			.Size = EndPosition - Position + Vec2f(0, Editor->CharSize.Y),
+			.Size = EndPosition - Position + Vec2f(0, LineSize),
 			});
 
 		Editor->RedrawElement();
@@ -42,7 +43,7 @@ void kui::HighlightedArea::GenerateSegments(UITextEditor* Editor)
 		this->Segments.push_back(HighlightSegment{
 			.Position = StartPos + Vec2f(Editor->CharSize.X / 3.0f, 0),
 			.Size = Vec2f(
-				2.0f / float(Window::GetActiveWindow()->GetSize().X),
+				(Size.Value == 0 ? 1_px : Size).GetScreen().X,
 				(Editor->EditorToScreen(End) + Vec2f(0, Editor->CharSize.Y) - StartPos).Y),
 			});
 
@@ -62,7 +63,7 @@ void kui::HighlightedArea::GenerateSegments(UITextEditor* Editor)
 			EditorPosition EndEditorPos = Start;
 			EndEditorPos.Column = Line.Length;
 			auto EndPosition = Editor->EditorToScreen(EndEditorPos);
-			EndPosition += Editor->CharSize;
+			EndPosition += Vec2f(Editor->CharSize.X, LineSize);
 
 			Segments.push_back(HighlightSegment{
 				.Position = StartPosition,
@@ -75,7 +76,7 @@ void kui::HighlightedArea::GenerateSegments(UITextEditor* Editor)
 			EditorPosition StartEditorPos = End;
 			StartEditorPos.Column = 0;
 			auto StartPosition = Editor->EditorToScreen(StartEditorPos);
-			auto EndPosition = Editor->EditorToScreen(End) + Vec2f(0, Editor->CharSize.Y);
+			auto EndPosition = Editor->EditorToScreen(End) + Vec2f(0, LineSize);
 
 			Segments.push_back(HighlightSegment{
 				.Position = StartPosition,
@@ -88,7 +89,7 @@ void kui::HighlightedArea::GenerateSegments(UITextEditor* Editor)
 		auto StartPosition = Editor->EditorToScreen(Pos);
 		Pos.Column = Line.Length;
 		auto EndPosition = Editor->EditorToScreen(Pos);
-		EndPosition += Editor->CharSize;
+		EndPosition += Vec2f(Editor->CharSize.X, LineSize);
 
 		Segments.push_back(HighlightSegment{
 			.Position = StartPosition,

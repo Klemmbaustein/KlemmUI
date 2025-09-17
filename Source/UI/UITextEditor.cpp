@@ -20,6 +20,19 @@ static void OnTextEditorBackspace(Window* WithWindow)
 	}
 }
 
+static void OnTextEditorDelete(Window* WithWindow)
+{
+	if (CurrentEditor)
+	{
+		if (CurrentEditor->SelectionStart == CurrentEditor->SelectionEnd)
+		{
+			CurrentEditor->SelectionStart.Column++;
+			CurrentEditor->SelectionEnd.Column++;
+		}
+		CurrentEditor->DeleteChar();
+	}
+}
+
 static void OnTextEditorUp(Window* WithWindow)
 {
 	if (CurrentEditor)
@@ -64,6 +77,13 @@ static void OnTextEditorCut(Window* WithWindow)
 	}
 }
 
+static void OnTextEditorCopy(Window* WithWindow)
+{
+	if (CurrentEditor && WithWindow->Input.IsKeyDown(Key::LCTRL))
+	{
+		WithWindow->Input.SetClipboard(CurrentEditor->GetSelectedText());
+	}
+}
 kui::UITextEditor::UITextEditor(ITextEditorProvider* EditorProvider, Font* EditorFont)
 	: UIBackground(false, 0, 0)
 {
@@ -91,17 +111,20 @@ kui::UITextEditor::UITextEditor(ITextEditorProvider* EditorProvider, Font* Edito
 	this->EditorProvider->ParentEditor = this;
 
 	ParentWindow->Input.RegisterOnKeyDownCallback(Key::BACKSPACE, &OnTextEditorBackspace);
+	ParentWindow->Input.RegisterOnKeyDownCallback(Key::DELETE, &OnTextEditorDelete);
 	ParentWindow->Input.RegisterOnKeyDownCallback(Key::UP, &OnTextEditorUp);
 	ParentWindow->Input.RegisterOnKeyDownCallback(Key::DOWN, &OnTextEditorDown);
 	ParentWindow->Input.RegisterOnKeyDownCallback(Key::LEFT, &OnTextEditorLeft);
 	ParentWindow->Input.RegisterOnKeyDownCallback(Key::RIGHT, &OnTextEditorRight);
 	ParentWindow->Input.RegisterOnKeyDownCallback(Key::x, &OnTextEditorCut);
+	ParentWindow->Input.RegisterOnKeyDownCallback(Key::c, &OnTextEditorCopy);
 
 	auto& SelectionArea = this->Highlighted.emplace_back();
 	SelectionArea.Priority = 0;
 	SelectionArea.Color = Vec3f(0.2f, 0.3f, 0.6f);
 	EditorProvider->GetHighlightsForRange(0, EditorProvider->GetLineCount());
 	CharSize = UIText::GetTextSizeAtScale(12_px, EditorFont);
+	this->EditorProvider->OnLoaded();
 }
 
 kui::UITextEditor::~UITextEditor()
@@ -167,7 +190,7 @@ void kui::UITextEditor::MoveCursor(int64_t Column, int64_t Line, bool DragSelect
 				this->AdjustSelection(SelectionStart, Column > 0);
 			}
 		}
-		else if (Column < 0 && SelectionStart.Column == 0 && IsLineLoaded(SelectionStart.Line))
+		else if (Column < 0 && SelectionStart.Column == 0 && IsLineLoaded(SelectionStart.Line) && SelectionStart.Line > 0)
 		{
 			SelectionStart.Line--;
 			SelectionStart.Column = GetLine(SelectionStart.Line).Length;
@@ -222,6 +245,19 @@ void kui::UITextEditor::UpdateSelectionHighlights()
 	this->Highlighted[0].Start = SelectionStart;
 	this->Highlighted[0].End = SelectionEnd;
 	this->Highlighted[0].GenerateSegments(this);
+}
+
+void kui::UITextEditor::SetCursorPosition(EditorPosition Position)
+{
+	this->SelectionStart = Position;
+	this->SelectionEnd = Position;
+	UpdateSelectionHighlights();
+	CursorTimer.Reset();
+}
+
+EditorPosition kui::UITextEditor::GetCursorPosition() const
+{
+	return this->SelectionStart;
 }
 
 void kui::UITextEditor::ScrollTo(EditorPosition Position)
@@ -298,7 +334,7 @@ std::string kui::UITextEditor::GetSelectedText()
 	return Selection;
 }
 
-void kui::UITextEditor::ColorizeLine(size_t Line, std::vector<EditorColorizeSegment> Segments)
+void kui::UITextEditor::ColorizeLine(size_t Line, const std::vector<EditorColorizeSegment>& Segments)
 {
 	if (!IsLineLoaded(Line))
 		return;
@@ -330,7 +366,7 @@ void kui::UITextEditor::ColorizeLine(size_t Line, std::vector<EditorColorizeSegm
 	Get(EditorPosition{
 		.Column = Position,
 		.Line = Line,
-		}, LineData.Length - Position, NewLine);
+		}, SIZE_MAX, NewLine);
 
 	LineData.Data = NewLine;
 }
@@ -376,7 +412,6 @@ void kui::UITextEditor::DeleteChar()
 void kui::UITextEditor::UpdateContent()
 {
 	EditorScrollBox->DeleteChildren();
-	UpdateElement();
 
 	CharSize = UIText::GetTextSizeAtScale(12_px, EditorFont);
 	SelectorBeam->SetMinSize(SizeVec(1_px, CharSize.Y));
@@ -393,6 +428,7 @@ void kui::UITextEditor::UpdateContent()
 		(LineCount > RemainingLines ? LineCount - RemainingLines : 0) * CharSize.Y,
 		0, 0);
 	NewChunk->SetTextWidthOverride(GetUsedSize().X);
+	NewChunk->Update();
 	EditorScrollBox->AddChild(NewChunk);
 	RefreshText = false;
 }
@@ -534,20 +570,13 @@ UIText* kui::UITextEditor::BuildChunk(size_t Position, size_t Length)
 
 void kui::UITextEditor::Update()
 {
-	Vec2f NewSize = GetUsedSize().GetScreen();
-
-	if (NewSize != this->OldSize)
+	CharSize = UIText::GetTextSizeAtScale(12_px, EditorFont);
+	EditorLineSize = size_t(this->GetUsedSize().GetScreen().Y / CharSize.Y) * 2;
+	UpdateContent();
+	EditorScrollBox->Update();
+	for (auto& i : Highlighted)
 	{
-		this->OldSize = NewSize;
-		CharSize = UIText::GetTextSizeAtScale(12_px, EditorFont);
-		EditorLineSize = size_t(this->GetUsedSize().GetScreen().Y / CharSize.Y) * 2;
-		UpdateContent();
-		EditorScrollBox->Update();
-		UpdateSelectionBeam();
-		for (auto& i : Highlighted)
-		{
-			i.GenerateSegments(this);
-		}
+		i.GenerateSegments(this);
 	}
 }
 
@@ -620,6 +649,7 @@ void kui::UITextEditor::Edit()
 {
 	auto& Input = ParentWindow->Input;
 	IsEdited = true;
+	Input.Text.clear();
 	Input.CanEditText = true;
 	Input.PollForText = true;
 	Input.TextAllowNewLine = true;
@@ -636,7 +666,25 @@ void kui::UITextEditor::Tick()
 		UpdateContent();
 	}
 
-	SelectorBeam->IsVisible = this->IsVisible && this->IsEdited && std::fmod(CursorTimer.Get(), 1.0f) < 0.5f && this->ParentWindow->HasFocus();
+	if (UpdateHighlights)
+	{
+		this->Highlighted.clear();
+
+		auto& SelectionArea = this->Highlighted.emplace_back();
+		SelectionArea.Priority = 0;
+		SelectionArea.Color = Vec3f(0.2f, 0.3f, 0.6f);
+
+		EditorProvider->GetHighlightsForRange(0, EditorProvider->GetLineCount());
+		UpdateHighlights = false;
+
+		for (auto& i : Highlighted)
+		{
+			i.GenerateSegments(this);
+		}
+	}
+
+	SelectorBeam->IsVisible = this->IsVisible && this->IsEdited && std::fmod(CursorTimer.Get(), 1.0f) < 0.5f
+		&& this->ParentWindow->HasFocus();
 	auto& Hovered = ParentWindow->UI.HoveredBox;
 	auto& Input = ParentWindow->Input;
 
@@ -649,6 +697,7 @@ void kui::UITextEditor::Tick()
 		if (Input.IsLMBClicked && this->IsEdited)
 		{
 			this->IsEdited = false;
+			CurrentEditor = nullptr;
 			Input.PollForText = false;
 		}
 		return;
@@ -657,7 +706,7 @@ void kui::UITextEditor::Tick()
 	if (Input.IsLMBDown && !UIScrollBox::IsDraggingScrollBox)
 	{
 		auto NewPosition = ScreenToEditor(Input.MousePosition);
-		
+
 		if (NewPosition == SelectionStart && Input.IsLMBClicked && DoubleClickTimer.Get() < 0.5f)
 		{
 			SelectionMode = SelectMode((int(SelectionMode) + 1) % 4);
@@ -689,6 +738,8 @@ void kui::UITextEditor::Tick()
 	{
 		DraggingSelection = false;
 	}
+
+	this->EditorProvider->Update();
 }
 
 void kui::UITextEditor::TickInput()
@@ -956,7 +1007,8 @@ void kui::UITextEditor::SnapColumn(EditorPosition& Position)
 void kui::UITextEditor::UpdateSelectionBeam()
 {
 	SelectorBeam->SetCurrentScrollObject(this->EditorScrollBox);
-	SelectorBeam->SetPosition(EditorToScreen(SelectionStart));
+	Vec2f Pos = EditorToScreen(SelectionStart);
+	SelectorBeam->SetPosition(Pos);
 }
 
 void kui::UITextEditor::ClearEmptyLineEntries(size_t Index)

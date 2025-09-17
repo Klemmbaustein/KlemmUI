@@ -351,7 +351,6 @@ void kui::systemWM::MessageBox(std::string Text, std::string Title, int Type)
 
 	// If kdialog and zenity don't exist, there's no good way of creating a message box.
 	// TODO: Maybe create a KlemmUI window containing the message?
-	// Making GUI apps for Linux is great!
 	std::cerr << Title << ": " << Text << std::endl;
 }
 

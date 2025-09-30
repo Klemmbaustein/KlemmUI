@@ -393,6 +393,11 @@ void UIBox::UpdateScale()
 	Vec2f NewSize = 0;
 	for (auto c : Children)
 	{
+		if (c->IsCollapsed)
+		{
+			continue;
+		}
+
 		Vec2f UpDown, LeftRight;
 		c->GetPaddingScreenSize(UpDown, LeftRight);
 
@@ -477,6 +482,10 @@ void UIBox::UpdatePosition()
 	{
 		for (auto c : Children)
 		{
+			if (c->IsCollapsed)
+			{
+				continue;
+			}
 			Vec2f UpDown, LeftRight;
 			c->GetPaddingScreenSize(UpDown, LeftRight);
 			ChildrenSize += ChildrenHorizontal ? (c->Size.X + LeftRight.X + LeftRight.Y) : (c->Size.Y + UpDown.X + UpDown.Y);
@@ -486,6 +495,11 @@ void UIBox::UpdatePosition()
 
 	for (auto c : Children)
 	{
+		if (c->IsCollapsed)
+		{
+			continue;
+		}
+
 		Vec2f UpDown, LeftRight;
 		c->GetPaddingScreenSize(UpDown, LeftRight);
 		if (PrimaryAlign == Align::Centered)
@@ -651,7 +665,7 @@ void UIBox::DrawThisAndChildren(render::RenderBackend* Backend, const render::Re
 	{
 		c->UpdateTickState();
 	}
-	if (IsVisible)
+	if (IsVisible && !IsCollapsed)
 	{
 		if (render::RedrawBox::IsBoxOverlapping(Box, GetRedrawBox()))
 		{
@@ -676,8 +690,8 @@ void UIBox::DeleteChildren()
 
 bool UIBox::IsVisibleInHierarchy()
 {
-	if (!Parent) return IsVisible;
-	if (IsVisible) return Parent->IsVisibleInHierarchy();
+	if (!Parent) return IsVisible && !IsCollapsed;
+	if (IsVisible && !IsCollapsed) return Parent->IsVisibleInHierarchy();
 	return false;
 }
 

@@ -347,6 +347,7 @@ namespace kui
 		 * Controls the visibility of the UIBox.
 		 */
 		bool IsVisible = true;
+		bool IsCollapsed = false;
 
 		/**
 		 * @brief

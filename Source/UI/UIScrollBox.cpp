@@ -18,6 +18,8 @@ float UIScrollBox::GetDesiredChildrenSize()
 	float DesiredSize = 0;
 	for (UIBox* i : Children)
 	{
+		if (i->IsCollapsed)
+			continue;
 		Vec2f UpDown;
 		Vec2f LeftRight;
 		i->GetPaddingScreenSize(UpDown, LeftRight);
@@ -219,6 +221,12 @@ void UIScrollBox::Update()
 	ScrollClass = ScrollObject(OffsetPosition, Size, ActualMaxScroll);
 	ScrollClass.Scrolled = Progress;
 	ScrollClass.Speed = Speed;
+	ScrollBarBackground
+		->SetHoveredColor(BackgroundColor)
+		->SetPressedColor(BackgroundColor)
+		->SetColor(BackgroundColor);
+	ScrollBarBackground->SetBorder(1_px, BackgroundBorderColor);
+	ScrollBar->SetColor(ScrollBarColor);
 	UpdateScrollObjectOfObject(this);
 }
 

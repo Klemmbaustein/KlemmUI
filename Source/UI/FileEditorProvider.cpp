@@ -14,7 +14,7 @@ kui::FileEditorProvider::FileEditorProvider(std::string Path)
 	static unsigned char UtfBom[] = { 0xef, 0xbb, 0xbf };
 	bool IsFirstLine = true;
 
-	while (!Stream.eof())
+	while (!Stream.eof() && !Stream.fail() && !Stream.bad())
 	{
 		char LineBuffer[4000];
 

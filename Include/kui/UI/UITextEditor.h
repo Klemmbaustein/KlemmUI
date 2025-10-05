@@ -40,6 +40,7 @@ namespace kui
 
 		void Edit();
 
+		void FullRefresh();
 		void DeleteChar();
 
 		void DeleteSelection();

@@ -417,6 +417,7 @@ void kui::UITextEditor::UpdateContent()
 	SelectorBeam->SetMinSize(SizeVec(1_px, CharSize.Y));
 
 	size_t LineCount = EditorProvider->GetLineCount();
+
 	size_t CharPosition = size_t(EditorScrollBox->GetScrollObject()->Scrolled / CharSize.Y);
 
 	UIText* NewChunk = BuildChunk(CharPosition, std::min(EditorLineSize + CharPosition, LineCount) - CharPosition);
@@ -578,6 +579,13 @@ void kui::UITextEditor::Update()
 	{
 		i.GenerateSegments(this);
 	}
+}
+
+void kui::UITextEditor::FullRefresh()
+{
+	this->UpdateHighlights = true;
+	this->Lines.clear();
+	this->UpdateContent();
 }
 
 bool kui::UITextEditor::IsLineLoaded(size_t Index)
@@ -1161,7 +1169,7 @@ EditorPosition kui::UITextEditor::GridToCharacterPos(EditorPosition GridPos, boo
 	size_t PosX = size_t(GridPos.Column);
 	size_t PosY = size_t(GridPos.Line);
 
-	if (PosY >= Lines.size())
+	if (PosY >= Lines.size() && Lines.size() != 0)
 	{
 		PosY = Lines.size() - 1;
 	}

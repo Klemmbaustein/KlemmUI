@@ -405,11 +405,11 @@ namespace kui
 		render::RedrawBox GetRedrawBox() const;
 
 	protected:
+		bool ChildrenHorizontal = true;
 		bool ShouldBeTicked = true;
 		bool Redrawn = false;
 	private:
 		bool PrevIsVisible = true;
-		bool ChildrenHorizontal = true;
 	protected:
 		virtual void Update();
 		virtual void Draw(render::RenderBackend* Backend);

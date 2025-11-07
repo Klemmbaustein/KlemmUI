@@ -156,7 +156,7 @@ UIButton* UIButton::SetHoveredColor(Vec3f NewColor)
 		HoveredColor = NewColor;
 		if (IsHovered)
 		{
-			State->Color = ButtonColor;
+			State->Color = HoveredColor;
 			RedrawElement();
 		}
 	}
@@ -184,7 +184,7 @@ UIButton* UIButton::SetPressedColor(Vec3f NewColor)
 		PressedColor = NewColor;
 		if (IsPressed)
 		{
-			State->Color = NewColor;
+			State->Color = PressedColor;
 			RedrawElement();
 		}
 	}
@@ -205,7 +205,7 @@ void kui::UIButton::Draw(render::RenderBackend* Backend)
 	UIBackground::Draw(Backend);
 }
 
-UIButton::UIButton(bool Horizontal, Vec2f Position, Vec3f Color, std::function<void()> OnClickedFunction) 
+UIButton::UIButton(bool Horizontal, Vec2f Position, Vec3f Color, std::function<void()> OnClickedFunction)
 	: UIBackground(Horizontal, Position, Color)
 {
 	this->OnClicked = OnClickedFunction;

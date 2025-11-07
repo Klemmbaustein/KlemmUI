@@ -289,6 +289,7 @@ Vec2f Font::GetTextSize(std::vector<TextSegment> Text, float Scale, bool Wrapped
 	LengthBeforeWrap = LengthBeforeWrap * Window::GetActiveWindow()->GetAspectRatio() / Scale;
 	float x = 0.f, y = CharacterSize;
 	float MaxX = 0.0f;
+	float LastMaxX = 0.0f;
 	size_t CharIndex = 0;
 	size_t TabCharIndex = 0;
 	size_t LastWrapCharIndex = 0;
@@ -339,6 +340,7 @@ Vec2f Font::GetTextSize(std::vector<TextSegment> Text, float Scale, bool Wrapped
 				if (SegmentText[i] == ' ')
 				{
 					LastWordIndex = i;
+					LastMaxX = MaxX;
 					LastWrapCharIndex = CharIndex;
 				}
 
@@ -354,6 +356,7 @@ Vec2f Font::GetTextSize(std::vector<TextSegment> Text, float Scale, bool Wrapped
 					if (LastWordIndex != SIZE_MAX && LastWordIndex != LastWrapIndex)
 					{
 						i = LastWordIndex;
+						MaxX = LastMaxX;
 						LastWrapIndex = i;
 						CharIndex = LastWrapCharIndex;
 						continue;

@@ -16,14 +16,29 @@ Vec3f UIScrollBox::BackgroundBorderColor = 0.15f;
 float UIScrollBox::GetDesiredChildrenSize()
 {
 	float DesiredSize = 0;
-	for (UIBox* i : Children)
+	if (!ChildrenHorizontal)
 	{
-		if (i->IsCollapsed)
-			continue;
-		Vec2f UpDown;
-		Vec2f LeftRight;
-		i->GetPaddingScreenSize(UpDown, LeftRight);
-		DesiredSize += UpDown.X + UpDown.Y + std::max(i->GetUsedSize().GetScreen().Y, 0.0f);
+		for (UIBox* i : Children)
+		{
+			if (i->IsCollapsed)
+				continue;
+			Vec2f UpDown;
+			Vec2f LeftRight;
+			i->GetPaddingScreenSize(UpDown, LeftRight);
+			DesiredSize += UpDown.X + UpDown.Y + std::max(i->GetUsedSize().GetScreen().Y, 0.0f);
+		}
+	}
+	else
+	{
+		for (UIBox* i : Children)
+		{
+			if (i->IsCollapsed)
+				continue;
+			Vec2f UpDown;
+			Vec2f LeftRight;
+			i->GetPaddingScreenSize(UpDown, LeftRight);
+			DesiredSize = std::max(UpDown.X + UpDown.Y + std::max(i->GetUsedSize().GetScreen().Y, 0.0f), DesiredSize);
+		}
 	}
 	return DesiredSize;
 }
@@ -221,12 +236,15 @@ void UIScrollBox::Update()
 	ScrollClass = ScrollObject(OffsetPosition, Size, ActualMaxScroll);
 	ScrollClass.Scrolled = Progress;
 	ScrollClass.Speed = Speed;
-	ScrollBarBackground
-		->SetHoveredColor(BackgroundColor)
-		->SetPressedColor(BackgroundColor)
-		->SetColor(BackgroundColor);
-	ScrollBarBackground->SetBorder(1_px, BackgroundBorderColor);
-	ScrollBar->SetColor(ScrollBarColor);
+	if (ScrollBar)
+	{
+		ScrollBarBackground
+			->SetHoveredColor(BackgroundColor)
+			->SetPressedColor(BackgroundColor)
+			->SetColor(BackgroundColor);
+		ScrollBarBackground->SetBorder(1_px, BackgroundBorderColor);
+		ScrollBar->SetColor(ScrollBarColor);
+	}
 	UpdateScrollObjectOfObject(this);
 }
 

@@ -146,14 +146,16 @@ kui::InputManager::InputManager(Window* Parent)
 		});
 
 	RegisterOnKeyDownCallback(Key::c, [](Window* Win) {
-		if (Win->Input.IsKeyDown(Key::LCTRL) || Win->Input.IsKeyDown(Key::RCTRL))
+		if ((Win->Input.IsKeyDown(Key::LCTRL) || Win->Input.IsKeyDown(Key::RCTRL))
+			&& Win->Input.PollForText)
 		{
 			systemWM::SetClipboardText(Win->Input.GetSelectedTextString());
 		}
 		});
 
 	RegisterOnKeyDownCallback(Key::x, [](Window* Win) {
-		if (!Win->Input.Text.empty() && (Win->Input.IsKeyDown(Key::LCTRL) || Win->Input.IsKeyDown(Key::RCTRL)))
+		if (!Win->Input.Text.empty() && (Win->Input.IsKeyDown(Key::LCTRL) || Win->Input.IsKeyDown(Key::RCTRL))
+			&& Win->Input.PollForText)
 		{
 			systemWM::SetClipboardText(Win->Input.GetSelectedTextString());
 			Win->Input.DeleteTextSelection();
@@ -162,7 +164,8 @@ kui::InputManager::InputManager(Window* Parent)
 
 	RegisterOnKeyDownCallback(Key::v, [](Window* Win) {
 
-		if (!Win->Input.IsKeyDown(Key::LCTRL) && !Win->Input.IsKeyDown(Key::RCTRL))
+		if ((!Win->Input.IsKeyDown(Key::LCTRL) && !Win->Input.IsKeyDown(Key::RCTRL))
+			|| !Win->Input.PollForText)
 		{
 			return;
 		}

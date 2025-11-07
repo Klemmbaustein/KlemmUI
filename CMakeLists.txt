@@ -25,6 +25,7 @@ option(KLEMMUI_WEB_BUILD_AS_HTML "Build web projects as HTML" ON)
 option(KLEMMUI_DYNAMIC_MARKUP "Use DynamicMarkup library to load .kui files at rumtime" OFF)
 option(KLEMMUI_INCLUDE_EXAMPLES "Include example programs" ON)
 option(KLEMMUI_CUSTOM_SYSTEMWM "Implement custom systemWM functions" OFF)
+option(KLEMMUI_GLES "Use OpenGL ES shaders" OFF)
 
 set(glew-cmake_BUILD_SHARED OFF)
 set(ONLY_LIBS ON)
@@ -91,6 +92,10 @@ target_include_directories(KlemmUI PUBLIC "${INC_DIR}")
 
 if(NOT KLEMMUI_WEB)
 	target_link_libraries(KlemmUI PUBLIC libglew_static)
+endif()
+
+if(KLEMMUI_GLES AND NOT KLEMMUI_WEB)
+	target_link_libraries(KlemmUI PUBLIC KLEMMUI_GLES)
 endif()
 
 macro(klemmui_markup ProjectName MarkupDir)

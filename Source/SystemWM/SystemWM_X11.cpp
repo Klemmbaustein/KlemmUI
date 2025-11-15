@@ -38,7 +38,6 @@ static void CheckForDisplay()
 
 	if (X11Window::XDisplay == nullptr)
 	{
-		std::cerr << "Opened X11 display connection" << std::endl;
 		X11Window::XDisplay = XOpenDisplay(NULL);
 	}
 
@@ -66,7 +65,6 @@ static void CheckDisplayUnloading()
 	if (X11Window::OpenedWindows <= 0)
 	{
 		XCloseDisplay(X11Window::XDisplay);
-		std::cerr << "Closed X11 display connection" << std::endl;
 		X11Window::XDisplay = nullptr;
 		X11Window::XRootWindow = 0;
 	}

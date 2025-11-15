@@ -14,6 +14,8 @@ int main()
 			app::MessageBox(Message, "Error", app::MessageBoxType::Error);
 		});
 
+	kui::platform::linux::AlwaysUseWayland();
+
 	Window MainWindow = Window(EnglishTitle, Window::WindowFlag::Resizable | platform::win32::WindowFlag::DarkTitleBar, Window::POSITION_CENTERED);
 
 	bool IsGerman = false;

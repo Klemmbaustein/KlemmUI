@@ -23,7 +23,7 @@ int main()
 	while (MainWindow.UpdateWindow())
 	{
 	}
-	
+
 	delete RobotoFont;
 }
 

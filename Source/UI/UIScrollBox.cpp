@@ -2,9 +2,7 @@
 #include <kui/UI/UIButton.h>
 #include <kui/UI/UIBackground.h>
 #include <kui/Window.h>
-#include <cmath>
-#include <kui/App.h>
-#include <iostream>
+#include <utility>
 
 using namespace kui;
 
@@ -108,7 +106,8 @@ bool UIScrollBox::GetDisplayScrollBar() const
 
 void UIScrollBox::Tick()
 {
-	ScrollClass.Active = ParentWindow->UI.HoveredBox && (ParentWindow->UI.HoveredBox == this || ParentWindow->UI.HoveredBox->IsChildOf(this));
+	ScrollClass.Active = ParentWindow->UI.HoveredBox && (ParentWindow->UI.HoveredBox == this
+		|| ParentWindow->UI.HoveredBox->IsChildOf(this));
 	ScrollClass.Parent = CurrentScrollObject;
 	bool VisibleInHierarchy = IsVisibleInHierarchy();
 	if (MaxScroll == -1)
@@ -126,23 +125,28 @@ void UIScrollBox::Tick()
 	if (ScrollBar && VisibleInHierarchy)
 	{
 		ScrollBarBackground->SetMinSize(SizeVec(UISize::Smallest(), GetUsedSize().Y));
-		ScrollBarBackground->SetPosition(OffsetPosition + Vec2f(Size.X - ScrollBarBackground->GetUsedSize().GetScreen().X, 0));
+		ScrollBarBackground->SetPosition(OffsetPosition
+			+ Vec2f(Size.X - ScrollBarBackground->GetUsedSize().GetScreen().X, 0));
 
 		float ScrollPercentage = ScrollClass.Scrolled / ScrollClass.MaxScroll;
 
 		Vec2f Pixel = PixelSizeToScreenSize(1, ParentWindow);
+		float Height = Size.Y - ScrollDownPadding * Pixel.Y;
 
-		if (DesiredMaxScroll <= Size.Y)
+		if (DesiredMaxScroll <= Height)
 		{
-			ScrollBar->SetMinSize(SizeVec(Vec2f((ScrollBarWidth - 4) * Pixel.X, Size.Y - 4 * Pixel.Y), SizeMode::ScreenRelative));
+			ScrollBar->SetMinSize(SizeVec(Vec2f((ScrollBarWidth - 4)
+				* Pixel.X, Height - 4 * Pixel.Y), SizeMode::ScreenRelative));
 			ScrollBar->SetPadding(UISize::Aspect(0.0025f));
 			ScrollPercentage = 0;
 		}
 		else
 		{
-			ScrollBar->SetMinSize(SizeVec(Vec2f((ScrollBarWidth - 4) * Pixel.X, std::max(Size.Y / (DesiredMaxScroll / Size.Y), (30_px).GetScreen().Y)), SizeMode::ScreenRelative));
+			ScrollBar->SetMinSize(SizeVec(Vec2f((ScrollBarWidth - 4) * Pixel.X,
+				std::max(Size.Y / (DesiredMaxScroll / Height), (30_px).GetScreen().Y)), SizeMode::ScreenRelative));
 
-			ScrollBar->SetPadding(UISize::Screen(std::max((ScrollPercentage * Size.Y) - (ScrollPercentage * ScrollBar->GetMinSize().GetScreen().Y) - 4 * Pixel.Y, 2 * Pixel.Y)),
+			ScrollBar->SetPadding(UISize::Screen(std::max((ScrollPercentage * Height)
+				- (ScrollPercentage * ScrollBar->GetMinSize().GetScreen().Y) - 4 * Pixel.Y, 2 * Pixel.Y)),
 				UISize::Pixels(2),
 				UISize::Pixels(2),
 				UISize::Pixels(2));
@@ -161,7 +165,8 @@ void UIScrollBox::Tick()
 			}
 			else if (IsDragging)
 			{
-				float Fraction = (ParentWindow->Input.MousePosition.Y - InitialDragPosition) / (Size.Y - ScrollBar->GetUsedSize().GetScreen().Y);
+				float Fraction = (ParentWindow->Input.MousePosition.Y - InitialDragPosition)
+					/ (Height - ScrollBar->GetUsedSize().GetScreen().Y);
 
 				float NewPercentage = std::max(
 					std::min(
@@ -236,7 +241,7 @@ void UIScrollBox::Update()
 	ScrollClass = ScrollObject(OffsetPosition, Size, ActualMaxScroll);
 	ScrollClass.Scrolled = Progress;
 	ScrollClass.Speed = Speed;
-	if (ScrollBar)
+	if (ScrollBar && UseDefaultColors)
 	{
 		ScrollBarBackground
 			->SetHoveredColor(BackgroundColor)

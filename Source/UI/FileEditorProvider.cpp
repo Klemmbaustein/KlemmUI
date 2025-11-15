@@ -144,14 +144,14 @@ void kui::FileEditorProvider::GetLine(size_t LineIndex, std::vector<TextSegment>
 		{
 			if (!CurrentWord.empty())
 			{
-				Vec3f NewColor = 1;
+				Vec3f NewColor = TextColor;
 				if (Keywords.contains(CurrentWord))
 				{
-					NewColor = Vec3f(1.0f, 0.2f, 0.5f);
+					NewColor = KeywordColor;
 				}
 				else if (IsString)
 				{
-					NewColor = Vec3f(0.5f, 1.0f, 0.2f);
+					NewColor = StringColor;
 				}
 				else
 				{
@@ -165,7 +165,7 @@ void kui::FileEditorProvider::GetLine(size_t LineIndex, std::vector<TextSegment>
 					}
 					if (IsDigit)
 					{
-						NewColor = Vec3f(0.5f, 0.7f, 1.0f);
+						NewColor = NumberColor;
 					}
 				}
 
@@ -194,11 +194,11 @@ void kui::FileEditorProvider::GetLine(size_t LineIndex, std::vector<TextSegment>
 			CurrentWord.clear();
 			if (!IsString)
 			{
-				if (c != ' ' && c != '\t' && Vec3f(1) != Current.Color)
+				if (c != ' ' && c != '\t' && TextColor != Current.Color)
 				{
 					To.push_back(Current);
 					Current.Text.clear();
-					Current.Color = 1;
+					Current.Color = TextColor;
 				}
 				Current.Text.push_back(c);
 			}
@@ -280,6 +280,7 @@ void kui::FileEditorProvider::DumpContent()
 std::string kui::FileEditorProvider::GetContent()
 {
 	std::string Out;
+	Out.reserve(this->Lines.size() * 40);
 	for (auto& i : this->Lines)
 	{
 		Out.append(i);

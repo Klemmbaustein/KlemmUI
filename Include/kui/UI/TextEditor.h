@@ -22,6 +22,7 @@ namespace kui
 		virtual void GetHighlightsForRange(size_t Begin, size_t Length) = 0;
 		virtual void OnLoaded() = 0;
 		virtual void Update() = 0;
+		virtual void Commit() {}
 		void UpdateLine(size_t Index, const std::vector<TextSegment>& NewContent);
 
 		UITextEditor* ParentEditor = nullptr;

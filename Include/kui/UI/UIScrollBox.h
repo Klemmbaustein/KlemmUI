@@ -48,6 +48,10 @@ namespace kui
 
 		uint32_t ScrollBarWidth = 10;
 
+		uint32_t ScrollDownPadding = 0;
+
+		bool UseDefaultColors = true;
+
 		static bool IsDraggingScrollBox;
 		ScrollObject* GetScrollObject();
 		UIBackground* GetScrollBarSlider();

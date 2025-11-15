@@ -29,6 +29,11 @@ namespace kui
 		void DumpContent();
 		std::string GetContent();
 
+		Vec3f KeywordColor = Vec3f(1.0f, 0.2f, 0.5f);
+		Vec3f TextColor = 1;
+		Vec3f StringColor = Vec3f(0.5f, 1.0f, 0.2f);
+		Vec3f NumberColor = Vec3f(0.5f, 0.7f, 1.0f);
+
 		HighlightedArea Area;
 
 		std::set<std::string> Keywords;

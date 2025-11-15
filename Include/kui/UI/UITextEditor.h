@@ -50,11 +50,22 @@ namespace kui
 		void SnapHighlightToWord();
 
 		void SetLine(size_t Index, const std::vector<TextSegment>& NewContent);
+		void RemoveLine(size_t Index);
+		void AddLine(size_t Index, const std::vector<TextSegment>& NewContent);
+
+		struct LineEntry
+		{
+			std::vector<TextSegment> Data;
+			size_t Length = 0;
+		};
+		LineEntry& GetLine(size_t Index);
+		bool IsLineLoaded(size_t Index);
 
 		void Draw(render::RenderBackend* With) override;
 
 		void MoveCursor(int64_t Column, int64_t Line, bool DragSelection, bool SnapToWord);
 		void SetCursorPosition(EditorPosition Position);
+		void SetCursorPosition(EditorPosition Start, EditorPosition End);
 		EditorPosition GetCursorPosition() const;
 		void ScrollTo(EditorPosition Position);
 		std::string GetSelectedText();
@@ -70,13 +81,15 @@ namespace kui
 
 		friend struct HighlightedArea;
 
-		void InsertNewLine(EditorPosition At);
+		void InsertNewLine(EditorPosition At, bool Commit);
 		UIScrollBox* EditorScrollBox = nullptr;
 
 		void SnapColumn(EditorPosition& Position);
 
 		EditorPosition CharacterPosToGrid(EditorPosition CharacterPos, bool SnapToEnd = true);
 		EditorPosition GridToCharacterPos(EditorPosition GridPos, bool SnapToEnd = true);
+		size_t LinesStart = 0;
+		size_t GetLoadedLines();
 
 	private:
 
@@ -86,7 +99,6 @@ namespace kui
 		void UpdateSelectionBeam();
 
 		void ClearEmptyLineEntries(size_t Index);
-		bool IsLineLoaded(size_t Index);
 		void AdjustSelection(EditorPosition& Position, bool DirectionForward);
 
 		enum class SelectMode
@@ -107,15 +119,9 @@ namespace kui
 		bool IsEdited = false;
 		bool RefreshText = false;
 		bool DraggingSelection = false;
+		bool HighlightsChanged = false;
 
-		size_t LinesStart = 0;
 		size_t EditorLineSize = 25;
-		struct LineEntry
-		{
-			std::vector<TextSegment> Data;
-			size_t Length = 0;
-		};
-		LineEntry& GetLine(size_t Index);
 
 		std::vector<LineEntry> Lines;
 		UIBackground* SelectorBeam = nullptr;

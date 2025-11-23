@@ -160,10 +160,10 @@ void kui::UITextEditor::RemoveLine(size_t Index)
 
 void kui::UITextEditor::AddLine(size_t Index, const std::vector<TextSegment>& NewContent)
 {
-	EditorProvider->InsertLine(Index, NewContent);
 	this->Lines.insert(this->Lines.begin() + Index, LineEntry{
 			.Data = NewContent
 		});
+	EditorProvider->InsertLine(Index, NewContent);
 }
 
 void kui::UITextEditor::EraseLine()
@@ -813,6 +813,7 @@ void kui::UITextEditor::TickInput()
 
 		SelectionEnd = Insert(NewText, SelectionStart, NewText.size() > 4);
 		SelectionStart = SelectionEnd;
+		CurrentEditor->ScrollTo(CurrentEditor->SelectionEnd);
 		this->CursorTimer.Reset();
 		NewText.clear();
 		this->UpdateContent();
@@ -875,7 +876,7 @@ EditorPosition kui::UITextEditor::Insert(std::string NewString, EditorPosition A
 	return EditorPosition(ReturnColumn, At.Line);
 }
 
-void kui::UITextEditor::Erase(EditorPosition Begin, EditorPosition End)
+void kui::UITextEditor::Erase(EditorPosition Begin, EditorPosition End, bool DoCommit)
 {
 	if (Begin.Line == End.Line)
 	{
@@ -929,7 +930,10 @@ void kui::UITextEditor::Erase(EditorPosition Begin, EditorPosition End)
 			}
 		}
 		EditorProvider->SetLine(Begin.Line, Line);
-		EditorProvider->Commit();
+		if (DoCommit)
+		{
+			EditorProvider->Commit();
+		}
 		return;
 	}
 
@@ -948,7 +952,7 @@ void kui::UITextEditor::Erase(EditorPosition Begin, EditorPosition End)
 		{
 			auto EndPos = Begin;
 			EndPos.Column = Line.Length;
-			Erase(Begin, EndPos);
+			Erase(Begin, EndPos, false);
 			EditorProvider->SetLine(it, Line.Data);
 		}
 		else if (it == End.Line)
@@ -974,7 +978,10 @@ void kui::UITextEditor::Erase(EditorPosition Begin, EditorPosition End)
 			EditorProvider->RemoveLines(it, 1);
 		}
 	}
-	EditorProvider->Commit();
+	if (DoCommit)
+	{
+		EditorProvider->Commit();
+	}
 	this->ClearSelection();
 }
 
@@ -1039,7 +1046,7 @@ void kui::UITextEditor::InsertNewLine(EditorPosition At, bool Commit)
 	size_t EndOfLineCount = Line.Length - At.Column;
 	Get(At, EndOfLineCount, EndOfLine);
 
-	Erase(At, EraseEnd);
+	Erase(At, EraseEnd, false);
 	EditorProvider->SetLine(At.Line, Line.Data);
 
 	this->Lines.insert(this->Lines.begin() + At.Line + 1, LineEntry{

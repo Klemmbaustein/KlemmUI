@@ -32,7 +32,7 @@ namespace kui
 		Vec2f EditorToScreen(EditorPosition Position);
 
 		EditorPosition Insert(std::string NewString, EditorPosition At, bool Raw);
-		void Erase(EditorPosition Begin, EditorPosition End);
+		void Erase(EditorPosition Begin, EditorPosition End, bool DoCommit = true);
 		void Get(EditorPosition Begin, size_t Length, std::vector<TextSegment>& To, bool IncludeUnloaded = false);
 
 		void NewLine();

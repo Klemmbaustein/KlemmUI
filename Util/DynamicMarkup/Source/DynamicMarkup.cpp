@@ -8,8 +8,7 @@
 #include "Values.h"
 #include <kui/App.h>
 using namespace kui;
-using namespace kui::MarkupParse;
-using namespace kui::MarkupStructure;
+using namespace kui::markup;
 
 static MarkupElement* GetElementFromName(std::string Name, markup::DynamicMarkupContext* From)
 {
@@ -38,7 +37,7 @@ void kui::markup::DynamicMarkupContext::LoadFilesFromPath(std::string Path)
 			});
 	}
 	Parsed = new ParseResult(ParseFiles(MarkupFiles));
-	markupVerify::Verify(*Parsed);
+	markup::Verify(*Parsed);
 }
 
 void kui::markup::DynamicMarkupContext::LoadFiles(std::vector<MarkupFile> Files)
@@ -54,7 +53,7 @@ void kui::markup::DynamicMarkupContext::LoadFiles(std::vector<MarkupFile> Files)
 	}
 
 	Parsed = new ParseResult(ParseFiles(MarkupFiles));
-	markupVerify::Verify(*Parsed);
+	markup::Verify(*Parsed);
 }
 
 kui::markup::DynamicMarkupContext::DynamicMarkupContext()
@@ -116,7 +115,7 @@ kui::markup::UIDynMarkupBox::~UIDynMarkupBox()
 {
 }
 
-void kui::markup::UIDynMarkupBox::LoadFromElement(MarkupStructure::MarkupElement* From)
+void kui::markup::UIDynMarkupBox::LoadFromElement(markup::MarkupElement* From)
 {
 	this->Element = From;
 	ApplyElementValues(this, *From, Context, this);

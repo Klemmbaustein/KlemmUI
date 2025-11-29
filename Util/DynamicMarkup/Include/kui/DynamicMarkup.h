@@ -3,7 +3,7 @@
 #include <kui/Markup/MarkupBox.h>
 #include <kui/Markup/Markup.h>
 
-namespace kui::MarkupStructure
+namespace kui::markup
 {
 	struct MarkupElement;
 	struct ParseResult;
@@ -27,7 +27,7 @@ namespace kui::markup
 		void LoadFilesFromPath(std::string Path);
 		void LoadFiles(std::vector<MarkupFile> Files);
 
-		MarkupStructure::ParseResult* Parsed = nullptr;
+		markup::ParseResult* Parsed = nullptr;
 	};
 
 	class UIDynMarkupBox : public UIBox, public kui::markup::MarkupBox
@@ -62,11 +62,11 @@ namespace kui::markup
 
 		void SetVariable(std::string Name, kui::AnyContainer Value);
 
-		MarkupStructure::MarkupElement* Element = nullptr;
+		markup::MarkupElement* Element = nullptr;
 
 	private:
 		DynamicMarkupContext* Context = nullptr;
 		std::string ElementName;
-		void LoadFromElement(MarkupStructure::MarkupElement* From);
+		void LoadFromElement(markup::MarkupElement* From);
 	};
 }

@@ -45,7 +45,7 @@ int main(int argc, const char** argv)
 		}
 	}
 
-	std::vector<kui::MarkupParse::FileEntry> Entries;
+	std::vector<kui::markup::FileEntry> Entries;
 
 	if (InPaths.empty())
 	{
@@ -68,8 +68,9 @@ int main(int argc, const char** argv)
 		{
 			for (const auto& File : std::filesystem::directory_iterator(InPath))
 			{
-				kui::MarkupParse::FileEntry Entry;
+				kui::markup::FileEntry Entry;
 				Entry.Name = File.path().filename().string();
+				Entry.Path = File.path().string();
 				std::ifstream Source = std::ifstream(File.path());
 				std::stringstream SourceStream;
 				SourceStream << Source.rdbuf();
@@ -84,7 +85,7 @@ int main(int argc, const char** argv)
 		return 2;
 	}
 
-	auto ParsedFiles = kui::MarkupParse::ParseFiles(Entries);
+	auto ParsedFiles = kui::markup::ParseFiles(Entries);
 
 	if (kui::parseError::GetErrorCount())
 	{
@@ -92,14 +93,15 @@ int main(int argc, const char** argv)
 		return 1;
 	}
 
-	kui::markupVerify::Verify(ParsedFiles);
+	kui::markup::Verify(ParsedFiles);
 	if (kui::parseError::GetErrorCount())
 	{
 		std::cout << "Errors occurred - stopping." << std::endl;
 		return 1;
 	}
 
-	kui::writeHeader::WriteHeaders(OutPath, ParsedFiles);
+	kui::markup::HeaderWriter w{&ParsedFiles };
+	w.Write(OutPath);
 
 	if (kui::parseError::GetErrorCount())
 	{

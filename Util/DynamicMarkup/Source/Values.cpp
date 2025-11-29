@@ -215,9 +215,9 @@ static Vec2f StringToVec2(std::string Vector)
 
 }
 
-static MarkupStructure::PropElementType GetTypeFromBox(UIBox* Target)
+static markup::PropElementType GetTypeFromBox(UIBox* Target)
 {
-	using namespace MarkupStructure;
+	using namespace markup;
 
 	const std::type_info& TypeId = typeid(*Target);
 
@@ -243,7 +243,7 @@ static MarkupStructure::PropElementType GetTypeFromBox(UIBox* Target)
 	return PropElementType::UIBox;
 }
 
-DynamicProperty* GetProperty(std::string Name, UIBox* Target, MarkupStructure::PropElementType Type)
+DynamicProperty* GetProperty(std::string Name, UIBox* Target, markup::PropElementType Type)
 {
 	for (auto& i : DynamicProperties)
 	{
@@ -294,7 +294,7 @@ void kui::markup::SetUIBoxValue(UIBox* Target, std::string Name, std::string Val
 
 	auto Type = GetTypeFromBox(Target);
 
-	for (auto& i : MarkupStructure::Properties)
+	for (auto& i : markup::Properties)
 	{
 		if (i.Name != Name)
 			continue;
@@ -371,7 +371,7 @@ void kui::markup::SetUIBoxValue(UIBox* Target, std::string Name, std::string Val
 	}
 }
 
-kui::AnyContainer kui::markup::ToAny(std::string Value, std::function<std::string(std::string)> GetTranslated, MarkupStructure::VariableType Type)
+kui::AnyContainer kui::markup::ToAny(std::string Value, std::function<std::string(std::string)> GetTranslated, markup::VariableType Type)
 {
 	kui::AnyContainer ValueAny;
 	switch (Type)

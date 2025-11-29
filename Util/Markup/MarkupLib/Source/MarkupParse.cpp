@@ -1,29 +1,27 @@
 #include "Markup/MarkupParse.h"
 #include "Markup/ParseError.h"
-#include <iostream>
-#include <filesystem>
 #include <map>
 using namespace kui;
 
-MarkupStructure::ParseResult MarkupParse::ParseFiles(std::vector<FileEntry> Files)
+markup::ParseResult markup::ParseFiles(std::vector<FileEntry> Files)
 {
-	std::map<std::string, std::vector<stringParse::Line>> FileLines;
+	std::map<std::string, FileData> OutFiles;
 
 	std::vector<ParsedElement> AllElements;
 
 	for (const FileEntry& File : Files)
 	{
-		FileLines.insert({ File.Name, stringParse::SeparateString(File.Content) });
+		OutFiles.insert({ File.Name, {File.Path, stringParse::SeparateString(File.Content)} });
 	}
 
-	std::vector<MarkupStructure::Constant> Consts;
-	std::vector<MarkupStructure::Global> Globals;
+	std::vector<markup::Constant> Consts;
+	std::vector<markup::Global> Globals;
 
-	for (auto& File : FileLines)
+	for (auto& File : OutFiles)
 	{
-		parseError::SetCode(File.second, File.first);
+		parseError::SetCode(File.second.Lines, File.first);
 
-		auto FileContent = ReadFile(File.second, File.first);
+		auto FileContent = ReadFile(File.second.Lines, File.first, File.second.FilePath);
 
 		AllElements.reserve(FileContent.Elements.size() + AllElements.size());
 
@@ -32,36 +30,37 @@ MarkupStructure::ParseResult MarkupParse::ParseFiles(std::vector<FileEntry> File
 			AllElements.push_back(Element);
 		}
 
-		for (const MarkupStructure::Constant& Const : FileContent.Constants)
+		for (const markup::Constant& Const : FileContent.Constants)
 		{
 			Consts.push_back(Const);
 		}
 
-		for (const MarkupStructure::Global& g : FileContent.Globals)
+		for (const markup::Global& g : FileContent.Globals)
 		{
 			Globals.push_back(g);
 		}
 	}
 
-	std::vector<MarkupStructure::MarkupElement> StructureElements;
+	std::vector<markup::MarkupElement> StructureElements;
 	for (auto& Element : AllElements)
 	{
-		auto& Lines = FileLines[Element.File];
-		parseError::SetCode(Lines, Element.File);
+		auto& Data = OutFiles[Element.File];
+		parseError::SetCode(Data.Lines, Element.File);
 
-		StructureElements.push_back(ParseElement(Element, Lines));
+		StructureElements.push_back(ParseElement(Element, Data.Lines));
 	}
 
-	return MarkupStructure::ParseResult
+	return markup::ParseResult
 	{
 		.Elements = StructureElements,
 		.Constants = Consts,
 		.Globals = Globals,
-		.FileLines = FileLines,
+		.Data = OutFiles,
 	};
 }
 
-MarkupParse::FileResult MarkupParse::ReadFile(std::vector<stringParse::Line>& Lines, std::string FileName)
+markup::FileResult markup::ReadFile(std::vector<stringParse::Line>& Lines,
+	std::string FileName, std::string FilePath)
 {
 	FileResult Out;
 	ParsedElement* Current = nullptr;
@@ -78,9 +77,10 @@ MarkupParse::FileResult MarkupParse::ReadFile(std::vector<stringParse::Line>& Li
 		{
 			ln.Get(); // element
 			stringParse::StringToken Name = ln.Get();
-			if (MarkupStructure::UIElement::IsDefaultElement(Name))
+			if (markup::UIElement::IsDefaultElement(Name))
 			{
-				parseError::Error("Invalid name: '" + Name.Text + "'. A default element with this name already exists.", Name);
+				parseError::Error("Invalid name: '" + Name.Text
+					+ "'. A default element with this name already exists.", Name);
 				if (ln.Contains("{"))
 					Depth++;
 				continue;
@@ -97,14 +97,16 @@ MarkupParse::FileResult MarkupParse::ReadFile(std::vector<stringParse::Line>& Li
 			Out.Elements.push_back(ParsedElement{
 				.Name = Name,
 				.File = FileName,
+				.FilePath = FilePath,
 				.Start = i,
 				.StartLine = ln.Index,
-				.DefinitionToken = Name
+				.DefinitionToken = Name,
 				});
 			Current = &Out.Elements[Out.Elements.size() - 1];
 			if (ln.Get() != "{")
 			{
-				parseError::Error("Expected a '{' after 'element " + Current->Name + "', got '" + ln.Previous().Text + "'", ln.Previous());
+				parseError::Error("Expected a '{' after 'element " + Current->Name
+					+ "', got '" + ln.Previous().Text + "'", ln.Previous());
 				Current = nullptr;
 				Out.Elements.pop_back();
 				continue;
@@ -118,13 +120,14 @@ MarkupParse::FileResult MarkupParse::ReadFile(std::vector<stringParse::Line>& Li
 
 			if (ln.Get() != "=" && IsConst)
 			{
-				parseError::Error(ln.Peek().Empty() ? "Expected a '=' after a const value." : "Unexpected '" + ln.Peek().Text + "' after a const value. Expected '='", ln.Peek());
+				parseError::Error(ln.Peek().Empty() ? "Expected a '=' after a const value." : "Unexpected '"
+					+ ln.Peek().Text + "' after a const value. Expected '='", ln.Peek());
 				continue;
 			}
 
 			if (IsConst)
 			{
-				Out.Constants.push_back(MarkupStructure::Constant{
+				Out.Constants.push_back(markup::Constant{
 					.Name = Name,
 					.Value = ln.GetUntil(""),
 					.File = FileName
@@ -132,7 +135,7 @@ MarkupParse::FileResult MarkupParse::ReadFile(std::vector<stringParse::Line>& Li
 			}
 			else
 			{
-				Out.Globals.push_back(MarkupStructure::Global{
+				Out.Globals.push_back(markup::Global{
 					.Name = Name,
 					.Value = ln.GetUntil(""),
 					.File = FileName
@@ -166,12 +169,14 @@ MarkupParse::FileResult MarkupParse::ReadFile(std::vector<stringParse::Line>& Li
 	return Out;
 }
 
-MarkupStructure::MarkupElement kui::MarkupParse::ParseElement(ParsedElement& Elem, std::vector<stringParse::Line>& Lines)
+markup::MarkupElement kui::markup::ParseElement(ParsedElement& Elem,
+	std::vector<stringParse::Line>& Lines)
 {
-	MarkupStructure::MarkupElement Element;
-	MarkupStructure::UIElement Root;
+	markup::MarkupElement Element;
+	markup::UIElement Root;
+	Element.FilePath = Elem.FilePath;
 	Root.TypeName = Elem.DefinitionToken;
-	Root.Type = MarkupStructure::UIElement::ElementType::UserDefined;
+	Root.Type = markup::UIElement::ElementType::UserDefined;
 
 	Lines.at(Elem.Start).StringPos = 0;
 	auto StartToken = Lines.at(Elem.Start).Peek();
@@ -189,7 +194,8 @@ MarkupStructure::MarkupElement kui::MarkupParse::ParseElement(ParsedElement& Ele
 	return Element;
 }
 
-stringParse::StringToken kui::MarkupParse::ParseScope(MarkupStructure::UIElement& Elem, std::vector<stringParse::Line> Lines, size_t Start, bool IsRoot)
+stringParse::StringToken kui::markup::ParseScope(markup::UIElement& Elem,
+	std::vector<stringParse::Line> Lines, size_t Start, bool IsRoot)
 {
 	size_t Depth = 0;
 	for (size_t i = Start + 1; i < Lines.size(); i++)
@@ -235,17 +241,17 @@ stringParse::StringToken kui::MarkupParse::ParseScope(MarkupStructure::UIElement
 			{
 				Value = ln.GetUntil("");
 			}
-			Elem.Variables.insert({ VariableName, MarkupStructure::UIElement::Variable(Value, {}, VariableName)});
+			Elem.Variables.insert({ VariableName, UIElement::Variable(Value, {}, VariableName) });
 		}
 		else if (Begin == "child")
 		{
-			MarkupStructure::UIElement New;
+			UIElement New;
 			stringParse::StringToken Type = ln.Get();
 
 			New.TypeName = Type;
-			New.Type = MarkupStructure::UIElement::IsDefaultElement(New.TypeName)
-				? MarkupStructure::UIElement::ElementType::Default
-				: MarkupStructure::UIElement::ElementType::UserDefined;
+			New.Type = UIElement::IsDefaultElement(New.TypeName)
+				? UIElement::ElementType::Default
+				: UIElement::ElementType::UserDefined;
 
 			stringParse::StringToken Next = ln.Get();
 			auto EndToken = ParseScope(New, Lines, i, false);
@@ -277,13 +283,15 @@ stringParse::StringToken kui::MarkupParse::ParseScope(MarkupStructure::UIElement
 		}
 		else
 		{
-			MarkupStructure::Property p{
+			Property p
+			{
 				.Name = Begin,
 			};
 
 			if (ln.Peek() != "=")
 			{
-				parseError::Error("Expected '=' after '" + ln.Previous().Text + "', got '" + ln.Peek().Text + "'", ln.Peek());
+				parseError::Error("Expected '=' after '"
+					+ ln.Previous().Text + "', got '" + ln.Peek().Text + "'", ln.Peek());
 				continue;
 			}
 			ln.Get();

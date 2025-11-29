@@ -1,5 +1,9 @@
+#include <Markup/MarkupStructure.h>
 
-std::vector<PropertyElement> kui::MarkupStructure::Properties
+using namespace kui;
+using namespace kui::markup;
+
+std::vector<PropertyElement> kui::markup::Properties
 {
 	PropertyElement{
 		.Type = PropElementType::UISpinner,
@@ -416,7 +420,6 @@ std::vector<PropertyElement> kui::MarkupStructure::Properties
 			{
 				return "SetHorizontal(false)";
 			}
-			kui::parseError::ErrorNoLine("Invalid orientation: '" + Val + "'");
 			return "";
 		},
 		.VarType = VariableType::Orientation,

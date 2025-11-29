@@ -8,7 +8,7 @@ namespace kui::markup
 	class DynamicMarkupContext;
 	class UIDynMarkupBox;
 
-	using namespace MarkupStructure;
+	using namespace markup;
 
 	UIBox* CreateNew(std::string Name, DynamicMarkupContext* From);
 	void ApplyElementValues(UIBox* Box, MarkupElement& Target, DynamicMarkupContext* From, UIDynMarkupBox* Root);
@@ -16,5 +16,5 @@ namespace kui::markup
 
 	void SetUIBoxValue(UIBox* Target, std::string Name, std::string Value, DynamicMarkupContext* From, UIDynMarkupBox* Root, MarkupElement& Element);
 
-	kui::AnyContainer ToAny(std::string Value, std::function<std::string(std::string)> GetTranslated, MarkupStructure::VariableType Type);
+	kui::AnyContainer ToAny(std::string Value, std::function<std::string(std::string)> GetTranslated, markup::VariableType Type);
 }

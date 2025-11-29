@@ -5,7 +5,7 @@
 #include <map>
 #include "StringParse.h"
 
-namespace kui::MarkupStructure
+namespace kui::markup
 {
 	struct MarkupElement;
 	struct ParseResult;
@@ -45,7 +45,6 @@ namespace kui::MarkupStructure
 		Bool,
 		Orientation,
 		Callback,
-		CallbackIndex,
 	};
 
 	struct UIElement
@@ -62,7 +61,7 @@ namespace kui::MarkupStructure
 		/// Name of the element's type (UIBox, UIButton, MyElement...)
 		stringParse::StringToken TypeName;
 		stringParse::StringToken ElementName;
-		std::string Header;
+		std::string File;
 		ElementType Type = ElementType::Default;
 
 		std::vector<UIElement> Children;
@@ -88,11 +87,6 @@ namespace kui::MarkupStructure
 			VariableType Type = VariableType::None;
 		};
 		std::map<std::string, Variable> Variables;
-		std::string WriteVariableSetter(std::pair<std::string, Variable> Var);
-		std::set<std::string> GetElementDependencies() const;
-		std::set<std::string> GetNamedElements() const;
-
-		std::string MakeCode(std::string Parent, UIElement* Root, size_t& Depth, ParseResult& MarkupElements);
 	};
 
 	struct Constant
@@ -131,14 +125,15 @@ namespace kui::MarkupStructure
 	struct MarkupElement
 	{
 		UIElement Root;
+		std::string FilePath;
 		std::string File;
 		stringParse::StringToken FromToken;
-		std::string Header;
-		bool WrittenHeader = false;
+	};
 
-		std::string WriteCode(ParseResult& MarkupElements);
-	private:
-		std::string WriteLayoutFunction(ParseResult& MarkupElements);
+	struct FileData
+	{
+		std::string FilePath;
+		std::vector<stringParse::Line> Lines;
 	};
 
 	struct ParseResult
@@ -146,9 +141,10 @@ namespace kui::MarkupStructure
 		std::vector<MarkupElement> Elements;
 		std::vector<Constant> Constants;
 		std::vector<Global> Globals;
-		std::map<std::string, std::vector<stringParse::Line>> FileLines;
+		std::map<std::string, FileData> Data;
 
 		Constant* GetConstant(std::string Name);
 		Global* GetGlobal(std::string Name);
+		MarkupElement* GetElement(std::string Name);
 	};
 }

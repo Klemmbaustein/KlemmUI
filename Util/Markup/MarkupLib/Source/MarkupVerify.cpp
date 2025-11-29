@@ -3,18 +3,18 @@
 #include <iostream>
 using namespace kui::stringParse;
 using namespace kui;
-using namespace kui::MarkupStructure;
+using namespace kui::markup;
 
-void markupVerify::Verify(MarkupStructure::ParseResult& Structure)
+void markup::Verify(markup::ParseResult& Structure)
 {
 	for (auto& i : Structure.Elements)
 	{
-		parseError::SetCode(Structure.FileLines[i.File], i.File);
+		parseError::SetCode(Structure.Data[i.File].Lines, i.File);
 		VerifyElement(i.Root, i, Structure);
 	}
 }
 
-void markupVerify::VerifyElement(UIElement& Element, MarkupElement& Root, MarkupStructure::ParseResult& Structure)
+void markup::VerifyElement(UIElement& Element, MarkupElement& Root, markup::ParseResult& Structure)
 {
 	PropElementType CurrentType = GetTypeFromString(Element.TypeName.Text);
 
@@ -44,7 +44,7 @@ void markupVerify::VerifyElement(UIElement& Element, MarkupElement& Root, Markup
 		}
 
 		const PropertyElement* FoundValue = nullptr;
-		for (const PropertyElement& propValue : MarkupStructure::Properties)
+		for (const PropertyElement& propValue : markup::Properties)
 		{
 			if (prop.Name == propValue.Name && IsSubclassOf(CurrentType, propValue.Type))
 			{

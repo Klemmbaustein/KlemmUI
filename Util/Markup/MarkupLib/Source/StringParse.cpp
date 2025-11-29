@@ -9,7 +9,6 @@ using namespace kui;
 static const std::unordered_set<char> Whitespace = {
 	' ',
 	'\t',
-	'\n',
 	'\r',
 };
 
@@ -621,22 +620,28 @@ std::vector<stringParse::Line> stringParse::SeparateString(std::string String)
 			continue;
 		}
 
-		if (c == ';' || c == '}' || c == '{')
+		if (c == ';' || c == '\n' || c == '}' || c == '{')
 		{
 			if (c == '{')
 			{
-				ParseWord(CurrentWord, CurrentLine);
-				CurrentWord = StringToken({ c }, LineCharacter - 1, LineIndex);
-				ParseWord(CurrentWord, CurrentLine);
+				if (!Lines.empty())
+				{
+					auto& PreviousLine = Lines[Lines.size() - 1];
+					ParseWord(CurrentWord, PreviousLine);
+					CurrentWord = StringToken({ c }, LineCharacter - 1, LineIndex);
+					ParseWord(CurrentWord, PreviousLine);
+				}
 			}
-
-			if (!CurrentWord.Empty())
+			else
 			{
-				CurrentLine.Strings.push_back(CurrentWord);
-			}
-			if (!CurrentLine.Strings.empty())
-			{
-				Lines.push_back(CurrentLine);
+				if (!CurrentWord.Empty())
+				{
+					CurrentLine.Strings.push_back(CurrentWord);
+				}
+				if (!CurrentLine.Strings.empty())
+				{
+					Lines.push_back(CurrentLine);
+				}
 			}
 
 			CurrentLine = Line();

@@ -1,13 +1,13 @@
 #pragma once
 #include "MarkupStructure.h"
 
-namespace kui::markupVerify
+namespace kui::markup
 {
 	void VerifyElement(
-		MarkupStructure::UIElement& Element,
-		MarkupStructure::MarkupElement& Root,
-		MarkupStructure::ParseResult& Structure
+		markup::UIElement& Element,
+		markup::MarkupElement& Root,
+		markup::ParseResult& Structure
 	);
 
-	void Verify(MarkupStructure::ParseResult& Structure);
+	void Verify(markup::ParseResult& Structure);
 }

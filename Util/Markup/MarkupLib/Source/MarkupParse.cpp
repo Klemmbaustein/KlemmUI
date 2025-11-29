@@ -172,7 +172,7 @@ MarkupStructure::MarkupElement kui::MarkupParse::ParseElement(ParsedElement& Ele
 	MarkupStructure::UIElement Root;
 	Root.TypeName = Elem.DefinitionToken;
 	Root.Type = MarkupStructure::UIElement::ElementType::UserDefined;
-	
+
 	Lines.at(Elem.Start).StringPos = 0;
 	auto StartToken = Lines.at(Elem.Start).Peek();
 

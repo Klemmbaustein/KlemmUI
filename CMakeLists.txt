@@ -54,7 +54,7 @@ elseif(NOT DEFINED WIN32)
 
 	message(STATUS "Checking for X11 extensions")
 
-	if(KLEMMUI_WITH_WAYLAND)
+	if(KLEMMUI_WITH_WAYLAND AND NOT KLEMMUI_CUSTOM_SYSTEMWM)
 
 		find_library(KLEMMUI_WAYLAND_DBUS dbus-1)
 		find_package(PkgConfig)

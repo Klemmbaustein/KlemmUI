@@ -40,9 +40,6 @@ namespace kui
 	class UIScrollBox : public UIBox
 	{
 	public:
-		static Vec3f BackgroundColor;
-		static Vec3f BackgroundBorderColor;
-		static Vec3f ScrollBarColor;
 
 		std::function<void(UIScrollBox* This)> OnScroll;
 
@@ -69,6 +66,8 @@ namespace kui
 		void Tick() override;
 		UIScrollBox(bool Horizontal, Vec2f Position, bool DisplayScrollBar);
 		~UIScrollBox();
+
+		void UpdateColors();
 
 	private:
 

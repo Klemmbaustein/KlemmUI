@@ -51,7 +51,7 @@ namespace kui::MarkupStructure
 	struct UIElement
 	{
 		static bool IsDefaultElement(const std::string& Name);
-		
+
 		enum class ElementType
 		{
 			/// UIBox, UIBackground, ...

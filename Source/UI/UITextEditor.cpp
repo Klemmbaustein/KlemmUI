@@ -527,11 +527,9 @@ UIText* kui::UITextEditor::BuildChunk(size_t Position, size_t Length)
 		if (Lines.empty())
 		{
 			Lines.resize(Position + Length);
-			size_t it = 0;
-			for (auto& i : Lines)
+			for (size_t i = 0; i < Position + Length; i++)
 			{
-				this->EditorProvider->GetLine(Position + it + LinesStart, i.Data);
-				it++;
+				this->EditorProvider->GetLine(i + LinesStart, Lines[i].Data);
 			}
 		}
 		else
@@ -621,8 +619,8 @@ size_t kui::UITextEditor::GetLoadedLines()
 void kui::UITextEditor::FullRefresh()
 {
 	this->UpdateHighlights = true;
+	Highlighted.clear();
 	this->Lines.clear();
-	this->UpdateContent();
 }
 
 bool kui::UITextEditor::IsLineLoaded(size_t Index)
@@ -706,10 +704,6 @@ void kui::UITextEditor::Tick()
 {
 	TickInput();
 
-	if (RefreshText)
-	{
-		UpdateContent();
-	}
 
 	if (UpdateHighlights)
 	{
@@ -726,8 +720,16 @@ void kui::UITextEditor::Tick()
 		{
 			i.GenerateSegments(this);
 		}
+		if (!Highlighted.empty())
+		{
+			RefreshText = true;
+		}
 	}
 
+	if (RefreshText)
+	{
+		UpdateContent();
+	}
 	SelectorBeam->IsVisible = this->IsVisible && this->IsEdited && std::fmod(CursorTimer.Get(), 1.0f) < 0.5f
 		&& this->ParentWindow->HasFocus();
 	auto& Hovered = ParentWindow->UI.HoveredBox;

@@ -7,9 +7,6 @@
 using namespace kui;
 
 bool UIScrollBox::IsDraggingScrollBox = false;
-Vec3f UIScrollBox::BackgroundColor = 0.25f;
-Vec3f UIScrollBox::ScrollBarColor = 0.75f;
-Vec3f UIScrollBox::BackgroundBorderColor = 0.15f;
 
 float UIScrollBox::GetDesiredChildrenSize()
 {
@@ -73,6 +70,18 @@ UIButton* UIScrollBox::GetScrollBarBackground()
 	return ScrollBarBackground;
 }
 
+void kui::UIScrollBox::UpdateColors()
+{
+	auto& Colors = ParentWindow->Colors;
+
+	ScrollBarBackground
+		->SetHoveredColor(Colors.ScrollBackgroundColor)
+		->SetPressedColor(Colors.ScrollBackgroundColor)
+		->SetColor(Colors.ScrollBackgroundColor);
+	ScrollBarBackground->SetBorder(1_px, Colors.ScrollBackgroundBorderColor);
+	ScrollBar->SetColor(Colors.ScrollBarColor);
+}
+
 UIScrollBox* UIScrollBox::SetDisplayScrollBar(bool NewDisplay)
 {
 	if (NewDisplay != DisplayScrollBar)
@@ -80,13 +89,14 @@ UIScrollBox* UIScrollBox::SetDisplayScrollBar(bool NewDisplay)
 		DisplayScrollBar = NewDisplay;
 		if (DisplayScrollBar)
 		{
-			ScrollBarBackground = new UIButton(false, 0, BackgroundColor, nullptr, 0);
-			ScrollBarBackground
-				->SetHoveredColor(BackgroundColor)
-				->SetPressedColor(BackgroundColor);
-			ScrollBarBackground->SetBorder(1_px, BackgroundBorderColor);
-			ScrollBarBackground->SetPosition(OffsetPosition + Vec2f(Size.X - ScrollBarBackground->GetUsedSize().GetScreen().Y, 0));
-			ScrollBar = new UIBackground(true, 0, ScrollBarColor);
+			auto& Colors = ParentWindow->Colors;
+			ScrollBarBackground = new UIButton(false, 0, 1, nullptr, 0);
+			ScrollBarBackground->SetPosition(OffsetPosition
+				+ Vec2f(Size.X - ScrollBarBackground->GetUsedSize().GetScreen().Y, 0));
+			ScrollBar = new UIBackground(true, 0, 1);
+
+			UpdateColors();
+
 			ScrollBarBackground->AddChild(ScrollBar);
 		}
 		else if (ScrollBar)
@@ -243,12 +253,7 @@ void UIScrollBox::Update()
 	ScrollClass.Speed = Speed;
 	if (ScrollBar && UseDefaultColors)
 	{
-		ScrollBarBackground
-			->SetHoveredColor(BackgroundColor)
-			->SetPressedColor(BackgroundColor)
-			->SetColor(BackgroundColor);
-		ScrollBarBackground->SetBorder(1_px, BackgroundBorderColor);
-		ScrollBar->SetColor(ScrollBarColor);
+		UpdateColors();
 	}
 	UpdateScrollObjectOfObject(this);
 }

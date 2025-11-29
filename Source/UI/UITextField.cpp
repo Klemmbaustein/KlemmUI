@@ -38,7 +38,8 @@ void UITextField::Tick()
 	{
 		Offset.Y = CurrentScrollObject->GetOffset();
 	}
-	if (ParentWindow->UI.HoveredBox == this && !UIScrollBox::IsDraggingScrollBox)
+	if ((this->Dragging && ParentWindow->HasMouseFocus())
+		|| (ParentWindow->UI.HoveredBox == this && !UIScrollBox::IsDraggingScrollBox))
 	{
 		if (ParentWindow->Input.IsLMBClicked)
 		{
@@ -60,6 +61,8 @@ void UITextField::Tick()
 			TextTimer = 0;
 			Dragging = true;
 			IsEdited = true;
+			ParentWindow->UI.HoveredBox = this;
+			ParentWindow->UI.NewHoveredBox = this;
 			if (!IsPressed)
 			{
 				RedrawElement();
@@ -260,7 +263,7 @@ UITextField::UITextField(Vec2f Position, Vec3f Color, Font* Renderer, std::funct
 	: UIBackground(true, Position, Color)
 {
 	TextFieldColor = Color;
-	TextObject = new UIText(11_px, Vec3f(1), HintText, Renderer);
+	TextObject = new UIText(11_px, ParentWindow->Colors.TextFieldTextDefaultColor, HintText, Renderer);
 	TextObject->SetPadding(3_px);
 	TextObject->Wrap = true;
 	HasMouseCollision = true;
@@ -335,7 +338,8 @@ void UITextField::DrawBackground(render::RenderBackend* Backend)
 		auto DrawHighlight = [Backend, this, CharSize](Vec2f Start, Vec2f End)
 			{
 				Vec2f BoxSize = End - Start;
-				Backend->DrawSimpleBox(Start, BoxSize + Vec2f(0, CharSize), Vec3f(0, 0.25f, 0.75f), 0);
+				Backend->DrawSimpleBox(Start, BoxSize + Vec2f(0, CharSize),
+					ParentWindow->Colors.TextFieldSelection, 0);
 			};
 
 		if (TextHighlightStart.Y == TextHighlightEnd.Y)

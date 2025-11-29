@@ -3,6 +3,7 @@
 #include "Vec2.h"
 #include "Input.h"
 #include "Timer.h"
+#include "WindowColors.h"
 #include <vector>
 #include <atomic>
 #include "Rendering/ShaderManager.h"
@@ -124,6 +125,9 @@ namespace kui
 		UIManager UI;
 		/// The markup manager of this window.
 		MarkupLanguageManager Markup;
+
+		/// The default colors used by some UI elements of this window.
+		WindowColors Colors;
 
 		/// Centered window position.
 		static const Vec2ui POSITION_CENTERED;

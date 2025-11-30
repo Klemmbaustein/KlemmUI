@@ -21,6 +21,8 @@ namespace kui::markup
 
 		void WriteProperty(stringParse::StringToken Value, PropertyElement& FoundProperty,
 			std::ostream& Stream, UIElement& Target, size_t Depth);
+		void WriteSetVariable(stringParse::StringToken Value, UIElement::Variable& FoundVariable,
+			std::ostream& Stream, UIElement& Target, size_t Depth);
 		void WriteProperties(std::ostream& Stream, UIElement& Target, size_t Depth);
 
 		void GetDependenciesForElement(std::set<std::string>& OutDependencies, UIElement* Element);

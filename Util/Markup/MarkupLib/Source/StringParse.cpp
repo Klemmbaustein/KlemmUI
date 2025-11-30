@@ -548,9 +548,9 @@ std::string kui::stringParse::Size::ToCppCode(bool IsVector)
 			+ SizeModeToKUISizeMode(SizeMode)
 			+ ")";
 	}
-	return "kui::UISize(float("
+	return "kui::UISize("
 		+ stringParse::ToCppCode(SizeValue)
-		+ "), "
+		+ ", "
 		+ SizeModeToKUISizeMode(SizeMode)
 		+ ")";
 }

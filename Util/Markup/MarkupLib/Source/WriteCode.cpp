@@ -300,7 +300,8 @@ std::string kui::markup::ElementWriter::ToCppTypeName(stringParse::StringToken N
 
 void kui::markup::ElementWriter::WriteVariableSetter(std::ostream& Stream, UIElement::Variable& Var)
 {
-	Stream << "\tvoid Set" << Var.Token.Text << "(" << UIElement::Variable::Descriptions[Var.Type].CppName << " NewValue)\n\t{" << std::endl;
+	Stream << "\tvoid Set" << Var.Token.Text
+		<< "(" << UIElement::Variable::Descriptions[Var.Type].CppName << " NewValue)\n\t{" << std::endl;
 	Stream << "\t\t" << Var.Token.Text << " = NewValue;\n";
 	for (auto& i : Var.References)
 	{
@@ -345,6 +346,7 @@ void kui::markup::ElementWriter::WriteElementConstructor(std::ostream& Stream,
 
 void kui::markup::ElementWriter::WriteProperties(std::ostream& Stream, UIElement& Target, size_t Depth)
 {
+	// Built in default propertise
 	for (auto& Prop : Properties)
 	{
 		if (!IsSubclassOf(GetTypeFromString(Target.TypeName), Prop.Type))
@@ -367,10 +369,27 @@ void kui::markup::ElementWriter::WriteProperties(std::ostream& Stream, UIElement
 			WriteProperty(stringParse::StringToken(Prop.Default, 0, 0), Prop, Stream, Target, Depth);
 		}
 	}
+
+	// User defined properties via variables
+	if (!UIElement::IsDefaultElement(Target.TypeName))
+	{
+		auto ParentType = Parsed->GetElement(Target.TypeName);
+
+		for (auto& v : ParentType->Root.Variables)
+		{
+			for (auto& p : Target.ElementProperties)
+			{
+				if (v.first == p.Name)
+				{
+					WriteSetVariable(p.Value, v.second, Stream, Target, Depth);
+				}
+			}
+		}
+	}
 }
 
-void kui::markup::ElementWriter::WriteProperty(stringParse::StringToken Value, PropertyElement& FoundProperty, std::ostream& Stream,
-	UIElement& Target, size_t Depth)
+void kui::markup::ElementWriter::WriteProperty(stringParse::StringToken Value, PropertyElement& FoundProperty,
+	std::ostream& Stream, UIElement& Target, size_t Depth)
 {
 	std::string TargetName = Target.ElementName.Text;
 
@@ -420,12 +439,66 @@ void kui::markup::ElementWriter::WriteProperty(stringParse::StringToken Value, P
 			SetValue = kui::stringParse::ToCppCode(Result.Value);
 		}
 
-		std::string Format = Target.ElementName.Text + "->" + Format::FormatString(FormatString, { Format::FormatArg("val", SetValue) });
+		std::string Format = Target.ElementName.Text + "->"
+			+ Format::FormatString(FormatString, { Format::FormatArg("val", SetValue) });
 
 		Stream << RepeatedTabs(Depth) + Format + ";\n";
 		if (Result.Variable)
 		{
 			Result.Variable->References.push_back(Target.ElementName.Text + "->" + FormatString);
 		}
+	}
+}
+
+void kui::markup::ElementWriter::WriteSetVariable(stringParse::StringToken Value, UIElement::Variable& FoundVariable,
+	std::ostream& Stream, UIElement& Target, size_t Depth)
+{
+	if (FoundVariable.Type == VariableType::None)
+	{
+		return;
+	}
+
+	std::string TargetName = Target.ElementName.Text;
+
+	auto Result = ConvertValue(&Target, &ToWrite->Root, Value, FoundVariable.Type, *Parsed);
+
+	std::string SetFormat = TargetName + "->Set" + FoundVariable.Token.Text + "({val})";
+
+	if (Result.IsTranslated)
+	{
+		ToWrite->Root.TranslatedProperties.push_back(Property(
+			StringToken(SetFormat, 0, 0), Result.Value));
+	}
+	if (Result.ValueGlobal)
+	{
+		ToWrite->Root.GlobalProperties.push_back(Property(StringToken(SetFormat, 0, 0), Result.Value));
+	}
+	std::string SetValue;
+
+	if (Result.ValueGlobal)
+	{
+		SetValue = Result.Value.Text;
+	}
+	else if (Result.Variable)
+	{
+		SetValue = Result.Value.Text;
+	}
+	else if (FoundVariable.Type == VariableType::Size
+		|| FoundVariable.Type == VariableType::SizeNumber)
+	{
+		auto val = Size(Value);
+		SetValue = val.ToCppCode(FoundVariable.Type == VariableType::Size);
+	}
+	else
+	{
+		SetValue = kui::stringParse::ToCppCode(Result.Value);
+	}
+
+	std::string Format = Format::FormatString(SetFormat, { Format::FormatArg("val", SetValue) });
+
+	Stream << RepeatedTabs(Depth) + Format + ";\n";
+	if (Result.Variable)
+	{
+		Result.Variable->References.push_back(SetFormat);
 	}
 }

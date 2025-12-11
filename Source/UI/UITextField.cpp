@@ -111,14 +111,16 @@ void UITextField::Tick()
 		if (!ParentWindow->Input.PollForText)
 		{
 			IsEdited = false;
-			if (OnChanged) ParentWindow->UI.ButtonEvents.push_back(UIManager::ButtonEvent(OnChanged, nullptr, 0));
+			if (OnChanged)
+				ParentWindow->UI.ButtonEvents.push_back(UIManager::ButtonEvent(OnChanged, nullptr, 0));
 			RedrawElement();
 		}
 		if (!IsHovered && ParentWindow->Input.IsLMBDown && !Dragging)
 		{
 			IsEdited = false;
 			ParentWindow->Input.PollForText = false;
-			if (OnChanged) ParentWindow->UI.ButtonEvents.push_back(UIManager::ButtonEvent(OnChanged, nullptr, 0));
+			if (OnChanged)
+				ParentWindow->UI.ButtonEvents.push_back(UIManager::ButtonEvent(OnChanged, nullptr, 0));
 			RedrawElement();
 		}
 	}
@@ -129,6 +131,11 @@ void UITextField::Tick()
 
 	if (NewText != TextObject->GetText())
 	{
+		if (IsEdited)
+		{
+			if (OnValueChanged)
+				ParentWindow->UI.ButtonEvents.push_back(UIManager::ButtonEvent(OnValueChanged, nullptr, 0));
+		}
 		TextObject->SetText(NewText);
 		RedrawElement();
 	}

@@ -21,7 +21,6 @@ namespace kui
 		Font* EditorFont = nullptr;
 
 		void UpdateContent();
-		UIText* BuildChunk(size_t Position, size_t Length);
 		void Update() override;
 
 		void Tick() override;
@@ -32,6 +31,7 @@ namespace kui
 		Vec2f EditorToScreen(EditorPosition Position);
 
 		EditorPosition Insert(std::string NewString, EditorPosition At, bool Raw);
+		EditorPosition InsertAtCursor(std::string NewString, bool Raw);
 		void Erase(EditorPosition Begin, EditorPosition End, bool DoCommit = true);
 		void Get(EditorPosition Begin, size_t Length, std::vector<TextSegment>& To, bool IncludeUnloaded = false);
 
@@ -97,6 +97,7 @@ namespace kui
 		Timer CursorTimer;
 
 		void UpdateSelectionBeam();
+		UIText* BuildChunk(size_t Position, size_t Length);
 
 		void ClearEmptyLineEntries(size_t Index);
 		void AdjustSelection(EditorPosition& Position, bool DirectionForward);

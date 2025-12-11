@@ -110,7 +110,7 @@ void kui::FileEditorProvider::GetPreLine(size_t LineIndex, std::vector<TextSegme
 	str.resize(6 - Length, ' ');
 	str.append(std::to_string(LineIndex + 1));
 	str.resize(8, ' ');
-	To.push_back(TextSegment(str, 0.75f));
+	To.push_back(TextSegment(str, LineNumberColor));
 }
 
 void kui::FileEditorProvider::GetLine(size_t LineIndex, std::vector<TextSegment>& To)
@@ -265,7 +265,7 @@ void kui::FileEditorProvider::GetHighlightsForRange(size_t Begin, size_t Length)
 			.Start = i.first,
 			.End = i.second,
 			.Mode = HighlightMode::HighlightLines,
-			.Color = 0.5f,
+			.Color = BacketAreaColor,
 			});
 	}
 }

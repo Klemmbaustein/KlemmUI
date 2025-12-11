@@ -33,6 +33,8 @@ namespace kui
 		Vec3f TextColor = 1;
 		Vec3f StringColor = Vec3f(0.5f, 1.0f, 0.2f);
 		Vec3f NumberColor = Vec3f(0.5f, 0.7f, 1.0f);
+		Vec3f LineNumberColor = 0.75f;
+		Vec3f BacketAreaColor = 0.5f;
 
 		HighlightedArea Area;
 

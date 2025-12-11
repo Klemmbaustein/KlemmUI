@@ -545,7 +545,8 @@ UIText* kui::UITextEditor::BuildChunk(size_t Position, size_t Length)
 		}
 	}
 
-	size_t ChunkWidth = size_t(UISize::Pixels(this->GetUsedSize().GetPixels().X - 20).GetScreen().X / CharSize.X);
+	size_t ChunkWidth = size_t(UISize::Pixels(this->GetUsedSize().GetPixels().X
+		- EditorScrollBox->ScrollBarWidth).GetScreen().X / CharSize.X);
 
 	ChunkWidth -= EditorProvider->GetPreLineSize();
 
@@ -807,19 +808,26 @@ void kui::UITextEditor::TickInput()
 	{
 		DeleteSelection();
 
-		if (SelectionEnd == SelectionStart)
-		{
-			SnapColumn(SelectionEnd);
-			SelectionStart = SelectionEnd;
-		}
+		InsertAtCursor(NewText, true);
 
-		SelectionEnd = Insert(NewText, SelectionStart, NewText.size() > 4);
-		SelectionStart = SelectionEnd;
-		CurrentEditor->ScrollTo(CurrentEditor->SelectionEnd);
-		this->CursorTimer.Reset();
 		NewText.clear();
 		this->UpdateContent();
 	}
+}
+
+EditorPosition kui::UITextEditor::InsertAtCursor(std::string NewString, bool Raw)
+{
+	if (SelectionEnd == SelectionStart)
+	{
+		SnapColumn(SelectionEnd);
+		SelectionStart = SelectionEnd;
+	}
+
+	SelectionEnd = Insert(NewString, SelectionStart, NewString.size() > 4);
+	SelectionStart = SelectionEnd;
+	CurrentEditor->ScrollTo(CurrentEditor->SelectionEnd);
+	this->CursorTimer.Reset();
+	return SelectionEnd;
 }
 
 EditorPosition kui::UITextEditor::Insert(std::string NewString, EditorPosition At, bool Raw)

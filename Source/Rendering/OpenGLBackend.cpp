@@ -11,6 +11,8 @@ bool render::OpenGLBackend::UseAlphaBuffer = false;
 
 kui::render::OpenGLBackend::OpenGLBackend()
 {
+	UITextures[0] = 0;
+	UITextures[1] = 0;
 }
 
 kui::render::OpenGLBackend::~OpenGLBackend()
@@ -417,7 +419,7 @@ void kui::render::GLDrawableText::Draw(ScrollObject* CurrentScrollObject, Vec2f 
 
 unsigned int kui::render::OpenGLBackend::CreateTexture(uint8_t* Bytes, std::size_t Width, std::size_t Height)
 {
-	GLuint TextureID;
+	GLuint TextureID = 0;
 	glGenTextures(1, &TextureID);
 	glBindTexture(GL_TEXTURE_2D, TextureID);
 

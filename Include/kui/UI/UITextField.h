@@ -44,6 +44,7 @@ namespace kui
 		UITextField* SetAllowNewLine(bool NewValue);
 		UITextField* SetCanEdit(bool NewValue);
 		std::function<void()> OnChanged = nullptr;
+		std::function<void()> OnValueChanged = nullptr;
 		UIBox* ParentOverride = nullptr;
 		bool GetIsEdited() const { return IsEdited; }
 		UITextField* SetText(std::string NewText);

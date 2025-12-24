@@ -36,9 +36,9 @@ namespace kui
 		};
 		ButtonState CurrentButtonState = ButtonState::Normal;
 		void Tick() override;
-		virtual void OnButtonClicked();
 	public:
 
+		virtual void OnButtonClicked();
 		std::function<void()> OnClicked = nullptr;
 		std::function<void(int)> OnClickedIndex = nullptr;
 		int ButtonIndex = 0;

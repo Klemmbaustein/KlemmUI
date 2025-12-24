@@ -168,7 +168,7 @@ void kui::UITextEditor::AddLine(size_t Index, const std::vector<TextSegment>& Ne
 
 void kui::UITextEditor::EraseLine()
 {
-	auto& Line = GetLine(SelectionStart.Line);
+	auto& Line = GetLine(SelectionEnd.Line);
 
 	std::vector<TextSegment> EndOfLine;
 	Get(SelectionEnd, Line.Length, EndOfLine);
@@ -179,11 +179,11 @@ void kui::UITextEditor::EraseLine()
 
 	auto& NextLine = Lines[this->SelectionEnd.Line];
 	SelectionEnd.Column = NextLine.Length;
-	ClearSelection();
 
 	for (auto& i : EndOfLine)
 		NextLine.Data.push_back(i);
 	EditorProvider->SetLine(this->SelectionEnd.Line, NextLine.Data);
+	ClearSelection();
 	EditorProvider->Commit();
 }
 
@@ -399,7 +399,6 @@ void kui::UITextEditor::DeleteSelection()
 	if (SelectionStart.Column == SelectionEnd.Column && SelectionStart.Line == SelectionEnd.Line)
 		return;
 	Erase(SelectionStart, SelectionEnd);
-	ClearSelection();
 }
 
 void kui::UITextEditor::DeleteChar()
@@ -620,8 +619,12 @@ size_t kui::UITextEditor::GetLoadedLines()
 void kui::UITextEditor::FullRefresh()
 {
 	this->UpdateHighlights = true;
-	Highlighted.clear();
 	this->Lines.clear();
+}
+
+void kui::UITextEditor::RefreshHighlights()
+{
+	this->UpdateHighlights = true;
 }
 
 bool kui::UITextEditor::IsLineLoaded(size_t Index)
@@ -806,12 +809,16 @@ void kui::UITextEditor::TickInput()
 	auto& NewText = Input.Text;
 	if (NewText.size())
 	{
-		DeleteSelection();
+		std::string Transformed = EditorProvider->ProcessInput(NewText);
+		if (Transformed.size())
+		{
+			DeleteSelection();
 
-		InsertAtCursor(NewText, true);
+			InsertAtCursor(Transformed, Transformed.size() > 4);
+			UpdateContent();
+		}
 
 		NewText.clear();
-		this->UpdateContent();
 	}
 }
 
@@ -823,14 +830,14 @@ EditorPosition kui::UITextEditor::InsertAtCursor(std::string NewString, bool Raw
 		SelectionStart = SelectionEnd;
 	}
 
-	SelectionEnd = Insert(NewString, SelectionStart, NewString.size() > 4);
+	SelectionEnd = Insert(NewString, SelectionStart, Raw);
 	SelectionStart = SelectionEnd;
 	CurrentEditor->ScrollTo(CurrentEditor->SelectionEnd);
 	this->CursorTimer.Reset();
 	return SelectionEnd;
 }
 
-EditorPosition kui::UITextEditor::Insert(std::string NewString, EditorPosition At, bool Raw)
+EditorPosition kui::UITextEditor::Insert(std::string NewString, EditorPosition At, bool Raw, bool Commit)
 {
 	if (NewString.empty())
 	{
@@ -849,7 +856,7 @@ EditorPosition kui::UITextEditor::Insert(std::string NewString, EditorPosition A
 			OldIndent = TextSegment::CombineToString(LineData);
 			OldIndent = OldIndent.substr(0, OldIndent.find_first_not_of("\t "));
 		}
-		auto NewLinePos = Insert(NewString.substr(0, NewLine), At, Raw);
+		auto NewLinePos = Insert(NewString.substr(0, NewLine), At, Raw, false);
 
 		InsertNewLine(NewLinePos, false);
 		NewLinePos.Line++;
@@ -862,7 +869,10 @@ EditorPosition kui::UITextEditor::Insert(std::string NewString, EditorPosition A
 		LineData.push_back(TextSegment(NewString, 1));
 		GetLine(At.Line).Length = NewString.size();
 		EditorProvider->SetLine(At.Line, LineData);
-		EditorProvider->Commit();
+		if (Commit)
+		{
+			EditorProvider->Commit();
+		}
 		return EditorPosition(NewString.size(), At.Line);
 	}
 
@@ -882,7 +892,10 @@ EditorPosition kui::UITextEditor::Insert(std::string NewString, EditorPosition A
 	}
 	EditorProvider->SetLine(At.Line, LineData);
 	GetLine(At.Line).Length += NewString.size();
-	EditorProvider->Commit();
+	if (Commit)
+	{
+		EditorProvider->Commit();
+	}
 	return EditorPosition(ReturnColumn, At.Line);
 }
 
@@ -952,8 +965,6 @@ void kui::UITextEditor::Erase(EditorPosition Begin, EditorPosition End, bool DoC
 		std::swap(Begin, End);
 	}
 
-	this->SelectionStart = Begin;
-
 	for (size_t it = Begin.Line; it <= End.Line; it++)
 	{
 		auto& Line = this->GetLine(it);
@@ -979,10 +990,26 @@ void kui::UITextEditor::Erase(EditorPosition Begin, EditorPosition End, bool DoC
 			EditorProvider->SetLine(it - 1, LastLine);
 			EditorProvider->RemoveLines(it, 1);
 			Lines.erase(Lines.begin() + it);
+			if (SelectionStart.Line >= End.Line)
+			{
+				SelectionStart.Line--;
+			}
+			if (SelectionEnd.Line >= End.Line)
+			{
+				SelectionEnd.Line--;
+			}
 		}
 		else
 		{
 			Lines.erase(Lines.begin() + it);
+			if (SelectionStart.Line >= End.Line)
+			{
+				SelectionStart.Line--;
+			}
+			if (SelectionEnd.Line >= End.Line)
+			{
+				SelectionEnd.Line--;
+			}
 			it--;
 			End.Line--;
 			EditorProvider->RemoveLines(it, 1);
@@ -997,7 +1024,7 @@ void kui::UITextEditor::Erase(EditorPosition Begin, EditorPosition End, bool DoC
 
 void kui::UITextEditor::ClearSelection()
 {
-	this->SelectionStart = SelectionEnd;
+	SelectionStart = SelectionEnd;
 	UpdateSelectionHighlights();
 }
 
@@ -1143,7 +1170,7 @@ void kui::UITextEditor::Get(EditorPosition Begin, size_t Length, std::vector<Tex
 	}
 }
 
-EditorPosition kui::UITextEditor::ScreenToEditor(Vec2f Position)
+EditorPosition kui::UITextEditor::ScreenToEditor(Vec2f Position, bool SnapToEnd)
 {
 	Position.X += CharSize.X / 2;
 
@@ -1163,7 +1190,7 @@ EditorPosition kui::UITextEditor::ScreenToEditor(Vec2f Position)
 	size_t PosX = size_t(Pos.X);
 	size_t PosY = size_t(Pos.Y);
 
-	return GridToCharacterPos(EditorPosition(PosX, PosY));
+	return GridToCharacterPos(EditorPosition(PosX, PosY), SnapToEnd);
 }
 
 Vec2f kui::UITextEditor::EditorToScreen(EditorPosition Position)

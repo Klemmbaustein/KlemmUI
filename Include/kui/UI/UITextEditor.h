@@ -27,10 +27,10 @@ namespace kui
 
 		Vec2f CharSize = 0;
 
-		EditorPosition ScreenToEditor(Vec2f Position);
+		EditorPosition ScreenToEditor(Vec2f Position, bool SnapToEnd = true);
 		Vec2f EditorToScreen(EditorPosition Position);
 
-		EditorPosition Insert(std::string NewString, EditorPosition At, bool Raw);
+		EditorPosition Insert(std::string NewString, EditorPosition At, bool Raw, bool Commit = true);
 		EditorPosition InsertAtCursor(std::string NewString, bool Raw);
 		void Erase(EditorPosition Begin, EditorPosition End, bool DoCommit = true);
 		void Get(EditorPosition Begin, size_t Length, std::vector<TextSegment>& To, bool IncludeUnloaded = false);
@@ -90,6 +90,8 @@ namespace kui
 		EditorPosition GridToCharacterPos(EditorPosition GridPos, bool SnapToEnd = true);
 		size_t LinesStart = 0;
 		size_t GetLoadedLines();
+
+		void RefreshHighlights();
 
 	private:
 

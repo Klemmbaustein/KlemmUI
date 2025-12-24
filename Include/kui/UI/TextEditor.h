@@ -25,6 +25,11 @@ namespace kui
 		virtual void Commit() {}
 		void UpdateLine(size_t Index, const std::vector<TextSegment>& NewContent);
 
+		virtual std::string ProcessInput(std::string Text)
+		{
+			return Text;
+		}
+
 		UITextEditor* ParentEditor = nullptr;
 	};
 

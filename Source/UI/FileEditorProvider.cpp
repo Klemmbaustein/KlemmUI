@@ -139,48 +139,83 @@ void kui::FileEditorProvider::GetLine(size_t LineIndex, std::vector<TextSegment>
 	TextSegment Current = TextSegment("", 1);
 	std::string CurrentWord;
 	bool IsString = false;
+	bool IsComment = false;
+	bool LastWasComment = false;
 
-	auto ProcessWord = [this, &CurrentWord, &IsString, &Current, &To]()
+	auto ProcessWord = [this, &CurrentWord, &IsString, &Current, &To, &IsComment]()
+	{
+		if (!CurrentWord.empty())
 		{
-			if (!CurrentWord.empty())
+			Vec3f NewColor = TextColor;
+			if (Keywords.contains(CurrentWord))
 			{
-				Vec3f NewColor = TextColor;
-				if (Keywords.contains(CurrentWord))
+				NewColor = KeywordColor;
+			}
+			else if (IsString)
+			{
+				NewColor = StringColor;
+			}
+			else if (IsComment)
+			{
+				NewColor = CommentColor;
+			}
+			else
+			{
+				bool IsDigit = true;
+				for (auto& i : CurrentWord)
 				{
-					NewColor = KeywordColor;
-				}
-				else if (IsString)
-				{
-					NewColor = StringColor;
-				}
-				else
-				{
-					bool IsDigit = true;
-					for (auto& i : CurrentWord)
+					if (uint8_t(i) > 127 || (!std::isdigit(i) && i != '.' && i != '-'))
 					{
-						if (uint8_t(i) > 127 || (!std::isdigit(i) && i != '.' && i != '-'))
-						{
-							IsDigit = false;
-						}
-					}
-					if (IsDigit)
-					{
-						NewColor = NumberColor;
+						IsDigit = false;
 					}
 				}
-
-				if (NewColor != Current.Color)
+				if (IsDigit)
 				{
-					To.push_back(Current);
-					Current.Text.clear();
-					Current.Color = NewColor;
+					NewColor = NumberColor;
 				}
 			}
-		};
+
+			if (NewColor != Current.Color)
+			{
+				To.push_back(Current);
+				Current.Text.clear();
+				Current.Color = NewColor;
+			}
+		}
+		Current.Text.append(CurrentWord);
+		CurrentWord.clear();
+	};
 
 	for (char c : Highlighted)
 	{
-		if ((IsString && c == '"')
+		if (c == '/' && !IsComment && !IsString)
+		{
+			if (LastWasComment)
+			{
+				ProcessWord();
+				CurrentWord.push_back('/');
+				CurrentWord.push_back('/');
+				IsComment = true;
+			}
+			else
+			{
+				LastWasComment = true;
+			}
+			continue;
+		}
+		if (IsComment)
+		{
+			CurrentWord.push_back(c);
+			continue;
+		}
+		if (LastWasComment)
+		{
+			ProcessWord();
+			CurrentWord.push_back('/');
+			LastWasComment = false;
+		}
+
+		if ((IsString && c == '"') || IsComment
 			|| (!IsString && (c == ' ' || c == '\t' || SpecialChars.contains(c))))
 		{
 			if (IsString)
@@ -190,8 +225,6 @@ void kui::FileEditorProvider::GetLine(size_t LineIndex, std::vector<TextSegment>
 
 			ProcessWord();
 
-			Current.Text.append(CurrentWord);
-			CurrentWord.clear();
 			if (!IsString)
 			{
 				if (c != ' ' && c != '\t' && TextColor != Current.Color)
@@ -215,7 +248,6 @@ void kui::FileEditorProvider::GetLine(size_t LineIndex, std::vector<TextSegment>
 	}
 
 	ProcessWord();
-	Current.Text.append(CurrentWord);
 	To.push_back(Current);
 }
 

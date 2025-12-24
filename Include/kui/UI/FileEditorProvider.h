@@ -35,10 +35,12 @@ namespace kui
 		Vec3f NumberColor = Vec3f(0.5f, 0.7f, 1.0f);
 		Vec3f LineNumberColor = 0.75f;
 		Vec3f BacketAreaColor = 0.5f;
+		Vec3f CommentColor = 0.5f;
 
 		HighlightedArea Area;
 
 		std::set<std::string> Keywords;
+		bool HighlightComments = false;
 
 		std::vector<std::pair<EditorPosition, EditorPosition>> BracketAreas;
 

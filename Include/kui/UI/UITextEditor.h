@@ -33,7 +33,18 @@ namespace kui
 		EditorPosition Insert(std::string NewString, EditorPosition At, bool Raw, bool Commit = true);
 		EditorPosition InsertAtCursor(std::string NewString, bool Raw);
 		void Erase(EditorPosition Begin, EditorPosition End, bool DoCommit = true);
+		void EraseLocking(EditorPosition Begin, EditorPosition End, bool DoCommit = true)
+		{
+			std::lock_guard g{ LinesMutex };
+			Erase(Begin, End, DoCommit);
+		}
+
 		void Get(EditorPosition Begin, size_t Length, std::vector<TextSegment>& To, bool IncludeUnloaded = false);
+		void GetLocking(EditorPosition Begin, size_t Length, std::vector<TextSegment>& To, bool IncludeUnloaded = false)
+		{
+			std::lock_guard g{ LinesMutex };
+			Get(Begin, Length, To, IncludeUnloaded);
+		}
 
 		void NewLine();
 		void EraseLine();
@@ -77,7 +88,7 @@ namespace kui
 
 		bool UpdateHighlights = false;
 
-		std::mutex LinesMutex;
+		mutable std::mutex LinesMutex;
 
 		friend struct HighlightedArea;
 

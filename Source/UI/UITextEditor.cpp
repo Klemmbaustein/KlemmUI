@@ -367,6 +367,8 @@ void kui::UITextEditor::ColorizeLine(size_t Line, const std::vector<EditorColori
 	auto& LineData = GetLine(Line);
 	NewLine.reserve(LineData.Data.size() + Segments.size());
 
+	size_t Length = TextSegment::Length(LineData.Data);
+
 	size_t Position = 0;
 
 	for (auto& i : Segments)
@@ -384,6 +386,11 @@ void kui::UITextEditor::ColorizeLine(size_t Line, const std::vector<EditorColori
 		NewLine.push_back(TextSegment(TextSegment::CombineToString(ColorizedText), i.Color));
 
 		Position += i.Offset + i.Length;
+
+		if (Position > Length)
+		{
+			break;
+		}
 	}
 
 	Get(EditorPosition{
@@ -519,7 +526,13 @@ void kui::UITextEditor::Draw(render::RenderBackend* With)
 
 UIText* kui::UITextEditor::BuildChunk(size_t Position, size_t Length)
 {
+	std::lock_guard g{ LinesMutex };
 	Position -= LinesStart;
+
+	if (Position > Lines.size())
+	{
+		return new UIText(12_px, 0, "", nullptr);
+	}
 
 	if (Lines.size() < Position + Length)
 	{
@@ -1074,6 +1087,7 @@ void kui::UITextEditor::SetLine(size_t Index, const std::vector<TextSegment>& Ne
 
 void kui::UITextEditor::InsertNewLine(EditorPosition At, bool Commit)
 {
+	std::lock_guard g{ LinesMutex };
 	auto& Line = GetLine(At.Line);
 
 	auto EraseEnd = At;

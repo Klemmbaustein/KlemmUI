@@ -49,7 +49,6 @@ namespace kui
 
 		void ForceUpdateUI();
 		void InitUI();
-		unsigned int GetUIFramebuffer() const;
 		void RedrawUI();
 		void ClearUI();
 		bool GetShouldRedrawUI() const;

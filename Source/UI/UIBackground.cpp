@@ -54,10 +54,6 @@ float kui::UIBackground::GetBorderSize(UISize InSize)
 	}
 }
 
-void kui::UIBackground::FreeVertexBuffer()
-{
-}
-
 UIBackground* UIBackground::SetOpacity(float NewOpacity)
 {
 	if (NewOpacity != State->Opacity)

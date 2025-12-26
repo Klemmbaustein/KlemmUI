@@ -15,7 +15,6 @@ UIManager::UIManager()
 
 UIManager::~UIManager()
 {
-	UIBackground::FreeVertexBuffer();
 	ClearUI();
 	delete Render;
 }
@@ -45,11 +44,6 @@ void UIManager::InitUI()
 	}
 	Render->CreateBuffer(Window::GetActiveWindow()->GetSize());
 	RedrawUI();
-}
-
-unsigned int UIManager::GetUIFramebuffer() const
-{
-	return 0;
 }
 
 void UIManager::RedrawUI()

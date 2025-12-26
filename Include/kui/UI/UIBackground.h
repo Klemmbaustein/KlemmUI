@@ -46,8 +46,6 @@ namespace kui
 	public:
 		static float GetBorderSize(UISize InSize);
 
-		static void FreeVertexBuffer();
-
 		/**
 		 * @brief
 		 * Checks if this background has an image applied to it.

@@ -4,6 +4,7 @@
 #include "TextEditorHighlight.h"
 #include <utility>
 #include <set>
+#include <stack>
 
 namespace kui
 {
@@ -26,6 +27,10 @@ namespace kui
 
 		void UpdateBracketAreas();
 
+		void Undo();
+		void Redo();
+		void Commit() override;
+
 		void DumpContent();
 		std::string GetContent();
 
@@ -37,8 +42,6 @@ namespace kui
 		Vec3f BacketAreaColor = 0.5f;
 		Vec3f CommentColor = 0.5f;
 
-		HighlightedArea Area;
-
 		std::set<std::string> Keywords;
 		bool HighlightComments = false;
 
@@ -46,6 +49,28 @@ namespace kui
 
 	protected:
 		std::vector<std::string> Lines;
+	private:
+
+		struct ChangePart
+		{
+			uint64_t Line;
+			std::string Content;
+			bool IsRemove = false;
+			bool IsAdd = false;
+		};
+
+		struct Change
+		{
+			std::vector<ChangePart> Parts;
+		};
+
+		Change ApplyChange(const Change& Target);
+
+		Change NextChange;
+
+		std::stack<Change> Changes;
+		std::stack<Change> UnDoneChanges;
+
 	};
 }
 #endif

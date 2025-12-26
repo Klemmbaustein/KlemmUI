@@ -50,6 +50,11 @@ kui::FileEditorProvider::FileEditorProvider(std::string Path)
 		}
 	}
 
+	if (this->Lines.empty())
+	{
+		this->Lines.push_back({});
+	}
+
 	Keywords = {
 	"int",
 	"float",
@@ -263,6 +268,12 @@ size_t kui::FileEditorProvider::GetPreLineSize()
 
 void kui::FileEditorProvider::RemoveLines(size_t Start, size_t Length)
 {
+	NextChange.Parts.push_back(ChangePart{
+		.Line = Start,
+		.Content = Lines[Start],
+		.IsRemove = true,
+		});
+
 	this->Lines.erase(this->Lines.begin() + Start, this->Lines.begin() + Start + Length);
 	UpdateBracketAreas();
 	this->ParentEditor->UpdateHighlights = true;
@@ -270,6 +281,12 @@ void kui::FileEditorProvider::RemoveLines(size_t Start, size_t Length)
 
 void kui::FileEditorProvider::SetLine(size_t Index, const std::vector<TextSegment>& NewLine)
 {
+	NextChange.Parts.push_back(ChangePart{
+		.Line = Index,
+		.Content = this->Lines[Index],
+		});
+	UnDoneChanges = {};
+
 	this->Lines[Index] = TextSegment::CombineToString(NewLine);
 	UpdateBracketAreas();
 	this->ParentEditor->UpdateHighlights = true;
@@ -280,6 +297,11 @@ void kui::FileEditorProvider::SetLine(size_t Index, const std::vector<TextSegmen
 
 void kui::FileEditorProvider::InsertLine(size_t Index, const std::vector<TextSegment>& Content)
 {
+	NextChange.Parts.push_back(ChangePart{
+		.Line = Index,
+		.IsAdd = true,
+		});
+
 	this->Lines.insert(this->Lines.begin() + Index, TextSegment::CombineToString(Content));
 
 	UpdateBracketAreas();
@@ -330,6 +352,85 @@ void kui::FileEditorProvider::OnLoaded()
 
 void kui::FileEditorProvider::Update()
 {
+}
+
+void kui::FileEditorProvider::Undo()
+{
+	if (Changes.empty())
+	{
+		return;
+	}
+
+	auto& c = Changes.top();
+
+	UnDoneChanges.push(ApplyChange(c));
+	Changes.pop();
+	Commit();
+}
+
+void kui::FileEditorProvider::Redo()
+{
+	if (UnDoneChanges.empty())
+	{
+		return;
+	}
+
+	auto& c = UnDoneChanges.top();
+
+	Changes.push(ApplyChange(c));
+	UnDoneChanges.pop();
+	Commit();
+}
+
+void kui::FileEditorProvider::Commit()
+{
+	if (NextChange.Parts.size())
+	{
+		this->Changes.push(NextChange);
+	}
+
+	NextChange = Change();
+}
+
+kui::FileEditorProvider::Change kui::FileEditorProvider::ApplyChange(const Change& Target)
+{
+	Change DoneChanges;
+
+	for (auto p = Target.Parts.rbegin(); p < Target.Parts.rend(); p++)
+	{
+		if (p->IsAdd)
+		{
+			DoneChanges.Parts.push_back(ChangePart{
+				.Line = p->Line,
+				.Content = this->Lines[p->Line],
+				.IsRemove = true,
+				});
+			ParentEditor->RemoveLine(p->Line);
+		}
+		else if (p->IsRemove)
+		{
+			DoneChanges.Parts.push_back(ChangePart{
+				.Line = p->Line,
+				.IsAdd = true,
+				});
+			std::vector<TextSegment> s = { TextSegment(p->Content, 1) };
+			ParentEditor->AddLine(p->Line, s);
+		}
+		else
+		{
+			DoneChanges.Parts.push_back(ChangePart{
+				.Line = p->Line,
+				.Content = this->Lines[p->Line],
+				});
+			std::vector<TextSegment> s = { TextSegment(p->Content, 1) };
+			SetLine(p->Line, s);
+			this->Lines[p->Line] = p->Content;
+		}
+	}
+
+	NextChange = {};
+
+	return DoneChanges;
 }
 
 #endif

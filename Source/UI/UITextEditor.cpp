@@ -91,13 +91,15 @@ kui::UITextEditor::UITextEditor(ITextEditorProvider* EditorProvider, Font* Edito
 	EditorScrollBox->SetMinSize(UISize::Parent(1));
 	EditorScrollBox->SetMaxSize(UISize::Parent(1));
 	EditorScrollBox->OnScroll = [this](UIScrollBox*)
+	{
+		this->UpdateContent();
+		for (auto& i : Highlighted)
 		{
-			this->UpdateContent();
-			for (auto& i : Highlighted)
-			{
-				i.GenerateSegments(this);
-			}
-		};
+			i.GenerateSegments(this);
+		}
+	};
+
+	SelectionColor = ParentWindow->Colors.TextFieldSelection;
 
 	EditorScrollBox->SetScrollSpeed(24);
 
@@ -121,7 +123,7 @@ kui::UITextEditor::UITextEditor(ITextEditorProvider* EditorProvider, Font* Edito
 
 	auto& SelectionArea = this->Highlighted.emplace_back();
 	SelectionArea.Priority = 0;
-	SelectionArea.Color = Vec3f(0.2f, 0.3f, 0.6f);
+	SelectionArea.Color = SelectionColor;
 	EditorProvider->GetHighlightsForRange(0, EditorProvider->GetLineCount());
 	CharSize = UIText::GetTextSizeAtScale(12_px, EditorFont);
 	this->EditorProvider->OnLoaded();
@@ -504,9 +506,9 @@ void kui::UITextEditor::Draw(render::RenderBackend* With)
 	if (HighlightsChanged)
 	{
 		std::sort(this->Highlighted.begin(), this->Highlighted.end(), [](HighlightedArea a, const HighlightedArea& b)
-			{
-				return a.Priority < b.Priority;
-			});
+		{
+			return a.Priority < b.Priority;
+		});
 	}
 	HighlightsChanged = false;
 
@@ -526,7 +528,6 @@ void kui::UITextEditor::Draw(render::RenderBackend* With)
 
 UIText* kui::UITextEditor::BuildChunk(size_t Position, size_t Length)
 {
-	std::lock_guard g{ LinesMutex };
 	Position -= LinesStart;
 
 	if (Position > Lines.size())
@@ -556,6 +557,7 @@ UIText* kui::UITextEditor::BuildChunk(size_t Position, size_t Length)
 			}
 		}
 	}
+	std::lock_guard g{ LinesMutex };
 
 	size_t ChunkWidth = size_t(UISize::Pixels(this->GetUsedSize().GetPixels().X
 		- EditorScrollBox->ScrollBarWidth).GetScreen().X / CharSize.X);
@@ -632,6 +634,7 @@ size_t kui::UITextEditor::GetLoadedLines()
 void kui::UITextEditor::FullRefresh()
 {
 	this->UpdateHighlights = true;
+	this->RefreshText = true;
 	this->Lines.clear();
 }
 
@@ -721,14 +724,13 @@ void kui::UITextEditor::Tick()
 {
 	TickInput();
 
-
 	if (UpdateHighlights)
 	{
 		this->Highlighted.clear();
 
 		auto& SelectionArea = this->Highlighted.emplace_back();
 		SelectionArea.Priority = 0;
-		SelectionArea.Color = Vec3f(0.2f, 0.3f, 0.6f);
+		SelectionArea.Color = SelectionColor;
 
 		EditorProvider->GetHighlightsForRange(0, EditorProvider->GetLineCount());
 		UpdateHighlights = false;
@@ -825,9 +827,9 @@ void kui::UITextEditor::TickInput()
 		std::string Transformed = EditorProvider->ProcessInput(NewText);
 		if (Transformed.size())
 		{
-			DeleteSelection();
+				DeleteSelection();
 
-			InsertAtCursor(Transformed, Transformed.size() > 4);
+				InsertAtCursor(Transformed, Transformed.size() > 4);
 			UpdateContent();
 		}
 
@@ -842,7 +844,6 @@ EditorPosition kui::UITextEditor::InsertAtCursor(std::string NewString, bool Raw
 		SnapColumn(SelectionEnd);
 		SelectionStart = SelectionEnd;
 	}
-
 	SelectionEnd = Insert(NewString, SelectionStart, Raw);
 	SelectionStart = SelectionEnd;
 	CurrentEditor->ScrollTo(CurrentEditor->SelectionEnd);
@@ -1087,7 +1088,6 @@ void kui::UITextEditor::SetLine(size_t Index, const std::vector<TextSegment>& Ne
 
 void kui::UITextEditor::InsertNewLine(EditorPosition At, bool Commit)
 {
-	std::lock_guard g{ LinesMutex };
 	auto& Line = GetLine(At.Line);
 
 	auto EraseEnd = At;
@@ -1139,7 +1139,8 @@ void kui::UITextEditor::ClearEmptyLineEntries(size_t Index)
 	}
 }
 
-void kui::UITextEditor::Get(EditorPosition Begin, size_t Length, std::vector<TextSegment>& To, bool IncludeUnloaded)
+void kui::UITextEditor::Get(EditorPosition Begin, size_t Length, std::vector<TextSegment>& To,
+	bool IncludeUnloaded, bool Locking)
 {
 	std::vector<TextSegment>* Line = nullptr;
 
@@ -1157,6 +1158,11 @@ void kui::UITextEditor::Get(EditorPosition Begin, size_t Length, std::vector<Tex
 		Line = &GetLine(Begin.Line).Data;
 	}
 
+	if (Locking)
+	{
+		LinesMutex.lock();
+	}
+
 	for (auto i = Line->begin(); i < Line->end(); i++)
 	{
 		if (Begin.Column <= i->Text.size())
@@ -1171,7 +1177,7 @@ void kui::UITextEditor::Get(EditorPosition Begin, size_t Length, std::vector<Tex
 
 				if (Length == 0)
 				{
-					return;
+					break;
 				}
 			}
 
@@ -1181,6 +1187,10 @@ void kui::UITextEditor::Get(EditorPosition Begin, size_t Length, std::vector<Tex
 		{
 			Begin.Column -= i->Text.size();
 		}
+	}
+	if (Locking)
+	{
+		LinesMutex.unlock();
 	}
 }
 

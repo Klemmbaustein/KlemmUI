@@ -27,6 +27,8 @@ namespace kui
 
 		Vec2f CharSize = 0;
 
+		Vec3f SelectionColor = Vec3f(0.2f, 0.3f, 0.6f);
+
 		EditorPosition ScreenToEditor(Vec2f Position, bool SnapToEnd = true);
 		Vec2f EditorToScreen(EditorPosition Position);
 
@@ -39,12 +41,8 @@ namespace kui
 			Erase(Begin, End, DoCommit);
 		}
 
-		void Get(EditorPosition Begin, size_t Length, std::vector<TextSegment>& To, bool IncludeUnloaded = false);
-		void GetLocking(EditorPosition Begin, size_t Length, std::vector<TextSegment>& To, bool IncludeUnloaded = false)
-		{
-			std::lock_guard g{ LinesMutex };
-			Get(Begin, Length, To, IncludeUnloaded);
-		}
+		void Get(EditorPosition Begin, size_t Length, std::vector<TextSegment>& To,
+			bool IncludeUnloaded = false, bool Locking = false);
 
 		void NewLine();
 		void EraseLine();
@@ -82,6 +80,12 @@ namespace kui
 		std::string GetSelectedText();
 
 		void ColorizeLine(size_t Line, const std::vector<EditorColorizeSegment>& Segments);
+
+		void ColorizeLineLocking(size_t Line, const std::vector<EditorColorizeSegment>& Segments)
+		{
+			std::lock_guard g{ LinesMutex };
+			ColorizeLine(Line, Segments);
+		}
 
 		EditorPosition SelectionStart;
 		EditorPosition SelectionEnd;

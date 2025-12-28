@@ -100,12 +100,13 @@ kui::UITextEditor::UITextEditor(ITextEditorProvider* EditorProvider, Font* Edito
 	};
 
 	SelectionColor = ParentWindow->Colors.TextFieldSelection;
+	CursorColor = ParentWindow->Colors.TextFieldTextDefaultColor;
 
 	EditorScrollBox->SetScrollSpeed(24);
 
 	AddChild(EditorScrollBox);
 
-	SelectorBeam = new UIBackground(true, 0, 1);
+	SelectorBeam = new UIBackground(true, 0, CursorColor);
 
 	this->HasMouseCollision = true;
 	this->EditorFont = EditorFont;
@@ -446,6 +447,7 @@ void kui::UITextEditor::UpdateContent()
 
 	CharSize = UIText::GetTextSizeAtScale(12_px, EditorFont);
 	SelectorBeam->SetMinSize(SizeVec(1_px, CharSize.Y));
+	SelectorBeam->SetColor(this->CursorColor);
 
 	size_t LineCount = EditorProvider->GetLineCount();
 
@@ -530,7 +532,7 @@ UIText* kui::UITextEditor::BuildChunk(size_t Position, size_t Length)
 {
 	Position -= LinesStart;
 
-	if (Position > Lines.size())
+	if (Position > EditorProvider->GetLineCount())
 	{
 		return new UIText(12_px, 0, "", nullptr);
 	}

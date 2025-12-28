@@ -28,6 +28,7 @@ namespace kui
 		Vec2f CharSize = 0;
 
 		Vec3f SelectionColor = Vec3f(0.2f, 0.3f, 0.6f);
+		Vec3f CursorColor = 1;
 
 		EditorPosition ScreenToEditor(Vec2f Position, bool SnapToEnd = true);
 		Vec2f EditorToScreen(EditorPosition Position);

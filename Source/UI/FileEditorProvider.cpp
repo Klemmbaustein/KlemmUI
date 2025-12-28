@@ -4,6 +4,7 @@
 #include <fstream>
 #include <kui/App.h>
 #include <iostream>
+#include <kui/Window.h>
 #include <stack>
 
 kui::FileEditorProvider::FileEditorProvider(std::string Path)
@@ -285,8 +286,11 @@ void kui::FileEditorProvider::SetLine(size_t Index, const std::vector<TextSegmen
 		.Line = Index,
 		.Content = this->Lines[Index],
 		});
-	UnDoneChanges = {};
 
+	if (!ParentEditor->GetParentWindow()->Input.Text.empty())
+	{
+		UnDoneChanges = {};
+	}
 	this->Lines[Index] = TextSegment::CombineToString(NewLine);
 	UpdateBracketAreas();
 	this->ParentEditor->UpdateHighlights = true;

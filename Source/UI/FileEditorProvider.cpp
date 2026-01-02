@@ -252,6 +252,12 @@ void kui::FileEditorProvider::GetLine(size_t LineIndex, std::vector<TextSegment>
 			CurrentWord.push_back(c);
 		}
 	}
+	if (LastWasComment && !IsComment)
+	{
+		ProcessWord();
+		CurrentWord.push_back('/');
+		LastWasComment = false;
+	}
 
 	ProcessWord();
 	To.push_back(Current);

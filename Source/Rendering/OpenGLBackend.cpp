@@ -405,10 +405,10 @@ void kui::render::GLDrawableText::Draw(ScrollObject* CurrentScrollObject, Vec2f 
 	TextShader->SetFloat("u_opacity", Opacity);
 	if (CurrentScrollObject != nullptr)
 	{
-		auto Pos = CurrentScrollObject->GetPosition();
+		auto ScrollPos = CurrentScrollObject->GetPosition();
 
 		TextShader->SetVec3("u_offset",
-			Vec3f(-CurrentScrollObject->GetOffset(), Pos.Y, CurrentScrollObject->GetScale().Y));
+			Vec3f(-CurrentScrollObject->GetOffset(), ScrollPos.Y, CurrentScrollObject->GetScale().Y));
 	}
 	else
 		TextShader->SetVec3("u_offset", Vec3f(0.0f, -1000.0f, 1000.0f));

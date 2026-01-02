@@ -140,7 +140,7 @@ namespace kui
 		bool DraggingSelection = false;
 		bool HighlightsChanged = false;
 
-		size_t EditorLineSize = 25;
+		size_t EditorLineSize = 5;
 
 		std::vector<LineEntry> Lines;
 		UIBackground* SelectorBeam = nullptr;

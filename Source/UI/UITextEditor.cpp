@@ -775,7 +775,8 @@ void kui::UITextEditor::Tick()
 	{
 		auto NewPosition = ScreenToEditor(Input.MousePosition);
 
-		if (NewPosition == SelectionStart && Input.IsLMBClicked && DoubleClickTimer.Get() < 0.5f)
+		if (NewPosition == CursorDragStart && Input.IsLMBClicked
+			&& DoubleClickTimer.Get() < 0.5f)
 		{
 			SelectionMode = SelectMode((int(SelectionMode) + 1) % 4);
 		}
@@ -787,9 +788,11 @@ void kui::UITextEditor::Tick()
 		DoubleClickTimer.Reset();
 
 		SelectionEnd = NewPosition;
+		CursorDragEnd = SelectionEnd;
 		if (!DraggingSelection)
 		{
 			SelectionStart = SelectionEnd;
+			CursorDragStart = SelectionStart;
 			DraggingSelection = true;
 		}
 		else
@@ -1052,6 +1055,9 @@ void kui::UITextEditor::HighlightArea(const HighlightedArea& Area)
 
 void kui::UITextEditor::SnapHighlightToWord()
 {
+	SelectionStart = CursorDragStart;
+	SelectionEnd = CursorDragEnd;
+
 	if (SelectionStart.Line == SelectionEnd.Line)
 	{
 		if (SelectionStart.Column > SelectionEnd.Column)

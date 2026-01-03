@@ -95,8 +95,6 @@ namespace kui
 
 		mutable std::mutex LinesMutex;
 
-		friend struct HighlightedArea;
-
 		void InsertNewLine(EditorPosition At, bool Commit);
 		UIScrollBox* EditorScrollBox = nullptr;
 
@@ -141,6 +139,9 @@ namespace kui
 		bool HighlightsChanged = false;
 
 		size_t EditorLineSize = 5;
+
+		EditorPosition CursorDragStart;
+		EditorPosition CursorDragEnd;
 
 		std::vector<LineEntry> Lines;
 		UIBackground* SelectorBeam = nullptr;

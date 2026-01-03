@@ -341,6 +341,7 @@ void kui::FileEditorProvider::DumpContent()
 		std::cerr << i << std::endl;
 	}
 }
+
 std::string kui::FileEditorProvider::GetContent()
 {
 	std::string Out;
@@ -356,6 +357,7 @@ std::string kui::FileEditorProvider::GetContent()
 	}
 	return Out;
 }
+
 void kui::FileEditorProvider::OnLoaded()
 {
 }

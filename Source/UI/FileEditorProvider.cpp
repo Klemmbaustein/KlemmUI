@@ -148,8 +148,7 @@ void kui::FileEditorProvider::GetLine(size_t LineIndex, std::vector<TextSegment>
 	bool IsComment = false;
 	bool LastWasComment = false;
 
-	auto ProcessWord = [this, &CurrentWord, &IsString, &Current, &To, &IsComment]()
-	{
+	auto ProcessWord = [this, &CurrentWord, &IsString, &Current, &To, &IsComment]() {
 		if (!CurrentWord.empty())
 		{
 			Vec3f NewColor = TextColor;
@@ -194,6 +193,12 @@ void kui::FileEditorProvider::GetLine(size_t LineIndex, std::vector<TextSegment>
 
 	for (char c : Highlighted)
 	{
+#ifndef WINDOWS
+		if (c == '\r')
+		{
+			continue;
+		}
+#endif
 		if (c == '/' && !IsComment && !IsString)
 		{
 			if (LastWasComment)

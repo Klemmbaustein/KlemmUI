@@ -72,7 +72,7 @@ namespace kui
 		k = 'K',
 		l = 'L',
 		m = 'M',
-		n = 'M',
+		n = 'N',
 		o = 'O',
 		p = 'P',
 		q = 'Q',

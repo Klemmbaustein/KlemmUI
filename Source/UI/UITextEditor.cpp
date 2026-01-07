@@ -675,8 +675,15 @@ void kui::UITextEditor::AdjustSelection(EditorPosition& Position, bool Direction
 		{
 			if (Position.Column != 0)
 			{
-				Position.Line++;
-				Position.Column = 0;
+				if (Position.Line + 1 < Lines.size())
+				{
+					Position.Line++;
+					Position.Column = 0;
+				}
+				else
+				{
+					Position.Column = Line.Length;
+				}
 			}
 			return;
 		}
@@ -986,6 +993,11 @@ void kui::UITextEditor::Erase(EditorPosition Begin, EditorPosition End, bool DoC
 
 	for (size_t it = Begin.Line; it <= End.Line; it++)
 	{
+		if (it >= Lines.size())
+		{
+			continue;
+		}
+
 		auto& Line = this->GetLine(it);
 
 		if (it == Begin.Line)

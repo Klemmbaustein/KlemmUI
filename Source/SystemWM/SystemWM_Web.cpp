@@ -44,12 +44,12 @@ static std::map<int, kui::Key> Keys =
 	std::pair{GLFW_KEY_LEFT, Key::LEFT},
 	std::pair{GLFW_KEY_UP, Key::UP},
 	std::pair{GLFW_KEY_DOWN, Key::DOWN},
-	std::pair{GLFW_KEY_LEFT_SHIFT, Key::LSHIFT},
-	std::pair{GLFW_KEY_RIGHT_SHIFT, Key::RSHIFT},
-	std::pair{GLFW_KEY_LEFT_CONTROL, Key::LCTRL},
-	std::pair{GLFW_KEY_RIGHT_CONTROL, Key::RCTRL},
-	std::pair{GLFW_KEY_LEFT_ALT, Key::LALT},
-	std::pair{GLFW_KEY_RIGHT_ALT, Key::RALT},
+	std::pair{GLFW_KEY_LEFT_SHIFT, Key::SHIFT},
+	std::pair{GLFW_KEY_RIGHT_SHIFT, Key::SHIFT},
+	std::pair{GLFW_KEY_LEFT_CONTROL, Key::CTRL},
+	std::pair{GLFW_KEY_RIGHT_CONTROL, Key::CTRL},
+	std::pair{GLFW_KEY_LEFT_ALT, Key::ALT},
+	std::pair{GLFW_KEY_RIGHT_ALT, Key::ALT},
 	std::pair{GLFW_KEY_DELETE, Key::DELETE},
 	std::pair{GLFW_KEY_A, Key::a},
 	std::pair{GLFW_KEY_B, Key::b},
@@ -115,7 +115,7 @@ kui::systemWM::SysWindow* kui::systemWM::NewWindow(Window* Parent, Vec2ui Size, 
 				Win->TextInput.push_back((char)(((wParam >> 0) & 0x3F) | 0x80));
 			}
 		});
-	
+
 	glfwSetWindowSizeCallback(OutWindow->GLWindow, [](GLFWwindow* win, int x, int y)
 		{
 			SysWindow* Win = reinterpret_cast<SysWindow*>(glfwGetWindowUserPointer(win));

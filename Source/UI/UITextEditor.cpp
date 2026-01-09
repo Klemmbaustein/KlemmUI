@@ -37,7 +37,8 @@ static void OnTextEditorUp(Window* WithWindow)
 {
 	if (CurrentEditor)
 	{
-		CurrentEditor->MoveCursor(0, -1, WithWindow->Input.IsKeyDown(Key::LSHIFT), WithWindow->Input.IsKeyDown(Key::LCTRL));
+		CurrentEditor->MoveCursor(0, -1,
+			WithWindow->Input.IsKeyDown(Key::SHIFT), WithWindow->Input.IsKeyDown(Key::CTRL));
 		CurrentEditor->ScrollTo(CurrentEditor->SelectionEnd);
 	}
 }
@@ -46,7 +47,8 @@ static void OnTextEditorDown(Window* WithWindow)
 {
 	if (CurrentEditor)
 	{
-		CurrentEditor->MoveCursor(0, 1, WithWindow->Input.IsKeyDown(Key::LSHIFT), WithWindow->Input.IsKeyDown(Key::LCTRL));
+		CurrentEditor->MoveCursor(0, 1,
+			WithWindow->Input.IsKeyDown(Key::SHIFT), WithWindow->Input.IsKeyDown(Key::CTRL));
 		CurrentEditor->ScrollTo(CurrentEditor->SelectionEnd);
 	}
 }
@@ -55,7 +57,8 @@ static void OnTextEditorLeft(Window* WithWindow)
 {
 	if (CurrentEditor)
 	{
-		CurrentEditor->MoveCursor(-1, 0, WithWindow->Input.IsKeyDown(Key::LSHIFT), WithWindow->Input.IsKeyDown(Key::LCTRL));
+		CurrentEditor->MoveCursor(-1, 0,
+			WithWindow->Input.IsKeyDown(Key::SHIFT), WithWindow->Input.IsKeyDown(Key::CTRL));
 		CurrentEditor->ScrollTo(CurrentEditor->SelectionEnd);
 	}
 }
@@ -64,13 +67,14 @@ static void OnTextEditorRight(Window* WithWindow)
 {
 	if (CurrentEditor)
 	{
-		CurrentEditor->MoveCursor(1, 0, WithWindow->Input.IsKeyDown(Key::LSHIFT), WithWindow->Input.IsKeyDown(Key::LCTRL));
+		CurrentEditor->MoveCursor(1, 0,
+			WithWindow->Input.IsKeyDown(Key::SHIFT), WithWindow->Input.IsKeyDown(Key::CTRL));
 		CurrentEditor->ScrollTo(CurrentEditor->SelectionEnd);
 	}
 }
 static void OnTextEditorCut(Window* WithWindow)
 {
-	if (CurrentEditor && WithWindow->Input.IsKeyDown(Key::LCTRL))
+	if (CurrentEditor && WithWindow->Input.IsKeyDown(Key::CTRL))
 	{
 		WithWindow->Input.SetClipboard(CurrentEditor->GetSelectedText());
 		CurrentEditor->DeleteSelection();
@@ -79,7 +83,7 @@ static void OnTextEditorCut(Window* WithWindow)
 
 static void OnTextEditorCopy(Window* WithWindow)
 {
-	if (CurrentEditor && WithWindow->Input.IsKeyDown(Key::LCTRL))
+	if (CurrentEditor && WithWindow->Input.IsKeyDown(Key::CTRL))
 	{
 		WithWindow->Input.SetClipboard(CurrentEditor->GetSelectedText());
 	}

@@ -10,10 +10,10 @@
  * @file
  */
 
-/**
- * @brief
- * Namespace containing all KlemmUI functions.
- */
+ /**
+  * @brief
+  * Namespace containing all KlemmUI functions.
+  */
 namespace kui
 {
 	class Window;
@@ -49,10 +49,6 @@ namespace kui
 		SEMICOLON = ';',
 		LESS = '<',
 		RETURN = 257,
-
-		/*
-		   Skip uppercase letters
-		 */
 
 		LEFTBRACKET = '[',
 		BACKSLASH = '\\',
@@ -110,12 +106,9 @@ namespace kui
 		DOWN = 264,
 		UP = 265,
 
-		LCTRL = 341,
-		LSHIFT = 340,
-		LALT = 342,
-		RCTRL = 345,
-		RSHIFT = 344,
-		RALT = 346,
+		CTRL = 341,
+		SHIFT = 340,
+		ALT = 342,
 	};
 
 	/**

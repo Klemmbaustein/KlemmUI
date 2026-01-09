@@ -23,7 +23,7 @@ Window* kui::InputManager::GetWindowByPtr(void* Ptr)
 void kui::InputManager::MoveTextIndex(int Amount, bool RespectShiftPress)
 {
 	TextIndex = std::max(std::min(TextIndex + Amount, (int)Text.size()), 0);
-	if ((!IsKeyDown(Key::LSHIFT) && !IsKeyDown(Key::RSHIFT)) || !RespectShiftPress)
+	if (!IsKeyDown(Key::SHIFT) || !RespectShiftPress)
 	{
 		TextSelectionStart = TextIndex;
 	}
@@ -126,7 +126,7 @@ kui::InputManager::InputManager(Window* Parent)
 	RegisterOnKeyDownCallback(Key::TAB, [](Window* Win) {
 		if (!Win->Input.PollForText && Win->Input.KeyboardFocusInput)
 		{
-			UIBox* Box = Win->UI.GetNextFocusableBox(Win->UI.KeyboardFocusBox, Win->Input.IsKeyDown(Key::LSHIFT));
+			UIBox* Box = Win->UI.GetNextFocusableBox(Win->UI.KeyboardFocusBox, Win->Input.IsKeyDown(Key::SHIFT));
 
 			if (Box)
 			{
@@ -146,15 +146,14 @@ kui::InputManager::InputManager(Window* Parent)
 		});
 
 	RegisterOnKeyDownCallback(Key::c, [](Window* Win) {
-		if ((Win->Input.IsKeyDown(Key::LCTRL) || Win->Input.IsKeyDown(Key::RCTRL))
-			&& Win->Input.PollForText)
+		if (Win->Input.IsKeyDown(Key::CTRL) && Win->Input.PollForText)
 		{
 			systemWM::SetClipboardText(Win->Input.GetSelectedTextString());
 		}
 		});
 
 	RegisterOnKeyDownCallback(Key::x, [](Window* Win) {
-		if (!Win->Input.Text.empty() && (Win->Input.IsKeyDown(Key::LCTRL) || Win->Input.IsKeyDown(Key::RCTRL))
+		if (!Win->Input.Text.empty() && (Win->Input.IsKeyDown(Key::CTRL) )
 			&& Win->Input.PollForText)
 		{
 			systemWM::SetClipboardText(Win->Input.GetSelectedTextString());
@@ -164,7 +163,7 @@ kui::InputManager::InputManager(Window* Parent)
 
 	RegisterOnKeyDownCallback(Key::v, [](Window* Win) {
 
-		if ((!Win->Input.IsKeyDown(Key::LCTRL) && !Win->Input.IsKeyDown(Key::RCTRL))
+		if (!Win->Input.IsKeyDown(Key::CTRL)
 			|| !Win->Input.PollForText)
 		{
 			return;

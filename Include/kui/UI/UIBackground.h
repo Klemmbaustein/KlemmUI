@@ -6,7 +6,7 @@
 namespace kui
 {
 	class Shader;
-
+	class WindowColors;
 	class UIBackgroundState
 	{
 	public:
@@ -19,11 +19,13 @@ namespace kui
 		uint8_t BorderFlags = 0b1111;
 		bool OwnsTexture = false;
 		bool UseTexture = false;
+		bool IsHighlighted = false;
 		unsigned int TextureID = 0;
 
 		virtual ~UIBackgroundState() = default;
 
-		virtual void Draw(render::RenderBackend* With, Vec2f Position, Vec2f Size, ScrollObject* Scroll) = 0;
+		virtual void Draw(render::RenderBackend* With, Vec2f Position, Vec2f Size,
+			ScrollObject* Scroll, WindowColors* Colors) = 0;
 
 	};
 

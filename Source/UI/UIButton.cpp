@@ -11,7 +11,8 @@ void UIButton::Tick()
 		return;
 	}
 
-	bool Hovered = ParentWindow->HasMouseFocus() && ParentWindow->UI.HoveredBox == this && !UIScrollBox::IsDraggingScrollBox;
+	bool Hovered = ParentWindow->HasMouseFocus() && ParentWindow->UI.HoveredBox == this
+		&& !UIScrollBox::IsDraggingScrollBox;
 
 	CurrentButtonState = ButtonState::Normal;
 	if (Hovered && !this->IsHovered)
@@ -55,6 +56,12 @@ void UIButton::Tick()
 
 	if (Hovered || IsKeyboardFocused)
 	{
+		if (ParentWindow->Input.IsRMBClicked && OnRightClicked)
+		{
+			ParentWindow->UI.ButtonEvents.push_back(UIManager::ButtonEvent(
+				OnRightClicked, nullptr, 0));
+		}
+
 		if (ParentWindow->Input.IsLMBDown || ParentWindow->Input.IsKeyDown(Key::RETURN))
 		{
 			CurrentButtonState = ButtonState::Pressed;
@@ -202,6 +209,9 @@ void kui::UIButton::Draw(render::RenderBackend* Backend)
 	{
 		return;
 	}
+
+	this->GetRenderState()->IsHighlighted = this == ParentWindow->UI.KeyboardFocusBox;
+
 	UIBackground::Draw(Backend);
 }
 
@@ -217,7 +227,7 @@ UIButton::UIButton(bool Horizontal, Vec2f Position, Vec3f Color, std::function<v
 	KeyboardFocusable = true;
 }
 
-UIButton::UIButton(bool Horizontal, Vec2f Position, Vec3f Color,std::function<void(int)> OnClickedFunction, int ButtonIndex)
+UIButton::UIButton(bool Horizontal, Vec2f Position, Vec3f Color, std::function<void(int)> OnClickedFunction, int ButtonIndex)
 	: UIBackground(Horizontal, Position, Color)
 {
 	this->OnClickedIndex = OnClickedFunction;

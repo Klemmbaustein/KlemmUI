@@ -46,6 +46,7 @@ namespace kui
 		bool OnlyDrawWhenHovered = false;
 
 		std::function<void(int)> OnDragged = nullptr;
+		std::function<void()> OnRightClicked = nullptr;
 
 		bool GetIsSelected() const;
 		void SetNeedsToBeSelected(bool NeedsToBeSelected);

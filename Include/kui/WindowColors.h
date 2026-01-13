@@ -12,5 +12,7 @@ namespace kui
 
 		Vec3f TextFieldSelection = Vec3f(0, 0.25f, 0.75f);
 		Vec3f TextFieldTextDefaultColor = 1;
+
+		Vec3f KeyboardSelectionColor = 1.0f;
 	};
 }

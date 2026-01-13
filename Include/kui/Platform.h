@@ -9,6 +9,7 @@
 #error Unknown Platform
 #endif
 #include "Window.h"
+#include <optional>
 
 namespace kui::platform
 {
@@ -43,6 +44,35 @@ namespace kui::platform
 		}
 		constexpr void AlwaysUseWayland() {}
 		constexpr void AlwaysUseX11() {}
+#endif
+	}
+
+	namespace win32
+	{
+		/**
+		 * @brief
+		 * Controls window rounding on Windows 11 or later.
+		 *
+		 * This should be left on "Default" in most cases but is nice to have as an option.
+		 */
+		enum class WindowRoundingMode
+		{
+			/// Let the OS decide. Equals to large on Windows 11.
+			Default,
+			/// Very small (approx. 3px) rounded corners.
+			Small,
+			/// Larger (approx. 8px) rounded corners.
+			Large,
+			/// No rounded corners, like with Windows 10.
+			None,
+		};
+
+#if _WIN32 && !defined(KLEMMUI_CUSTOM_SYSTEMWM)
+		void SetWindowTitleBarColor(Window* TargetWindow, Vec3f Color, std::optional<Vec3f> TextColor);
+		void SetWindowBorderRounding(Window* TargetWindow, WindowRoundingMode Rounding);
+#else
+		constexpr void SetWindowTitleBarColor(Window*, Vec3f, Vec3f, std::optional<Vec3f> TextColor) {}
+		constexpr void SetWindowBorderRounding(Window* TargetWindow, WindowRoundingMode Rounding) {}
 #endif
 	}
 }

@@ -98,7 +98,8 @@ void UITextField::Tick()
 		Dragging = false;
 	}
 
-	if (ParentWindow->UI.KeyboardFocusBox == this && ParentWindow->Input.IsKeyDown(Key::RETURN))
+	if (ParentWindow->UI.KeyboardFocusBox == this
+		&& ParentWindow->Input.IsKeyDown(Key::RETURN))
 	{
 		this->Edit();
 	}

@@ -218,7 +218,8 @@ void UIBackground::Draw(render::RenderBackend* Backend)
 		{
 			static_cast<render::GLUIBackgroundState*>(State)->UsedShader = BackgroundShader;
 		}
-		State->Draw(Backend, OffsetPosition, Size, CurrentScrollObject);
+		State->IsHighlighted = this == ParentWindow->UI.KeyboardFocusBox;
+		State->Draw(Backend, OffsetPosition, Size, CurrentScrollObject, &ParentWindow->Colors);
 	}
 	DrawBackground(Backend);
 }

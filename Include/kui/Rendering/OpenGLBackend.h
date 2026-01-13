@@ -83,6 +83,7 @@ namespace kui::render
 		}
 
 		Shader* UsedShader = nullptr;
-		void Draw(render::RenderBackend* With, Vec2f Position, Vec2f Size, ScrollObject* Scroll) override;
+		void Draw(render::RenderBackend* With, Vec2f Position, Vec2f Size,
+			ScrollObject* Scroll, WindowColors* Colors) override;
 	};
 }

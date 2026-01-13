@@ -1,6 +1,7 @@
 #include <Markup/WriteCode.h>
 #include <Markup/Format.h>
 #include <sstream>
+#include <iostream>
 
 using namespace kui::stringParse;
 using namespace kui::markup;
@@ -14,8 +15,8 @@ struct ConvertInfo
 	bool IsTranslated = false;
 };
 
-static ConvertInfo ConvertValue(UIElement* Target, UIElement* Root, kui::stringParse::StringToken Value,
-	VariableType Type, ParseResult& MarkupElements)
+static ConvertInfo ConvertValue(UIElement* Target, UIElement* Root, StringToken Value, VariableType Type,
+	ParseResult& MarkupElements)
 {
 	ConvertInfo Out;
 	using namespace kui::stringParse;
@@ -32,7 +33,6 @@ static ConvertInfo ConvertValue(UIElement* Target, UIElement* Root, kui::stringP
 	Out.ValueGlobal = MarkupElements.GetGlobal(Value);
 
 	Out.IsTranslated = IsTranslatedString(Value) && Type == VariableType::String;
-
 	if (Out.Variable || Out.IsTranslated || Out.ValueGlobal)
 	{
 		if (Out.Variable && Out.Variable->Type != Type)
@@ -46,6 +46,7 @@ static ConvertInfo ConvertValue(UIElement* Target, UIElement* Root, kui::stringP
 		{
 			std::string GetValue = "GetGlobal(\"" + Out.ValueGlobal->Name.Text +
 				"\", kui::AnyContainer(" + kui::stringParse::ToCppCode(Out.ValueGlobal->Value) + "))";
+
 			if (Type == VariableType::Vector3)
 			{
 				GetValue = GetValue + ".AsVec3()";

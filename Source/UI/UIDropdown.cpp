@@ -74,10 +74,10 @@ void UIDropdown::GenerateOptions()
 	OptionsBox->DeleteChildren();
 	for (size_t i = 0; i < Options.size(); i++)
 	{
-		UIButton* NewButton = new UIButton(true, 0, Vec3f::Lerp(DropdownColor, ButtonColor, (i == SelectedIndex) ? 0.5f : 0), nullptr, (int)i);
+		UIButton* NewButton = new UIButton(true, 0, Vec3f::Lerp(DropdownColor, ButtonColor, (i == SelectedIndex) ? 0.5f : 0), nullptr);
 		NewButton->SetMinSize(SizeVec(Size, 0));
-		NewButton->OnClickedIndex = [this](int Index) {
-			OnChildClicked(Index);
+		NewButton->OnClicked = [this, i]() {
+			OnChildClicked(i);
 			};
 
 		UIText* NewText = new UIText(11_px, DropdownTextColor, Options[i].Name, Renderer);
@@ -122,7 +122,7 @@ void UIDropdown::OnButtonClicked()
 	OptionsBox->MoveToFront();
 }
 
-void UIDropdown::OnChildClicked(int Index)
+void UIDropdown::OnChildClicked(size_t Index)
 {
 	SelectOption((size_t)Index);
 	OptionsBox->IsVisible = false;

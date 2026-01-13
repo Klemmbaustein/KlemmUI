@@ -55,7 +55,7 @@ kui::InputManager::InputManager(Window* Parent)
 		{
 			Win->Input.MoveTextIndex(-1);
 		}
-		});
+	});
 
 	RegisterOnKeyDownCallback(Key::RIGHT, [](Window* Win) {
 		Win->Input.MoveTextIndex(1);
@@ -63,7 +63,7 @@ kui::InputManager::InputManager(Window* Parent)
 		{
 			Win->Input.MoveTextIndex(1);
 		}
-		});
+	});
 
 	RegisterOnKeyDownCallback(Key::DELETE, [](Window* Win) {
 		InputManager& In = Win->Input;
@@ -85,7 +85,7 @@ kui::InputManager::InputManager(Window* Parent)
 			}
 			In.SetTextIndex(std::max(std::min(In.TextIndex, (int)In.Text.size()), 0), true);
 		}
-		});
+	});
 
 	RegisterOnKeyDownCallback(Key::BACKSPACE, [](Window* Win) {
 		InputManager& In = Win->Input;
@@ -117,11 +117,18 @@ kui::InputManager::InputManager(Window* Parent)
 			}
 			In.SetTextIndex(std::max(std::min(In.TextIndex, (int)In.Text.size()), 0), true);
 		}
-		});
+	});
 
 	RegisterOnKeyDownCallback(Key::ESCAPE, [](Window* Win) {
-		Win->Input.PollForText = false;
-		});
+		if (Win->Input.PollForText)
+		{
+			Win->Input.PollForText = false;
+		}
+		else
+		{
+			Win->UI.KeyboardFocusBox = nullptr;
+		}
+	});
 
 	RegisterOnKeyDownCallback(Key::TAB, [](Window* Win) {
 		if (!Win->Input.PollForText && Win->Input.KeyboardFocusInput)
@@ -136,30 +143,33 @@ kui::InputManager::InputManager(Window* Parent)
 				Box->RedrawElement();
 			}
 		}
-		});
+	});
 
 	RegisterOnKeyDownCallback(Key::RETURN, [](Window* Win) {
-		if (!Win->Input.TextAllowNewLine)
-			Win->Input.PollForText = false;
-		else
-			Win->Input.AddTextInput("\n");
-		});
+		if (Win->Input.PollForText)
+		{
+			if (!Win->Input.TextAllowNewLine)
+				Win->Input.PollForText = false;
+			else
+				Win->Input.AddTextInput("\n");
+		}
+	});
 
 	RegisterOnKeyDownCallback(Key::c, [](Window* Win) {
 		if (Win->Input.IsKeyDown(Key::CTRL) && Win->Input.PollForText)
 		{
 			systemWM::SetClipboardText(Win->Input.GetSelectedTextString());
 		}
-		});
+	});
 
 	RegisterOnKeyDownCallback(Key::x, [](Window* Win) {
-		if (!Win->Input.Text.empty() && (Win->Input.IsKeyDown(Key::CTRL) )
+		if (!Win->Input.Text.empty() && (Win->Input.IsKeyDown(Key::CTRL))
 			&& Win->Input.PollForText)
 		{
 			systemWM::SetClipboardText(Win->Input.GetSelectedTextString());
 			Win->Input.DeleteTextSelection();
 		}
-		});
+	});
 
 	RegisterOnKeyDownCallback(Key::v, [](Window* Win) {
 
@@ -176,7 +186,7 @@ kui::InputManager::InputManager(Window* Parent)
 
 		auto str = FilterString(systemWM::GetClipboardText(), Filter);
 		Win->Input.AddTextInput(str);
-		});
+	});
 
 }
 
@@ -334,15 +344,14 @@ Vec2ui kui::InputManager::GetMouseScreenPosition()
 
 void InputManager::RegisterOnKeyDownCallback(Key PressedKey, void(*Callback)(Window*))
 {
-	RegisterOnKeyDownCallback(PressedKey, (void*)Callback, [Callback]()
-		{
-			Callback(Window::GetActiveWindow());
-		});
+	RegisterOnKeyDownCallback(PressedKey, (void*)Callback, [Callback]() {
+		Callback(Window::GetActiveWindow());
+	});
 }
 
 void kui::InputManager::RegisterOnKeyDownCallback(Key PressedKey, void* Object, std::function<void()> Function)
 {
-	ButtonPressedCallbacks[PressedKey].insert({Object, Function});
+	ButtonPressedCallbacks[PressedKey].insert({ Object, Function });
 }
 
 void kui::InputManager::RemoveOnKeyDownCallback(Key PressedKey, void(*Callback)(Window*))

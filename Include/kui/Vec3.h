@@ -12,11 +12,26 @@ namespace kui
 		T Y = 0;
 		T Z = 0;
 
-		Vec3();
-		Vec3(T XYZ);
-		Vec3(T X, T Y, T Z);
+		constexpr Vec3()
+		{
+		}
+
+		constexpr Vec3(T XYZ)
+		{
+			X = XYZ;
+			Y = XYZ;
+			Z = XYZ;
+		}
+
+		constexpr Vec3(T X, T Y, T Z)
+		{
+			this->X = X;
+			this->Y = Y;
+			this->Z = Z;
+		}
+
 		template<typename T2>
-		Vec3(Vec3<T2> b)
+		constexpr Vec3(Vec3<T2> b)
 		{
 			X = (T)b.X;
 			Y = (T)b.Y;

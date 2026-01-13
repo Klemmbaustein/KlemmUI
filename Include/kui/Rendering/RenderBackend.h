@@ -7,6 +7,7 @@ namespace kui
 {
 	class Window;
 	class FontRenderData;
+	class WindowColors;
 }
 
 namespace kui::render

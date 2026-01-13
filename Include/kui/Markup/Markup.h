@@ -1,15 +1,14 @@
 #pragma once
-#include "../Font.h"
+#include <kui/Font.h>
 #include <any>
 #include <functional>
 #include <string>
 #include <map>
-#include "../UISize.h"
+#include <kui/UISize.h>
+#include <kui/UI/UIBox.h>
 
 namespace kui
 {
-	class UIBox;
-
 	class AnyContainer
 	{
 	public:
@@ -56,6 +55,17 @@ namespace kui
 		AnyContainer(Vec3f Value)
 		{
 			this->Value = Value;
+		}
+		AnyContainer(UIBox::Align Value)
+		{
+			this->Value = Value;
+		}
+
+		operator UIBox::Align()
+		{
+			if (Empty)
+				return UIBox::Align::Default;
+			return std::any_cast<UIBox::Align>(Value);
 		}
 
 		operator float()

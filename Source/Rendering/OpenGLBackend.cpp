@@ -283,15 +283,24 @@ DrawableText* kui::render::OpenGLBackend::MakeText(FontRenderData* Data, const s
 	{
 		auto& StartPos = seg.Position;
 		auto& g = *seg.Target;
-		vData[0].position = StartPos + Vec2f(0, g.Size.Y); vData[0].texCoords = g.TexCoordStart + Vec2f(0, g.TexCoordOffset.Y);
-		vData[1].position = StartPos + g.Size;             vData[1].texCoords = g.TexCoordStart + g.TexCoordOffset;
-		vData[2].position = StartPos + Vec2f(g.Size.X, 0); vData[2].texCoords = g.TexCoordStart + Vec2f(g.TexCoordOffset.X, 0);
-		vData[3].position = StartPos;                      vData[3].texCoords = g.TexCoordStart;
-		vData[4].position = StartPos + Vec2f(0, g.Size.Y); vData[4].texCoords = g.TexCoordStart + Vec2f(0, g.TexCoordOffset.Y);
-		vData[5].position = StartPos + Vec2f(g.Size.X, 0); vData[5].texCoords = g.TexCoordStart + Vec2f(g.TexCoordOffset.X, 0);
-		vData[0].color = seg.Color;		vData[1].color = seg.Color;
-		vData[2].color = seg.Color;		vData[3].color = seg.Color;
-		vData[4].color = seg.Color;		vData[5].color = seg.Color;
+		vData[0].position = StartPos + Vec2f(0, g.Size.Y);
+		vData[0].texCoords = g.TexCoordStart + Vec2f(0, g.TexCoordOffset.Y);
+		vData[1].position = StartPos + g.Size;
+		vData[1].texCoords = g.TexCoordStart + g.TexCoordOffset;
+		vData[2].position = StartPos + Vec2f(g.Size.X, 0);
+		vData[2].texCoords = g.TexCoordStart + Vec2f(g.TexCoordOffset.X, 0);
+		vData[3].position = StartPos;
+		vData[3].texCoords = g.TexCoordStart;
+		vData[4].position = StartPos + Vec2f(0, g.Size.Y);
+		vData[4].texCoords = g.TexCoordStart + Vec2f(0, g.TexCoordOffset.Y);
+		vData[5].position = StartPos + Vec2f(g.Size.X, 0);
+		vData[5].texCoords = g.TexCoordStart + Vec2f(g.TexCoordOffset.X, 0);
+		vData[0].color = seg.Color;
+		vData[1].color = seg.Color;
+		vData[2].color = seg.Color;
+		vData[3].color = seg.Color;
+		vData[4].color = seg.Color;
+		vData[5].color = seg.Color;
 		vData += 6;
 		NumVertices += 6;
 	}
@@ -312,8 +321,14 @@ void kui::render::OpenGLBackend::UpdateScroll(ScrollObject* Scroll, Shader* Used
 		UsedShader->SetVec3("u_offset", Vec3f(0, -1000, 1000));
 }
 
-void kui::render::GLUIBackgroundState::Draw(render::RenderBackend* With, Vec2f Position, Vec2f Size, ScrollObject* Scroll)
+void kui::render::GLUIBackgroundState::Draw(render::RenderBackend* With, Vec2f Position, Vec2f Size,
+	ScrollObject* Scroll, WindowColors* Colors)
 {
+	if (Opacity <= 0 && !IsHighlighted)
+	{
+		return;
+	}
+
 	auto Backend = static_cast<OpenGLBackend*>(With);
 
 	if (!Backend || !UsedShader)
@@ -326,24 +341,31 @@ void kui::render::GLUIBackgroundState::Draw(render::RenderBackend* With, Vec2f P
 	UsedShader->Bind();
 	Backend->UpdateScroll(Scroll, UsedShader, this);
 	UsedShader->SetVec3("u_color", Color);
-	UsedShader->SetVec3("u_borderColor", BorderColor);
 
 	UISize DrawnBorderRadius = BorderRadius;
+	Vec3f DrawnBorderColor = BorderColor;
+	float DrawnOpacity = Opacity;
+	if (IsHighlighted)
+	{
+		if (DrawnBorderRadius.Value == 0)
+		{
+			DrawnBorderRadius = 2_px;
+		}
+		else
+		{
+			DrawnBorderRadius.Value *= 2;
+		}
+		if (Opacity == 0)
+		{
+			DrawnOpacity = 1;
+		}
+		DrawnBorderColor = Colors->KeyboardSelectionColor;
+	}
 
-	//if (this == ParentWindow->UI.KeyboardFocusBox)
-	//{
-	//	if (DrawnBorderRadius.Value == 0)
-	//	{
-	//		DrawnBorderRadius = 2_px;
-	//	}
-	//	else
-	//	{
-	//		DrawnBorderRadius.Value *= 2;
-	//	}
-	//}
+	UsedShader->SetVec3("u_borderColor", DrawnBorderColor);
 
 	glUniform4f(UsedShader->GetUniformLocation("u_transform"), Position.X, Position.Y, Size.X, Size.Y);
-	UsedShader->SetFloat("u_opacity", Opacity);
+	UsedShader->SetFloat("u_opacity", DrawnOpacity);
 	UsedShader->SetInt("u_drawBorder", DrawnBorderRadius.Value != 0);
 	UsedShader->SetInt("u_drawCorner", CornerRadius.Value != 0);
 	UsedShader->SetFloat("u_borderScale", UIBackground::GetBorderSize(DrawnBorderRadius));

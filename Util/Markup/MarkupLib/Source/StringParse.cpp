@@ -358,6 +358,12 @@ bool kui::stringParse::IsTranslatedString(std::string Element)
 
 std::string kui::stringParse::ToCppCode(std::string Value)
 {
+	auto Align = GetAlign(Value);
+	if (!Align.empty())
+	{
+		return Align;
+	}
+
 	if (IsNumber(Value))
 	{
 		return "float(" + Value + ")";

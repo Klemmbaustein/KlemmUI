@@ -88,6 +88,6 @@ namespace kui
 
 		void Tick() override;
 		void OnButtonClicked() override;
-		void OnChildClicked(int Index);
+		void OnChildClicked(size_t Index);
 	};
 }

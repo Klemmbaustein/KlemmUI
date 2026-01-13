@@ -317,9 +317,9 @@ void kui::systemWM::WaitFrame(SysWindow* Target, float RemainingTime)
 
 static std::string& SanitizeString(std::string& In)
 {
+	kui::strReplace::ReplaceChar(In, '\\', "\\\\");
 	kui::strReplace::ReplaceChar(In, '\"', "\\\"");
 	kui::strReplace::ReplaceChar(In, '\n', "\\n");
-	kui::strReplace::ReplaceChar(In, '\\', "\\\\");
 	return In;
 }
 

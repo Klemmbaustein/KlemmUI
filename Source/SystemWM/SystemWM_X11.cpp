@@ -837,7 +837,7 @@ void kui::systemWM::X11Window::HandleEvent(XEvent ev)
 		Status StringLookupStatus = 0;
 		UtfSize = Xutf8LookupString(Input, (XKeyPressedEvent*)&ev, UtfBuffer, sizeof(UtfBuffer) - 1, &Symbol, &StringLookupStatus);
 
-		if (Parent->Input.IsKeyDown(Key::LCTRL) || Parent->Input.IsKeyDown(Key::RCTRL))
+		if (Parent->Input.IsKeyDown(Key::CTRL))
 			return;
 
 		if (StringLookupStatus == XBufferOverflow)

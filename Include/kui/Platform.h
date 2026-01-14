@@ -63,8 +63,9 @@ namespace kui::platform
 			Small,
 			/// Larger (approx. 8px) rounded corners.
 			Large,
-			/// No rounded corners, like with Windows 10.
-			None,
+			/// No rounded corners, like with Windows 10. Can't be named `None` because XLib globally defines
+			/// that identifier (Ty xlib)
+			NoCorners
 		};
 
 #if _WIN32 && !defined(KLEMMUI_CUSTOM_SYSTEMWM)

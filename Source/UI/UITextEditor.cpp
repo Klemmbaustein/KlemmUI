@@ -832,8 +832,12 @@ void kui::UITextEditor::TickInput()
 	}
 
 	auto& Input = ParentWindow->Input;
+	if (!Input.PollForText)
+	{
+		IsEdited = false;
+		return;
+	}
 
-	Input.PollForText = IsEdited;
 
 	UpdateSelectionBeam();
 
@@ -1187,8 +1191,9 @@ void kui::UITextEditor::Get(EditorPosition Begin, size_t Length, std::vector<Tex
 		LinesMutex.lock();
 	}
 
-	for (auto i = Line->begin(); i < Line->end(); i++)
+	for (size_t it = 0; it < Line->size(); it++)
 	{
+		auto* i = &Line->at(it);
 		if (Begin.Column <= i->Text.size())
 		{
 			size_t Copied = std::min(i->Text.size() - Begin.Column, Length);

@@ -54,6 +54,7 @@ void kui::markup::DynamicMarkupContext::LoadFiles(std::vector<MarkupFile> Files)
 
 	Parsed = new ParseResult(ParseFiles(MarkupFiles));
 	markup::Verify(*Parsed);
+	OwnsParsed = true;
 }
 
 kui::markup::DynamicMarkupContext::DynamicMarkupContext()
@@ -62,7 +63,7 @@ kui::markup::DynamicMarkupContext::DynamicMarkupContext()
 }
 kui::markup::DynamicMarkupContext::~DynamicMarkupContext()
 {
-	if (Parsed)
+	if (OwnsParsed && Parsed)
 		delete Parsed;
 }
 

@@ -28,6 +28,7 @@ namespace kui::markup
 		void LoadFiles(std::vector<MarkupFile> Files);
 
 		markup::ParseResult* Parsed = nullptr;
+		bool OwnsParsed = false;
 	};
 
 	class UIDynMarkupBox : public UIBox, public kui::markup::MarkupBox

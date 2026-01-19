@@ -122,12 +122,20 @@ namespace kui::markup
 	};
 	extern std::vector<PropertyElement> Properties;
 
+	struct CustomSegmentData
+	{
+		size_t StartChar = 0, StartLine = 0, EndChar = 0, EndLine = 0;
+		std::vector<stringParse::Line> Lines;
+	};
+
 	struct MarkupElement
 	{
 		UIElement Root;
 		std::string FilePath;
 		std::string File;
 		stringParse::StringToken FromToken;
+
+		std::map<std::string, CustomSegmentData> CustomSegments;
 	};
 
 	struct FileData

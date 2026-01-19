@@ -6,10 +6,10 @@ using namespace kui;
 
 namespace kui::parseError
 {
-	std::vector<stringParse::Line>* LoadedCode = nullptr;
-	std::string ActiveFile;
-	size_t LineIndex = 0;
-	int ErrorCount = 0;
+	thread_local std::vector<stringParse::Line>* LoadedCode = nullptr;
+	thread_local std::string ActiveFile;
+	thread_local size_t LineIndex = 0;
+	thread_local int ErrorCount = 0;
 }
 
 void parseError::SetCode(std::vector<stringParse::Line>& Code, std::string FileName)
@@ -76,7 +76,9 @@ static void PrintError(std::string Message, std::string File, size_t Line, size_
 	std::cerr << std::endl;
 }
 
-std::function<void(std::string Message, std::string File, size_t Line, size_t Begin, size_t End)> parseError::ErrorCallback = &PrintError;
+thread_local std::function<void(
+	std::string Message, std::string File, size_t Line, size_t Begin, size_t End
+	)> parseError::ErrorCallback = &PrintError;
 
 void parseError::ErrorNoLine(const std::string& Message)
 {

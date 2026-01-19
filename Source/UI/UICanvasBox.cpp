@@ -23,8 +23,8 @@ void kui::UICanvasBox::UpdateChildPosition()
 			continue;
 		}
 
-		Vec2f LocalSpace = ((GetChildPositionValue(c) + 1.0f) / 2.0f * GetMinScreenSize()) * 2.0f - 1.0f;
-		LocalSpace += this->OffsetPosition + 1;
+		Vec2f LocalSpace = ((GetChildPositionValue(c) + 1.0f) / 2.0f * GetMinScreenSize());
+		LocalSpace += this->OffsetPosition;
 
 		SetChildPosition(c, LocalSpace);
 	}

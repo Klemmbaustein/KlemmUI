@@ -95,13 +95,13 @@ kui::UITextEditor::UITextEditor(ITextEditorProvider* EditorProvider, Font* Edito
 	EditorScrollBox->SetMinSize(UISize::Parent(1));
 	EditorScrollBox->SetMaxSize(UISize::Parent(1));
 	EditorScrollBox->OnScroll = [this](UIScrollBox*)
-	{
-		this->UpdateContent();
-		for (auto& i : Highlighted)
 		{
-			i.GenerateSegments(this);
-		}
-	};
+			this->UpdateContent();
+			for (auto& i : Highlighted)
+			{
+				i.GenerateSegments(this);
+			}
+		};
 
 	SelectionColor = ParentWindow->Colors.TextFieldSelection;
 	CursorColor = ParentWindow->Colors.TextFieldTextDefaultColor;
@@ -296,9 +296,9 @@ void kui::UITextEditor::ScrollTo(EditorPosition Position)
 	float Scrolled = this->EditorScrollBox->GetScrollObject()->Scrolled;
 	float Difference = CursorPos - Scrolled;
 
-	if (Difference < 0)
+	if (Difference < CharSize.Y * 2)
 	{
-		this->EditorScrollBox->GetScrollObject()->Scrolled = CursorPos;
+		this->EditorScrollBox->GetScrollObject()->Scrolled = CursorPos - CharSize.Y * 2;
 	}
 	else if (Difference > EditorScrollBox->GetUsedSize().GetScreen().Y - CharSize.Y * 2)
 	{
@@ -512,9 +512,9 @@ void kui::UITextEditor::Draw(render::RenderBackend* With)
 	if (HighlightsChanged)
 	{
 		std::sort(this->Highlighted.begin(), this->Highlighted.end(), [](HighlightedArea a, const HighlightedArea& b)
-		{
-			return a.Priority < b.Priority;
-		});
+			{
+				return a.Priority < b.Priority;
+			});
 	}
 	HighlightsChanged = false;
 
@@ -744,6 +744,7 @@ void kui::UITextEditor::Tick()
 		auto& SelectionArea = this->Highlighted.emplace_back();
 		SelectionArea.Priority = 0;
 		SelectionArea.Color = SelectionColor;
+		UpdateSelectionHighlights();
 
 		EditorProvider->GetHighlightsForRange(0, EditorProvider->GetLineCount());
 		UpdateHighlights = false;
@@ -847,9 +848,9 @@ void kui::UITextEditor::TickInput()
 		std::string Transformed = EditorProvider->ProcessInput(NewText);
 		if (Transformed.size())
 		{
-				DeleteSelection();
+			DeleteSelection();
 
-				InsertAtCursor(Transformed, Transformed.size() > 4);
+			InsertAtCursor(Transformed, Transformed.size() > 4);
 			UpdateContent();
 		}
 
@@ -895,7 +896,7 @@ EditorPosition kui::UITextEditor::Insert(std::string NewString, EditorPosition A
 		InsertNewLine(NewLinePos, false);
 		NewLinePos.Line++;
 		NewLinePos.Column = 0;
-		return Insert(OldIndent + NewString.substr(NewLine + 1), NewLinePos, Raw);
+		return Insert(OldIndent + NewString.substr(NewLine + 1), NewLinePos, Raw, Commit);
 	}
 
 	if (LineData.empty())

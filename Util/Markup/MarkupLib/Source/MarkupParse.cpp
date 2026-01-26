@@ -199,7 +199,8 @@ markup::MarkupElement kui::markup::ParseElement(ParsedElement& Elem,
 	return Element;
 }
 
-void kui::markup::ParseCustomData(std::string Name, MarkupElement& Elem, std::vector<stringParse::Line>& Lines, size_t Start)
+void kui::markup::ParseCustomData(std::string Name, MarkupElement& Elem,
+	std::vector<stringParse::Line>& Lines, size_t Start)
 {
 	auto& NewCustom = Elem.CustomSegments.insert({ Name, {} }).first->second;
 	NewCustom.StartLine = Lines[Start].Previous().Line;

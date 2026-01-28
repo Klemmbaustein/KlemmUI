@@ -298,7 +298,7 @@ void kui::UITextEditor::ScrollTo(EditorPosition Position)
 
 	if (Difference < CharSize.Y * 2)
 	{
-		this->EditorScrollBox->GetScrollObject()->Scrolled = CursorPos - CharSize.Y * 2;
+		this->EditorScrollBox->GetScrollObject()->Scrolled = std::max(CursorPos - CharSize.Y * 2, 0.0f);
 	}
 	else if (Difference > EditorScrollBox->GetUsedSize().GetScreen().Y - CharSize.Y * 2)
 	{

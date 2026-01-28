@@ -8,54 +8,20 @@
 #include <stack>
 
 kui::FileEditorProvider::FileEditorProvider(std::string Path)
+	: FileEditorProvider()
 {
-	std::ifstream Stream = std::ifstream(Path, std::ios::in);
+	auto Stream = std::ifstream(Path, std::ios::in);
+	LoadStream(Stream);
+}
 
-	// https://en.wikipedia.org/wiki/Byte_order_mark
-	static unsigned char UtfBom[] = { 0xef, 0xbb, 0xbf };
-	bool IsFirstLine = true;
+kui::FileEditorProvider::FileEditorProvider(std::istream& Stream)
+	: FileEditorProvider()
+{
+	LoadStream(Stream);
+}
 
-	while (!Stream.eof() && !Stream.fail() && !Stream.bad())
-	{
-		char LineBuffer[4000];
-
-		Stream.getline(LineBuffer, sizeof(LineBuffer));
-		LineBuffer[sizeof(LineBuffer) - 1] = 0;
-
-		if (IsFirstLine)
-		{
-			bool IsBom = true;
-
-			for (size_t i = 0; i < 3; i++)
-			{
-				if (UtfBom[i] != (unsigned char)(LineBuffer[i]))
-				{
-					IsBom = false;
-					break;
-				}
-			}
-
-			if (IsBom)
-			{
-				this->Lines.push_back(LineBuffer + 3);
-			}
-			else
-			{
-				this->Lines.push_back(LineBuffer);
-			}
-			IsFirstLine = false;
-		}
-		else
-		{
-			this->Lines.push_back(LineBuffer);
-		}
-	}
-
-	if (this->Lines.empty())
-	{
-		this->Lines.push_back({});
-	}
-
+kui::FileEditorProvider::FileEditorProvider()
+{
 	Keywords = {
 	"int",
 	"float",
@@ -67,7 +33,6 @@ kui::FileEditorProvider::FileEditorProvider(std::string Path)
 	"obj",
 	"str"
 	};
-	UpdateBracketAreas();
 }
 
 void kui::FileEditorProvider::UpdateBracketAreas()
@@ -106,6 +71,54 @@ void kui::FileEditorProvider::UpdateBracketAreas()
 
 		Index++;
 	}
+}
+
+void kui::FileEditorProvider::LoadStream(std::istream& Stream)
+{
+	// https://en.wikipedia.org/wiki/Byte_order_mark
+	static unsigned char UtfBom[] = { 0xef, 0xbb, 0xbf };
+	bool IsFirstLine = true;
+	std::string NewLine;
+
+	while (!Stream.eof() && !Stream.fail() && !Stream.bad())
+	{
+		char LineBuffer[4000];
+
+		Stream.getline(LineBuffer, sizeof(LineBuffer));
+		LineBuffer[sizeof(LineBuffer) - 1] = 0;
+
+		size_t Start = 0;
+
+		if (IsFirstLine)
+		{
+			bool IsBom = true;
+
+			for (size_t i = 0; i < 3; i++)
+			{
+				if (UtfBom[i] != (unsigned char)(LineBuffer[i]))
+				{
+					IsBom = false;
+					break;
+				}
+			}
+
+			Start = IsBom ? 3 : 0;
+			IsFirstLine = false;
+		}
+		NewLine.clear();
+		for (size_t i = Start, len = strlen(LineBuffer); i < len; i++)
+		{
+			if (LineBuffer[i] != '\r')
+				NewLine.push_back(LineBuffer[i]);
+		}
+		this->Lines.push_back(NewLine);
+	}
+
+	if (this->Lines.empty())
+	{
+		this->Lines.push_back({});
+	}
+	UpdateBracketAreas();
 }
 
 void kui::FileEditorProvider::GetPreLine(size_t LineIndex, std::vector<TextSegment>& To)
@@ -189,7 +202,7 @@ void kui::FileEditorProvider::GetLine(size_t LineIndex, std::vector<TextSegment>
 		}
 		Current.Text.append(CurrentWord);
 		CurrentWord.clear();
-	};
+		};
 
 	for (char c : Highlighted)
 	{

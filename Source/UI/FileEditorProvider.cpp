@@ -6,6 +6,7 @@
 #include <iostream>
 #include <kui/Window.h>
 #include <stack>
+#include <cstring>
 
 kui::FileEditorProvider::FileEditorProvider(std::string Path)
 	: FileEditorProvider()

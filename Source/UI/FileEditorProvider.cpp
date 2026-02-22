@@ -182,11 +182,21 @@ void kui::FileEditorProvider::GetLine(size_t LineIndex, std::vector<TextSegment>
 			else
 			{
 				bool IsDigit = true;
+				bool ContainsAnyDigit = false;
 				for (auto& i : CurrentWord)
 				{
+					if (uint8_t(i) < 127 && std::isdigit(i))
+					{
+						ContainsAnyDigit = true;
+					}
+
 					if (uint8_t(i) > 127 || (!std::isdigit(i) && i != '.' && i != '-'))
 					{
-						IsDigit = false;
+						if (!ContainsAnyDigit || uint8_t(i) > 127 || !std::isalpha(i))
+						{
+							IsDigit = false;
+						}
+
 					}
 				}
 				if (IsDigit)

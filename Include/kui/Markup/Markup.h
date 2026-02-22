@@ -36,6 +36,10 @@ namespace kui
 		{
 			this->Value = Value;
 		}
+		AnyContainer(bool Value)
+		{
+			this->Value = Value;
+		}
 		AnyContainer(double Value)
 		{
 			this->Value = (float)Value;
@@ -66,6 +70,13 @@ namespace kui
 			if (Empty)
 				return UIBox::Align::Default;
 			return std::any_cast<UIBox::Align>(Value);
+		}
+
+		operator bool()
+		{
+			if (Empty)
+				return false;
+			return std::any_cast<bool>(Value);
 		}
 
 		operator float()

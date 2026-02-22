@@ -381,6 +381,9 @@ kui::AnyContainer kui::markup::ToAny(std::string Value, std::function<std::strin
 	kui::AnyContainer ValueAny;
 	switch (Type)
 	{
+	case VariableType::Bool:
+		ValueAny = Value == "true";
+		break;
 	case  VariableType::Number:
 		ValueAny = std::stof(Value);
 		break;

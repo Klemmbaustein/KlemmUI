@@ -99,6 +99,21 @@ markup::FileResult markup::ReadFile(std::vector<stringParse::Line>& Lines,
 				continue;
 			}
 
+
+			stringParse::StringToken DerivedClassToken;
+			if (ln.Peek() == ":")
+			{
+				ln.Get(); // :
+				DerivedClassToken = ln.Get();
+				if (!Name.IsName())
+				{
+					parseError::Error("Invalid name for element: '" + DerivedClassToken.Text + "'", DerivedClassToken);
+					if (ln.Contains("{"))
+						Depth++;
+					continue;
+				}
+			}
+
 			Out.Elements.push_back(ParsedElement{
 				.Name = Name,
 				.File = FileName,
@@ -106,6 +121,7 @@ markup::FileResult markup::ReadFile(std::vector<stringParse::Line>& Lines,
 				.Start = i,
 				.StartLine = ln.Index,
 				.DefinitionToken = Name,
+				.DerivedToken = DerivedClassToken,
 				});
 			Current = &Out.Elements[Out.Elements.size() - 1];
 			if (ln.Get() != "{")
@@ -149,7 +165,12 @@ markup::FileResult markup::ReadFile(std::vector<stringParse::Line>& Lines,
 		}
 		else if (ln.Contains("{") && Depth != 0)
 		{
-			Depth++;
+			if (!ln.Contains("}"))
+				Depth++;
+			else
+			{
+				Depth -= 0;
+			}
 		}
 		else if (ln.Contains("}"))
 		{
@@ -195,6 +216,7 @@ markup::MarkupElement kui::markup::ParseElement(ParsedElement& Elem,
 
 	Element.Root = Root;
 	Element.FromToken = Elem.DefinitionToken;
+	Element.Derived = Elem.DerivedToken;
 	Element.File = Elem.File;
 	return Element;
 }
@@ -212,7 +234,16 @@ void kui::markup::ParseCustomData(std::string Name, MarkupElement& Elem,
 		stringParse::Line& ln = Lines[i];
 		ln.ResetPos();
 
-		if (ln.Peek() == "}")
+		bool ContainsA = ln.Contains("}");
+		bool ContainsB = ln.Contains("{");
+
+		if (ContainsA && ContainsB)
+		{
+			NewCustom.Lines.push_back(ln);
+			continue;
+		}
+
+		if (ContainsA)
 		{
 			if (Depth == 0)
 			{
@@ -223,7 +254,7 @@ void kui::markup::ParseCustomData(std::string Name, MarkupElement& Elem,
 			}
 			Depth--;
 		}
-		if (ln.Contains("{"))
+		if (ContainsB)
 		{
 			Depth++;
 		}
@@ -254,7 +285,7 @@ stringParse::StringToken kui::markup::ParseScope(markup::UIElement& Elem, std::v
 		}
 		if (Depth != 0)
 		{
-			if (ln.Contains("{"))
+			if (ln.Contains("{") && !ln.Contains("}"))
 			{
 				Depth++;
 			}

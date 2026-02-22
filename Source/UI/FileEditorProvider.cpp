@@ -13,6 +13,7 @@ kui::FileEditorProvider::FileEditorProvider(std::string Path)
 {
 	auto Stream = std::ifstream(Path, std::ios::in);
 	LoadStream(Stream);
+	Stream.close();
 }
 
 kui::FileEditorProvider::FileEditorProvider(std::istream& Stream)

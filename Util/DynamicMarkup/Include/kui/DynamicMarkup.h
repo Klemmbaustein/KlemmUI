@@ -17,6 +17,8 @@ namespace kui::markup
 		std::string Content;
 	};
 
+	class UIDynMarkupBox;
+
 	class DynamicMarkupContext
 	{
 	public:
@@ -29,6 +31,8 @@ namespace kui::markup
 
 		markup::ParseResult* Parsed = nullptr;
 		bool OwnsParsed = false;
+
+		std::map<std::string, std::function<UIDynMarkupBox*(DynamicMarkupContext*)>> CreateSpecialMarkupBox;
 	};
 
 	class UIDynMarkupBox : public UIBox, public kui::markup::MarkupBox
@@ -52,6 +56,7 @@ namespace kui::markup
 		void OnGlobalChanged() override;
 
 		UIDynMarkupBox(DynamicMarkupContext* Context, std::string ClassName);
+		UIDynMarkupBox();
 		virtual ~UIDynMarkupBox() override;
 		UIDynMarkupBox(const UIDynMarkupBox&) = delete;
 
@@ -64,6 +69,8 @@ namespace kui::markup
 		void SetVariable(std::string Name, kui::AnyContainer Value);
 
 		markup::MarkupElement* Element = nullptr;
+
+		void Load(DynamicMarkupContext* Context, std::string ClassName);
 
 	private:
 		DynamicMarkupContext* Context = nullptr;

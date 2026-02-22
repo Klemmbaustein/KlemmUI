@@ -30,6 +30,7 @@ namespace kui::markup
 		size_t StartLine;
 		size_t End;
 		stringParse::StringToken DefinitionToken;
+		stringParse::StringToken DerivedToken;
 		markup::MarkupElement StructureElement;
 		std::map<std::string, std::vector<stringParse::Line>> CustomFields;
 	};

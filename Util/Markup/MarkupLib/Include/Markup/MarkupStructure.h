@@ -133,6 +133,7 @@ namespace kui::markup
 		UIElement Root;
 		std::string FilePath;
 		std::string File;
+		stringParse::StringToken Derived;
 		stringParse::StringToken FromToken;
 
 		std::map<std::string, CustomSegmentData> CustomSegments;

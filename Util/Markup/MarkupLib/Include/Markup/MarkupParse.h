@@ -2,6 +2,7 @@
 #include "MarkupStructure.h"
 #include "StringParse.h"
 #include <cstdint>
+#include <functional>
 
 namespace kui::markup
 {
@@ -12,7 +13,13 @@ namespace kui::markup
 		std::string Path;
 	};
 
-	markup::ParseResult ParseFiles(std::vector<FileEntry> Files);
+	struct ParseOptions
+	{
+		std::set<std::string> CustomFields;
+		std::function<std::vector<stringParse::Line>(const std::string& FileData, const std::string& File)> Tokenize;
+	};
+
+	markup::ParseResult ParseFiles(std::vector<FileEntry> Files, ParseOptions* Options = nullptr);
 
 	struct ParsedElement
 	{
@@ -23,7 +30,9 @@ namespace kui::markup
 		size_t StartLine;
 		size_t End;
 		stringParse::StringToken DefinitionToken;
+		stringParse::StringToken DerivedToken;
 		markup::MarkupElement StructureElement;
+		std::map<std::string, std::vector<stringParse::Line>> CustomFields;
 	};
 
 	struct FileResult
@@ -34,8 +43,11 @@ namespace kui::markup
 	};
 
 	FileResult ReadFile(std::vector<stringParse::Line>& Lines, std::string FileName, std::string FilePath = "");
-	markup::MarkupElement ParseElement(ParsedElement& Elem, std::vector<stringParse::Line>& Lines);
+	markup::MarkupElement ParseElement(ParsedElement& Elem, std::vector<stringParse::Line>& Line, ParseOptions* Optionss);
+
+	void ParseCustomData(std::string Name, MarkupElement& Elem, std::vector<stringParse::Line>& Lines, size_t Start);
 
 	// Returns the last token that belongs to the element.
-	stringParse::StringToken ParseScope(markup::UIElement& Elem, std::vector<stringParse::Line> Lines, size_t Start, bool IsRoot);
+	stringParse::StringToken ParseScope(markup::UIElement& Elem, std::vector<stringParse::Line>& Lines,
+		size_t Start, markup::MarkupElement* RootElement, ParseOptions* Options);
 }

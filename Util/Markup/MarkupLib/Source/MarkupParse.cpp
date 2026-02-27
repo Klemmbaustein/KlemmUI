@@ -3,7 +3,7 @@
 #include <map>
 using namespace kui;
 
-markup::ParseResult markup::ParseFiles(std::vector<FileEntry> Files)
+markup::ParseResult markup::ParseFiles(std::vector<FileEntry> Files, ParseOptions* Options)
 {
 	std::map<std::string, FileData> OutFiles;
 
@@ -11,7 +11,12 @@ markup::ParseResult markup::ParseFiles(std::vector<FileEntry> Files)
 
 	for (const FileEntry& File : Files)
 	{
-		OutFiles.insert({ File.Name, {File.Path, stringParse::SeparateString(File.Content)} });
+		OutFiles.insert({ File.Name, {
+			File.Path,
+			Options && Options->Tokenize
+			? Options->Tokenize(File.Content, File.Name)
+			: stringParse::SeparateString(File.Content)}
+			});
 	}
 
 	std::vector<markup::Constant> Consts;
@@ -47,7 +52,7 @@ markup::ParseResult markup::ParseFiles(std::vector<FileEntry> Files)
 		auto& Data = OutFiles[Element.File];
 		parseError::SetCode(Data.Lines, Element.File);
 
-		StructureElements.push_back(ParseElement(Element, Data.Lines));
+		StructureElements.push_back(ParseElement(Element, Data.Lines, Options));
 	}
 
 	return markup::ParseResult
@@ -94,6 +99,21 @@ markup::FileResult markup::ReadFile(std::vector<stringParse::Line>& Lines,
 				continue;
 			}
 
+
+			stringParse::StringToken DerivedClassToken;
+			if (ln.Peek() == ":")
+			{
+				ln.Get(); // :
+				DerivedClassToken = ln.Get();
+				if (!Name.IsName())
+				{
+					parseError::Error("Invalid name for element: '" + DerivedClassToken.Text + "'", DerivedClassToken);
+					if (ln.Contains("{"))
+						Depth++;
+					continue;
+				}
+			}
+
 			Out.Elements.push_back(ParsedElement{
 				.Name = Name,
 				.File = FileName,
@@ -101,6 +121,7 @@ markup::FileResult markup::ReadFile(std::vector<stringParse::Line>& Lines,
 				.Start = i,
 				.StartLine = ln.Index,
 				.DefinitionToken = Name,
+				.DerivedToken = DerivedClassToken,
 				});
 			Current = &Out.Elements[Out.Elements.size() - 1];
 			if (ln.Get() != "{")
@@ -144,7 +165,12 @@ markup::FileResult markup::ReadFile(std::vector<stringParse::Line>& Lines,
 		}
 		else if (ln.Contains("{") && Depth != 0)
 		{
-			Depth++;
+			if (!ln.Contains("}"))
+				Depth++;
+			else
+			{
+				Depth -= 0;
+			}
 		}
 		else if (ln.Contains("}"))
 		{
@@ -170,7 +196,7 @@ markup::FileResult markup::ReadFile(std::vector<stringParse::Line>& Lines,
 }
 
 markup::MarkupElement kui::markup::ParseElement(ParsedElement& Elem,
-	std::vector<stringParse::Line>& Lines)
+	std::vector<stringParse::Line>& Lines, ParseOptions* Options)
 {
 	markup::MarkupElement Element;
 	markup::UIElement Root;
@@ -181,7 +207,7 @@ markup::MarkupElement kui::markup::ParseElement(ParsedElement& Elem,
 	Lines.at(Elem.Start).StringPos = 0;
 	auto StartToken = Lines.at(Elem.Start).Peek();
 
-	auto EndToken = ParseScope(Root, Lines, Elem.Start, true);
+	auto EndToken = ParseScope(Root, Lines, Elem.Start, &Element, Options);
 
 	Root.StartChar = StartToken.BeginChar;
 	Root.StartLine = StartToken.Line;
@@ -190,12 +216,54 @@ markup::MarkupElement kui::markup::ParseElement(ParsedElement& Elem,
 
 	Element.Root = Root;
 	Element.FromToken = Elem.DefinitionToken;
+	Element.Derived = Elem.DerivedToken;
 	Element.File = Elem.File;
 	return Element;
 }
 
-stringParse::StringToken kui::markup::ParseScope(markup::UIElement& Elem,
-	std::vector<stringParse::Line> Lines, size_t Start, bool IsRoot)
+void kui::markup::ParseCustomData(std::string Name, MarkupElement& Elem,
+	std::vector<stringParse::Line>& Lines, size_t Start)
+{
+	auto& NewCustom = Elem.CustomSegments.insert({ Name, {} }).first->second;
+	NewCustom.StartLine = Lines[Start].Previous().Line;
+	NewCustom.StartChar = Lines[Start].Previous().EndChar;
+
+	size_t Depth = 0;
+	for (size_t i = Start + 1; i < Lines.size(); i++)
+	{
+		stringParse::Line& ln = Lines[i];
+		ln.ResetPos();
+
+		bool ContainsA = ln.Contains("}");
+		bool ContainsB = ln.Contains("{");
+
+		if (ContainsA && ContainsB)
+		{
+			NewCustom.Lines.push_back(ln);
+			continue;
+		}
+
+		if (ContainsA)
+		{
+			if (Depth == 0)
+			{
+				auto Found = ln.Peek();
+				NewCustom.EndChar = Found.BeginChar;
+				NewCustom.EndLine = Found.Line;
+				return;
+			}
+			Depth--;
+		}
+		if (ContainsB)
+		{
+			Depth++;
+		}
+		NewCustom.Lines.push_back(ln);
+	}
+}
+
+stringParse::StringToken kui::markup::ParseScope(markup::UIElement& Elem, std::vector<stringParse::Line>& Lines,
+	size_t Start, markup::MarkupElement* RootElement, ParseOptions* Options)
 {
 	size_t Depth = 0;
 	for (size_t i = Start + 1; i < Lines.size(); i++)
@@ -217,7 +285,7 @@ stringParse::StringToken kui::markup::ParseScope(markup::UIElement& Elem,
 		}
 		if (Depth != 0)
 		{
-			if (ln.Contains("{"))
+			if (ln.Contains("{") && !ln.Contains("}"))
 			{
 				Depth++;
 			}
@@ -230,7 +298,7 @@ stringParse::StringToken kui::markup::ParseScope(markup::UIElement& Elem,
 		}
 		else if (Begin == "var")
 		{
-			if (!IsRoot)
+			if (!RootElement)
 			{
 				parseError::Error("Cannot declare variable here.", Begin);
 			}
@@ -254,7 +322,7 @@ stringParse::StringToken kui::markup::ParseScope(markup::UIElement& Elem,
 				: UIElement::ElementType::UserDefined;
 
 			stringParse::StringToken Next = ln.Get();
-			auto EndToken = ParseScope(New, Lines, i, false);
+			auto EndToken = ParseScope(New, Lines, i, nullptr, Options);
 
 			New.StartChar = Next.BeginChar;
 			New.StartLine = Next.Line;
@@ -280,6 +348,10 @@ stringParse::StringToken kui::markup::ParseScope(markup::UIElement& Elem,
 					parseError::Error("Unexpected '" + ln.Previous().Text + "'", ln.Previous());
 				}
 			}
+		}
+		else if (Options && Options->CustomFields.contains(Begin) && RootElement)
+		{
+			ParseCustomData(Begin, *RootElement, Lines, i);
 		}
 		else
 		{

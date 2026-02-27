@@ -123,6 +123,13 @@ namespace kui
 		 * A pointer to this UIBox.
 		 */
 		UIBox* SetMaxSize(SizeVec NewMaxSize);
+
+		UIBox* SetSize(SizeVec NewSize)
+		{
+			return SetMinSize(NewSize)
+				->SetMaxSize(NewSize);
+		}
+
 		SizeVec GetMaxSize() const;
 
 		/**
@@ -414,6 +421,11 @@ namespace kui
 		virtual void Update();
 		virtual void Draw(render::RenderBackend* Backend);
 		virtual void Tick();
+		virtual Vec2f UpdateScale();
+		virtual void UpdateChildPosition();
+		void UpdatePositionLayout();
+		void UpdateScaleLayout();
+
 		void UpdateHoveredState();
 		Vec2f Position;
 		Vec2f OffsetPosition = NAN;
@@ -430,15 +442,18 @@ namespace kui
 		UIBox* Parent = nullptr;
 		void UpdateSelfAndChildren();
 
+		void SetChildPosition(UIBox* Child, Vec2f Position);
+		Vec2f GetChildPositionValue(UIBox* Child);
+
+		Vec2f GetMinScreenSize();
+		Vec2f GetMaxScreenSize();
+
 	private:
 
 		void SetOffsetPosition(Vec2f NewPos);
 
 		float GetVerticalOffset();
 		float GetHorizontalOffset();
-		void UpdateScale();
-		void UpdatePosition();
-
 
 		friend UIManager;
 	};

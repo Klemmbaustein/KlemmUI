@@ -13,6 +13,8 @@ namespace kui
 	public:
 
 		FileEditorProvider(std::string Path);
+		FileEditorProvider(std::istream& Stream);
+		FileEditorProvider();
 
 		void GetPreLine(size_t LineIndex, std::vector<TextSegment>& To) override;
 		void GetLine(size_t LineIndex, std::vector<TextSegment>& To) override;
@@ -30,6 +32,8 @@ namespace kui
 		void Undo();
 		void Redo();
 		void Commit() override;
+
+		void LoadStream(std::istream& Stream);
 
 		void DumpContent();
 		std::string GetContent();

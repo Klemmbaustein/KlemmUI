@@ -89,6 +89,7 @@ bool UIManager::DrawElements()
 		}
 		ElementsToUpdate.clear();
 	}
+
 	Vec2ui WindowSize = Window::GetActiveWindow()->GetSize();
 	if (!RedrawBoxes.empty())
 	{
@@ -356,14 +357,14 @@ UIBox* kui::UIManager::GetNextFocusableBox(UIBox* From, bool Reverse)
 	return nullptr;
 }
 
-void UIManager::RedrawArea(render::RedrawBox Box)
+bool UIManager::RedrawArea(render::RedrawBox Box)
 {
 	// Do not redraw the element if it's position has not yet been initialized.
 	// It will be redrawn once the position has been set anyways.
 	if (std::isnan(Box.Min.X) || std::isnan(Box.Min.Y)
 		|| std::isnan(Box.Max.X) || std::isnan(Box.Max.Y))
 	{
-		return;
+		return false;
 	}
 
 	render::RedrawBox* CurrentBox = &Box;
@@ -381,7 +382,7 @@ void UIManager::RedrawArea(render::RedrawBox Box)
 
 		if (IteratedBox.Min == Box.Min && IteratedBox.Max == Box.Max)
 		{
-			return;
+			return true;
 		}
 
 		if (render::RedrawBox::IsBoxOverlapping(*CurrentBox, IteratedBox))
@@ -397,4 +398,5 @@ void UIManager::RedrawArea(render::RedrawBox Box)
 	{
 		RedrawBoxes.push_back(Box);
 	}
+	return true;
 }

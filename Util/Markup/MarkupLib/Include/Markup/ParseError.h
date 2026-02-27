@@ -14,5 +14,5 @@ namespace kui::parseError
 	int GetErrorCount();
 	void ResetError();
 
-	extern std::function<void(std::string Message, std::string File, size_t Line, size_t Begin, size_t End)> ErrorCallback;
+	extern thread_local std::function<void(std::string Message, std::string File, size_t Line, size_t Begin, size_t End)> ErrorCallback;
 }

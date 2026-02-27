@@ -54,6 +54,7 @@ void kui::markup::DynamicMarkupContext::LoadFiles(std::vector<MarkupFile> Files)
 
 	Parsed = new ParseResult(ParseFiles(MarkupFiles));
 	markup::Verify(*Parsed);
+	OwnsParsed = true;
 }
 
 kui::markup::DynamicMarkupContext::DynamicMarkupContext()
@@ -62,12 +63,22 @@ kui::markup::DynamicMarkupContext::DynamicMarkupContext()
 }
 kui::markup::DynamicMarkupContext::~DynamicMarkupContext()
 {
-	if (Parsed)
+	if (OwnsParsed && Parsed)
 		delete Parsed;
 }
 
 kui::markup::UIDynMarkupBox::UIDynMarkupBox(DynamicMarkupContext* Context, std::string ClassName)
 	: UIBox(true)
+{
+	Load(Context, ClassName);
+}
+
+kui::markup::UIDynMarkupBox::UIDynMarkupBox()
+	: UIBox(true)
+{
+}
+
+void kui::markup::UIDynMarkupBox::Load(DynamicMarkupContext* Context, std::string ClassName)
 {
 	this->Context = Context;
 	ElementName = ClassName;

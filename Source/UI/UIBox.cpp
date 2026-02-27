@@ -37,8 +37,8 @@ const std::vector<UIBox*>& UIBox::GetChildren()
 
 void UIBox::UpdateElement()
 {
-	UpdateScale();
-	UpdatePosition();
+	UpdateScaleLayout();
+	UpdatePositionLayout();
 
 	UpdateSelfAndChildren();
 }
@@ -310,14 +310,62 @@ void UIBox::Update()
 
 void UIBox::UpdateSelfAndChildren()
 {
-	UpdatePosition();
+	UpdatePositionLayout();
 	Update();
 
 	for (auto& i : Children)
 	{
 		i->UpdateSelfAndChildren();
 	}
-	UpdateScale();
+	UpdateScaleLayout();
+}
+
+void kui::UIBox::SetChildPosition(UIBox* Child, Vec2f Position)
+{
+	Child->SetOffsetPosition(Position);
+}
+
+Vec2f kui::UIBox::GetChildPositionValue(UIBox* Child)
+{
+	return Child->Position;
+}
+
+Vec2f kui::UIBox::GetMinScreenSize()
+{
+	Vec2f ScreenMinSize = MinSize.GetScreen();
+
+	Vec2f UpDown, LeftRight;
+	GetPaddingScreenSize(UpDown, LeftRight);
+	Vec2f AvailableParentSize = (Parent ? Parent->Size : Vec2f(2)) - Vec2f(LeftRight.X + LeftRight.Y, UpDown.X + UpDown.Y);
+
+	if (MinSize.X.Mode == SizeMode::ParentRelative)
+	{
+		ScreenMinSize.X = AvailableParentSize.X * MinSize.X.Value;
+	}
+	if (MinSize.Y.Mode == SizeMode::ParentRelative)
+	{
+		ScreenMinSize.Y = AvailableParentSize.Y * MinSize.Y.Value;
+	}
+	return ScreenMinSize;
+}
+
+Vec2f kui::UIBox::GetMaxScreenSize()
+{
+	Vec2f ScreenMaxSize = MaxSize.GetScreen();
+
+	Vec2f UpDown, LeftRight;
+	GetPaddingScreenSize(UpDown, LeftRight);
+	Vec2f AvailableParentSize = (Parent ? Parent->Size : Vec2f(2)) - Vec2f(LeftRight.X + LeftRight.Y, UpDown.X + UpDown.Y);
+
+	if (MaxSize.X.Mode == SizeMode::ParentRelative)
+	{
+		ScreenMaxSize.X = AvailableParentSize.X * MaxSize.X.Value;
+	}
+	if (MaxSize.Y.Mode == SizeMode::ParentRelative)
+	{
+		ScreenMaxSize.Y = AvailableParentSize.Y * MaxSize.Y.Value;
+	}
+	return ScreenMaxSize;
 }
 
 Vec2f UIBox::PixelSizeToScreenSize(Vec2f PixelSize, Window* TargetWindow)
@@ -384,12 +432,8 @@ float UIBox::GetHorizontalOffset()
 	return HorizontalOffset;
 }
 
-void UIBox::UpdateScale()
+Vec2f UIBox::UpdateScale()
 {
-	for (auto c : Children)
-	{
-		c->UpdateScale();
-	}
 	Vec2f NewSize = 0;
 	for (auto c : Children)
 	{
@@ -425,54 +469,13 @@ void UIBox::UpdateScale()
 		}
 	}
 
-	Vec2f ScreenMinSize = MinSize.GetScreen();
-	Vec2f ScreenMaxSize = MaxSize.GetScreen();
 
-	Vec2f UpDown, LeftRight;
-	GetPaddingScreenSize(UpDown, LeftRight);
-	Vec2f AvailableParentSize = (Parent ? Parent->Size : Vec2f(2)) - Vec2f(LeftRight.X + LeftRight.Y, UpDown.X + UpDown.Y);
-
-	if (MinSize.X.Mode == SizeMode::ParentRelative)
-	{
-		ScreenMinSize.X = AvailableParentSize.X * MinSize.X.Value;
-	}
-	if (MinSize.Y.Mode == SizeMode::ParentRelative)
-	{
-		ScreenMinSize.Y = AvailableParentSize.Y * MinSize.Y.Value;
-	}
-	if (MaxSize.X.Mode == SizeMode::ParentRelative)
-	{
-		ScreenMaxSize.X = AvailableParentSize.X * MaxSize.X.Value;
-	}
-	if (MaxSize.Y.Mode == SizeMode::ParentRelative)
-	{
-		ScreenMaxSize.Y = AvailableParentSize.Y * MaxSize.Y.Value;
-	}
-
-	NewSize = NewSize.Clamp(ScreenMinSize, ScreenMaxSize);
-
-	if (NewSize != Size)
-	{
-		ParentWindow->UI.RedrawArea(render::RedrawBox{
-			.Min = GetPosition(),
-			.Max = GetPosition() + Vec2f::Max(Size, NewSize),
-			});
-		Size = NewSize;
-	}
-	for (auto c : Children)
-	{
-		c->UpdateScale();
-	}
+	return NewSize.Clamp(GetMinScreenSize(), GetMaxScreenSize());
 }
 
-void UIBox::UpdatePosition()
+void UIBox::UpdateChildPosition()
 {
 	float Offset = 0;
-
-	if (!Parent)
-	{
-		SetOffsetPosition(Position);
-	}
 
 	Align PrimaryAlign = ChildrenHorizontal ? HorizontalBoxAlign : VerticalBoxAlign;
 
@@ -493,7 +496,7 @@ void UIBox::UpdatePosition()
 	}
 
 
-	for (auto c : Children)
+	for (UIBox* c : Children)
 	{
 		if (c->IsCollapsed)
 		{
@@ -506,12 +509,12 @@ void UIBox::UpdatePosition()
 		{
 			if (ChildrenHorizontal)
 			{
-				c->SetOffsetPosition(OffsetPosition + Vec2f(Size.X / 2 - ChildrenSize / 2 + LeftRight.X + Offset, c->GetVerticalOffset()));
+				SetChildPosition(c, OffsetPosition + Vec2f(Size.X / 2 - ChildrenSize / 2 + LeftRight.X + Offset, c->GetVerticalOffset()));
 				Offset += c->Size.X + LeftRight.X + LeftRight.Y;
 			}
 			else
 			{
-				c->SetOffsetPosition(OffsetPosition + Vec2f(c->GetHorizontalOffset(), Size.Y / 2 - ChildrenSize / 2 + UpDown.Y + Offset));
+				SetChildPosition(c, OffsetPosition + Vec2f(c->GetHorizontalOffset(), Size.Y / 2 - ChildrenSize / 2 + UpDown.Y + Offset));
 				Offset += c->Size.Y + UpDown.X + UpDown.Y;
 			}
 		}
@@ -521,11 +524,11 @@ void UIBox::UpdatePosition()
 			{
 				if (PrimaryAlign == Align::Reverse)
 				{
-					c->SetOffsetPosition(OffsetPosition + Vec2f(Size.X - Offset - c->Size.X - LeftRight.Y, c->GetVerticalOffset()));
+					SetChildPosition(c, OffsetPosition + Vec2f(Size.X - Offset - c->Size.X - LeftRight.Y, c->GetVerticalOffset()));
 				}
 				else
 				{
-					c->SetOffsetPosition(OffsetPosition + Vec2f(Offset + LeftRight.X, c->GetVerticalOffset()));
+					SetChildPosition(c, OffsetPosition + Vec2f(Offset + LeftRight.X, c->GetVerticalOffset()));
 				}
 				Offset += c->Size.X + LeftRight.X + LeftRight.Y;
 			}
@@ -533,19 +536,53 @@ void UIBox::UpdatePosition()
 			{
 				if (PrimaryAlign == Align::Reverse)
 				{
-					c->SetOffsetPosition(OffsetPosition + Vec2f(c->GetHorizontalOffset(), Size.Y - Offset - c->Size.Y - UpDown.X));
+					SetChildPosition(c, OffsetPosition + Vec2f(c->GetHorizontalOffset(), Size.Y - Offset - c->Size.Y - UpDown.X));
 				}
 				else
 				{
-					c->SetOffsetPosition(OffsetPosition + Vec2f(c->GetHorizontalOffset(), Offset + UpDown.Y));
+					SetChildPosition(c, OffsetPosition + Vec2f(c->GetHorizontalOffset(), Offset + UpDown.Y));
 				}
 				Offset += c->Size.Y + UpDown.X + UpDown.Y;
 			}
 		}
 	}
-	for (auto c : Children)
+}
+
+void kui::UIBox::UpdatePositionLayout()
+{
+	if (!Parent)
 	{
-		c->UpdatePosition();
+		SetOffsetPosition(Position);
+	}
+
+	UpdateChildPosition();
+
+	for (UIBox* c : Children)
+	{
+		c->UpdatePositionLayout();
+	}
+}
+
+void kui::UIBox::UpdateScaleLayout()
+{
+	for (UIBox* c : Children)
+	{
+		c->UpdateScaleLayout();
+	}
+
+	Vec2f NewSize = UpdateScale();
+
+	if (NewSize != Size)
+	{
+		ParentWindow->UI.RedrawArea(render::RedrawBox{
+			.Min = GetPosition(),
+			.Max = GetPosition() + Vec2f::Max(Size, NewSize),
+			});
+		Size = NewSize;
+	}
+	for (UIBox* c : Children)
+	{
+		c->UpdateScaleLayout();
 	}
 }
 
@@ -565,8 +602,10 @@ void UIBox::RedrawElement(bool Force)
 		return;
 	}
 
-	Redrawn = true;
-	ParentWindow->UI.RedrawArea(GetRedrawBox());
+	if (ParentWindow->UI.RedrawArea(GetRedrawBox()))
+	{
+		Redrawn = true;
+	}
 }
 
 void kui::UIBox::SetUpPadding(UISize Value)

@@ -86,6 +86,11 @@ UIBox* kui::markup::CreateNew(std::string Name, DynamicMarkupContext* From)
 	if (Name == "UITextField")
 		return new UITextField(0, 1, Window::GetActiveWindow()->Markup.GetFont(""), nullptr);
 
+	if (From->CreateSpecialMarkupBox.contains(Name))
+	{
+		return From->CreateSpecialMarkupBox[Name](From);
+	}
+
 	return new UIDynMarkupBox(From, Name);
 }
 
@@ -243,7 +248,7 @@ static markup::PropElementType GetTypeFromBox(UIBox* Target)
 	return PropElementType::UIBox;
 }
 
-DynamicProperty* GetProperty(std::string Name, UIBox* Target, markup::PropElementType Type)
+static DynamicProperty* GetProperty(std::string Name, UIBox* Target, markup::PropElementType Type)
 {
 	for (auto& i : DynamicProperties)
 	{
@@ -376,6 +381,9 @@ kui::AnyContainer kui::markup::ToAny(std::string Value, std::function<std::strin
 	kui::AnyContainer ValueAny;
 	switch (Type)
 	{
+	case VariableType::Bool:
+		ValueAny = Value == "true";
+		break;
 	case  VariableType::Number:
 		ValueAny = std::stof(Value);
 		break;

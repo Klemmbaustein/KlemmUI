@@ -92,7 +92,7 @@ void kui::platform::win32::SetWindowBorderRounding(Window* TargetWindow, WindowR
 		CornerPref = DWMWCP_ROUND;
 		break;
 	}
-	case WindowRoundingMode::None:
+	case WindowRoundingMode::NoCorners:
 	{
 		CornerPref = DWMWCP_DONOTROUND;
 		break;

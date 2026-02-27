@@ -124,8 +124,9 @@ kui::InputManager::InputManager(Window* Parent)
 		{
 			Win->Input.PollForText = false;
 		}
-		else
+		else if (Win->UI.KeyboardFocusBox)
 		{
+			Win->UI.KeyboardFocusBox->RedrawElement();
 			Win->UI.KeyboardFocusBox = nullptr;
 		}
 	});

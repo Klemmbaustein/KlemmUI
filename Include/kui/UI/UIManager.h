@@ -95,6 +95,6 @@ namespace kui
 		std::vector<ButtonEvent> ButtonEvents;
 
 		std::vector<render::RedrawBox> RedrawBoxes;
-		void RedrawArea(render::RedrawBox Box);
+		bool RedrawArea(render::RedrawBox Box);
 	};
 }

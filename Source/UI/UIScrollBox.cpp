@@ -98,6 +98,7 @@ UIScrollBox* UIScrollBox::SetDisplayScrollBar(bool NewDisplay)
 			UpdateColors();
 
 			ScrollBarBackground->AddChild(ScrollBar);
+			ScrollBarBackground->IsVisible = false;
 		}
 		else if (ScrollBar)
 		{

@@ -448,6 +448,14 @@ kui::FileEditorProvider::Change kui::FileEditorProvider::ApplyChange(const Chang
 				.IsRemove = true,
 				});
 			ParentEditor->RemoveLine(p->Line);
+			if (ParentEditor->SelectionStart.Line >= p->Line)
+			{
+				ParentEditor->SelectionStart.Line -= 1;
+			}
+			if (ParentEditor->SelectionEnd.Line >= p->Line)
+			{
+				ParentEditor->SelectionEnd.Line -= 1;
+			}
 		}
 		else if (p->IsRemove)
 		{
@@ -457,6 +465,14 @@ kui::FileEditorProvider::Change kui::FileEditorProvider::ApplyChange(const Chang
 				});
 			std::vector<TextSegment> s = { TextSegment(p->Content, 1) };
 			ParentEditor->AddLine(p->Line, s);
+			if (ParentEditor->SelectionStart.Line >= p->Line)
+			{
+				ParentEditor->SelectionStart.Line += 1;
+			}
+			if (ParentEditor->SelectionEnd.Line >= p->Line)
+			{
+				ParentEditor->SelectionEnd.Line += 1;
+			}
 		}
 		else
 		{

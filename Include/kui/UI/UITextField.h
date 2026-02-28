@@ -83,6 +83,7 @@ namespace kui
 		* Pulls keyboard focus to this text field and starts editing it.
 		*/
 		void Edit();
+		void SelectAll();
 
 		UITextField* SetInnerPadding(UISize Size);
 		UITextField* SetInnerPadding(UISize Up, UISize Down, UISize Left, UISize Right);

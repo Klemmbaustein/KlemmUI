@@ -26,8 +26,18 @@ static void OnTextEditorDelete(Window* WithWindow)
 	{
 		if (CurrentEditor->SelectionStart == CurrentEditor->SelectionEnd)
 		{
-			CurrentEditor->SelectionStart.Column++;
-			CurrentEditor->SelectionEnd.Column++;
+			CurrentEditor->SelectionStart = CurrentEditor->CharacterPosToGrid(
+				CurrentEditor->SelectionStart, false, false);
+			CurrentEditor->SelectionStart.Column += 1;
+			CurrentEditor->SelectionStart = CurrentEditor->GridToCharacterPos(
+				CurrentEditor->SelectionStart, false, false);
+			if (CurrentEditor->GetLine(CurrentEditor->SelectionStart.Line).Length
+				< CurrentEditor->SelectionStart.Column)
+			{
+				CurrentEditor->SelectionStart.Line++;
+				CurrentEditor->SelectionStart.Column = 0;
+			}
+			CurrentEditor->SelectionEnd = CurrentEditor->SelectionStart;
 		}
 		CurrentEditor->DeleteChar();
 	}
@@ -451,7 +461,7 @@ void kui::UITextEditor::DeleteChar()
 	SelectionStart = GridToCharacterPos(SelectionStart, true, false);
 
 	Erase(StartPos, SelectionStart);
-	SelectionStart = StartPos;
+	StartPos = SelectionStart;
 	SelectionEnd = SelectionStart;
 	UpdateContent();
 }

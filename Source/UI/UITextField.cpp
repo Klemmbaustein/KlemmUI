@@ -290,6 +290,13 @@ void UITextField::Edit()
 	RedrawElement();
 }
 
+void kui::UITextField::SelectAll()
+{
+	Edit();
+	ParentWindow->Input.TextSelectionStart = 0;
+	ParentWindow->Input.TextIndex = EnteredText.size();
+}
+
 UITextField* kui::UITextField::SetInnerPadding(UISize Size)
 {
 	TextObject->SetPadding(Size);

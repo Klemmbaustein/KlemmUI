@@ -100,8 +100,8 @@ namespace kui
 
 		void SnapColumn(EditorPosition& Position);
 
-		EditorPosition CharacterPosToGrid(EditorPosition CharacterPos, bool SnapToEnd = true);
-		EditorPosition GridToCharacterPos(EditorPosition GridPos, bool SnapToEnd = true);
+		EditorPosition CharacterPosToGrid(EditorPosition CharacterPos, bool SnapToEnd = true, bool WithTabs = true);
+		EditorPosition GridToCharacterPos(EditorPosition GridPos, bool SnapToEnd = true, bool WithTabs = true);
 		size_t LinesStart = 0;
 		size_t GetLoadedLines();
 

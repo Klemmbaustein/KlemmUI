@@ -201,7 +201,16 @@ void kui::UITextEditor::MoveCursor(int64_t Column, int64_t Line, bool DragSelect
 		CurrentEditor->SnapColumn(SelectionEnd);
 		if (Column > 0 || int64_t(SelectionEnd.Column) >= abs(Column))
 		{
+			auto Initial = SelectionEnd.Column;
+			SelectionEnd = CharacterPosToGrid(SelectionEnd, false, false);
 			SelectionEnd.Column += Column;
+			SelectionEnd = GridToCharacterPos(SelectionEnd, false, false);
+
+			if (Initial == SelectionEnd.Column)
+			{
+				SelectionEnd.Column += Column;
+			}
+
 			if (IsLineLoaded(SelectionEnd.Line) && GetLine(SelectionEnd.Line).Length < SelectionEnd.Column)
 			{
 				SelectionEnd.Line++;
@@ -220,9 +229,7 @@ void kui::UITextEditor::MoveCursor(int64_t Column, int64_t Line, bool DragSelect
 	}
 	if (Line != 0 && (Line > 0 || int64_t(SelectionEnd.Line) >= abs(Line)))
 	{
-		SelectionEnd = CharacterPosToGrid(SelectionEnd, false);
 		SelectionEnd.Line += Line;
-		SelectionEnd = GridToCharacterPos(SelectionEnd, false);
 	}
 
 
@@ -426,7 +433,7 @@ void kui::UITextEditor::DeleteChar()
 	}
 	else
 	{
-		SnapColumn(SelectionEnd);
+		SnapColumn(SelectionStart);
 	}
 	auto StartPos = SelectionStart;
 
@@ -439,9 +446,13 @@ void kui::UITextEditor::DeleteChar()
 		return;
 	}
 
-	StartPos.Column -= 1;
+	SelectionStart = CharacterPosToGrid(SelectionStart, true, false);
+	SelectionStart.Column -= 1;
+	SelectionStart = GridToCharacterPos(SelectionStart, true, false);
+
 	Erase(StartPos, SelectionStart);
 	SelectionStart = StartPos;
+	SelectionEnd = SelectionStart;
 	UpdateContent();
 }
 
@@ -695,7 +706,7 @@ void kui::UITextEditor::AdjustSelection(EditorPosition& Position, bool Direction
 		{
 			char Character = String[Position.Column];
 
-			if (!std::isalpha(Character) && !std::isdigit(Character) && Character != '_')
+			if (uint8_t(Character) < 128 && !std::isalpha(Character) && !std::isdigit(Character) && Character != '_')
 			{
 				break;
 			}
@@ -1257,7 +1268,7 @@ Vec2f kui::UITextEditor::EditorToScreen(EditorPosition Position)
 	return GetPosition() + Pos + Vec2f(0, Size.Y - CharSize.Y);
 }
 
-EditorPosition kui::UITextEditor::CharacterPosToGrid(EditorPosition CharacterPos, bool SnapToEnd)
+EditorPosition kui::UITextEditor::CharacterPosToGrid(EditorPosition CharacterPos, bool SnapToEnd, bool WithTabs)
 {
 	if (IsLineLoaded(CharacterPos.Line))
 	{
@@ -1293,7 +1304,7 @@ EditorPosition kui::UITextEditor::CharacterPosToGrid(EditorPosition CharacterPos
 						it++;
 					}
 				}
-				else if (c == '\t')
+				else if (c == '\t' && WithTabs)
 				{
 					Count += 4 - Count % 4;
 				}
@@ -1310,7 +1321,7 @@ EditorPosition kui::UITextEditor::CharacterPosToGrid(EditorPosition CharacterPos
 	return CharacterPos;
 }
 
-EditorPosition kui::UITextEditor::GridToCharacterPos(EditorPosition GridPos, bool SnapToEnd)
+EditorPosition kui::UITextEditor::GridToCharacterPos(EditorPosition GridPos, bool SnapToEnd, bool WithTabs)
 {
 	size_t PosX = size_t(GridPos.Column);
 	size_t PosY = size_t(GridPos.Line);
@@ -1339,7 +1350,7 @@ EditorPosition kui::UITextEditor::GridToCharacterPos(EditorPosition GridPos, boo
 					break;
 				}
 
-				if (c == '\t')
+				if (c == '\t' && WithTabs)
 				{
 					size_t TabSize = 4 - CharCount % 4;
 					if (PosX < TabSize / 2)

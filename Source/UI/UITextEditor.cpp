@@ -1131,11 +1131,11 @@ void kui::UITextEditor::InsertNewLine(EditorPosition At, bool Commit)
 	auto& Line = GetLine(At.Line);
 
 	auto EraseEnd = At;
-	EraseEnd.Column = Line.Length;
+	EraseEnd.Column = SIZE_MAX;
 
 	std::vector<TextSegment> EndOfLine;
 	size_t EndOfLineCount = Line.Length - At.Column;
-	Get(At, EndOfLineCount, EndOfLine);
+	Get(At, SIZE_MAX, EndOfLine);
 
 	Erase(At, EraseEnd, false);
 	EditorProvider->SetLine(At.Line, Line.Data);

@@ -141,7 +141,7 @@ SizeVec UIBox::GetUsedSize()
 Vec2f UIBox::GetScreenPosition() const
 {
 	if (CurrentScrollObject)
-		return OffsetPosition + Vec2f(0, CurrentScrollObject->GetOffset());
+		return OffsetPosition + CurrentScrollObject->GetOffset();
 	return OffsetPosition;
 }
 
@@ -248,7 +248,7 @@ Vec2f UIBox::GetPosition() const
 {
 	if (CurrentScrollObject)
 	{
-		return OffsetPosition + Vec2f(0, CurrentScrollObject->GetOffset());
+		return OffsetPosition + CurrentScrollObject->GetOffset();
 	}
 	else
 	{
@@ -739,7 +739,7 @@ bool UIBox::IsBeingHovered()
 	Vec2f MouseLocation = ParentWindow->Input.MousePosition;
 	if (CurrentScrollObject)
 	{
-		MouseLocation = MouseLocation - Vec2f(0, CurrentScrollObject->GetOffset());
+		MouseLocation = MouseLocation - CurrentScrollObject->GetOffset();
 	}
 	return (internal::math::IsPointIn2DBox(OffsetPosition, OffsetPosition + Size, MouseLocation) // If the mouse is on top of the box
 		&& (!CurrentScrollObject || // Check if we have a scroll object

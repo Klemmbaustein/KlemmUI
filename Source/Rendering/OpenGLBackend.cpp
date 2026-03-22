@@ -312,13 +312,22 @@ DrawableText* kui::render::OpenGLBackend::MakeText(FontRenderData* Data, const s
 }
 
 
-void kui::render::OpenGLBackend::UpdateScroll(ScrollObject* Scroll, Shader* UsedShader, UIBackgroundState* Target)
+void kui::render::OpenGLBackend::UpdateScroll(ScrollObject* Scroll, Shader* UsedShader)
 {
 	if (Scroll != nullptr)
-		UsedShader->SetVec3("u_offset",
-			Vec3f(-Scroll->GetOffset(), Scroll->GetPosition().Y, Scroll->GetScale().Y));
+	{
+		Vec2f Position = Scroll->GetPosition();
+		Vec2f Scale = Scroll->GetScale();
+
+		UsedShader->SetVec2("u_scrollOffset",
+			Scroll->GetOffset());
+		glUniform4f(UsedShader->GetUniformLocation("u_scrollBounds"), Position.X, Scale.X, Position.Y, Scale.Y);
+	}
 	else
-		UsedShader->SetVec3("u_offset", Vec3f(0, -1000, 1000));
+	{
+		UsedShader->SetVec2("u_scrollOffset", 0);
+		glUniform4f(UsedShader->GetUniformLocation("u_scrollBounds"), -1, 1, -1, 1);
+	}
 }
 
 void kui::render::GLUIBackgroundState::Draw(render::RenderBackend* With, Vec2f Position, Vec2f Size,
@@ -339,7 +348,7 @@ void kui::render::GLUIBackgroundState::Draw(render::RenderBackend* With, Vec2f P
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, TextureID);
 	UsedShader->Bind();
-	Backend->UpdateScroll(Scroll, UsedShader, this);
+	Backend->UpdateScroll(Scroll, UsedShader);
 	UsedShader->SetVec3("u_color", Color);
 
 	UISize DrawnBorderRadius = BorderRadius;
@@ -425,15 +434,7 @@ void kui::render::GLDrawableText::Draw(ScrollObject* CurrentScrollObject, Vec2f 
 	TextShader->SetVec3("transform", Vec3f(Pos.X, Pos.Y, Scale));
 	TextShader->SetVec2("u_screenRes", Vec2f(Window::GetActiveWindow()->GetSize().Y * 1.5f));
 	TextShader->SetFloat("u_opacity", Opacity);
-	if (CurrentScrollObject != nullptr)
-	{
-		auto ScrollPos = CurrentScrollObject->GetPosition();
-
-		TextShader->SetVec3("u_offset",
-			Vec3f(-CurrentScrollObject->GetOffset(), ScrollPos.Y, CurrentScrollObject->GetScale().Y));
-	}
-	else
-		TextShader->SetVec3("u_offset", Vec3f(0.0f, -1000.0f, 1000.0f));
+	this->Parent->UpdateScroll(CurrentScrollObject, TextShader);
 	glDrawArrays(GL_TRIANGLES, 0, NumVerts);
 	TextShader->Unbind();
 	glBindVertexArray(0);

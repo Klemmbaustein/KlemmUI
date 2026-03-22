@@ -13,22 +13,22 @@ namespace kui
 	public:
 		Vec2f Position;
 		Vec2f Scale;
-		float Scrolled = 0;
+		Vec2f Scrolled = 0;
 
-		float GetOffset() const;
+		Vec2f GetOffset() const;
 
 		Vec2f GetPosition() const;
 		Vec2f GetScale() const;
 
 		ScrollObject* Parent = nullptr;
 		static std::set<ScrollObject*> GetAllScrollObjects();
-		ScrollObject(Vec2f Position, Vec2f Scale, float MaxScroll, bool Register = true);
+		ScrollObject(Vec2f Position, Vec2f Scale, Vec2f MaxScroll, bool Register = true);
 		~ScrollObject();
-		void ScrollUp();
-		void ScrollDown();
+		void ScrollUp(int Axis);
+		void ScrollDown(int Axis);
 		float Speed = 12;
 		bool Active = true;
-		float MaxScroll = 10;
+		Vec2f MaxScroll = 10;
 	};
 
 	/**
@@ -48,6 +48,7 @@ namespace kui
 		uint32_t ScrollDownPadding = 0;
 
 		bool UseDefaultColors = true;
+		bool IncludeScrollBarInScroll = false;
 
 		static bool IsDraggingScrollBox;
 		ScrollObject* GetScrollObject();
@@ -74,15 +75,15 @@ namespace kui
 		ScrollObject ScrollClass = ScrollObject(OffsetPosition, Size, 15);
 		UIButton* ScrollBarBackground = nullptr;
 		UIBackground* ScrollBar = nullptr;
-		float MaxScroll = -1;
+		Vec2f MaxScroll = -1;
 		bool IsDragging = false;
 		float InitialDragPosition = 0;
 		float InitialScrollPosition = 0;
 		bool DisplayScrollBar = false;
 
-		float OldPercentage = 0;
-		float DesiredMaxScroll = 0;
-		float GetDesiredChildrenSize();
+		Vec2f OldPercentage = 0;
+		Vec2f DesiredMaxScroll = 0;
+		Vec2f GetDesiredChildrenSize();
 		void UpdateScrollObjectOfObject(UIBox* o);
 
 	};

@@ -9,7 +9,8 @@ layout (location = 1) out vec4 f_alpha;
 uniform vec3 u_color;
 uniform vec3 u_borderColor;
 uniform sampler2D u_texture;
-uniform vec3 u_offset; // Scroll bar: X = scrolled distance; Y = MaxDistance; Z MinDistance
+// xy = x min max bounds, zw = y min max bounds
+uniform vec4 u_scrollBounds;
 uniform float u_opacity;
 uniform bool u_drawBorder;
 uniform bool u_drawCorner;
@@ -39,15 +40,25 @@ void main()
 	vec2 centeredTexCoords = abs(nonAbsCenteredTexCoords);
 	
 	int cornerIndex = int(round(v_cornerIndex));
-	
-	if (u_offset.y > v_position.y)
+
+	if (u_scrollBounds.x > v_position.x)
 	{
 		discard;
 	}
-	if (u_offset.z < v_position.y)
+	if (u_scrollBounds.y < v_position.x)
 	{
 		discard;
 	}
+
+	if (u_scrollBounds.z > v_position.y)
+	{
+		discard;
+	}
+	if (u_scrollBounds.w < v_position.y)
+	{
+		discard;
+	}
+
 	if (u_opacity < 1.0)
 	{
 		vec3 sampled = clamp(texture(u_texture, v_texcoords).xyz, 0.0, 1.0);

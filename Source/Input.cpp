@@ -249,9 +249,9 @@ void kui::InputManager::MoveMouseWheel(int Amount)
 		for (ScrollObject* s : ScrollObject::GetAllScrollObjects())
 		{
 			if (Amount < 0)
-				s->ScrollUp();
+				s->ScrollUp(!IsKeyDown(Key::SHIFT));
 			else
-				s->ScrollDown();
+				s->ScrollDown(!IsKeyDown(Key::SHIFT));
 		}
 		if (Amount < 0)
 			Amount++;

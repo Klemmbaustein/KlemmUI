@@ -126,7 +126,7 @@ std::size_t UIText::GetNearestLetterAtLocation(Vec2f Location) const
 
 	if (CurrentScrollObject)
 	{
-		Location.Y -= CurrentScrollObject->GetOffset();
+		Location = Location - CurrentScrollObject->GetOffset();
 	}
 
 	std::size_t Char = Renderer->GetCharacterAtPosition(RenderedText, Location - OffsetPosition - Vec2f(0, Size.Y),

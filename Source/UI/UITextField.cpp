@@ -36,7 +36,7 @@ void UITextField::Tick()
 	Vec2f Offset;
 	if (CurrentScrollObject != nullptr)
 	{
-		Offset.Y = CurrentScrollObject->GetOffset();
+		Offset = CurrentScrollObject->GetOffset();
 	}
 	if ((this->Dragging && ParentWindow->HasMouseFocus())
 		|| (ParentWindow->UI.HoveredBox == this && !UIScrollBox::IsDraggingScrollBox))
@@ -148,7 +148,7 @@ void UITextField::Tick()
 
 	if (!Dragging && IsEdited && ParentWindow->Input.TextSelectionStart == ParentWindow->Input.TextIndex)
 		TextScroll.Scrolled = std::max((CursorFraction - 1) * Size.Y + 0.025f, 0.0f);
-	TextScroll.Scrolled = std::min(TextScroll.Scrolled, TextScroll.MaxScroll);
+	TextScroll.Scrolled = Vec2f::Min(TextScroll.Scrolled, TextScroll.MaxScroll);
 
 	if (EditedTextPos != IBeamPosition)
 	{
@@ -345,7 +345,7 @@ void UITextField::DrawBackground(render::RenderBackend* Backend)
 	{
 		BackgroundShader->Bind();
 		BackgroundShader->SetVec3("u_offset",
-			Vec3f(-TextScroll.GetOffset(), Pos.Y, TextScroll.GetScale().Y));
+			Vec3f(-TextScroll.GetOffset().Y, Pos.Y, TextScroll.GetScale().Y));
 	}
 	if (IsEdited && ParentWindow->Input.TextSelectionStart != ParentWindow->Input.TextIndex)
 	{

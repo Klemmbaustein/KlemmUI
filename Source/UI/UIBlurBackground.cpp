@@ -132,7 +132,7 @@ void kui::UIBlurBackground::Draw(render::RenderBackend* Backend)
 	BackgroundShader->Bind();
 
 	glBindTexture(GL_TEXTURE_2D, BackgroundTextures[0]);
-	GL->UpdateScroll(CurrentScrollObject, BackgroundShader, State);
+	GL->UpdateScroll(CurrentScrollObject, BackgroundShader);
 	BackgroundShader->SetVec3("u_color", State->Color);
 	BackgroundShader->SetVec3("u_borderColor", State->BorderColor);
 

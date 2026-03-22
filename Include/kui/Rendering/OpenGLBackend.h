@@ -41,7 +41,7 @@ namespace kui::render
 		Shader* BackgroundShader = nullptr;
 		Shader* TextShader = nullptr;
 		Shader* WindowShader = nullptr;
-		void UpdateScroll(ScrollObject* Scroll, Shader* UsedShader, UIBackgroundState* Target);
+		void UpdateScroll(ScrollObject* Scroll, Shader* UsedShader);
 
 	private:
 		Vec2ui ScissorXY, ScissorWH;

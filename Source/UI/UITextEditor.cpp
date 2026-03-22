@@ -104,6 +104,7 @@ kui::UITextEditor::UITextEditor(ITextEditorProvider* EditorProvider, Font* Edito
 	EditorScrollBox = new UIScrollBox(false, 0, true);
 	EditorScrollBox->SetMinSize(UISize::Parent(1));
 	EditorScrollBox->SetMaxSize(UISize::Parent(1));
+	EditorScrollBox->IncludeScrollBarInScroll = true;
 	EditorScrollBox->OnScroll = [this](UIScrollBox*)
 		{
 			this->UpdateContent();
@@ -310,16 +311,16 @@ EditorPosition kui::UITextEditor::GetCursorPosition() const
 void kui::UITextEditor::ScrollTo(EditorPosition Position)
 {
 	float CursorPos = Position.Line * this->CharSize.Y;
-	float Scrolled = this->EditorScrollBox->GetScrollObject()->Scrolled;
+	float Scrolled = this->EditorScrollBox->GetScrollObject()->Scrolled.Y;
 	float Difference = CursorPos - Scrolled;
 
 	if (Difference < CharSize.Y * 2)
 	{
-		this->EditorScrollBox->GetScrollObject()->Scrolled = std::max(CursorPos - CharSize.Y * 2, 0.0f);
+		this->EditorScrollBox->GetScrollObject()->Scrolled.Y = std::max(CursorPos - CharSize.Y * 2, 0.0f);
 	}
 	else if (Difference > EditorScrollBox->GetUsedSize().GetScreen().Y - CharSize.Y * 2)
 	{
-		this->EditorScrollBox->GetScrollObject()->Scrolled = CursorPos - EditorScrollBox->GetUsedSize().GetScreen().Y + CharSize.Y * 2;
+		this->EditorScrollBox->GetScrollObject()->Scrolled.Y = CursorPos - EditorScrollBox->GetUsedSize().GetScreen().Y + CharSize.Y * 2;
 	}
 }
 
@@ -476,7 +477,7 @@ void kui::UITextEditor::UpdateContent()
 
 	size_t LineCount = EditorProvider->GetLineCount();
 
-	size_t CharPosition = size_t(EditorScrollBox->GetScrollObject()->Scrolled / CharSize.Y);
+	size_t CharPosition = size_t(EditorScrollBox->GetScrollObject()->Scrolled.Y / CharSize.Y);
 
 	UIText* NewChunk = BuildChunk(CharPosition, std::min(EditorLineSize + CharPosition, LineCount) - CharPosition);
 
@@ -486,7 +487,6 @@ void kui::UITextEditor::UpdateContent()
 		CharPosition * CharSize.Y,
 		(LineCount > RemainingLines ? LineCount - RemainingLines : 0) * CharSize.Y,
 		0, 0);
-	NewChunk->SetTextWidthOverride(GetUsedSize().X);
 	NewChunk->Update();
 	EditorScrollBox->AddChild(NewChunk);
 	RefreshText = false;
@@ -514,7 +514,7 @@ void kui::UITextEditor::Draw(render::RenderBackend* With)
 	BackgroundShader = static_cast<render::GLUIBackgroundState*>(State)->UsedShader;
 
 	BackgroundShader->Bind();
-	GLBackend->UpdateScroll(this->CurrentScrollObject, BackgroundShader, this->State);
+	GLBackend->UpdateScroll(this->EditorScrollBox->GetScrollObject(), BackgroundShader);
 
 	BackgroundShader->SetFloat("u_opacity", 1);
 	BackgroundShader->SetInt("u_drawBorder", 0);
@@ -525,10 +525,6 @@ void kui::UITextEditor::Draw(render::RenderBackend* With)
 		float(ParentWindow->GetSize().Y)));
 
 	BackgroundShader->SetInt("u_useTexture", 0);
-	BackgroundShader->SetVec3("u_offset",
-		Vec3f(-EditorScrollBox->GetScrollObject()->GetOffset(),
-			EditorScrollBox->GetScrollObject()->GetPosition().Y,
-			EditorScrollBox->GetScrollObject()->GetScale().Y));
 
 	if (HighlightsChanged)
 	{
@@ -586,11 +582,6 @@ UIText* kui::UITextEditor::BuildChunk(size_t Position, size_t Length)
 	}
 	std::lock_guard g{ LinesMutex };
 
-	size_t ChunkWidth = size_t(UISize::Pixels(this->GetUsedSize().GetPixels().X
-		- EditorScrollBox->ScrollBarWidth).GetScreen().X / CharSize.X);
-
-	ChunkWidth -= EditorProvider->GetPreLineSize();
-
 	std::vector<TextSegment> Segments;
 	for (size_t i = 0; i < Length; i++)
 	{
@@ -621,12 +612,8 @@ UIText* kui::UITextEditor::BuildChunk(size_t Position, size_t Length)
 			for (char c : i.Text)
 			{
 				CharacterLength += c == '\t' ? 4 : 1;
-				if (CharacterLength > ChunkWidth)
-					break;
 				NextSegment.Text.push_back(c);
 			}
-			if (CharacterLength > ChunkWidth)
-				break;
 		}
 
 		if (NextSegment.Text.size())
@@ -1249,7 +1236,7 @@ EditorPosition kui::UITextEditor::ScreenToEditor(Vec2f Position, bool SnapToEnd)
 {
 	Position.X += CharSize.X / 2;
 
-	Vec2f Pos = Position - GetPosition() - Vec2f(0, EditorScrollBox->GetScrollObject()->GetOffset());
+	Vec2f Pos = Position - GetPosition() - EditorScrollBox->GetScrollObject()->GetOffset();
 
 	Pos.Y = this->Size.Y - Pos.Y;
 	Pos = Pos / CharSize;

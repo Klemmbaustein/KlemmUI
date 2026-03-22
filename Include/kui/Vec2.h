@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <cstdint>
+#include <stdexcept>
 
 namespace kui
 {
@@ -76,6 +77,18 @@ namespace kui
 			X += a.X;
 			Y += a.Y;
 			return *this;
+		}
+
+		T& operator[](int index)
+		{
+			switch (index)
+			{
+			case 0:
+				return X;
+			case 1:
+				return Y;
+			}
+			throw std::out_of_range("Vec2<T> index out of range");
 		}
 
 		/// Returns a string representation of this vector.

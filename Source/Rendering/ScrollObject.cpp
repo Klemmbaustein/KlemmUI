@@ -7,19 +7,19 @@ using namespace kui;
 
 thread_local std::set<ScrollObject*> ScrollObject::AllScrollObjects;
 
-float kui::ScrollObject::GetOffset() const
+Vec2f kui::ScrollObject::GetOffset() const
 {
 	if (Parent)
-		return Scrolled + Parent->GetOffset();
-	return Scrolled;
+		return Scrolled * Vec2f(-1, 1) + Parent->GetOffset();
+	return Scrolled * Vec2f(-1, 1);
 }
 
 Vec2f kui::ScrollObject::GetPosition() const
 {
 	if (Parent)
 	{
-		auto Pos = Position + Vec2f(0, Parent->GetOffset());
-		Pos.Y = std::max(Pos.Y, Parent->GetPosition().Y);
+		auto Pos = Position + Parent->GetOffset();
+		Pos = Vec2f::Max(Pos, Parent->GetPosition());
 		return Pos;
 	}
 	return Position;
@@ -29,11 +29,11 @@ Vec2f kui::ScrollObject::GetScale() const
 {
 	if (Parent)
 	{
-		float Pos = GetPosition().Y + Scale.Y;
-		Pos = std::min(Pos, Parent->GetScale().Y);
-		return Vec2f(Scale.X, Pos);
+		Vec2f Pos = GetPosition() + Scale;
+		Pos = Vec2f::Min(Pos, Parent->GetScale());
+		return Pos;
 	}
-	return Vec2f(0, GetPosition().Y) + Scale;
+	return GetPosition() + Scale;
 }
 
 std::set<ScrollObject*> ScrollObject::GetAllScrollObjects()
@@ -41,7 +41,7 @@ std::set<ScrollObject*> ScrollObject::GetAllScrollObjects()
 	return AllScrollObjects;
 }
 
-ScrollObject::ScrollObject(Vec2f Position, Vec2f Scale, float MaxScroll, bool Register)
+ScrollObject::ScrollObject(Vec2f Position, Vec2f Scale, Vec2f MaxScroll, bool Register)
 {
 	this->Position = Position;
 	this->Scale = Scale;
@@ -56,7 +56,7 @@ ScrollObject::~ScrollObject()
 		AllScrollObjects.erase(this);
 }
 
-void ScrollObject::ScrollUp()
+void ScrollObject::ScrollUp(int Axis)
 {
 	if (!Active)
 	{
@@ -64,10 +64,10 @@ void ScrollObject::ScrollUp()
 	}
 	if (internal::math::IsPointIn2DBox(Position + Scale, Position, Window::GetActiveWindow()->Input.MousePosition))
 	{
-		Scrolled += Speed / float(Window::GetActiveWindow()->GetSize().Y) * 5.0f;
+		Scrolled[Axis] += Speed / float(Window::GetActiveWindow()->GetSize()[Axis]) * 5.0f;
 	}
 
-	Scrolled = std::min(Scrolled, MaxScroll);
+	Scrolled = Vec2f::Min(Scrolled, MaxScroll);
 
 	Window::GetActiveWindow()->UI.RedrawArea(render::RedrawBox{
 		.Min = Position,
@@ -75,7 +75,7 @@ void ScrollObject::ScrollUp()
 		});
 }
 
-void ScrollObject::ScrollDown()
+void ScrollObject::ScrollDown(int Axis)
 {
 	if (!Active)
 	{
@@ -83,9 +83,9 @@ void ScrollObject::ScrollDown()
 	}
 	if (internal::math::IsPointIn2DBox(Position + Scale, Position, Window::GetActiveWindow()->Input.MousePosition))
 	{
-		Scrolled -= Speed / float(Window::GetActiveWindow()->GetSize().Y) * 5.0f;
+		Scrolled[Axis] -= Speed / float(Window::GetActiveWindow()->GetSize()[Axis]) * 5.0f;
 	}
-	Scrolled = std::max(Scrolled, 0.0f);
+	Scrolled = Vec2f::Max(Scrolled, 0.0f);
 
 	Window::GetActiveWindow()->UI.RedrawArea(render::RedrawBox{
 		.Min = Position,

@@ -48,7 +48,8 @@ float kui::UIBackground::GetBorderSize(UISize InSize)
 		return InSize.Value;
 		break;
 	case kui::SizeMode::PixelRelative:
-		return (std::floor(InSize.Value * Window::GetActiveWindow()->GetDPI()) / (float)Window::GetActiveWindow()->GetSize().Y * 4.0f);
+		return (std::floor(InSize.Value * Window::GetActiveWindow()->GetDPI())
+			/ (float)Window::GetActiveWindow()->GetSize().Y * 4.0f);
 	default:
 		return 0.0f;
 	}
@@ -191,7 +192,8 @@ UIBackground* kui::UIBackground::SetUseTexture(bool UseTexture, std::string Text
 	return this;
 }
 
-UIBackground::UIBackground(bool Horizontal, Vec2f Position, Vec3f Color, SizeVec MinScale, Shader* UsedShader) : UIBox(Horizontal, Position)
+UIBackground::UIBackground(bool Horizontal, Vec2f Position, Vec3f Color, SizeVec MinScale, Shader* UsedShader)
+	: UIBox(Horizontal, Position)
 {
 	this->BackgroundShader = UsedShader;
 	State = Window::GetActiveWindow()->UI.Render->MakeBackground();

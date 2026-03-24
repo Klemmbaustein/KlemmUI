@@ -250,7 +250,7 @@ void UIScrollBox::Update()
 	{
 		DesiredMaxScroll = GetDesiredChildrenSize();
 		ActualMaxScroll = Vec2f::Max(DesiredMaxScroll - Size
-			+ (IncludeScrollBarInScroll ? Vec2f(UISize::Pixels(ScrollBarWidth).GetScreen().X, 0) : 0), 0.0f);
+			+ (IncludeScrollBarInScroll ? Vec2f(UISize::Pixels(ScrollBarWidth * 2).GetScreen().X, 0) : 0), 0.0f);
 	}
 	ScrollClass = ScrollObject(OffsetPosition, Size, ActualMaxScroll);
 	ScrollClass.Scrolled = Progress;

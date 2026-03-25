@@ -8,7 +8,8 @@ layout (location = 1) out vec4 f_alpha;
 
 uniform vec3 u_color;
 uniform vec3 u_backgroundColor;
-uniform vec3 u_offset; // Scroll bar: X = scrolled distance; Y = MaxDistance; Z MinDistance
+// xy = x min max bounds, zw = y min max bounds
+uniform vec4 u_scrollBounds;
 uniform float u_opacity;
 uniform float u_time;
 
@@ -18,12 +19,21 @@ float smoothSelect(float a, float b, float value, float smoothness)
 }
 
 void main()
-{	
-	if (u_offset.y > v_position.y)
+{
+	if (u_scrollBounds.x > v_position.x)
 	{
 		discard;
 	}
-	if (u_offset.z < v_position.y)
+	if (u_scrollBounds.y < v_position.x)
+	{
+		discard;
+	}
+
+	if (u_scrollBounds.z > v_position.y)
+	{
+		discard;
+	}
+	if (u_scrollBounds.w < v_position.y)
 	{
 		discard;
 	}
@@ -53,7 +63,7 @@ void main()
 	}
 	else
 	{
-		angle = (asin(-normalizedCoords.y) / 3.141) + 0.5;	
+		angle = (asin(-normalizedCoords.y) / 3.141) + 0.5;
 		if (centeredCoords.x > 0.0)
 		{
 			angle = 1.0 - angle + 1.0;

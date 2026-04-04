@@ -88,6 +88,10 @@ PropElementType kui::markup::GetTypeFromString(std::string TypeName)
 	{
 		return PropElementType::UIScrollBox;
 	}
+	if (TypeName == "UICanvasBox")
+	{
+		return PropElementType::UICanvasBox;
+	}
 	return PropElementType::Unknown;
 }
 
@@ -129,6 +133,10 @@ std::string kui::markup::GetStringFromType(PropElementType Type)
 	if (Type == PropElementType::UIScrollBox)
 	{
 		return "UIScrollBox";
+	}
+	if (Type == PropElementType::UICanvasBox)
+	{
+		return "UICanvasBox";
 	}
 	return "Unknown";
 }

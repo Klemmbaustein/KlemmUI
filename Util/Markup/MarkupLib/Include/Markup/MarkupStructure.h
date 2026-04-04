@@ -27,6 +27,7 @@ namespace kui::markup
 		UISpinner,
 		Backgrounds_End,
 		UIScrollBox,
+		UICanvasBox,
 		UIText,
 		Unknown,
 	};

@@ -2,7 +2,7 @@
 
 using namespace kui;
 
-kui::UICanvasBox::UICanvasBox(Vec2f Position, UISize Size)
+kui::UICanvasBox::UICanvasBox(Vec2f Position, SizeVec Size)
 	: UIBox(true, Position)
 {
 	this->SetMinSize(Size);

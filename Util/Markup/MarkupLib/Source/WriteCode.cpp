@@ -288,6 +288,7 @@ static std::map<PropElementType, std::string> DefaultConstructors =
 	{PropElementType::UIBlurBackground, "true, 0, 1"},
 	{PropElementType::UISpinner, "0, 1"},
 	{PropElementType::UIScrollBox, "true, 0, true"},
+	{PropElementType::UICanvasBox, "0, 0"},
 };
 
 std::string kui::markup::ElementWriter::ToCppTypeName(stringParse::StringToken Name)

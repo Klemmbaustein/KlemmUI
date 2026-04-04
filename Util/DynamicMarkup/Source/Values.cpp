@@ -11,7 +11,7 @@
 #include <kui/UI/UIText.h>
 #include <kui/UI/UISpinner.h>
 #include <kui/UI/UIScrollBox.h>
-#include <typeinfo>
+#include <kui/UI/UICanvasBox.h>
 using namespace kui;
 
 struct DynamicProperty
@@ -77,6 +77,8 @@ UIBox* kui::markup::CreateNew(std::string Name, DynamicMarkupContext* From)
 		return new UIBox(true, 0);
 	if (Name == "UIBackground")
 		return new UIBackground(true, 0, 1);
+	if (Name == "UIBlurBackground")
+		return new UIBlurBackground(true, 0, 1);
 	if (Name == "UIScrollBox")
 		return new UIScrollBox(true, 0, true);
 	if (Name == "UIButton")
@@ -85,6 +87,10 @@ UIBox* kui::markup::CreateNew(std::string Name, DynamicMarkupContext* From)
 		return new UIText(0.1f, 1, "", Window::GetActiveWindow()->Markup.GetFont(""));
 	if (Name == "UITextField")
 		return new UITextField(0, 1, Window::GetActiveWindow()->Markup.GetFont(""), nullptr);
+	if (Name == "UISpinner")
+		return new UISpinner(0, 1);
+	if (Name == "UICanvasBox")
+		return new UICanvasBox(0, 0);
 
 	if (From->CreateSpecialMarkupBox.contains(Name))
 	{

@@ -68,6 +68,7 @@ namespace kui::systemWM
 		wl_surface* PointerFocus = nullptr;
 		WaylandWindow* PointerWindow = nullptr;
 		WaylandWindow* KeyboardWindow = nullptr;
+		wl_subcompositor* SubCompositor = nullptr;
 		wl_shm* SharedMemory = nullptr;
 
 		WaylandKeyboardInfo Keyboard;
@@ -116,7 +117,8 @@ namespace kui::systemWM
 	{
 	public:
 		Window* Parent;
-		void Create(Window* Parent, Vec2ui Size, Vec2ui Pos, std::string Title, bool Borderless, bool Resizable, bool AlwaysOnTop);
+		void Create(Window* Parent, Vec2ui Size, Vec2ui Pos, std::string Title, bool Borderless,
+			bool Resizable, bool AlwaysOnTop, bool UseLibDecor);
 
 		void MakeContextCurrent() const;
 
@@ -147,8 +149,8 @@ namespace kui::systemWM
 		EGLDisplay GLDisplay = nullptr;
 		EGLConfig GLConfig = nullptr;
 
-		wl_surface* WaylandSurface;
-		wl_egl_window* WaylandGLWindow;
+		wl_surface* WaylandSurface = nullptr;
+		wl_egl_window* WaylandGLWindow = nullptr;
 
 		libdecor_frame* DecorFrame = nullptr;
 
@@ -169,6 +171,7 @@ namespace kui::systemWM
 		bool Resizable = false;
 		bool Borderless = false;
 		bool Maximized = false;
+		bool UseLibDecor = true;
 		bool Minimized = false;
 
 		WaylandConnection::ResizeCursor WindowResizeCursor = WaylandConnection::ResizeCursor(0);

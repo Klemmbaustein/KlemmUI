@@ -31,7 +31,8 @@ kui::systemWM::SysWindow* kui::systemWM::NewWindow(Window* Parent, Vec2ui Size, 
 			Title,
 			CheckFlag(Flags, Window::WindowFlag::Borderless),
 			CheckFlag(Flags, Window::WindowFlag::Resizable),
-			CheckFlag(Flags, Window::WindowFlag::Popup));
+			CheckFlag(Flags, Window::WindowFlag::Popup),
+			!CheckFlag(Flags, Window::WindowFlag(platform::linux::WlWindowFlag::NoLibDecor)));
 	}
 	else
 #endif
@@ -307,7 +308,14 @@ void kui::systemWM::SetWindowIcon(SysWindow* Target, uint8_t* Bytes, size_t Widt
 
 void* kui::systemWM::GetPlatformHandle(SysWindow* Target)
 {
-	return reinterpret_cast<void*>(Target->X11->XWindow);
+	if (GetUseWayland())
+	{
+		return reinterpret_cast<void*>(Target->Wayland->WaylandSurface);
+	}
+	else
+	{
+		return reinterpret_cast<void*>(Target->X11->XWindow);
+	}
 }
 
 void kui::systemWM::WaitFrame(SysWindow* Target, float RemainingTime)

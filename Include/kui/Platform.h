@@ -31,6 +31,12 @@ namespace kui::platform
 
 	namespace linux
 	{
+		enum class WlWindowFlag : int
+		{
+			/// The window should be a basic surface without using libDecor.
+			NoLibDecor = 1 << 24,
+		};
+
 #if __linux__
 
 		bool GetUseWayland();
@@ -78,6 +84,10 @@ namespace kui::platform
 	}
 }
 
+inline kui::Window::WindowFlag operator|(kui::Window::WindowFlag a, kui::platform::linux::WlWindowFlag b)
+{
+	return kui::Window::WindowFlag(int(a) | int(b));
+}
 
 inline kui::Window::WindowFlag operator|(kui::Window::WindowFlag a, kui::platform::win32::WindowFlag b)
 {

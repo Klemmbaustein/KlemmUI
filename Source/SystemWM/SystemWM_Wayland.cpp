@@ -423,6 +423,10 @@ static void HandleRegistryAddGlobal(void* data, wl_registry* wl_registry, uint32
 		c->Clipboard.DataDeviceManager = (wl_data_device_manager*)wl_registry_bind(wl_registry, name,
 			&wl_data_device_manager_interface, 1);
 	}
+	if (InterfaceString == wl_subcompositor_interface.name)
+	{
+		c->SubCompositor = (wl_subcompositor*)wl_registry_bind(wl_registry, name, &wl_subcompositor_interface, 1);
+	}
 }
 
 static void HandleRegistryRemoveGlobal(void* data, wl_registry* wl_registry, uint32_t name)
@@ -434,10 +438,12 @@ static const wl_registry_listener RegistryListener = {
 	HandleRegistryRemoveGlobal
 };
 
-void kui::systemWM::WaylandWindow::Create(Window* Parent, Vec2ui Size, Vec2ui Pos, std::string Title, bool Borderless, bool Resizable, bool AlwaysOnTop)
+void kui::systemWM::WaylandWindow::Create(Window* Parent, Vec2ui Size, Vec2ui Pos, std::string Title, bool Borderless,
+	bool Resizable, bool AlwaysOnTop, bool UseLibDecor)
 {
 	this->Resizable = Resizable;
 	this->Borderless = Borderless;
+	this->UseLibDecor = UseLibDecor;
 	Configured = false;
 	FloatingSize = Size;
 
@@ -453,34 +459,41 @@ void kui::systemWM::WaylandWindow::Create(Window* Parent, Vec2ui Size, Vec2ui Po
 
 	Connection->Clipboard.LoadDeviceManager(Connection->Clipboard.DataDeviceManager);
 
-	if (!Connection->DecorContext)
+	if (UseLibDecor)
 	{
-		Connection->DecorContext = libdecor_new(Connection->WaylandDisplay, &LibDecorInterface);
-	}
-	DecorFrame = libdecor_decorate(Connection->DecorContext, WaylandSurface, &DecorFrameInterface, this);
-	libdecor_frame_set_app_id(DecorFrame, platform::GetAppId().c_str());
-	libdecor_frame_set_title(DecorFrame, Title.c_str());
-
-	if (!this->Resizable)
-	{
-		libdecor_frame_set_min_content_size(DecorFrame, Size.X, Size.Y);
-		libdecor_frame_set_max_content_size(DecorFrame, Size.X, Size.Y);
-		libdecor_frame_unset_capabilities(DecorFrame, LIBDECOR_ACTION_RESIZE);
-	}
-
-	libdecor_frame_map(DecorFrame);
-
-	while (!Configured)
-	{
-		int err = libdecor_dispatch(Connection->DecorContext, 0);
-		if (err < 0)
+		if (!Connection->DecorContext)
 		{
-			app::error::Error("init libdecor_dispatch failed: " + std::string(strerror(-err)), true);
+			Connection->DecorContext = libdecor_new(Connection->WaylandDisplay, &LibDecorInterface);
 		}
+		DecorFrame = libdecor_decorate(Connection->DecorContext, WaylandSurface, &DecorFrameInterface, this);
+		libdecor_frame_set_app_id(DecorFrame, platform::GetAppId().c_str());
+		libdecor_frame_set_title(DecorFrame, Title.c_str());
+
+		if (!this->Resizable)
+		{
+			libdecor_frame_set_min_content_size(DecorFrame, Size.X, Size.Y);
+			libdecor_frame_set_max_content_size(DecorFrame, Size.X, Size.Y);
+			libdecor_frame_unset_capabilities(DecorFrame, LIBDECOR_ACTION_RESIZE);
+		}
+
+		libdecor_frame_map(DecorFrame);
+
+		while (!Configured)
+		{
+			int err = libdecor_dispatch(Connection->DecorContext, 0);
+			if (err < 0)
+			{
+				app::error::Error("init libdecor_dispatch failed: " + std::string(strerror(-err)), true);
+			}
+		}
+	}
+	else
+	{
+		this->ContentSize = Size;
 	}
 
 	std::unique_lock g{ WindowMutex };
-	if (this->Borderless)
+	if (this->Borderless && UseLibDecor)
 	{
 		libdecor_frame_set_visibility(DecorFrame, false);
 	}
@@ -503,12 +516,14 @@ void kui::systemWM::WaylandWindow::UpdateWindow()
 {
 	std::unique_lock g{ WindowUpdateMutex };
 
-	int err = libdecor_dispatch(Connection->DecorContext, 0);
-	if (err < 0)
+	if (UseLibDecor)
 	{
-		app::error::Error("libdecor_dispatch failed: " + std::string(strerror(-err)), true);
+		int err = libdecor_dispatch(Connection->DecorContext, 0);
+		if (err < 0)
+		{
+			app::error::Error("libdecor_dispatch failed: " + std::string(strerror(-err)), true);
+		}
 	}
-
 	if (Connection->PointerWindow == this)
 	{
 		Connection->SetCursor(Parent->HasMouseFocus() ? ActiveCursor : Window::Cursor::Default);

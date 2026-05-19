@@ -323,7 +323,10 @@ void InputManager::SetKeyDown(Key PressedKey, bool KeyDown)
 		{
 			for (auto& Function : ButtonPressedCallbacks[PressedKey])
 			{
-				Function.second();
+				for (auto& i : Function.second)
+				{
+					i();
+				}
 			}
 		}
 	}
@@ -352,7 +355,7 @@ void InputManager::RegisterOnKeyDownCallback(Key PressedKey, void(*Callback)(Win
 
 void kui::InputManager::RegisterOnKeyDownCallback(Key PressedKey, void* Object, std::function<void()> Function)
 {
-	ButtonPressedCallbacks[PressedKey].insert({ Object, Function });
+	ButtonPressedCallbacks[PressedKey][Object].push_back(Function);
 }
 
 void kui::InputManager::RemoveOnKeyDownCallback(Key PressedKey, void(*Callback)(Window*))

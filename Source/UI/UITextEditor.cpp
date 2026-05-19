@@ -186,6 +186,11 @@ void kui::UITextEditor::AddLine(size_t Index, const std::vector<TextSegment>& Ne
 
 void kui::UITextEditor::EraseLine()
 {
+	if (!IsLineLoaded(SelectionEnd.Line))
+	{
+		// TODO: better implementation for error checking
+		return;
+	}
 	auto& Line = GetLine(SelectionEnd.Line);
 
 	std::vector<TextSegment> EndOfLine;

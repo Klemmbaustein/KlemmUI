@@ -120,8 +120,10 @@ namespace kui
 	class InputManager
 	{
 
+		using KeyboardCallbacks = std::vector<std::function<void()>>;
+
 		static Window* GetWindowByPtr(void* ID);
-		std::map<Key, std::map<void*, std::function<void()>>> ButtonPressedCallbacks;
+		std::map<Key, std::map<void*, KeyboardCallbacks>> ButtonPressedCallbacks;
 		Window* ParentWindow = nullptr;
 
 		void MoveTextIndex(int Amount, bool RespectShiftPress = true);

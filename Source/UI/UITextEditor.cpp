@@ -128,15 +128,17 @@ kui::UITextEditor::UITextEditor(ITextEditorProvider* EditorProvider, Font* Edito
 	this->EditorProvider = EditorProvider;
 	this->EditorProvider->ParentEditor = this;
 
-	ParentWindow->Input.RegisterOnKeyDownCallback(Key::BACKSPACE, &OnTextEditorBackspace);
-	ParentWindow->Input.RegisterOnKeyDownCallback(Key::DELETE, &OnTextEditorDelete);
-	ParentWindow->Input.RegisterOnKeyDownCallback(Key::UP, &OnTextEditorUp);
-	ParentWindow->Input.RegisterOnKeyDownCallback(Key::DOWN, &OnTextEditorDown);
-	ParentWindow->Input.RegisterOnKeyDownCallback(Key::LEFT, &OnTextEditorLeft);
-	ParentWindow->Input.RegisterOnKeyDownCallback(Key::RIGHT, &OnTextEditorRight);
-	ParentWindow->Input.RegisterOnKeyDownCallback(Key::x, &OnTextEditorCut);
-	ParentWindow->Input.RegisterOnKeyDownCallback(Key::c, &OnTextEditorCopy);
-
+	if (!ParentWindow->Input.IsCallbackRegistered(Key::BACKSPACE, &OnTextEditorBackspace))
+	{
+		ParentWindow->Input.RegisterOnKeyDownCallback(Key::BACKSPACE, &OnTextEditorBackspace);
+		ParentWindow->Input.RegisterOnKeyDownCallback(Key::DELETE, &OnTextEditorDelete);
+		ParentWindow->Input.RegisterOnKeyDownCallback(Key::UP, &OnTextEditorUp);
+		ParentWindow->Input.RegisterOnKeyDownCallback(Key::DOWN, &OnTextEditorDown);
+		ParentWindow->Input.RegisterOnKeyDownCallback(Key::LEFT, &OnTextEditorLeft);
+		ParentWindow->Input.RegisterOnKeyDownCallback(Key::RIGHT, &OnTextEditorRight);
+		ParentWindow->Input.RegisterOnKeyDownCallback(Key::x, &OnTextEditorCut);
+		ParentWindow->Input.RegisterOnKeyDownCallback(Key::c, &OnTextEditorCopy);
+	}
 	auto& SelectionArea = this->Highlighted.emplace_back();
 	SelectionArea.Priority = 0;
 	SelectionArea.Color = SelectionColor;

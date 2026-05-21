@@ -317,16 +317,13 @@ void InputManager::SetKeyDown(Key PressedKey, bool KeyDown)
 		Key->second = KeyDown;
 	}
 
-	if (ParentWindow->HasFocus())
+	if (ParentWindow->HasFocus() && ButtonPressedCallbacks.contains(PressedKey) && KeyDown)
 	{
-		if (ButtonPressedCallbacks.contains(PressedKey) && KeyDown)
+		for (auto& Function : ButtonPressedCallbacks[PressedKey])
 		{
-			for (auto& Function : ButtonPressedCallbacks[PressedKey])
+			for (auto& i : Function.second)
 			{
-				for (auto& i : Function.second)
-				{
-					i();
-				}
+				i();
 			}
 		}
 	}
@@ -351,6 +348,11 @@ void InputManager::RegisterOnKeyDownCallback(Key PressedKey, void(*Callback)(Win
 	RegisterOnKeyDownCallback(PressedKey, (void*)Callback, [Callback]() {
 		Callback(Window::GetActiveWindow());
 	});
+}
+
+bool kui::InputManager::IsCallbackRegistered(Key PressedKey, void* Object)
+{
+	return this->ButtonPressedCallbacks[PressedKey].contains(Object);
 }
 
 void kui::InputManager::RegisterOnKeyDownCallback(Key PressedKey, void* Object, std::function<void()> Function)

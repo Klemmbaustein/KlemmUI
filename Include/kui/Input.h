@@ -164,6 +164,8 @@ namespace kui
 		void RegisterOnKeyDownCallback(Key PressedKey, void (*Callback)(Window*));
 		void RegisterOnKeyDownCallback(Key PressedKey, void* Object, std::function<void()> Function);
 
+		bool IsCallbackRegistered(Key PressedKey, void* Object);
+
 		void SetClipboard(std::string NewClipboardText);
 		std::string GetClipboard();
 

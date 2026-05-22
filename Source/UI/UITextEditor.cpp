@@ -128,7 +128,7 @@ kui::UITextEditor::UITextEditor(ITextEditorProvider* EditorProvider, Font* Edito
 	this->EditorProvider = EditorProvider;
 	this->EditorProvider->ParentEditor = this;
 
-	if (!ParentWindow->Input.IsCallbackRegistered(Key::BACKSPACE, &OnTextEditorBackspace))
+	if (!ParentWindow->Input.IsCallbackRegistered(Key::BACKSPACE, (void*)&OnTextEditorBackspace))
 	{
 		ParentWindow->Input.RegisterOnKeyDownCallback(Key::BACKSPACE, &OnTextEditorBackspace);
 		ParentWindow->Input.RegisterOnKeyDownCallback(Key::DELETE, &OnTextEditorDelete);

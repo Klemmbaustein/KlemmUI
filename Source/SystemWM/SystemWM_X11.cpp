@@ -913,6 +913,8 @@ void kui::systemWM::X11Window::HandleKeyPress(KeySym Symbol, bool NewValue)
 		{XK_Alt_L, Key::ALT},
 		{XK_Alt_R, Key::ALT},
 		{XK_Delete, Key::DELETE},
+		{XK_Home, Key::HOME},
+		{XK_End, Key::END},
 		{XK_a, Key::a},
 		{XK_b, Key::b},
 		{XK_c, Key::c},

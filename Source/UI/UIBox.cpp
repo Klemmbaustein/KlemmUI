@@ -495,7 +495,6 @@ void UIBox::UpdateChildPosition()
 		}
 	}
 
-
 	for (UIBox* c : Children)
 	{
 		if (c->IsCollapsed)

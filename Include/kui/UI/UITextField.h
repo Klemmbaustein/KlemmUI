@@ -21,23 +21,30 @@ namespace kui
 		bool IsHovered = false;
 		bool IsPressed = false;
 		bool ClickStartedOnField = false;
+		bool ShowIBeam = false;
 		Vec2f IBeamPosition;
 		Vec2f IBeamScale = Vec2(0.001, 0.03);
-		bool ShowIBeam = false;
 		Vec3f TextColor = Vec3f(1);
 		Vec3f TextFieldColor = Vec3f(1);
-		UIText* TextObject = nullptr;
 		bool IsEdited = false;
+		bool Dragging = false;
+		UIText* TextObject = nullptr;
 		std::string EnteredText = "";
 		void Tick() override;
 		float TextTimer = 0.0f;
+		int DoubleClickState = 0;
 		std::string HintText; // Will be displayed when the text field is empty
-		bool Dragging = false;
+		int SelectionBegin = 0;
+		int SelectionEnd = 0;
 
 		Vec2f TextHighlightStart;
 		ScrollObject TextScroll = ScrollObject(0, 1, 1);
 		//ScrollObject TextRenderScroll = ScrollObject(0, 1, 1, false);
 		Vec2f TextHighlightEnd;
+
+		void UpdateSelection(int Nearest);
+		void OnNextClick(int Nearest);
+
 	public:
 		bool CanEdit = true;
 		bool AllowNewLine = false;

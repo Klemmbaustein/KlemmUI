@@ -272,6 +272,8 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
 		{ VK_SHIFT, Key::SHIFT },
 		{ VK_CONTROL, Key::CTRL },
 		{ VK_MENU, Key::ALT },
+		{ VK_HOME, Key::HOME},
+		{ VK_END, Key::END },
 		{ 0x41, Key::a },
 		{ 0x42, Key::b },
 		{ 0x43, Key::c },

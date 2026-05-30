@@ -122,7 +122,15 @@ kui::InputManager::InputManager(Window* Parent)
 	RegisterOnKeyDownCallback(Key::ESCAPE, [](Window* Win) {
 		if (Win->Input.PollForText)
 		{
-			Win->Input.PollForText = false;
+			if (Win->Input.HasSelection)
+			{
+				Win->Input.TextSelectionStart = Win->Input.TextIndex;
+				Win->Input.HasSelection = false;
+			}
+			else
+			{
+				Win->Input.PollForText = false;
+			}
 		}
 		else if (Win->UI.KeyboardFocusBox)
 		{

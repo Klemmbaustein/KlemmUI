@@ -176,6 +176,16 @@ namespace kui
 		void RemoveOnKeyDownCallback(Key PressedKey, void (*Callback)(Window*));
 		void RemoveOnKeyDownCallback(Key PressedKey, void* Object);
 
+		kui::UIBox* KeyboardFocusTargetBox = nullptr;
+
+		/**
+		 * @brief
+		 * The position of the moue cursor relative to the window.
+		 *
+		 * -1, -1 is the bottom left corner of the screen and 1, 1 is the top right corner.
+		 */
+		Vec2f MousePosition = 100;
+
 		/// True if the left mouse button is pressed.
 		bool IsLMBDown = false;
 		/// True if the right mouse button is pressed.
@@ -188,20 +198,11 @@ namespace kui
 
 		bool KeyboardFocusInput = true;
 
-		kui::UIBox* KeyboardFocusTargetBox = nullptr;
-
-		/**
-		 * @brief
-		 * The position of the moue cursor relative to the window.
-		 *
-		 * -1, -1 is the bottom left corner of the screen and 1, 1 is the top right corner.
-		 */
-		Vec2f MousePosition = 100;
-
 		bool PollForText = false;
 		bool CanEditText = false;
 		bool TextAllowNewLine = false;
 		bool CursorVisible = false;
+		bool HasSelection = false;
 		std::string Text;
 		int TextIndex = 0;
 		int TextSelectionStart = 0;

@@ -57,7 +57,22 @@ void UITextField::Tick()
 		{
 			ParentWindow->Input.PollForText = true;
 			ParentWindow->Input.Text = EnteredText;
-			ParentWindow->Input.SetTextIndex((int)Nearest, !Dragging);
+
+			if (ParentWindow->Input.IsLMBClicked && IsEdited && SelectionBegin == Nearest)
+			{
+				DoubleClickState++;
+				OnNextClick(Nearest);
+				UpdateSelection(Nearest);
+			}
+			else if (ParentWindow->Input.IsLMBClicked)
+			{
+				DoubleClickState = 0;
+				OnNextClick(Nearest);
+			}
+			if (DoubleClickState == 0)
+			{
+				ParentWindow->Input.SetTextIndex((int)Nearest, !Dragging);
+			}
 			TextTimer = 0;
 			Dragging = true;
 			IsEdited = true;
@@ -75,7 +90,8 @@ void UITextField::Tick()
 			ParentWindow->Input.PollForText = true;
 			ParentWindow->Input.Text = EnteredText;
 			IsPressed = false;
-			ParentWindow->Input.TextIndex = (int)Nearest;
+			UpdateSelection(Nearest);
+
 			RedrawElement();
 		}
 	}
@@ -111,6 +127,7 @@ void UITextField::Tick()
 		EnteredText = ParentWindow->Input.Text;
 		if (!ParentWindow->Input.PollForText)
 		{
+			DoubleClickState = 0;
 			IsEdited = false;
 			if (OnChanged)
 				ParentWindow->UI.ButtonEvents.push_back(UIManager::ButtonEvent(OnChanged, nullptr, 0));
@@ -118,6 +135,7 @@ void UITextField::Tick()
 		}
 		if (!IsHovered && ParentWindow->Input.IsLMBDown && !Dragging)
 		{
+			DoubleClickState = 0;
 			IsEdited = false;
 			ParentWindow->Input.PollForText = false;
 			if (OnChanged)
@@ -184,6 +202,62 @@ void UITextField::Tick()
 			std::swap(TextHighlightStart, TextHighlightEnd);
 		if (TextHighlightStart.Y == TextHighlightEnd.Y && TextHighlightStart.X > TextHighlightEnd.X)
 			std::swap(TextHighlightStart, TextHighlightEnd);
+	}
+}
+
+void kui::UITextField::UpdateSelection(int Nearest)
+{
+	auto& Input = ParentWindow->Input;
+	SelectionEnd = Nearest;
+
+	switch (DoubleClickState)
+	{
+	case 0:
+		// Just select characters
+		Input.TextIndex = (int)Nearest;
+		break;
+	case 1:
+	{
+		// Select word
+		int Begin = SelectionBegin;
+		int End = SelectionEnd;
+		if (Begin > End)
+		{
+			std::swap(Begin, End);
+		}
+		Input.TextSelectionStart = Input.Text.substr(0, Begin).find_last_of("\t \n") + 1;
+		Input.TextIndex = Input.Text.find_first_of("\t \n", End);
+		if (Input.TextIndex == -1)
+		{
+			Input.TextIndex = Input.Text.size();
+		}
+		break;
+	}
+	case 2:
+		// Select everything
+		Input.TextSelectionStart = 0;
+		Input.TextIndex = Input.Text.size();
+		break;
+	default:
+		break;
+	}
+	Input.HasSelection = Input.TextSelectionStart != Input.TextIndex;
+}
+
+void kui::UITextField::OnNextClick(int Nearest)
+{
+	switch (DoubleClickState)
+	{
+	case 0:
+		SelectionBegin = Nearest;
+		SelectionEnd = Nearest;
+		break;
+	case 1:
+	case 2:
+		break;
+	default:
+		DoubleClickState = 0;
+		break;
 	}
 }
 
@@ -350,12 +424,11 @@ void UITextField::DrawBackground(render::RenderBackend* Backend)
 	if (IsEdited && ParentWindow->Input.TextSelectionStart != ParentWindow->Input.TextIndex)
 	{
 		float CharSize = IBeamScale.Y;
-		auto DrawHighlight = [Backend, this, CharSize](Vec2f Start, Vec2f End)
-			{
-				Vec2f BoxSize = End - Start;
-				Backend->DrawSimpleBox(Start, BoxSize + Vec2f(0, CharSize),
-					ParentWindow->Colors.TextFieldSelection, 0);
-			};
+		auto DrawHighlight = [Backend, this, CharSize](Vec2f Start, Vec2f End) {
+			Vec2f BoxSize = End - Start;
+			Backend->DrawSimpleBox(Start, BoxSize + Vec2f(0, CharSize),
+				ParentWindow->Colors.TextFieldSelection, 0);
+		};
 
 		if (TextHighlightStart.Y == TextHighlightEnd.Y)
 		{

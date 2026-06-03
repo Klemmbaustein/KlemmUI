@@ -58,20 +58,20 @@ void UITextField::Tick()
 			ParentWindow->Input.PollForText = true;
 			ParentWindow->Input.Text = EnteredText;
 
-			if (ParentWindow->Input.IsLMBClicked && IsEdited && SelectionBegin == Nearest)
+			if (ParentWindow->Input.IsLMBClicked && IsEdited && SelectionBegin == int(Nearest))
 			{
 				DoubleClickState++;
-				OnNextClick(Nearest);
-				UpdateSelection(Nearest);
+				OnNextClick(int(Nearest));
+				UpdateSelection(int(Nearest));
 			}
 			else if (ParentWindow->Input.IsLMBClicked)
 			{
 				DoubleClickState = 0;
-				OnNextClick(Nearest);
+				OnNextClick(int(Nearest));
 			}
 			if (DoubleClickState == 0)
 			{
-				ParentWindow->Input.SetTextIndex((int)Nearest, !Dragging);
+				ParentWindow->Input.SetTextIndex(int(Nearest), !Dragging);
 			}
 			TextTimer = 0;
 			Dragging = true;
@@ -90,7 +90,7 @@ void UITextField::Tick()
 			ParentWindow->Input.PollForText = true;
 			ParentWindow->Input.Text = EnteredText;
 			IsPressed = false;
-			UpdateSelection(Nearest);
+			UpdateSelection(int(Nearest));
 
 			RedrawElement();
 		}
@@ -225,18 +225,18 @@ void kui::UITextField::UpdateSelection(int Nearest)
 		{
 			std::swap(Begin, End);
 		}
-		Input.TextSelectionStart = Input.Text.substr(0, Begin).find_last_of("\t \n") + 1;
-		Input.TextIndex = Input.Text.find_first_of("\t \n", End);
+		Input.TextSelectionStart = int(Input.Text.substr(0, Begin).find_last_of("\t \n")) + 1;
+		Input.TextIndex = int(Input.Text.find_first_of("\t \n", End));
 		if (Input.TextIndex == -1)
 		{
-			Input.TextIndex = Input.Text.size();
+			Input.TextIndex = int(Input.Text.size());
 		}
 		break;
 	}
 	case 2:
 		// Select everything
 		Input.TextSelectionStart = 0;
-		Input.TextIndex = Input.Text.size();
+		Input.TextIndex = int(Input.Text.size());
 		break;
 	default:
 		break;
@@ -368,7 +368,7 @@ void kui::UITextField::SelectAll()
 {
 	Edit();
 	ParentWindow->Input.TextSelectionStart = 0;
-	ParentWindow->Input.TextIndex = EnteredText.size();
+	ParentWindow->Input.TextIndex = int(EnteredText.size());
 }
 
 UITextField* kui::UITextField::SetInnerPadding(UISize Size)
@@ -426,7 +426,10 @@ void UITextField::DrawBackground(render::RenderBackend* Backend)
 		float CharSize = IBeamScale.Y;
 		auto DrawHighlight = [Backend, this, CharSize](Vec2f Start, Vec2f End) {
 			Vec2f BoxSize = End - Start;
-			Backend->DrawSimpleBox(Start, BoxSize + Vec2f(0, CharSize),
+
+			Vec2f Offset = TextScroll.GetOffset();
+
+			Backend->DrawSimpleBox(Start + Offset, BoxSize + Vec2f(0, CharSize),
 				ParentWindow->Colors.TextFieldSelection, 0);
 		};
 
@@ -457,6 +460,7 @@ void UITextField::DrawBackground(render::RenderBackend* Backend)
 
 	if (ShowIBeam)
 	{
-		Backend->DrawSimpleBox(IBeamPosition, IBeamScale, TextColor, 0);
+		Vec2f Offset = TextScroll.GetOffset();
+		Backend->DrawSimpleBox(IBeamPosition + Offset, IBeamScale, TextColor, 0);
 	}
 }

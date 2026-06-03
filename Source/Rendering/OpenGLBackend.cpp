@@ -147,7 +147,8 @@ void kui::render::OpenGLBackend::EndFrame(Window* Target)
 	glScissor(0, 0, (GLsizei)WindowSize.X, (GLsizei)WindowSize.Y);
 }
 
-void kui::render::OpenGLBackend::DrawSimpleBox(Vec2f Position, Vec2f Size, Vec3f Color, unsigned int Texture)
+void kui::render::OpenGLBackend::DrawSimpleBox(Vec2f Position, Vec2f Size, Vec3f Color, unsigned int Texture,
+	ScrollObject* Scroll)
 {
 	BackgroundShader->Bind();
 	BackgroundShader->SetVec3("u_color", Color);
@@ -155,6 +156,7 @@ void kui::render::OpenGLBackend::DrawSimpleBox(Vec2f Position, Vec2f Size, Vec3f
 	BackgroundShader->SetInt("u_drawBorder", 0);
 	BackgroundShader->SetFloat("u_opacity", 1);
 	BackgroundShader->SetInt("u_useTexture", Texture ? 1 : 0);
+	UpdateScroll(Scroll, BackgroundShader);
 
 	if (Texture)
 	{

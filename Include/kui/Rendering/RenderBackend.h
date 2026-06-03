@@ -24,7 +24,8 @@ namespace kui::render
 		virtual DrawableText* MakeText(FontRenderData* Data, const std::vector<Font::RenderGlyph>& Glyphs,
 			float Scale, Vec3f Color, float Opacity) = 0;
 
-		virtual void DrawSimpleBox(Vec2f Position, Vec2f Size, Vec3f Color, unsigned int Texture) = 0;
+		virtual void DrawSimpleBox(Vec2f Position, Vec2f Size, Vec3f Color, unsigned int Texture,
+			ScrollObject* Scroll) = 0;
 		virtual void BeginFrame(Window* Target) = 0;
 		virtual void EndFrame(Window* Target) = 0;
 

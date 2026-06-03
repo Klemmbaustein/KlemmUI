@@ -427,10 +427,8 @@ void UITextField::DrawBackground(render::RenderBackend* Backend)
 		auto DrawHighlight = [Backend, this, CharSize](Vec2f Start, Vec2f End) {
 			Vec2f BoxSize = End - Start;
 
-			Vec2f Offset = TextScroll.GetOffset();
-
-			Backend->DrawSimpleBox(Start + Offset, BoxSize + Vec2f(0, CharSize),
-				ParentWindow->Colors.TextFieldSelection, 0);
+			Backend->DrawSimpleBox(Start, BoxSize + Vec2f(0, CharSize),
+				ParentWindow->Colors.TextFieldSelection, 0, &TextScroll);
 		};
 
 		if (TextHighlightStart.Y == TextHighlightEnd.Y)
@@ -460,7 +458,6 @@ void UITextField::DrawBackground(render::RenderBackend* Backend)
 
 	if (ShowIBeam)
 	{
-		Vec2f Offset = TextScroll.GetOffset();
-		Backend->DrawSimpleBox(IBeamPosition + Offset, IBeamScale, TextColor, 0);
+		Backend->DrawSimpleBox(IBeamPosition, IBeamScale, TextColor, 0, &TextScroll);
 	}
 }

@@ -18,7 +18,8 @@ namespace kui::render
 		UIBackgroundState* MakeBackground() override;
 		void BeginFrame(Window* Target) override;
 		void EndFrame(Window* Target) override;
-		void DrawSimpleBox(Vec2f Position, Vec2f Size, Vec3f Color, unsigned int Texture) override;
+		void DrawSimpleBox(Vec2f Position, Vec2f Size, Vec3f Color, unsigned int Texture,
+			ScrollObject* Scroll) override;
 
 		void BeginArea(Window* Target, RedrawBox Box) override;
 		void DrawToWindow(Window* Target) override;

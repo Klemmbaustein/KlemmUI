@@ -162,6 +162,7 @@ void kui::FileEditorProvider::GetLine(size_t LineIndex, std::vector<TextSegment>
 	bool IsString = false;
 	bool IsComment = false;
 	bool LastWasComment = false;
+	bool LastWasBackslash = false;
 
 	auto ProcessWord = [this, &CurrentWord, &IsString, &Current, &To, &IsComment]() {
 		if (!CurrentWord.empty())
@@ -251,7 +252,7 @@ void kui::FileEditorProvider::GetLine(size_t LineIndex, std::vector<TextSegment>
 			LastWasComment = false;
 		}
 
-		if ((IsString && c == '"') || IsComment
+		if ((IsString && c == '"' && !LastWasBackslash) || IsComment
 			|| (!IsString && (c == ' ' || c == '\t' || SpecialChars.contains(c))))
 		{
 			if (IsString)
@@ -281,6 +282,9 @@ void kui::FileEditorProvider::GetLine(size_t LineIndex, std::vector<TextSegment>
 			}
 			CurrentWord.push_back(c);
 		}
+
+		LastWasBackslash = c == '\\';
+
 	}
 	if (LastWasComment && !IsComment)
 	{

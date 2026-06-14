@@ -66,6 +66,8 @@ namespace kui
 		struct Change
 		{
 			std::vector<ChangePart> Parts;
+			EditorPosition CursorStart;
+			EditorPosition CursorEnd;
 		};
 
 		Change ApplyChange(const Change& Target);

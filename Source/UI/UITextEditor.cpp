@@ -490,6 +490,12 @@ void kui::UITextEditor::DeleteSelection()
 {
 	if (SelectionStart.Column == SelectionEnd.Column && SelectionStart.Line == SelectionEnd.Line)
 		return;
+
+	if (SelectionStart.Line < SelectionEnd.Line)
+	{
+		std::swap(SelectionStart, SelectionEnd);
+	}
+
 	Erase(SelectionStart, SelectionEnd);
 }
 
@@ -1225,7 +1231,11 @@ void kui::UITextEditor::UpdateSelectionBeam()
 {
 	SelectorBeam->SetCurrentScrollObject(this->EditorScrollBox);
 	Vec2f Pos = EditorToScreen(SelectionEnd);
-	SelectorBeam->SetPosition(Pos);
+	if (SelectorBeam->GetPosition() != Pos)
+	{
+		SelectorBeam->SetPosition(Pos);
+		RedrawElement();
+	}
 }
 
 void kui::UITextEditor::ClearEmptyLineEntries(size_t Index)

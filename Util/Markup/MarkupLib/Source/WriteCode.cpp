@@ -304,10 +304,13 @@ void kui::markup::ElementWriter::WriteVariableSetter(std::ostream& Stream, UIEle
 {
 	Stream << "\tvoid Set" << Var.Token.Text
 		<< "(" << UIElement::Variable::Descriptions[Var.Type].CppName << " NewValue)\n\t{" << std::endl;
-	Stream << "\t\t" << Var.Token.Text << " = NewValue;\n";
-	for (auto& i : Var.References)
+	if (Var.Type != VariableType::None)
 	{
-		Stream << "\t\t" << Format::FormatString(i, { Format::FormatArg("val", "NewValue") }) << ";" << std::endl;
+		Stream << "\t\t" << Var.Token.Text << " = NewValue;\n";
+		for (auto& i : Var.References)
+		{
+			Stream << "\t\t" << Format::FormatString(i, { Format::FormatArg("val", "NewValue") }) << ";" << std::endl;
+		}
 	}
 	Stream << "\t}\n";
 }

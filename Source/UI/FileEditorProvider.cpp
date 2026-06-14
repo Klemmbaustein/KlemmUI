@@ -432,6 +432,8 @@ void kui::FileEditorProvider::Commit()
 {
 	if (NextChange.Parts.size())
 	{
+		NextChange.CursorStart = ParentEditor->SelectionStart;
+		NextChange.CursorEnd = ParentEditor->SelectionEnd;
 		this->Changes.push(NextChange);
 	}
 
@@ -441,6 +443,8 @@ void kui::FileEditorProvider::Commit()
 kui::FileEditorProvider::Change kui::FileEditorProvider::ApplyChange(const Change& Target)
 {
 	Change DoneChanges;
+	DoneChanges.CursorStart = ParentEditor->SelectionStart;
+	DoneChanges.CursorEnd = ParentEditor->SelectionEnd;
 
 	for (auto p = Target.Parts.rbegin(); p < Target.Parts.rend(); p++)
 	{
@@ -489,6 +493,9 @@ kui::FileEditorProvider::Change kui::FileEditorProvider::ApplyChange(const Chang
 			this->Lines[p->Line] = p->Content;
 		}
 	}
+
+	ParentEditor->SelectionStart = Target.CursorStart;
+	ParentEditor->SelectionEnd = Target.CursorEnd;
 
 	NextChange = {};
 

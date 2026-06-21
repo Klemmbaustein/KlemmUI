@@ -281,8 +281,15 @@ void kui::UITextEditor::MoveCursor(int64_t Column, int64_t Line, bool DragSelect
 
 			if (IsLineLoaded(SelectionEnd.Line) && GetLine(SelectionEnd.Line).Length < SelectionEnd.Column)
 			{
-				SelectionEnd.Line++;
-				SelectionEnd.Column = 0;
+				if (IsLineLoaded(SelectionEnd.Line + 1))
+				{
+					SelectionEnd.Line++;
+					SelectionEnd.Column = 0;
+				}
+				else
+				{
+					SelectionEnd.Column = GetLine(SelectionEnd.Line).Length;
+				}
 			}
 			if (SnapToWord)
 			{
@@ -297,7 +304,10 @@ void kui::UITextEditor::MoveCursor(int64_t Column, int64_t Line, bool DragSelect
 	}
 	if (Line != 0 && (Line > 0 || int64_t(SelectionEnd.Line) >= abs(Line)))
 	{
-		SelectionEnd.Line += Line;
+		if (IsLineLoaded(SelectionEnd.Line + Line))
+		{
+			SelectionEnd.Line += Line;
+		}
 	}
 
 	Window::GetActiveWindow()->Input.HasSelection = DragSelection;

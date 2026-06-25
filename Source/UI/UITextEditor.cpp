@@ -939,6 +939,10 @@ void kui::UITextEditor::TickInput()
 			DeleteSelection();
 
 			InsertAtCursor(Transformed, Transformed.size() > 4);
+			if (Transformed.size() > 4)
+			{
+				EditorProvider->Commit();
+			}
 			UpdateContent();
 		}
 

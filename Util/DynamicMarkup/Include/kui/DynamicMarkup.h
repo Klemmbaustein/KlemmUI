@@ -32,7 +32,7 @@ namespace kui::markup
 		markup::ParseResult* Parsed = nullptr;
 		bool OwnsParsed = false;
 
-		std::map<std::string, std::function<UIDynMarkupBox*(DynamicMarkupContext*)>> CreateSpecialMarkupBox;
+		std::map<std::string, std::function<UIDynMarkupBox*(DynamicMarkupContext*, bool)>> CreateSpecialMarkupBox;
 	};
 
 	class UIDynMarkupBox : public UIBox, public kui::markup::MarkupBox

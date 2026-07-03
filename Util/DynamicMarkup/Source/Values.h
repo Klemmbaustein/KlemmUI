@@ -10,7 +10,7 @@ namespace kui::markup
 
 	using namespace markup;
 
-	UIBox* CreateNew(std::string Name, DynamicMarkupContext* From);
+	UIBox* CreateNew(std::string Name, bool HasNameValue, DynamicMarkupContext* From);
 	void ApplyElementValues(UIBox* Box, MarkupElement& Target, DynamicMarkupContext* From, UIDynMarkupBox* Root);
 	void ApplyElementValues(UIBox* Box, MarkupElement& TargetElement, UIElement Target, DynamicMarkupContext* From, UIDynMarkupBox* Root);
 

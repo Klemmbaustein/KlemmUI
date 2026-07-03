@@ -2,7 +2,7 @@
 #include "SystemWM/SystemWM.h"
 #include <iostream>
 
-static std::function<void(std::string Message, bool IsFatal)> ErrorCallback = 
+static std::function<void(std::string Message, bool IsFatal)> ErrorCallback =
 	[](std::string Message, bool)
 	{
 		std::cerr << Message << std::endl;

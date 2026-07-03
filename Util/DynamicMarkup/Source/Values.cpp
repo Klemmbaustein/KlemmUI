@@ -71,7 +71,7 @@ static std::string EscapeString(std::string Value)
 
 #include "MarkupProperties.h"
 
-UIBox* kui::markup::CreateNew(std::string Name, DynamicMarkupContext* From)
+UIBox* kui::markup::CreateNew(std::string Name, bool HasNameValue, DynamicMarkupContext* From)
 {
 	if (Name == "UIBox")
 		return new UIBox(true, 0);
@@ -94,7 +94,11 @@ UIBox* kui::markup::CreateNew(std::string Name, DynamicMarkupContext* From)
 
 	if (From->CreateSpecialMarkupBox.contains(Name))
 	{
-		return From->CreateSpecialMarkupBox[Name](From);
+		auto b = From->CreateSpecialMarkupBox[Name](From, HasNameValue);
+		if (b)
+		{
+			return b;
+		}
 	}
 
 	return new UIDynMarkupBox(From, Name);
@@ -114,7 +118,7 @@ void kui::markup::ApplyElementValues(UIBox* Box, MarkupElement& TargetElement, U
 
 	for (auto& Child : Target.Children)
 	{
-		UIBox* New = CreateNew(Child.TypeName.Text, From);
+		UIBox* New = CreateNew(Child.TypeName.Text, !Child.ElementName.Empty(), From);
 		if (!Child.ElementName.Empty())
 		{
 			Root->NamedChildren[Child.ElementName.Text] = New;

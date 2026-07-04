@@ -20,6 +20,43 @@ static void OnTextEditorBackspace(Window* WithWindow)
 	}
 }
 
+static void OnTextEditorPageUp(Window* WithWindow)
+{
+	if (CurrentEditor)
+	{
+		auto OldPos = CurrentEditor->SelectionEnd.Line;
+		CurrentEditor->MoveCursor(0, -1,
+			WithWindow->Input.IsKeyDown(Key::SHIFT), false, true);
+
+		if (OldPos == CurrentEditor->SelectionEnd.Line)
+		{
+			return;
+		}
+
+		auto& Scrolled = CurrentEditor->EditorScrollBox->GetScrollObject()->Scrolled.Y;
+
+		Scrolled = std::max(Scrolled - CurrentEditor->GetUsedSize().GetScreen().Y, 0.0f);
+		CurrentEditor->ScrollTo(CurrentEditor->SelectionEnd);
+	}
+}
+
+static void OnTextEditorPageDown(Window* WithWindow)
+{
+	if (CurrentEditor)
+	{
+		auto OldPos = CurrentEditor->SelectionEnd.Line;
+		CurrentEditor->MoveCursor(0, 1,
+			WithWindow->Input.IsKeyDown(Key::SHIFT), false, true);
+
+		if (OldPos == CurrentEditor->SelectionEnd.Line)
+		{
+			return;
+		}
+		CurrentEditor->EditorScrollBox->GetScrollObject()->Scrolled.Y += CurrentEditor->GetUsedSize().GetScreen().Y;
+		CurrentEditor->ScrollTo(CurrentEditor->SelectionEnd);
+	}
+}
+
 static void OnTextEditorDelete(Window* WithWindow)
 {
 	if (CurrentEditor)
@@ -188,6 +225,8 @@ kui::UITextEditor::UITextEditor(ITextEditorProvider* EditorProvider, Font* Edito
 		ParentWindow->Input.RegisterOnKeyDownCallback(Key::c, &OnTextEditorCopy);
 		ParentWindow->Input.RegisterOnKeyDownCallback(Key::HOME, &OnTextEditorHome);
 		ParentWindow->Input.RegisterOnKeyDownCallback(Key::END, &OnTextEditorEnd);
+		ParentWindow->Input.RegisterOnKeyDownCallback(Key::PAGEDOWN, &OnTextEditorPageDown);
+		ParentWindow->Input.RegisterOnKeyDownCallback(Key::PAGEUP, &OnTextEditorPageUp);
 	}
 	auto& SelectionArea = this->Highlighted.emplace_back();
 	SelectionArea.Priority = 0;
@@ -262,8 +301,15 @@ void kui::UITextEditor::EraseLine()
 	EditorProvider->Commit();
 }
 
-void kui::UITextEditor::MoveCursor(int64_t Column, int64_t Line, bool DragSelection, bool SnapToWord)
+void kui::UITextEditor::MoveCursor(int64_t Column, int64_t Line, bool DragSelection, bool SnapToWord, bool IsPages)
 {
+	EditorProvider->OnCursorMove(Column, Line, IsPages);
+
+	if (Column == 0 && Line == 0)
+	{
+		return;
+	}
+
 	if (Column != 0)
 	{
 		CurrentEditor->SnapColumn(SelectionEnd);
@@ -302,6 +348,22 @@ void kui::UITextEditor::MoveCursor(int64_t Column, int64_t Line, bool DragSelect
 			SelectionEnd.Column = GetLine(SelectionEnd.Line).Length;
 		}
 	}
+
+	if (IsPages)
+	{
+		Line *= EditorLineSize / 1.5f;
+		if (-Line > int64_t(SelectionEnd.Line))
+		{
+			Line = -SelectionEnd.Line;
+			SelectionEnd.Column = 0;
+		}
+		if (SelectionEnd.Line + Line >= int64_t(LinesStart + Lines.size()))
+		{
+			Line = (LinesStart + Lines.size()) - SelectionEnd.Line - 1;
+			SelectionEnd.Column = SIZE_MAX;
+		}
+	}
+
 	if (Line != 0 && (Line > 0 || int64_t(SelectionEnd.Line) >= abs(Line)))
 	{
 		if (IsLineLoaded(SelectionEnd.Line + Line))
@@ -706,7 +768,7 @@ UIText* kui::UITextEditor::BuildChunk(size_t Position, size_t Length)
 void kui::UITextEditor::Update()
 {
 	CharSize = UIText::GetTextSizeAtScale(12_px, EditorFont);
-	EditorLineSize = size_t(this->GetUsedSize().GetScreen().Y / CharSize.Y) * 2;
+	EditorLineSize = size_t(this->GetUsedSize().GetScreen().Y / CharSize.Y) * 1.5f;
 	UpdateContent();
 	EditorScrollBox->Update();
 	for (auto& i : Highlighted)
@@ -816,6 +878,14 @@ void kui::UITextEditor::Edit()
 	CursorTimer.Reset();
 }
 
+void kui::UITextEditor::StopEdit()
+{
+	auto& Input = ParentWindow->Input;
+	this->IsEdited = false;
+	CurrentEditor = nullptr;
+	Input.PollForText = false;
+}
+
 void kui::UITextEditor::Tick()
 {
 	TickInput();
@@ -859,9 +929,7 @@ void kui::UITextEditor::Tick()
 	{
 		if (Input.IsLMBClicked && this->IsEdited)
 		{
-			this->IsEdited = false;
-			CurrentEditor = nullptr;
-			Input.PollForText = false;
+			StopEdit();
 		}
 		return;
 	}
@@ -925,7 +993,14 @@ void kui::UITextEditor::TickInput()
 
 	if (SelectionEnd != SelectionStart && !Input.HasSelection)
 	{
-		ClearSelection();
+		if (KeepSelection)
+		{
+			Input.HasSelection = true;
+		}
+		else
+		{
+			ClearSelection();
+		}
 	}
 
 	UpdateSelectionBeam();

@@ -300,6 +300,9 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
 		{ 0x58, Key::x },
 		{ 0x59, Key::y },
 		{ 0x5a, Key::z },
+		{ VK_PRIOR, Key::PAGEUP },
+		{ VK_NEXT, Key::PAGEDOWN },
+		{ 0x5a, Key::z },
 	};
 
 	systemWM::SysWindow* SysWindow =

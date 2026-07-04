@@ -23,6 +23,7 @@ namespace kui
 		virtual void OnLoaded() = 0;
 		virtual void Update() = 0;
 		virtual void Commit() {}
+		virtual void OnCursorMove(int64_t& Column, int64_t& Line, bool IsPage) {};
 		void UpdateLine(size_t Index, const std::vector<TextSegment>& NewContent);
 
 		virtual std::string ProcessInput(std::string Text)

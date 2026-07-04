@@ -49,6 +49,7 @@ namespace kui
 		void EraseLine();
 
 		void Edit();
+		void StopEdit();
 
 		void FullRefresh();
 		void DeleteChar();
@@ -73,7 +74,7 @@ namespace kui
 
 		void Draw(render::RenderBackend* With) override;
 
-		void MoveCursor(int64_t Column, int64_t Line, bool DragSelection, bool SnapToWord);
+		void MoveCursor(int64_t Column, int64_t Line, bool DragSelection, bool SnapToWord, bool IsPages = false);
 		void SetCursorPosition(EditorPosition Position);
 		void SetCursorPosition(EditorPosition Start, EditorPosition End);
 		EditorPosition GetCursorPosition() const;
@@ -92,6 +93,7 @@ namespace kui
 		EditorPosition SelectionEnd;
 
 		bool UpdateHighlights = false;
+		bool KeepSelection = false;
 
 		mutable std::mutex LinesMutex;
 

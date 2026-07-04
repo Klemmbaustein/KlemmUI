@@ -941,6 +941,8 @@ void kui::systemWM::X11Window::HandleKeyPress(KeySym Symbol, bool NewValue)
 		{XK_x, Key::x},
 		{XK_y, Key::y},
 		{XK_z, Key::z},
+		{XK_Page_Up, Key::PAGEUP},
+		{XK_Page_Down, Key::PAGEDOWN},
 	};
 
 	if (!Keys.contains(Symbol))

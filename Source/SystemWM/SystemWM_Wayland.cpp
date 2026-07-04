@@ -1166,6 +1166,8 @@ void kui::systemWM::WaylandWindow::HandleKey(int Symbol, bool NewValue)
 		{ XKB_KEY_x, Key::x },
 		{ XKB_KEY_y, Key::y },
 		{ XKB_KEY_z, Key::z },
+		{ XKB_KEY_Page_Up, Key::PAGEUP },
+		{ XKB_KEY_Page_Down, Key::PAGEDOWN },
 	};
 
 	if (!Keys.contains(Symbol))

@@ -996,6 +996,7 @@ void kui::UITextEditor::TickInput()
 		if (KeepSelection)
 		{
 			Input.HasSelection = true;
+			KeepSelection = false;
 		}
 		else
 		{

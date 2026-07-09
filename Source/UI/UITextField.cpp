@@ -251,7 +251,6 @@ void kui::UITextField::UpdateSelection(int Nearest)
 
 	if (Input.TextSelectionStart != OldStart || Input.TextIndex != OldIndex)
 	{
-		std::cout << "Tes" << std::endl;
 		RedrawElement();
 	}
 

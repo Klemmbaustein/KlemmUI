@@ -69,6 +69,10 @@ void UITextField::Tick()
 				DoubleClickState = 0;
 				OnNextClick(int(Nearest));
 			}
+			else if (DoubleClickState)
+			{
+				UpdateSelection(int(Nearest));
+			}
 			if (DoubleClickState == 0)
 			{
 				ParentWindow->Input.SetTextIndex(int(Nearest), !Dragging);
@@ -210,6 +214,9 @@ void kui::UITextField::UpdateSelection(int Nearest)
 	auto& Input = ParentWindow->Input;
 	SelectionEnd = Nearest;
 
+	auto OldIndex = Input.TextIndex;
+	auto OldStart = Input.TextSelectionStart;
+
 	switch (DoubleClickState)
 	{
 	case 0:
@@ -241,6 +248,13 @@ void kui::UITextField::UpdateSelection(int Nearest)
 	default:
 		break;
 	}
+
+	if (Input.TextSelectionStart != OldStart || Input.TextIndex != OldIndex)
+	{
+		std::cout << "Tes" << std::endl;
+		RedrawElement();
+	}
+
 	Input.HasSelection = Input.TextSelectionStart != Input.TextIndex;
 }
 

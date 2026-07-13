@@ -907,7 +907,7 @@ void kui::UITextEditor::StopEdit()
 
 void kui::UITextEditor::Reload()
 {
-	this->HighlightsChanged = true;
+	this->UpdateHighlights = true;
 	this->IsEditorUnloaded = false;
 }
 

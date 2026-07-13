@@ -39,7 +39,6 @@ static void OnTextEditorPageUp(Window* WithWindow)
 		CurrentEditor->ScrollTo(CurrentEditor->SelectionEnd);
 	}
 }
-
 static void OnTextEditorPageDown(Window* WithWindow)
 {
 	if (CurrentEditor)
@@ -183,9 +182,11 @@ static void OnTextEditorEnd(Window* WithWindow)
 	}
 }
 
-kui::UITextEditor::UITextEditor(ITextEditorProvider* EditorProvider, Font* EditorFont)
+kui::UITextEditor::UITextEditor(ITextEditorProvider* EditorProvider, Font* EditorFont, bool StartLoaded)
 	: UIBackground(false, 0, 0)
 {
+	this->IsEditorUnloaded = !StartLoaded;
+
 	EditorScrollBox = new UIScrollBox(false, 0, true);
 	EditorScrollBox->SetMinSize(UISize::Parent(1));
 	EditorScrollBox->SetMaxSize(UISize::Parent(1));
@@ -231,7 +232,10 @@ kui::UITextEditor::UITextEditor(ITextEditorProvider* EditorProvider, Font* Edito
 	auto& SelectionArea = this->Highlighted.emplace_back();
 	SelectionArea.Priority = 0;
 	SelectionArea.Color = SelectionColor;
-	EditorProvider->GetHighlightsForRange(0, EditorProvider->GetLineCount());
+	if (StartLoaded)
+	{
+		EditorProvider->GetHighlightsForRange(0, EditorProvider->GetLineCount());
+	}
 	CharSize = UIText::GetTextSizeAtScale(12_px, EditorFont);
 	this->EditorProvider->OnLoaded();
 }
@@ -407,6 +411,11 @@ void kui::UITextEditor::MoveCursor(int64_t Column, int64_t Line, bool DragSelect
 
 void kui::UITextEditor::UpdateSelectionHighlights()
 {
+	if (Highlighted.empty())
+	{
+		return;
+	}
+
 	if (this->Highlighted[0].Start == this->Highlighted[0].End
 		&& SelectionStart == SelectionEnd)
 	{
@@ -607,6 +616,11 @@ void kui::UITextEditor::DeleteChar()
 
 void kui::UITextEditor::UpdateContent()
 {
+	if (this->IsEditorUnloaded)
+	{
+		return;
+	}
+
 	EditorScrollBox->DeleteChildren();
 
 	CharSize = UIText::GetTextSizeAtScale(12_px, EditorFont);
@@ -637,6 +651,11 @@ UITextEditor::LineEntry& kui::UITextEditor::GetLine(size_t Index)
 
 void kui::UITextEditor::Draw(render::RenderBackend* With)
 {
+	if (this->IsEditorUnloaded)
+	{
+		return;
+	}
+
 	auto GLBackend = dynamic_cast<render::OpenGLBackend*>(With);
 
 	if (!GLBackend)
@@ -886,8 +905,27 @@ void kui::UITextEditor::StopEdit()
 	Input.PollForText = false;
 }
 
+void kui::UITextEditor::Reload()
+{
+	this->HighlightsChanged = true;
+	this->IsEditorUnloaded = false;
+}
+
+void kui::UITextEditor::Unload()
+{
+	this->Lines.clear();
+	EditorScrollBox->DeleteChildren();
+	this->Highlighted.clear();
+	this->IsEditorUnloaded = true;
+}
+
 void kui::UITextEditor::Tick()
 {
+	if (IsEditorUnloaded)
+	{
+		return;
+	}
+
 	TickInput();
 
 	if (UpdateHighlights)

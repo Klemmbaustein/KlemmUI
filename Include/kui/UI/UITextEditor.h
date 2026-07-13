@@ -14,7 +14,7 @@ namespace kui
 	class UITextEditor : public kui::UIBackground
 	{
 	public:
-		UITextEditor(ITextEditorProvider* EditorProvider, Font* EditorFont);
+		UITextEditor(ITextEditorProvider* EditorProvider, Font* EditorFont, bool StartLoaded = true);
 		~UITextEditor() override;
 
 		ITextEditorProvider* EditorProvider = nullptr;
@@ -53,6 +53,9 @@ namespace kui
 
 		void FullRefresh();
 		void DeleteChar();
+
+		void Unload();
+		void Reload();
 
 		void DeleteSelection();
 		void ClearSelection();
@@ -139,6 +142,7 @@ namespace kui
 		bool RefreshText = false;
 		bool DraggingSelection = false;
 		bool HighlightsChanged = false;
+		bool IsEditorUnloaded = false;
 
 		size_t EditorLineSize = 5;
 

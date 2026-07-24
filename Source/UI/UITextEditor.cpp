@@ -129,7 +129,7 @@ static void OnTextEditorCut(Window* WithWindow)
 
 static void OnTextEditorCopy(Window* WithWindow)
 {
-	if (CurrentEditor && WithWindow->Input.IsKeyDown(Key::CTRL))
+	if (CurrentEditor && CurrentEditor->IsEdited && WithWindow->Input.IsKeyDown(Key::CTRL))
 	{
 		WithWindow->Input.SetClipboard(CurrentEditor->GetSelectedText());
 	}
@@ -921,13 +921,6 @@ void kui::UITextEditor::Unload()
 
 void kui::UITextEditor::Tick()
 {
-	if (IsEditorUnloaded)
-	{
-		return;
-	}
-
-	TickInput();
-
 	if (UpdateHighlights)
 	{
 		this->Highlighted.clear();
@@ -950,12 +943,20 @@ void kui::UITextEditor::Tick()
 		}
 	}
 
+	SelectorBeam->IsVisible = this->IsVisible && this->IsEdited && std::fmod(CursorTimer.Get(), 1.0f) < 0.5f
+		&& this->ParentWindow->HasFocus() && !IsEditorUnloaded;
+
+	if (IsEditorUnloaded)
+	{
+		return;
+	}
+
+	TickInput();
+
 	if (RefreshText)
 	{
 		UpdateContent();
 	}
-	SelectorBeam->IsVisible = this->IsVisible && this->IsEdited && std::fmod(CursorTimer.Get(), 1.0f) < 0.5f
-		&& this->ParentWindow->HasFocus();
 	auto& Hovered = ParentWindow->UI.HoveredBox;
 	auto& Input = ParentWindow->Input;
 

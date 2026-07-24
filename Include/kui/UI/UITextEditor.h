@@ -111,6 +111,7 @@ namespace kui
 		size_t GetLoadedLines();
 
 		void RefreshHighlights();
+		bool IsEdited = false;
 
 	private:
 
@@ -138,7 +139,6 @@ namespace kui
 
 		void TickInput();
 
-		bool IsEdited = false;
 		bool RefreshText = false;
 		bool DraggingSelection = false;
 		bool HighlightsChanged = false;

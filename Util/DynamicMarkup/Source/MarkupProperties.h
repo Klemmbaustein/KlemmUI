@@ -90,6 +90,14 @@ std::vector<DynamicProperty> DynamicProperties
 		return dynamic_cast<UIText*>(Text);
 	} },
 
+	DynamicProperty{.Name = "widthOverride",
+	.SetValue = [](kui::UIBox* Target, kui::AnyContainer Value) {
+		((UIText*)Target)->SetTextWidthOverride(Value.AsSize());
+	},
+	.IsTarget = [](kui::UIBox* Text) {
+		return dynamic_cast<UIText*>(Text);
+	} },
+
 	DynamicProperty{ .Name = "color",
 	.SetValue = [](kui::UIBox* Target, kui::AnyContainer Value) {
 		((UIText*)Target)->SetColor(Value.AsVec3());

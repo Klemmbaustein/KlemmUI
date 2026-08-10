@@ -8,6 +8,34 @@
 
 namespace kui
 {
+	struct EditorKeyword
+	{
+		EditorKeyword(std::string Name)
+		{
+			this->Name = Name;
+		}
+		EditorKeyword(const char* Name)
+		{
+			this->Name = Name;
+		}
+
+		EditorKeyword(std::string Name, kui::Vec3f Color, int UserData)
+		{
+			this->Name = Name;
+			this->Color = Color;
+			this->UserData = UserData;
+		}
+
+		std::string Name;
+		kui::Vec3f Color = -1;
+		int UserData = 0;
+
+		std::strong_ordering operator<=>(const EditorKeyword& other) const
+		{
+			return Name <=> other.Name;
+		}
+	};
+
 	class FileEditorProvider : public ITextEditorProvider
 	{
 	public:
@@ -46,7 +74,7 @@ namespace kui
 		Vec3f BacketAreaColor = 0.5f;
 		Vec3f CommentColor = 0.5f;
 
-		std::set<std::string> Keywords;
+		std::set<EditorKeyword> Keywords;
 		bool HighlightComments = false;
 
 		std::vector<std::pair<EditorPosition, EditorPosition>> BracketAreas;

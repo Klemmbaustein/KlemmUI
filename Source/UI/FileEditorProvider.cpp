@@ -168,9 +168,10 @@ void kui::FileEditorProvider::GetLine(size_t LineIndex, std::vector<TextSegment>
 		if (!CurrentWord.empty())
 		{
 			Vec3f NewColor = TextColor;
-			if (Keywords.contains(CurrentWord))
+			auto Found = Keywords.find(CurrentWord);
+			if (Found != Keywords.end())
 			{
-				NewColor = KeywordColor;
+				NewColor = Found->Color != Vec3f(-1) ? Found->Color : KeywordColor;
 			}
 			else if (IsString)
 			{

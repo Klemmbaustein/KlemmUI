@@ -29,6 +29,17 @@ namespace kui::image
 	 * @see kui::resource
 	 */
 	uint8_t* LoadImageBytes(std::string File, size_t& Width, size_t& Height, bool Flipped = false);
+	/**
+	 * @brief
+	 * Loads an image from a buffer, returns the uncompressed image bytes.
+	 * @param File
+	 * The bytes to decompress.
+	 * @param Length
+	 * @param Flipped
+	 * @return
+	 * A pointer to the bytes containing the image data in a RGBA8888 format.
+	 */
+	uint8_t* LoadImageBytes(uint8_t* Bytes, size_t Length, size_t& Width, size_t& Height, bool Flipped = false);
 
 	/**
 	 * @brief

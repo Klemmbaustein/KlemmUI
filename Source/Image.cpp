@@ -33,6 +33,29 @@ uint8_t* image::LoadImageBytes(std::string File, size_t& Width, size_t& Height, 
 	return TextureBuffer;
 }
 
+uint8_t* kui::image::LoadImageBytes(uint8_t* Bytes, size_t Length, size_t& Width, size_t& Height, bool Flipped)
+{
+	int TextureWidth = 0;
+	int TextureHeight = 0;
+	int BitsPerPixel = 0;
+	stbi_set_flip_vertically_on_load(!Flipped);
+
+	auto TextureBuffer = stbi_load_from_memory(Bytes, int(Length), &TextureWidth, &TextureHeight, &BitsPerPixel, 4);
+
+	if (TextureWidth == 0)
+	{
+		std::cerr << "stb image loading error: " << stbi_failure_reason() << std::endl;
+		Width = 0;
+		Height = 0;
+		return nullptr;
+	}
+
+	Width = TextureWidth;
+	Height = TextureHeight;
+
+	return TextureBuffer;
+}
+
 void image::FreeImageBytes(uint8_t* Bytes)
 {
 	free(Bytes);

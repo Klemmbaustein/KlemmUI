@@ -14,12 +14,20 @@ void kui::HighlightedArea::GenerateSegments(UITextEditor* Editor)
 		{
 			std::swap(Start, End);
 		}
-		auto Position = Editor->EditorToScreen(Start);
+		bool IsFullLine = Start.Column == SIZE_MAX && End.Column == SIZE_MAX;
+
+		auto Position = Editor->EditorToScreen(IsFullLine ? EditorPosition(0, Start.Line) : Start);
 		auto EndPosition = Editor->EditorToScreen(End);
 
+		if (IsFullLine)
+		{
+			Position = Vec2f(Editor->GetPosition().X, Position.Y);
+			Position.X += UISize::Pixels(Editor->LeftMargin).GetScreen().X;
+		}
+
 		Segments.push_back(HighlightSegment{
-			.Position = Position,
-			.Size = EndPosition - Position + Vec2f(0, LineSize),
+			.Position =  Position,
+			.Size = (IsFullLine ? Vec2f(Editor->GetUsedSize().GetScreen().X, 0) : (EndPosition - Position)) + Vec2f(0, LineSize),
 			});
 
 		Editor->RedrawElement();

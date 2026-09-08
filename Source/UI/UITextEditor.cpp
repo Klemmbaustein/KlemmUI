@@ -20,6 +20,23 @@ static void OnTextEditorBackspace(Window* WithWindow)
 	}
 }
 
+static inline size_t UtfGetMultiByteCount(uint8_t Char)
+{
+	if ((uint8_t(Char) & 0b11100000) == 0b11000000)
+	{
+		return 1;
+	}
+	if ((uint8_t(Char) & 0b11110000) == 0b11100000)
+	{
+		return 2;
+	}
+	if ((uint8_t(Char) & 0b11111000) == 0b11110000)
+	{
+		return 3;
+	}
+	return 0;
+}
+
 static void OnTextEditorPageUp(Window* WithWindow)
 {
 	if (CurrentEditor)
@@ -179,6 +196,7 @@ static void OnTextEditorEnd(Window* WithWindow)
 		EditorPosition NewPosition = EditorPosition(Line.Length, OldPosition.Line);
 
 		CurrentEditor->SetCursorPosition(WithWindow->Input.IsKeyDown(Key::SHIFT) ? OldPosition : NewPosition, NewPosition);
+		CurrentEditor->EditorScrollBox->GetScrollObject()->Scrolled.X = CurrentEditor->EditorScrollBox->GetScrollObject()->MaxScroll.X;
 	}
 }
 
@@ -232,6 +250,7 @@ kui::UITextEditor::UITextEditor(ITextEditorProvider* EditorProvider, Font* Edito
 	auto& SelectionArea = this->Highlighted.emplace_back();
 	SelectionArea.Priority = 0;
 	SelectionArea.Color = SelectionColor;
+	SelectionArea.IsTextSelectionHighlight = true;
 	if (StartLoaded)
 	{
 		EditorProvider->GetHighlightsForRange(0, EditorProvider->GetLineCount());
@@ -416,14 +435,30 @@ void kui::UITextEditor::UpdateSelectionHighlights()
 		return;
 	}
 
-	if (this->Highlighted[0].Start == this->Highlighted[0].End
+	HighlightedArea* Sel = nullptr;
+
+	for (auto& i : this->Highlighted)
+	{
+		if (i.IsTextSelectionHighlight)
+		{
+			Sel = &i;
+			break;
+		}
+	}
+
+	if (!Sel)
+	{
+		return;
+	}
+
+	if (Sel->Start == Sel->End
 		&& SelectionStart == SelectionEnd)
 	{
 		return;
 	}
-	this->Highlighted[0].Start = SelectionStart;
-	this->Highlighted[0].End = SelectionEnd;
-	this->Highlighted[0].GenerateSegments(this);
+	Sel->Start = SelectionStart;
+	Sel->End = SelectionEnd;
+	Sel->GenerateSegments(this);
 }
 
 void kui::UITextEditor::SetCursorPosition(EditorPosition Position)
@@ -638,7 +673,7 @@ void kui::UITextEditor::UpdateContent()
 	NewChunk->SetPadding(
 		CharPosition * CharSize.Y,
 		(LineCount > RemainingLines ? LineCount - RemainingLines : 0) * CharSize.Y,
-		0, 0);
+		UISize::Pixels(LeftMargin), 0);
 	NewChunk->Update();
 	EditorScrollBox->AddChild(NewChunk);
 	RefreshText = false;
@@ -780,14 +815,19 @@ UIText* kui::UITextEditor::BuildChunk(size_t Position, size_t Length)
 		Segments.push_back(TextSegment("\n", 0));
 	}
 
-	auto NewText = new UIText(12_px, Segments, this->EditorFont);
-	return NewText;
+	return new UIText(12_px, Segments, this->EditorFont);
 }
 
 void kui::UITextEditor::Update()
 {
 	CharSize = UIText::GetTextSizeAtScale(12_px, EditorFont);
 	EditorLineSize = size_t(this->GetUsedSize().GetScreen().Y / CharSize.Y) * 1.5f;
+
+	if (IsEditorUnloaded)
+	{
+		return;
+	}
+
 	UpdateContent();
 	EditorScrollBox->Update();
 	for (auto& i : Highlighted)
@@ -877,7 +917,7 @@ void kui::UITextEditor::AdjustSelection(EditorPosition& Position, bool Direction
 		{
 			char Character = String[Position.Column - 1];
 
-			if (!std::isalpha(Character) && !std::isdigit(Character) && Character != '_')
+			if (uint8_t(Character) < 128 && (!std::isalpha(Character) && !std::isdigit(Character) && Character != '_'))
 			{
 				break;
 			}
@@ -921,28 +961,6 @@ void kui::UITextEditor::Unload()
 
 void kui::UITextEditor::Tick()
 {
-	if (UpdateHighlights)
-	{
-		this->Highlighted.clear();
-
-		auto& SelectionArea = this->Highlighted.emplace_back();
-		SelectionArea.Priority = 0;
-		SelectionArea.Color = SelectionColor;
-		UpdateSelectionHighlights();
-
-		EditorProvider->GetHighlightsForRange(0, EditorProvider->GetLineCount());
-		UpdateHighlights = false;
-
-		for (auto& i : Highlighted)
-		{
-			i.GenerateSegments(this);
-		}
-		if (!Highlighted.empty())
-		{
-			RefreshText = true;
-		}
-	}
-
 	SelectorBeam->IsVisible = this->IsVisible && this->IsEdited && std::fmod(CursorTimer.Get(), 1.0f) < 0.5f
 		&& this->ParentWindow->HasFocus() && !IsEditorUnloaded;
 
@@ -960,7 +978,8 @@ void kui::UITextEditor::Tick()
 	auto& Hovered = ParentWindow->UI.HoveredBox;
 	auto& Input = ParentWindow->Input;
 
-	if (Hovered && Hovered->IsChildOf(this) && !UIScrollBox::IsDraggingScrollBox)
+	if (Hovered && Hovered->IsChildOf(this) && !UIScrollBox::IsDraggingScrollBox
+		&& Input.MousePosition.X >= this->GetScreenPosition().X + UISize::Pixels(LeftMargin).GetScreen().X)
 	{
 		ParentWindow->CurrentCursor = Window::Cursor::Text;
 	}
@@ -970,6 +989,7 @@ void kui::UITextEditor::Tick()
 		{
 			StopEdit();
 		}
+		UpdateHighlightsNow();
 		return;
 	}
 
@@ -1014,8 +1034,34 @@ void kui::UITextEditor::Tick()
 	}
 
 	this->EditorProvider->Update();
-}
+	UpdateHighlightsNow();
 
+}
+void kui::UITextEditor::UpdateHighlightsNow()
+{
+	if (UpdateHighlights)
+	{
+		this->Highlighted.clear();
+
+		auto& SelectionArea = this->Highlighted.emplace_back();
+		SelectionArea.Priority = 0;
+		SelectionArea.IsTextSelectionHighlight = true;
+		SelectionArea.Color = SelectionColor;
+		UpdateSelectionHighlights();
+
+		EditorProvider->GetHighlightsForRange(0, EditorProvider->GetLineCount());
+		UpdateHighlights = false;
+
+		for (auto& i : Highlighted)
+		{
+			i.GenerateSegments(this);
+		}
+		if (!Highlighted.empty())
+		{
+			RefreshText = true;
+		}
+	}
+}
 void kui::UITextEditor::TickInput()
 {
 	if (!IsEdited)
@@ -1442,6 +1488,7 @@ EditorPosition kui::UITextEditor::ScreenToEditor(Vec2f Position, bool SnapToEnd)
 	Position.X += CharSize.X / 2;
 
 	Vec2f Pos = Position - GetPosition() - EditorScrollBox->GetScrollObject()->GetOffset();
+	Pos.X -= UISize::Pixels(this->LeftMargin).GetScreen().X;
 
 	Pos.Y = this->Size.Y - Pos.Y;
 	Pos = Pos / CharSize;
@@ -1466,6 +1513,7 @@ Vec2f kui::UITextEditor::EditorToScreen(EditorPosition Position)
 	Vec2f Pos = Vec2f(
 		float(Position.Column + EditorProvider->GetPreLineSize()),
 		-float(Position.Line)) * CharSize;
+	Pos.X += UISize::Pixels(this->LeftMargin).GetScreen().X;
 
 	return GetPosition() + Pos + Vec2f(0, Size.Y - CharSize.Y);
 }
@@ -1478,6 +1526,7 @@ EditorPosition kui::UITextEditor::CharacterPosToGrid(EditorPosition CharacterPos
 
 		size_t PosX = CharacterPos.Column;
 		size_t Count = 0;
+		size_t UtfPosition = 0;
 		for (auto& Segment : Line.Data)
 		{
 			if (PosX == 0)
@@ -1493,17 +1542,23 @@ EditorPosition kui::UITextEditor::CharacterPosToGrid(EditorPosition CharacterPos
 					break;
 				}
 
-				if (uint8_t(c) > 0x7f)
+				if (uint8_t(c) > 127)
 				{
-					Count++;
-					PosX--;
-					if (PosX == 0)
+					if ((uint8_t(c) & 0b11000000) != 0b10000000)
 					{
-						break;
+						UtfPosition = UtfGetMultiByteCount(uint8_t(c));
+						PosX--;
+						continue;
 					}
-					if (it < Segment.Text.end() - 1)
+					else
 					{
-						it++;
+						UtfPosition--;
+						if (UtfPosition > 0)
+						{
+							PosX--;
+							continue;
+						}
+						Count++;
 					}
 				}
 				else if (c == '\t' && WithTabs)
@@ -1538,6 +1593,7 @@ EditorPosition kui::UITextEditor::GridToCharacterPos(EditorPosition GridPos, boo
 		auto& Line = GetLine(PosY);
 		size_t Count = 0;
 		size_t CharCount = 0;
+		size_t UtfPosition = 0;
 		for (auto& i : Line.Data)
 		{
 			if (PosX == 0)
@@ -1569,13 +1625,26 @@ EditorPosition kui::UITextEditor::GridToCharacterPos(EditorPosition GridPos, boo
 					CharCount += TabSize - 1;
 					PosX -= TabSize - 1;
 				}
-				if (uint8_t(c) > 127)
-				{
-					Count += 1;
-				}
+
 				Count++;
-				CharCount++;
-				PosX--;
+				if (uint8_t(c) < 128)
+				{
+					CharCount++;
+					PosX--;
+				}
+				else if (UtfPosition && (uint8_t(c) & 0b11000000) == 0b10000000)
+				{
+					UtfPosition--;
+					if (UtfPosition == 0)
+					{
+						CharCount++;
+						PosX--;
+					}
+				}
+				else
+				{
+					UtfPosition = UtfGetMultiByteCount(uint8_t(c));
+				}
 			}
 		}
 		PosX = SnapToEnd ? Count : PosX + Count;

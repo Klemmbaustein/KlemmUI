@@ -32,6 +32,8 @@ namespace kui
 		int32_t Priority = 1;
 		UISize Size = 0;
 
+		bool IsTextSelectionHighlight = false;
+
 		void GenerateSegments(UITextEditor* Editor);
 	};
 }

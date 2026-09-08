@@ -108,13 +108,13 @@ namespace kui
 		EditorPosition CharacterPosToGrid(EditorPosition CharacterPos, bool SnapToEnd = true, bool WithTabs = true);
 		EditorPosition GridToCharacterPos(EditorPosition GridPos, bool SnapToEnd = true, bool WithTabs = true);
 		size_t LinesStart = 0;
+		size_t LeftMargin = 0;
 		size_t GetLoadedLines();
 
 		void RefreshHighlights();
 		bool IsEdited = false;
 
 	private:
-
 		Timer DoubleClickTimer;
 		Timer CursorTimer;
 
@@ -132,6 +132,7 @@ namespace kui
 		};
 
 		void UpdateSelectionHighlights();
+		void UpdateHighlightsNow();
 
 		std::vector<HighlightedArea> Highlighted;
 

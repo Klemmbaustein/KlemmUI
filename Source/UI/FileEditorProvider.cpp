@@ -84,10 +84,9 @@ void kui::FileEditorProvider::LoadStream(std::istream& Stream)
 
 	while (!Stream.eof() && !Stream.fail() && !Stream.bad())
 	{
-		char LineBuffer[4000];
+		std::string LineBuffer;
 
-		Stream.getline(LineBuffer, sizeof(LineBuffer));
-		LineBuffer[sizeof(LineBuffer) - 1] = 0;
+		std::getline(Stream, LineBuffer);
 
 		size_t Start = 0;
 
@@ -108,7 +107,7 @@ void kui::FileEditorProvider::LoadStream(std::istream& Stream)
 			IsFirstLine = false;
 		}
 		NewLine.clear();
-		for (size_t i = Start, len = strlen(LineBuffer); i < len; i++)
+		for (size_t i = Start, len = LineBuffer.size(); i < len; i++)
 		{
 			if (LineBuffer[i] != '\r')
 				NewLine.push_back(LineBuffer[i]);

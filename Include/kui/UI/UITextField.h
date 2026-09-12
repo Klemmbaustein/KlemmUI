@@ -52,6 +52,7 @@ namespace kui
 		UITextField* SetCanEdit(bool NewValue);
 		std::function<void()> OnChanged = nullptr;
 		std::function<void()> OnValueChanged = nullptr;
+		std::function<std::string(const std::string&)> TransformDisplayText;
 		UIBox* ParentOverride = nullptr;
 		bool GetIsEdited() const { return IsEdited; }
 		UITextField* SetText(std::string NewText);

@@ -148,7 +148,8 @@ void UITextField::Tick()
 		}
 	}
 
-	std::string NewText = EnteredText.empty() && !IsEdited ? HintText : EnteredText;
+	std::string NewText = EnteredText.empty() && !IsEdited ? HintText :
+		(TransformDisplayText ? TransformDisplayText(EnteredText) : EnteredText);
 
 	TextObject->SetColor(EnteredText.empty() && !IsEdited ? Vec3f::Lerp(TextColor, 0.5f, 0.25f) : TextColor);
 

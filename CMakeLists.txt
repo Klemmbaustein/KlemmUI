@@ -161,7 +161,7 @@ macro(klemmui_resources ProjectName ResourceDir)
 		add_library(${ProjectName}_Resources STATIC ${RESOURCE_OUT_FILE})
 
 		add_dependencies(${ProjectName}_Resources KlemmUIRC)
-		target_link_libraries(KlemmUI PUBLIC ${ProjectName}_Resources)
+		target_link_libraries(${ProjectName} PUBLIC ${ProjectName}_Resources)
 
 		if(NOT ${ProjectName} STREQUAL "KlemmUI")
 			target_compile_definitions(KlemmUI PUBLIC KLEMMUI_USE_RESOURCES)

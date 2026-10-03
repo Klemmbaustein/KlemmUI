@@ -1,4 +1,5 @@
 #include <kui/Platform.h>
+#include <kui/LibraryContext.h>
 #include "SystemWM/SystemWM_Win32.h"
 
 #if __linux__
@@ -28,16 +29,14 @@ void kui::platform::linux::AlwaysUseWayland()
 }
 #endif
 
-static std::string AppIdString = "generic-kui-app";
-
 void kui::platform::SetAppId(std::string NewAppId)
 {
-	AppIdString = NewAppId;
+	UIContext::Get()->AppId = NewAppId;
 }
 
 std::string kui::platform::GetAppId()
 {
-	return AppIdString;
+	return UIContext::Get()->AppId;
 }
 
 #if defined(_WIN32) && !defined(KLEMMUI_CUSTOM_SYSTEMWM)

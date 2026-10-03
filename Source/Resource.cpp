@@ -4,11 +4,10 @@
 #include <filesystem>
 #include <cstring>
 #include <kui/App.h>
+#include <kui/LibraryContext.h>
 
 const char* const RESOURCE_PREFIX = "res:";
 const char* const FILE_PREFIX = "file:";
-
-thread_local bool kui::resource::ErrorOnFail = true;
 
 static bool IsResourcePath(const std::string& Path)
 {
@@ -100,13 +99,21 @@ std::string kui::resource::GetStringFile(const std::string& Path)
 		return instr.str();
 	}
 #endif
-	if (ErrorOnFail)
+	if (UIContext::Get()->ResourceErrorOnFail)
 		app::error::Error("Failed to find file: " + Path);
 	return std::string();
 }
 
 kui::resource::BinaryData kui::resource::GetBinaryFile(const std::string& Path)
 {
+	for (auto& i : UIContext::Get()->Resources)
+	{
+		if (i->FileExists(Path))
+		{
+			return i->GetFile(Path);
+		}
+	}
+
 	if (!IsFilePath(Path) && (ResourceExists(ConvertResourcePath(Path)) || IsResourcePath(Path)))
 	{
 		return GetBinaryResource(ConvertResourcePath(Path));
@@ -134,12 +141,12 @@ kui::resource::BinaryData kui::resource::GetBinaryFile(const std::string& Path)
 			};
 		}
 	}
-	catch (std::filesystem::filesystem_error)
+	catch (std::filesystem::filesystem_error&)
 	{
 
 	}
 #endif
-	if (ErrorOnFail)
+	if (UIContext::Get()->ResourceErrorOnFail)
 		app::error::Error("Failed to find file: " + Path);
 	return BinaryData();
 }

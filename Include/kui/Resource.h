@@ -1,5 +1,7 @@
+#pragma once
 #include <cstdint>
 #include <string>
+#include "UIResourceProvider.h"
 
 /**
  * @brief
@@ -27,13 +29,6 @@
  */
 namespace kui::resource
 {
-	struct BinaryData
-	{
-		const uint8_t* const Data = nullptr;
-		const size_t FileSize = 0;
-		const size_t ResourceType = SIZE_MAX;
-	};
-
 	BinaryData GetBinaryResource(const std::string& Path);
 	std::string GetStringResource(const std::string& Path);
 
@@ -65,5 +60,5 @@ namespace kui::resource
 	 */
 	bool FileExists(const std::string& Path);
 
-	extern thread_local bool ErrorOnFail;
+	void AddCustomResource();
 }

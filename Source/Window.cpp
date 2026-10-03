@@ -5,15 +5,11 @@
 #include <kui/UI/UIScrollBox.h>
 #include <kui/UI/UITextField.h>
 #include <kui/Image.h>
-#include <kui/Platform.h>
+#include <kui/LibraryContext.h>
 #include <mutex>
-#include <cstring>
-#include <iostream>
 
 #define SYS_WINDOW_PTR(x) systemWM::SysWindow* x = static_cast<systemWM::SysWindow*>(this->SysWindowPtr)
 
-static thread_local kui::Window* ActiveWindow = nullptr;
-static thread_local bool HasMainWindow = false;
 #if __linux__
 // VSync is enabled with OpenGL by default, and you have to load OpenGL-Implementation-specific
 // extensions to disable it.
@@ -24,7 +20,6 @@ static thread_local bool RedrawnWindow = false;
 
 const kui::Vec2ui kui::Window::POSITION_CENTERED = Vec2ui(UINT64_MAX, UINT64_MAX);
 const kui::Vec2ui kui::Window::SIZE_DEFAULT = Vec2ui(UINT64_MAX, UINT64_MAX);
-std::vector<kui::Window*> kui::Window::ActiveWindows;
 
 bool kui::Window::UpdateSize()
 {
@@ -81,7 +76,7 @@ kui::Window::Window(std::string Name, WindowFlag Flags, Vec2ui WindowPos, Vec2ui
 	UI.Render = Backend;
 	UI.InitUI();
 
-	ActiveWindows.push_back(this);
+	UIContext::Get()->ActiveWindows.push_back(this);
 }
 
 kui::Window::~Window()
@@ -96,30 +91,30 @@ kui::Window::~Window()
 
 	Markup.TranslationChangedCallbacks.clear();
 
-	for (size_t i = 0; i < ActiveWindows.size(); i++)
+	for (size_t i = 0; i < UIContext::Get()->ActiveWindows.size(); i++)
 	{
-		if (ActiveWindows[i] == this)
+		if (UIContext::Get()->ActiveWindows[i] == this)
 		{
-			ActiveWindows.erase(ActiveWindows.begin() + i);
+			UIContext::Get()->ActiveWindows.erase(UIContext::Get()->ActiveWindows.begin() + i);
 			break;
 		}
 	}
 
-	if (ActiveWindow == this)
+	if (UIThreadContext::Get()->ActiveWindow == this)
 	{
-		ActiveWindow = nullptr;
+		UIThreadContext::Get()->ActiveWindow = nullptr;
 	}
 
 	if (IsMainWindow)
 	{
-		HasMainWindow = false;
+		UIThreadContext::Get()->HasMainWindow = false;
 	}
 
 }
 
 kui::Window* kui::Window::GetActiveWindow()
 {
-	return ActiveWindow;
+	return UIThreadContext::Get()->ActiveWindow;
 }
 
 void kui::Window::WaitFrame()
@@ -326,9 +321,9 @@ bool kui::Window::UpdateWindow()
 {
 	SYS_WINDOW_PTR(SysWindow);
 
-	if (!HasMainWindow)
+	if (!UIThreadContext::Get()->HasMainWindow)
 	{
-		HasMainWindow = true;
+		UIThreadContext::Get()->HasMainWindow = true;
 		IsMainWindow = true;
 	}
 
@@ -353,7 +348,7 @@ bool kui::Window::UpdateWindow()
 
 void kui::Window::SetWindowActive()
 {
-	ActiveWindow = this;
+	UIThreadContext::Get()->ActiveWindow = this;
 	MakeContextCurrent();
 }
 
@@ -379,7 +374,7 @@ void kui::Window::SetMaxSize(Vec2ui MaximumSize)
 std::vector<kui::Window*> kui::Window::GetActiveWindows()
 {
 	std::unique_lock Guard = std::unique_lock(internal::WindowCreationMutex);
-	return ActiveWindows;
+	return UIContext::Get()->ActiveWindows;
 }
 
 void kui::Window::SetMaximized(bool NewIsFullScreen)

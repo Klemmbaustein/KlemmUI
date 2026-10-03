@@ -42,7 +42,6 @@ namespace kui
 		std::atomic<bool> ShouldUpdateSize = false;
 		bool IsMainWindow = false;
 		bool IgnoreDPI = false;
-		static std::vector<Window*> ActiveWindows;
 		Vec2ui MinSize;
 		Vec2ui MaxSize;
 

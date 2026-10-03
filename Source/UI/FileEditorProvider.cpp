@@ -125,10 +125,14 @@ void kui::FileEditorProvider::LoadStream(std::istream& Stream)
 void kui::FileEditorProvider::GetPreLine(size_t LineIndex, std::vector<TextSegment>& To)
 {
 	size_t Length = size_t(std::floor(std::log10(LineIndex + 1))) + 1;
+
 	std::string str;
 	str.reserve(8);
-	str.resize(6 - Length, ' ');
-	str.append(std::to_string(LineIndex + 1));
+	if (Length <= 6)
+	{
+		str.resize(6 - Length, ' ');
+		str.append(std::to_string(LineIndex + 1));
+	}
 	str.resize(8, ' ');
 	To.push_back(TextSegment(str, LineNumberColor));
 }

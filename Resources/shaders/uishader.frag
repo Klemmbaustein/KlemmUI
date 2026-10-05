@@ -87,13 +87,38 @@ void main()
 	if (u_drawCorner && (u_cornerFlags & (1 << cornerIndex)) != 0
 		&& (centeredTexCoords.y >= scale.y - u_cornerScale) && (centeredTexCoords.x >= scale.x - u_cornerScale))
 	{
-		float borderSize = pow((length((scale - u_cornerScale) - centeredTexCoords) / u_cornerScale), u_cornerScale * 1000.0);
+		float borderSize = pow((length((scale - u_cornerScale) - centeredTexCoords)
+			/ u_cornerScale), u_cornerScale * 1000.0);
 		f_color.a *= clamp(1.0 / borderSize, 0.0, 1.0);
 
 		if (u_drawBorder && u_cornerScale > u_borderScale)
 		{
 			float cornerDistance = (length((scale - u_cornerScale) - centeredTexCoords));
-			f_color.rgb = mix(f_color.rgb, u_borderColor, clamp((u_borderScale - (u_cornerScale - cornerDistance)) / u_borderScale * 4.0, 0.0, 1.0));
+
+			bool applyColor = false;
+
+			if (cornerIndex == 0 && isBorderVisible(3) && isBorderVisible(1))
+			{
+				 applyColor = true;
+			}
+			else if (cornerIndex == 1 && isBorderVisible(2) && isBorderVisible(1))
+			{
+				 applyColor = true;
+			}
+			else if (cornerIndex == 2 && isBorderVisible(0) && isBorderVisible(3))
+			{
+				 applyColor = true;
+			}
+			else if (cornerIndex == 3 && isBorderVisible(0) && isBorderVisible(2))
+			{
+				 applyColor = true;
+			}
+
+			if (applyColor)
+			{
+				f_color.rgb = mix(f_color.rgb, u_borderColor,
+					clamp((u_borderScale - (u_cornerScale - cornerDistance)) / u_borderScale * 4.0, 0.0, 1.0));
+			}
 		}
 	}
 

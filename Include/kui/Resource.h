@@ -59,6 +59,4 @@ namespace kui::resource
 	 * @return
 	 */
 	bool FileExists(const std::string& Path);
-
-	void AddCustomResource();
 }

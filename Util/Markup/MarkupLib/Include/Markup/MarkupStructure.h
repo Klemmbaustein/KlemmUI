@@ -28,6 +28,7 @@ namespace kui::markup
 		Backgrounds_End,
 		UIScrollBox,
 		UICanvasBox,
+		UIStackBox,
 		UIText,
 		Unknown,
 	};

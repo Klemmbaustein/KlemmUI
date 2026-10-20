@@ -411,6 +411,9 @@ namespace kui
 
 		render::RedrawBox GetRedrawBox() const;
 
+		float GetVerticalOffset();
+		float GetHorizontalOffset();
+
 	protected:
 		bool ChildrenHorizontal = true;
 		bool ShouldBeTicked = true;
@@ -451,9 +454,6 @@ namespace kui
 	private:
 
 		void SetOffsetPosition(Vec2f NewPos);
-
-		float GetVerticalOffset();
-		float GetHorizontalOffset();
 
 		friend UIManager;
 	};

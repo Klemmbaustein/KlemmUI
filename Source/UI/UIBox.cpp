@@ -339,7 +339,8 @@ Vec2f kui::UIBox::GetMinScreenSize()
 
 	Vec2f UpDown, LeftRight;
 	GetPaddingScreenSize(UpDown, LeftRight);
-	Vec2f AvailableParentSize = (Parent ? Parent->Size : Vec2f(2)) - Vec2f(LeftRight.X + LeftRight.Y, UpDown.X + UpDown.Y);
+	Vec2f AvailableParentSize = (Parent ? Parent->Size : Vec2f(2))
+		- Vec2f(LeftRight.X + LeftRight.Y, UpDown.X + UpDown.Y);
 
 	if (MinSize.X.Mode == SizeMode::ParentRelative)
 	{
@@ -358,7 +359,8 @@ Vec2f kui::UIBox::GetMaxScreenSize()
 
 	Vec2f UpDown, LeftRight;
 	GetPaddingScreenSize(UpDown, LeftRight);
-	Vec2f AvailableParentSize = (Parent ? Parent->Size : Vec2f(2)) - Vec2f(LeftRight.X + LeftRight.Y, UpDown.X + UpDown.Y);
+	Vec2f AvailableParentSize = (Parent ? Parent->Size : Vec2f(2))
+		- Vec2f(LeftRight.X + LeftRight.Y, UpDown.X + UpDown.Y);
 
 	if (MaxSize.X.Mode == SizeMode::ParentRelative)
 	{
@@ -494,7 +496,8 @@ void UIBox::UpdateChildPosition()
 			}
 			Vec2f UpDown, LeftRight;
 			c->GetPaddingScreenSize(UpDown, LeftRight);
-			ChildrenSize += ChildrenHorizontal ? (c->Size.X + LeftRight.X + LeftRight.Y) : (c->Size.Y + UpDown.X + UpDown.Y);
+			ChildrenSize += ChildrenHorizontal
+				? (c->Size.X + LeftRight.X + LeftRight.Y) : (c->Size.Y + UpDown.X + UpDown.Y);
 		}
 	}
 
@@ -511,41 +514,44 @@ void UIBox::UpdateChildPosition()
 		{
 			if (ChildrenHorizontal)
 			{
-				SetChildPosition(c, OffsetPosition + Vec2f(Size.X / 2 - ChildrenSize / 2 + LeftRight.X + Offset, c->GetVerticalOffset()));
+				SetChildPosition(c, OffsetPosition
+					+ Vec2f(Size.X / 2 - ChildrenSize / 2 + LeftRight.X + Offset, c->GetVerticalOffset()));
 				Offset += c->Size.X + LeftRight.X + LeftRight.Y;
 			}
 			else
 			{
-				SetChildPosition(c, OffsetPosition + Vec2f(c->GetHorizontalOffset(), Size.Y / 2 - ChildrenSize / 2 + UpDown.Y + Offset));
+				SetChildPosition(c, OffsetPosition
+					+ Vec2f(c->GetHorizontalOffset(), Size.Y / 2 - ChildrenSize / 2 + UpDown.Y + Offset));
 				Offset += c->Size.Y + UpDown.X + UpDown.Y;
 			}
 		}
-		else
+		else if (ChildrenHorizontal)
 		{
-			if (ChildrenHorizontal)
+			if (PrimaryAlign == Align::Reverse)
 			{
-				if (PrimaryAlign == Align::Reverse)
-				{
-					SetChildPosition(c, OffsetPosition + Vec2f(Size.X - Offset - c->Size.X - LeftRight.Y, c->GetVerticalOffset()));
-				}
-				else
-				{
-					SetChildPosition(c, OffsetPosition + Vec2f(Offset + LeftRight.X, c->GetVerticalOffset()));
-				}
-				Offset += c->Size.X + LeftRight.X + LeftRight.Y;
+				SetChildPosition(c, OffsetPosition
+					+ Vec2f(Size.X - Offset - c->Size.X - LeftRight.Y, c->GetVerticalOffset()));
 			}
 			else
 			{
-				if (PrimaryAlign == Align::Reverse)
-				{
-					SetChildPosition(c, OffsetPosition + Vec2f(c->GetHorizontalOffset(), Size.Y - Offset - c->Size.Y - UpDown.X));
-				}
-				else
-				{
-					SetChildPosition(c, OffsetPosition + Vec2f(c->GetHorizontalOffset(), Offset + UpDown.Y));
-				}
-				Offset += c->Size.Y + UpDown.X + UpDown.Y;
+				SetChildPosition(c, OffsetPosition
+					+ Vec2f(Offset + LeftRight.X, c->GetVerticalOffset()));
 			}
+			Offset += c->Size.X + LeftRight.X + LeftRight.Y;
+		}
+		else
+		{
+			if (PrimaryAlign == Align::Reverse)
+			{
+				SetChildPosition(c, OffsetPosition
+					+ Vec2f(c->GetHorizontalOffset(), Size.Y - Offset - c->Size.Y - UpDown.X));
+			}
+			else
+			{
+				SetChildPosition(c, OffsetPosition
+					+ Vec2f(c->GetHorizontalOffset(), Offset + UpDown.Y));
+			}
+			Offset += c->Size.Y + UpDown.X + UpDown.Y;
 		}
 	}
 }

@@ -12,6 +12,7 @@
 #include <kui/UI/UISpinner.h>
 #include <kui/UI/UIScrollBox.h>
 #include <kui/UI/UICanvasBox.h>
+#include <kui/UI/UIStackBox.h>
 using namespace kui;
 
 struct DynamicProperty
@@ -91,6 +92,8 @@ UIBox* kui::markup::CreateNew(std::string Name, bool HasNameValue, DynamicMarkup
 		return new UISpinner(0, 1);
 	if (Name == "UICanvasBox")
 		return new UICanvasBox(0, 0);
+	if (Name == "UIStackBox")
+		return new UIStackBox(0, 0);
 
 	if (From->CreateSpecialMarkupBox.contains(Name))
 	{

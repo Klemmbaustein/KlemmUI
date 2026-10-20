@@ -1073,7 +1073,7 @@ std::string kui::systemWM::WaylandConnection::GetDefaultCursor()
 {
 	std::string HomeDir = getenv("HOME");
 
-	// KDE stores it's default cursor theme here instead of having a default theme for some reason.
+	// KDE stores its default cursor theme here instead of having a default theme for some reason.
 	std::string KdeConfigFile = GetIniFileValue(HomeDir + "/.config/kcminputrc", "Mouse", "cursorTheme");
 
 	if (!KdeConfigFile.empty())

@@ -80,7 +80,8 @@ void markup::VerifyElement(UIElement& Element, MarkupElement& Root, markup::Pars
 			}
 			else if (FoundGlobal->Type != FoundValue->VarType)
 			{
-				parseError::Error("Global '" + Value + "' does not have the correct type for the value of '" + prop.Name.Text + "'", prop.Value);
+				parseError::Error("Global '" + Value+ "' does not have the correct type for the value of '"
+					+ prop.Name.Text + "'", prop.Value);
 			}
 			continue;
 		}
@@ -95,7 +96,8 @@ void markup::VerifyElement(UIElement& Element, MarkupElement& Root, markup::Pars
 			}
 			else if (Variable.Type != FoundValue->VarType)
 			{
-				parseError::Error("Variable '" + Value + "' does not have the correct type for the value of '" + prop.Name.Text + "'", prop.Value);
+				parseError::Error("Variable '" + Value + "' does not have the correct type for the value of '"
+					+ prop.Name.Text + "'", prop.Value);
 			}
 			continue;
 		}

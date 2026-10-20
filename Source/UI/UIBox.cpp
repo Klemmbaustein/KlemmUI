@@ -310,14 +310,17 @@ void UIBox::Update()
 
 void UIBox::UpdateSelfAndChildren()
 {
+	UpdateScaleLayout();
 	UpdatePositionLayout();
-	Update();
 
 	for (auto& i : Children)
 	{
 		i->UpdateSelfAndChildren();
 	}
+
 	UpdateScaleLayout();
+	Update();
+	UpdatePositionLayout();
 }
 
 void kui::UIBox::SetChildPosition(UIBox* Child, Vec2f Position)

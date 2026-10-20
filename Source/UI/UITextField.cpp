@@ -24,10 +24,15 @@ void UITextField::Tick()
 		TextObject->Wrap = false;
 	}
 
-	if (TextObject->GetUsedSize().GetScreen().Y > Size.Y)
-		TextScroll.MaxScroll = std::max(TextObject->GetUsedSize().GetScreen().Y - Size.Y + 0.025f, 0.0f);
+	if (TextObject->GetUsedSize().GetScreen().Y > MaxSize.GetScreen().Y)
+	{
+		TextScroll.MaxScroll = std::max(TextObject->GetUsedSize().GetScreen().Y
+			- MaxSize.GetScreen().Y + 0.025f, 0.0f);
+	}
 	else
+	{
 		TextScroll.MaxScroll = 0;
+	}
 	TextObject->CurrentScrollObject = &this->TextScroll;
 	TextScroll.Parent = CurrentScrollObject;
 	if (CurrentScrollObject)

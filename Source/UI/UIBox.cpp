@@ -582,15 +582,18 @@ void kui::UIBox::UpdateScaleLayout()
 
 	if (NewSize != Size)
 	{
-		ParentWindow->UI.RedrawArea(render::RedrawBox{
-			.Min = GetPosition(),
-			.Max = GetPosition() + Vec2f::Max(Size, NewSize),
-			});
+		if (IsVisible)
+		{
+			ParentWindow->UI.RedrawArea(render::RedrawBox{
+				.Min = GetPosition(),
+				.Max = GetPosition() + Vec2f::Max(Size, NewSize),
+				});
+		}
 		Size = NewSize;
-	}
-	for (UIBox* c : Children)
-	{
-		c->UpdateScaleLayout();
+		for (UIBox* c : Children)
+		{
+			c->UpdateScaleLayout();
+		}
 	}
 }
 

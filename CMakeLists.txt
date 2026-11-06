@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.15)
 
 project(KlemmUI C CXX)
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_C_STANDARD 17)
 
 set(SRC_DIR "Source")
@@ -26,6 +26,8 @@ option(KLEMMUI_DYNAMIC_MARKUP "Use DynamicMarkup library to load .kui files at r
 option(KLEMMUI_INCLUDE_EXAMPLES "Include example programs" ON)
 option(KLEMMUI_CUSTOM_SYSTEMWM "Implement custom systemWM functions" OFF)
 option(KLEMMUI_GLES "Use OpenGL ES shaders" OFF)
+option(KLEMMUI_MODULES "Support C++ modules" OFF)
+option(KLEMMUI_EXPERIMENTAL_FILE_EDIT "Include exprimental file editing features" OFF)
 
 set(glew-cmake_BUILD_SHARED OFF)
 set(ONLY_LIBS ON)
@@ -182,11 +184,20 @@ macro(klemmui_web_project TargetName)
 	endif()
 endmacro()
 
+if(KLEMMUI_MODULES)
+	add_library(KlemmUI.Modules)
+	target_sources(KlemmUI.Modules PUBLIC FILE_SET CXX_MODULES FILES "Util/kui.Modules.cppm")
+	target_link_libraries(KlemmUI.Modules PUBLIC KlemmUI)
+endif()
 
 klemmui_resources(KlemmUI "Resources/")
 
 if(KLEMMUI_DYNAMIC_MARKUP)
 	add_subdirectory("Util/DynamicMarkup")
+endif()
+
+if(KLEMMUI_EXPERIMENTAL_FILE_EDIT)
+	target_compile_definitions(KlemmUI PUBLIC KUI_EXPERIMENTAL_FILE_EDIT=1)
 endif()
 
 if(KLEMMUI_INCLUDE_EXAMPLES AND ${CMAKE_CURRENT_SOURCE_DIR} STREQUAL ${CMAKE_SOURCE_DIR})

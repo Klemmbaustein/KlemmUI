@@ -374,13 +374,13 @@ void kui::UITextEditor::MoveCursor(int64_t Column, int64_t Line, bool DragSelect
 
 	if (IsPages)
 	{
-		Line *= EditorLineSize / 1.5f;
+		Line = int64_t(Line * EditorLineSize / 1.5f);
 		if (-Line > int64_t(SelectionEnd.Line))
 		{
-			Line = -SelectionEnd.Line;
+			Line = -int64_t(SelectionEnd.Line);
 			SelectionEnd.Column = 0;
 		}
-		if (SelectionEnd.Line + Line >= int64_t(LinesStart + Lines.size()))
+		if (int64_t(SelectionEnd.Line + Line) >= int64_t(LinesStart + Lines.size()))
 		{
 			Line = (LinesStart + Lines.size()) - SelectionEnd.Line - 1;
 			SelectionEnd.Column = SIZE_MAX;
@@ -673,7 +673,7 @@ void kui::UITextEditor::UpdateContent()
 	NewChunk->SetPadding(
 		CharPosition * CharSize.Y,
 		(LineCount > RemainingLines ? LineCount - RemainingLines : 0) * CharSize.Y,
-		UISize::Pixels(LeftMargin), 0);
+		UISize::Pixels(float(LeftMargin)), 0);
 	NewChunk->Update();
 	EditorScrollBox->AddChild(NewChunk);
 	RefreshText = false;
@@ -821,7 +821,7 @@ UIText* kui::UITextEditor::BuildChunk(size_t Position, size_t Length)
 void kui::UITextEditor::Update()
 {
 	CharSize = UIText::GetTextSizeAtScale(12_px, EditorFont);
-	EditorLineSize = size_t(this->GetUsedSize().GetScreen().Y / CharSize.Y) * 1.5f;
+	EditorLineSize = size_t(this->GetUsedSize().GetScreen().Y / CharSize.Y * 1.5f);
 
 	if (IsEditorUnloaded)
 	{
@@ -979,7 +979,7 @@ void kui::UITextEditor::Tick()
 	auto& Input = ParentWindow->Input;
 
 	if (Hovered && Hovered->IsChildOf(this) && !UIScrollBox::IsDraggingScrollBox
-		&& Input.MousePosition.X >= this->GetScreenPosition().X + UISize::Pixels(LeftMargin).GetScreen().X)
+		&& Input.MousePosition.X >= this->GetScreenPosition().X + UISize::Pixels(float(LeftMargin)).GetScreen().X)
 	{
 		ParentWindow->CurrentCursor = Window::Cursor::Text;
 	}
@@ -1488,7 +1488,7 @@ EditorPosition kui::UITextEditor::ScreenToEditor(Vec2f Position, bool SnapToEnd)
 	Position.X += CharSize.X / 2;
 
 	Vec2f Pos = Position - GetPosition() - EditorScrollBox->GetScrollObject()->GetOffset();
-	Pos.X -= UISize::Pixels(this->LeftMargin).GetScreen().X;
+	Pos.X -= UISize::Pixels(float(LeftMargin)).GetScreen().X;
 
 	Pos.Y = this->Size.Y - Pos.Y;
 	Pos = Pos / CharSize;
@@ -1513,7 +1513,7 @@ Vec2f kui::UITextEditor::EditorToScreen(EditorPosition Position)
 	Vec2f Pos = Vec2f(
 		float(Position.Column + EditorProvider->GetPreLineSize()),
 		-float(Position.Line)) * CharSize;
-	Pos.X += UISize::Pixels(this->LeftMargin).GetScreen().X;
+	Pos.X += UISize::Pixels(float(LeftMargin)).GetScreen().X;
 
 	return GetPosition() + Pos + Vec2f(0, Size.Y - CharSize.Y);
 }

@@ -22,7 +22,7 @@ void kui::HighlightedArea::GenerateSegments(UITextEditor* Editor)
 		if (IsFullLine)
 		{
 			Position = Vec2f(Editor->GetPosition().X, Position.Y);
-			Position.X += UISize::Pixels(Editor->LeftMargin).GetScreen().X;
+			Position.X += UISize::Pixels(float(Editor->LeftMargin)).GetScreen().X;
 		}
 
 		Segments.push_back(HighlightSegment{

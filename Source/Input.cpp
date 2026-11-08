@@ -167,7 +167,11 @@ kui::InputManager::InputManager(Window* Parent)
 	RegisterOnKeyDownCallback(Key::c, [](Window* Win) {
 		if (Win->Input.IsKeyDown(Key::CTRL) && Win->Input.PollForText)
 		{
-			systemWM::SetClipboardText(Win->Input.GetSelectedTextString());
+			auto str = Win->Input.GetSelectedTextString();
+			if (!str.empty())
+			{
+				systemWM::SetClipboardText(str);
+			}
 		}
 	});
 
@@ -175,8 +179,12 @@ kui::InputManager::InputManager(Window* Parent)
 		if (!Win->Input.Text.empty() && (Win->Input.IsKeyDown(Key::CTRL))
 			&& Win->Input.PollForText)
 		{
-			systemWM::SetClipboardText(Win->Input.GetSelectedTextString());
-			Win->Input.DeleteTextSelection();
+			auto str = Win->Input.GetSelectedTextString();
+			if (!str.empty())
+			{
+				systemWM::SetClipboardText(Win->Input.GetSelectedTextString());
+				Win->Input.DeleteTextSelection();
+			}
 		}
 	});
 

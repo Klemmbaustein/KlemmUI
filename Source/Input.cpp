@@ -3,6 +3,7 @@
 #include "SystemWM/SystemWM.h"
 #include <kui/UI/UIBox.h>
 #include <kui/UI/UIScrollBox.h>
+#include "Internal/MathHelpers.h"
 #include <map>
 #include <iostream>
 using namespace kui;
@@ -229,7 +230,10 @@ void kui::InputManager::UpdateCursorPosition()
 
 void InputManager::Poll()
 {
-	MoveMouseWheel(ScrollAmount);
+	if (ScrollAmount)
+	{
+		MoveMouseWheel(ScrollAmount);
+	}
 	ScrollAmount = 0;
 	IsLMBClicked = false;
 	IsRMBClicked = false;
@@ -260,15 +264,46 @@ void InputManager::Poll()
 
 void kui::InputManager::MoveMouseWheel(int Amount)
 {
-	while (Amount)
-	{
-		for (ScrollObject* s : ScrollObject::GetAllScrollObjects())
+	ScrollObject* TopScrollObject = nullptr;
+
+	std::function<bool(ScrollObject*, ScrollObject*)> IsChildOf;
+	IsChildOf = [&IsChildOf](ScrollObject* Obj, ScrollObject* Parent) {
+		if (Obj->Parent)
 		{
-			if (Amount < 0)
-				s->ScrollUp(!IsKeyDown(Key::SHIFT));
-			else
-				s->ScrollDown(!IsKeyDown(Key::SHIFT));
+			if (Parent == Obj->Parent)
+			{
+				return true;
+			}
+			return IsChildOf(Obj->Parent, Parent);
 		}
+		return false;
+	};
+
+	for (ScrollObject* s : ScrollObject::GetAllScrollObjects())
+	{
+		if (!s->Active || !internal::math::IsPointIn2DBox(s->Position + s->Scale, s->Position,
+			ParentWindow->Input.MousePosition))
+		{
+			continue;
+		}
+
+		if (!TopScrollObject)
+		{
+			TopScrollObject = s;
+		}
+		else if (IsChildOf(s, TopScrollObject))
+		{
+			TopScrollObject = s;
+		}
+	}
+
+	while (TopScrollObject && Amount)
+	{
+		if (Amount < 0)
+			TopScrollObject->ScrollUp(!IsKeyDown(Key::SHIFT));
+		else
+			TopScrollObject->ScrollDown(!IsKeyDown(Key::SHIFT));
+
 		if (Amount < 0)
 			Amount++;
 		else

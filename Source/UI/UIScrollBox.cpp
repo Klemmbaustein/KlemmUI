@@ -141,6 +141,8 @@ void UIScrollBox::Tick()
 		ScrollBarBackground->SetPosition(OffsetPosition
 			+ Vec2f(Size.X - ScrollBarBackground->GetUsedSize().GetScreen().X, 0));
 
+		ScrollBarBackground->SetCurrentScrollObject(CurrentScrollObject);
+
 		float ScrollPercentage = ScrollClass.Scrolled.Y / ScrollClass.MaxScroll.Y;
 
 		Vec2f Pixel = PixelSizeToScreenSize(1, ParentWindow);

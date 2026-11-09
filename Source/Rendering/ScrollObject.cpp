@@ -62,11 +62,8 @@ void ScrollObject::ScrollUp(int Axis)
 	{
 		return;
 	}
-	if (internal::math::IsPointIn2DBox(Position + Scale, Position, Window::GetActiveWindow()->Input.MousePosition))
-	{
-		Scrolled[Axis] += Speed / float(Window::GetActiveWindow()->GetSize()[Axis]) * 5.0f;
-	}
 
+	Scrolled[Axis] += Speed / float(Window::GetActiveWindow()->GetSize()[Axis]) * 5.0f;
 	Scrolled = Vec2f::Min(Scrolled, MaxScroll);
 
 	Window::GetActiveWindow()->UI.RedrawArea(render::RedrawBox{
@@ -81,10 +78,8 @@ void ScrollObject::ScrollDown(int Axis)
 	{
 		return;
 	}
-	if (internal::math::IsPointIn2DBox(Position + Scale, Position, Window::GetActiveWindow()->Input.MousePosition))
-	{
-		Scrolled[Axis] -= Speed / float(Window::GetActiveWindow()->GetSize()[Axis]) * 5.0f;
-	}
+
+	Scrolled[Axis] -= Speed / float(Window::GetActiveWindow()->GetSize()[Axis]) * 5.0f;
 	Scrolled = Vec2f::Max(Scrolled, 0.0f);
 
 	Window::GetActiveWindow()->UI.RedrawArea(render::RedrawBox{

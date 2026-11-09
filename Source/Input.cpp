@@ -266,6 +266,8 @@ void kui::InputManager::MoveMouseWheel(int Amount)
 {
 	ScrollObject* TopScrollObject = nullptr;
 
+	bool Horizontal = IsKeyDown(Key::SHIFT);
+
 	std::function<bool(ScrollObject*, ScrollObject*)> IsChildOf;
 	IsChildOf = [&IsChildOf](ScrollObject* Obj, ScrollObject* Parent) {
 		if (Obj->Parent)
@@ -281,8 +283,22 @@ void kui::InputManager::MoveMouseWheel(int Amount)
 
 	for (ScrollObject* s : ScrollObject::GetAllScrollObjects())
 	{
-		if (!s->Active || !internal::math::IsPointIn2DBox(s->Position + s->Scale, s->Position,
+		auto pos = s->GetPosition();
+		auto scl = s->GetScale() - pos;
+
+		if (!s->Active || !internal::math::IsPointIn2DBox(pos + scl, pos,
 			ParentWindow->Input.MousePosition))
+		{
+			continue;
+		}
+		if (Amount > 0)
+		{
+			if (Horizontal ? (s->Scrolled.X == 0) : (s->Scrolled.Y == 0))
+			{
+				continue;
+			}
+		}
+		else if (Horizontal ? s->Scrolled.X == s->MaxScroll.X : s->Scrolled.Y == s->MaxScroll.Y)
 		{
 			continue;
 		}
@@ -300,9 +316,13 @@ void kui::InputManager::MoveMouseWheel(int Amount)
 	while (TopScrollObject && Amount)
 	{
 		if (Amount < 0)
-			TopScrollObject->ScrollUp(!IsKeyDown(Key::SHIFT));
+			TopScrollObject->ScrollUp(!Horizontal);
 		else
-			TopScrollObject->ScrollDown(!IsKeyDown(Key::SHIFT));
+			TopScrollObject->ScrollDown(!Horizontal);
+
+		auto scl = TopScrollObject->GetScale();
+		auto pos = TopScrollObject->GetPosition();
+
 
 		if (Amount < 0)
 			Amount++;

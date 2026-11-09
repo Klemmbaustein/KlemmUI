@@ -152,7 +152,7 @@ void UIScrollBox::Tick()
 		{
 			ScrollBar->SetMinSize(SizeVec(Vec2f((ScrollBarWidth - 4)
 				* Pixel.X, Height - 4 * Pixel.Y), SizeMode::ScreenRelative));
-			ScrollBar->SetPadding(UISize::Aspect(0.0025f));
+			ScrollBar->SetPadding(1_px);
 			ScrollPercentage = 0;
 		}
 		else
@@ -261,6 +261,7 @@ void UIScrollBox::Update()
 	{
 		UpdateColors();
 	}
+	ScrollClass.Parent = CurrentScrollObject;
 	UpdateScrollObjectOfObject(this);
 }
 

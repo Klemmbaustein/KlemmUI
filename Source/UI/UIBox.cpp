@@ -53,6 +53,17 @@ UIBox::UIBox(bool Horizontal, Vec2f Position)
 
 UIBox::~UIBox()
 {
+	if (!OnDeletedListeners.empty())
+	{
+		std::map Listeners = OnDeletedListeners;
+
+		for (auto& i : this->OnDeletedListeners)
+		{
+			i.second();
+		}
+		OnDeletedListeners.clear();
+	}
+
 	InvalidateLayout();
 	DeleteChildren();
 	if (ParentWindow->UI.HoveredBox == this)

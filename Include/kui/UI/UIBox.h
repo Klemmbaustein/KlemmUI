@@ -5,6 +5,7 @@
 #include <cmath>
 #include <kui/UI/UIManager.h>
 #include <kui/UISize.h>
+#include <functional>
 
 namespace kui
 {
@@ -414,11 +415,20 @@ namespace kui
 		float GetVerticalOffset();
 		float GetHorizontalOffset();
 
+		void AddDeletedListener(const void* Listener, std::function<void()> Callback)
+		{
+			OnDeletedListeners[Listener] = Callback;
+		}
+		void RemoveDeletedListener(const void* Listener)
+		{
+			OnDeletedListeners.erase(Listener);
+		}
 	protected:
 		bool ChildrenHorizontal = true;
 		bool ShouldBeTicked = true;
 		bool Redrawn = false;
 	private:
+		std::map<const void*, std::function<void()>> OnDeletedListeners;
 		bool PrevIsVisible = true;
 	protected:
 		virtual void Update();
